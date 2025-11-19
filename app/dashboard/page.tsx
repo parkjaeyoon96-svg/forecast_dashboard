@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [src, setSrc] = useState('/Dashboard.html');
 
@@ -46,5 +46,25 @@ export default function DashboardPage() {
       }}
       title="월중 손익예측 대시보드"
     />
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        width: '100%',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        로딩 중...
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
