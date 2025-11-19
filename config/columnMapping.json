@@ -1,0 +1,39 @@
+{
+  "sap_ke30": {
+    "description": "SAP KE30 컬럼 매핑 설정",
+    "mappings": {
+      "자재코드": ["자재코드", "Material", "자재", "MAT_CODE", "MATERIAL_CODE", "품번"],
+      "자재명": ["자재명", "Material Name", "자재명칭", "MAT_NAME", "MATERIAL_NAME", "품명", "제품명", "상품명"],
+      "브랜드": ["브랜드", "Brand", "BRAND", "브랜드명", "BRAND_NAME"],
+      "수량": ["수량", "Quantity", "QTY", "판매수량", "SALES_QTY"],
+      "매출액": ["매출액", "Revenue", "Sales", "REVENUE", "SALES_AMOUNT", "순매출액", "실판매출"],
+      "매출원가": ["매출원가", "COGS", "Cost of Sales", "COST_OF_SALES", "원가"],
+      "판매관리비": ["판매관리비", "SG&A", "Selling Expense", "SELLING_EXPENSE", "판관비"],
+      "영업이익": ["영업이익", "Operating Profit", "EBIT", "OPERATING_INCOME", "OP"],
+      "직접이익": ["직접이익", "Direct Profit", "DIRECT_PROFIT", "Gross Profit", "GP"],
+      "고정비": ["고정비", "Fixed Cost", "FIXED_COST"],
+      "변동비": ["변동비", "Variable Cost", "VARIABLE_COST"],
+      "일자": ["일자", "Date", "DATE", "거래일자", "전표일자", "POSTING_DATE"],
+      "카테고리": ["카테고리", "Category", "CATEGORY", "제품군", "상품군"],
+      "채널": ["채널", "Channel", "CHANNEL", "판매채널", "유통채널"]
+    },
+    "required": ["자재코드", "자재명", "매출액"],
+    "optional": ["수량", "매출원가", "판매관리비", "영업이익", "일자", "브랜드"]
+  },
+  "snowflake": {
+    "description": "Snowflake 데이터 매핑",
+    "mappings": {
+      "일자": ["날짜", "Date", "DATE", "일자"],
+      "브랜드": ["브랜드", "Brand", "BRAND"],
+      "채널": ["채널", "Channel", "CHANNEL"],
+      "매출액": ["매출액", "Revenue", "REVENUE", "Sales"],
+      "방문자수": ["방문자수", "Visitors", "VISITORS"],
+      "전환율": ["전환율", "Conversion Rate", "CONVERSION_RATE"]
+    }
+  }
+}
+
+
+
+
+

@@ -1,285 +1,39 @@
-# 📊 프로젝트 예측 대시보드
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-매월 업로드되는 CSV 데이터를 기반으로 매주 자동 생성되는 판매 예측 대시보드입니다.
+## Getting Started
 
-## 🌟 주요 기능
+First, run the development server:
 
-- ✅ **매주 자동 페이지 생성**: GitHub Actions를 통해 매주 월요일 자동 업데이트
-- ✅ **월별 데이터 관리**: 매월 새로운 CSV 파일 업로드로 데이터 갱신
-- ✅ **주차별 URL 생성**: 각 주차마다 고유한 URL로 접근 가능
-- ✅ **자동 배포**: Vercel을 통한 즉시 배포
-- ✅ **아름다운 인덱스 페이지**: 모든 주차를 한눈에 볼 수 있는 메인 페이지
-
-## 📁 프로젝트 구조
-
-```
-Project_Forcast/
-├── index.html              # 메인 인덱스 페이지 (자동 생성)
-├── Dashboard.html          # 대시보드 템플릿
-├── pages/                  # 주차별 페이지들 (자동 생성)
-│   ├── 202411_week1.html
-│   ├── 202411_week2.html
-│   └── ...
-├── data/                   # 데이터 파일
-│   ├── weekly/            # 주차별 JSON 데이터
-│   │   ├── 202411_week1.json
-│   │   └── ...
-│   └── monthly/           # 월별 집계 데이터
-│       └── 202411.json
-├── raw/                   # 원본 CSV/Excel 파일
-│   └── PA1000_250824.xlsx
-├── scripts/               # 자동화 스크립트
-│   ├── generate_weekly_pages.py    # 주간 페이지 생성
-│   ├── data_processor.py           # 데이터 처리
-│   ├── weekly_update.py            # 주간 업데이트
-│   └── convert_to_js.py            # JSON → JS 변환
-├── .github/
-│   └── workflows/
-│       └── weekly-update.yml       # GitHub Actions 자동화
-├── vercel.json            # Vercel 배포 설정
-└── requirements.txt       # Python 의존성
-
-```
-
-## 🚀 배포 방법
-
-### 1️⃣ GitHub 저장소 생성 및 업로드
-
-#### Git 초기화 및 커밋
 ```bash
-# 프로젝트 폴더로 이동
-cd C:\Users\AD0283\Desktop\AIproject\Project_Forcast
-
-# Git 사용자 정보 설정 (처음 한 번만)
-git config --global user.name "본인이름"
-git config --global user.email "본인이메일@example.com"
-
-# Git 저장소 초기화
-git init
-
-# 모든 파일 추가
-git add .
-
-# 첫 커밋
-git commit -m "Initial commit: 프로젝트 예측 대시보드"
-
-# GitHub 저장소와 연결 (your-username을 본인 아이디로 변경)
-git remote add origin https://github.com/your-username/project-forecast.git
-
-# 메인 브랜치로 푸시
-git branch -M main
-git push -u origin main
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-### 2️⃣ Vercel 배포
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-#### 방법 A: Vercel 웹사이트에서 배포 (추천)
-1. [Vercel](https://vercel.com)에 접속
-2. **GitHub 계정으로 로그인**
-3. `Add New...` → `Project` 클릭
-4. GitHub 저장소 선택 (`project-forecast`)
-5. `Import` 클릭
-6. 프로젝트 설정:
-   - **Framework Preset**: `Other` 선택
-   - **Root Directory**: `.` (기본값)
-   - **Build Command**: 비워두기
-   - **Output Directory**: 비워두기
-7. `Deploy` 클릭!
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-#### 방법 B: Vercel CLI 사용
-```bash
-# Vercel CLI 설치
-npm install -g vercel
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-# 로그인
-vercel login
+## Learn More
 
-# 배포
-vercel --prod
-```
+To learn more about Next.js, take a look at the following resources:
 
-### 3️⃣ 배포 완료! 🎉
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-배포가 완료되면 다음과 같은 URL이 생성됩니다:
-```
-https://your-project-name.vercel.app
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-- **메인 페이지**: `https://your-project-name.vercel.app/`
-- **주차별 페이지**: `https://your-project-name.vercel.app/pages/202411_week2.html`
+## Deploy on Vercel
 
----
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## 📝 사용 방법
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-### 매주 새로운 페이지 생성
-
-#### 🤖 자동 생성 (GitHub Actions)
-- **매주 월요일 오전 9시**에 자동으로 실행됩니다
-- 수동 실행: GitHub → Actions → "Weekly Dashboard Update" → "Run workflow"
-
-#### 💻 수동 생성 (로컬)
-```bash
-# 현재 주차 페이지 생성
-cd scripts
-python generate_weekly_pages.py --current
-
-# 특정 주차 페이지 생성
-python generate_weekly_pages.py --year 2024 --month 11 --week 2
-
-# 특정 월 전체 주차 생성
-python generate_weekly_pages.py --year 2024 --month 11
-```
-
-### 매월 새로운 CSV 데이터 업로드
-
-1. **CSV/Excel 파일 준비**
-   - 파일을 `raw/` 폴더에 저장
-   - 예: `raw/PA1000_202411.xlsx`
-
-2. **데이터 처리 실행**
-```bash
-cd scripts
-python data_processor.py ../raw/PA1000_202411.xlsx -o ../data/monthly/202411.json
-```
-
-3. **주간 페이지 생성**
-```bash
-python generate_weekly_pages.py --year 2024 --month 11
-```
-
-4. **GitHub에 푸시**
-```bash
-git add .
-git commit -m "📊 2024년 11월 데이터 업데이트"
-git push
-```
-
-5. **자동 배포**
-   - Vercel이 자동으로 감지하고 배포합니다 (약 30초 소요)
-
----
-
-## 🔄 업데이트 워크플로우
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  1. 매월 초: CSV 파일 업로드                              │
-│     raw/PA1000_202411.xlsx                              │
-└────────────────┬────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────┐
-│  2. 데이터 처리 스크립트 실행                              │
-│     → data/monthly/202411.json 생성                     │
-└────────────────┬────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────┐
-│  3. 매주 월요일: 자동 페이지 생성                          │
-│     → pages/202411_week1.html                           │
-│     → pages/202411_week2.html                           │
-│     → index.html 업데이트                                │
-└────────────────┬────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────┐
-│  4. GitHub에 자동 커밋 & 푸시                             │
-└────────────────┬────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────┐
-│  5. Vercel 자동 배포                                      │
-│     → 웹사이트 업데이트 완료! 🎉                           │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🛠️ 기술 스택
-
-- **Frontend**: HTML, CSS, JavaScript
-- **Data Processing**: Python (pandas, numpy)
-- **Automation**: GitHub Actions
-- **Deployment**: Vercel
-- **Version Control**: Git, GitHub
-
----
-
-## 📋 요구사항
-
-### Python 패키지
-```bash
-pip install -r requirements.txt
-```
-
-주요 패키지:
-- pandas
-- numpy
-- openpyxl (Excel 파일 처리)
-
----
-
-## 🔧 커스터마이징
-
-### 템플릿 수정
-`Dashboard.html` 파일을 수정하면 모든 주차별 페이지에 반영됩니다.
-
-### 자동 실행 시간 변경
-`.github/workflows/weekly-update.yml` 파일에서 cron 설정 변경:
-```yaml
-on:
-  schedule:
-    - cron: '0 0 * * 1'  # 매주 월요일 UTC 0시 (KST 9시)
-```
-
-### 데이터 처리 로직 수정
-`scripts/data_processor.py` 파일에서 비즈니스 로직 커스터마이징
-
----
-
-## 🐛 문제 해결
-
-### 페이지가 생성되지 않을 때
-1. Python 스크립트 직접 실행해보기:
-```bash
-cd scripts
-python generate_weekly_pages.py --current
-```
-
-2. 에러 로그 확인
-3. `Dashboard.html` 템플릿 파일 존재 확인
-
-### Vercel 배포 실패 시
-1. `vercel.json` 설정 확인
-2. Vercel 대시보드에서 로그 확인
-3. GitHub 저장소가 Public인지 확인
-
-### GitHub Actions 실패 시
-1. GitHub → Actions 탭에서 로그 확인
-2. `requirements.txt` 의존성 확인
-3. 권한 설정 확인 (Settings → Actions → General)
-
----
-
-## 📞 지원
-
-문제가 발생하면 GitHub Issues에 등록해주세요.
-
----
-
-## 📄 라이선스
-
-MIT License
-
----
-
-## 👥 기여
-
-Pull Request는 언제나 환영합니다!
-
----
-
-**🎯 프로젝트 목표**: 데이터 기반 의사결정을 위한 실시간 대시보드 제공
 
 
