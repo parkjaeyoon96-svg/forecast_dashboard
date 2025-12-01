@@ -1784,127 +1784,74 @@
             return;
           }
           
-          // ★ 데이터가 없으면 동적 로드 (폴백)
-          console.log('[데이터로드] 데이터가 없음 - 동적 로드 시작');
+          // ★ JSON 파일에서만 데이터 로드
+          console.log('[데이터로드] JSON 파일에서 데이터 로드 시작');
           
-          const loadData = () => {
-            return new Promise((resolveData, rejectData) => {
-              const dataJs = document.createElement('script');
-              if (dateStr && dateStr.length === 8) {
-                dataJs.src = `/data_${dateStr}.js?t=${Date.now()}`;
-              } else {
-                dataJs.src = `/data.js?t=${Date.now()}`;
+          const loadData = async () => {
+            // ★ JSON 파일만 사용
+            try {
+              await loadAllDashboardData();
+              console.log('✅ JSON 파일에서 데이터 로드 완료');
+              
+              // 날짜 정보 업데이트
+              if (!window.lastUpdated && dateStr) {
+                const formattedDate = `${dateStr.slice(0, 4)}.${dateStr.slice(4, 6)}.${dateStr.slice(6, 8)}`;
+                window.lastUpdated = formattedDate;
               }
-              dataJs.onload = () => {
-                console.log(`✅ data${dateStr ? '_' + dateStr : ''}.js 스크립트 로드 완료`);
-                // 로드 직후 전역 변수 상태 확인
-                console.log('[데이터로드] 로드 직후 overviewPL:', !!window.overviewPL);
-                console.log('[데이터로드] 로드 직후 by_brand:', !!window.by_brand);
-                console.log('[데이터로드] 로드 직후 cumulativeTrendData:', !!window.cumulativeTrendData);
-                
-                // 날짜 정보 업데이트
-                if (!window.lastUpdated && dateStr) {
-                  const formattedDate = `${dateStr.slice(0, 4)}.${dateStr.slice(4, 6)}.${dateStr.slice(6, 8)}`;
-                  window.lastUpdated = formattedDate;
+              
+              // brandPLData JSON 로드
+              try {
+                const jsonFileName = dateStr ? `brand_pl_data_${dateStr}.json` : 'brand_pl_data.json';
+                const response = await fetch(`/${jsonFileName}?t=${Date.now()}`);
+                if (response.ok) {
+                  const jsonData = await response.json();
+                  brandPLData = jsonData;
+                  window.brandPLData = jsonData;
+                  console.log('[데이터로드] brandPLData JSON 로드 완료');
                 }
-                
-                // brandPLData 업데이트
-                if (window.brandPLData) {
-                  brandPLData = window.brandPLData;
-                  console.log('[데이터로드] brandPLData 업데이트:', Object.keys(brandPLData));
-                }
-                
-                // JSON 파일에서 brandPLData 로드 (우선 사용)
-                const loadBrandPLJson = async () => {
-                  try {
-                    const jsonFileName = dateStr ? `brand_pl_data_${dateStr}.json` : 'brand_pl_data.json';
-                    const response = await fetch(`/${jsonFileName}?t=${Date.now()}`);
-                    if (response.ok) {
-                      const jsonData = await response.json();
-                      brandPLData = jsonData;
-                      window.brandPLData = jsonData;
-                      console.log('[데이터로드] brandPLData JSON 파일 로드 완료:', Object.keys(brandPLData));
-                      // 전체현황 손익계산서 업데이트
-                      if (typeof updateOverviewPL === 'function') {
-                        updateOverviewPL();
-                      }
-                      // 브랜드별 손익계산서 업데이트
-                      if (typeof updateBrandPL === 'function') {
-                        updateBrandPL();
-                      }
-                    } else {
-                      console.log('[데이터로드] brandPLData JSON 파일 없음, data.js 데이터 사용');
-                      // JSON 파일이 없으면 data.js의 데이터로 손익계산서 업데이트
-                      if (typeof updateOverviewPL === 'function') {
-                        updateOverviewPL();
-                      }
-                    }
-                  } catch (error) {
-                    console.warn('[데이터로드] brandPLData JSON 파일 로드 실패:', error);
-                    // 에러 발생 시 data.js의 데이터로 손익계산서 업데이트
-                    if (typeof updateOverviewPL === 'function') {
-                      updateOverviewPL();
-                    }
+              } catch (e) {
+                console.warn('[데이터로드] brandPLData JSON 로드 실패:', e);
+              }
+              
+              // brandKPI 데이터로 brandData 업데이트
+              if (typeof window.brandKPI !== 'undefined' && typeof window.updateBrandDataFromKPI === 'function') {
+                window.updateBrandDataFromKPI();
+              }
+              
+              // 손익계산서 업데이트
+              if (typeof updateOverviewPL === 'function') {
+                updateOverviewPL();
+              }
+              if (typeof updateBrandPL === 'function') {
+                updateBrandPL();
+              }
+              
+              // 채널별 손익 데이터 로드 확인
+              const waitForChannelData = (retryCount = 0) => {
+                if (window.channelProfitLossData) {
+                  if (typeof updateBrandChannels === 'function') {
+                    updateBrandChannels();
                   }
-                };
-                
-                // JSON 파일 로드 (비동기)
-                loadBrandPLJson();
-                // data.js에 brandKPI가 포함되어 있으므로 업데이트
-                if (typeof window.brandKPI !== 'undefined' && typeof window.updateBrandDataFromKPI === 'function') {
-                  window.updateBrandDataFromKPI();
+                } else if (retryCount < 5) {
+                  setTimeout(() => waitForChannelData(retryCount + 1), 200);
+                } else if (typeof updateBrandChannels === 'function') {
+                  updateBrandChannels();
                 }
-                // 채널별 손익 데이터 로드 확인 (최대 5회 재시도)
-                const waitForChannelData = (retryCount = 0) => {
-                  console.log(`[데이터로드] channelProfitLossData 확인 (시도 ${retryCount + 1}):`, !!window.channelProfitLossData);
-                  
-                  if (window.channelProfitLossData) {
-                    console.log('[데이터로드] channelProfitLossData 로드 성공!');
-                    console.log('[데이터로드] channelRevenueData 브랜드:', Object.keys(window.channelProfitLossData.channelRevenueData || {}));
-                    console.log('[데이터로드] MLB 합계:', window.channelProfitLossData.brandRevenueTotals?.MLB);
-                    // 채널별 손익 테이블 업데이트
-                    if (typeof updateBrandChannels === 'function') {
-                      console.log('[데이터로드] updateBrandChannels 호출');
-                      window._channelRetryCount = 0; // 재시도 카운터 초기화
-                      updateBrandChannels();
-                    }
-                  } else if (retryCount < 5) {
-                    console.log('[데이터로드] channelProfitLossData 아직 로드 안됨, 200ms 후 재시도...');
-                    setTimeout(() => waitForChannelData(retryCount + 1), 200);
-                  } else {
-                    console.error('[데이터로드] channelProfitLossData 로드 실패! brandKPI로 폴백');
-                    if (typeof updateBrandChannels === 'function') {
-                      updateBrandChannels();
-                    }
-                  }
-                };
-                
-                // 100ms 후 데이터 확인 시작
-                setTimeout(waitForChannelData, 100);
-                resolveData();
               };
-              dataJs.onerror = (err) => {
-                console.error(`❌ data${dateStr ? '_' + dateStr : ''}.js 로드 실패!`, err);
-                console.error(`   시도한 URL: ${dataJs.src}`);
-                // 기본 파일 시도
-                const defaultDataJs = document.createElement('script');
-                defaultDataJs.src = `/data.js?t=${Date.now()}`;
-                defaultDataJs.onload = () => {
-                  console.log('✅ 기본 data.js 로드 완료');
-                  resolveData();
-                };
-                defaultDataJs.onerror = (e) => {
-                  console.error('❌ 기본 data.js도 로드 실패!', e);
-                  rejectData(new Error('데이터 파일 로드 실패'));
-                };
-                document.head.appendChild(defaultDataJs);
-              };
-              console.log(`[데이터로드] 스크립트 로드 시작: ${dataJs.src}`);
-              document.head.appendChild(dataJs);
-            });
+              setTimeout(waitForChannelData, 100);
+              
+              // dataLoaded 이벤트 발생
+              console.log('[Dashboard] 데이터 로드 완료, dataLoaded 이벤트 발생');
+              window.dispatchEvent(new CustomEvent('dataLoaded'));
+              
+            } catch (error) {
+              console.error('❌ JSON 파일 로드 실패:', error);
+              throw error;
+            }
+            
+            // data.js 로드 코드 제거됨 - 더 이상 사용하지 않음
+            return Promise.resolve();
           };
-          
-          // brand_kpi.js는 data.js에 통합되어 있으므로 제거
           
           const loadTreemapV2 = () => {
             return new Promise((resolveTreemapV2) => {
