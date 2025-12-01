@@ -48,15 +48,52 @@
       const baseUrl = `/data/${dateStr}`;
       
       console.log('[데이터로드] JSON 로드 시작:', dateStr);
+      console.log('[데이터로드] baseUrl:', baseUrl);
+      console.log('[데이터로드] overview_pl.json URL:', `${baseUrl}/overview_pl.json`);
       
       try {
         // Overview 개별 파일 우선 로드 시도
         const [overviewKPI, overviewByBrand, overviewPL, overviewWaterfall, overviewTrend] = await Promise.all([
-          fetch(`${baseUrl}/overview_kpi.json`).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${baseUrl}/overview_by_brand.json`).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${baseUrl}/overview_pl.json`).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${baseUrl}/overview_waterfall.json`).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${baseUrl}/overview_trend.json`).then(r => r.ok ? r.json() : null).catch(() => null)
+          fetch(`${baseUrl}/overview_kpi.json`).then(r => {
+            console.log(`[데이터로드] overview_kpi.json 응답:`, r.status, r.ok);
+            return r.ok ? r.json() : null;
+          }).catch(err => {
+            console.error(`[데이터로드] overview_kpi.json 로드 실패:`, err);
+            return null;
+          }),
+          fetch(`${baseUrl}/overview_by_brand.json`).then(r => {
+            console.log(`[데이터로드] overview_by_brand.json 응답:`, r.status, r.ok);
+            return r.ok ? r.json() : null;
+          }).catch(err => {
+            console.error(`[데이터로드] overview_by_brand.json 로드 실패:`, err);
+            return null;
+          }),
+          fetch(`${baseUrl}/overview_pl.json`).then(r => {
+            console.log(`[데이터로드] overview_pl.json 응답:`, r.status, r.ok, r.statusText);
+            if (!r.ok) {
+              console.error(`[데이터로드] overview_pl.json 로드 실패 - 상태:`, r.status, r.statusText);
+              console.error(`[데이터로드] 시도한 URL:`, `${baseUrl}/overview_pl.json`);
+            }
+            return r.ok ? r.json() : null;
+          }).catch(err => {
+            console.error(`[데이터로드] overview_pl.json 로드 실패:`, err);
+            console.error(`[데이터로드] 시도한 URL:`, `${baseUrl}/overview_pl.json`);
+            return null;
+          }),
+          fetch(`${baseUrl}/overview_waterfall.json`).then(r => {
+            console.log(`[데이터로드] overview_waterfall.json 응답:`, r.status, r.ok);
+            return r.ok ? r.json() : null;
+          }).catch(err => {
+            console.error(`[데이터로드] overview_waterfall.json 로드 실패:`, err);
+            return null;
+          }),
+          fetch(`${baseUrl}/overview_trend.json`).then(r => {
+            console.log(`[데이터로드] overview_trend.json 응답:`, r.status, r.ok);
+            return r.ok ? r.json() : null;
+          }).catch(err => {
+            console.error(`[데이터로드] overview_trend.json 로드 실패:`, err);
+            return null;
+          })
         ]);
         
         // 개별 파일이 있으면 개별 전역 변수에 할당, 없으면 통합 파일 로드
