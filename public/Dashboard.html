@@ -109,7 +109,15 @@
           }
           if (overviewPL) {
             window.overviewPL = overviewPL;
-            console.log('  ✓ overview_pl.json');
+            console.log('  ✓ overview_pl.json 로드 완료');
+            console.log('  ✓ overview_pl.json 데이터:', {
+              tagRevenue: overviewPL.tagRevenue,
+              revenue: overviewPL.revenue,
+              directProfit: overviewPL.directProfit,
+              opProfit: overviewPL.opProfit
+            });
+          } else {
+            console.warn('  ✗ overview_pl.json 로드 실패 또는 데이터 없음');
           }
           if (overviewWaterfall) {
             window.waterfallData = overviewWaterfall;
@@ -1856,8 +1864,19 @@
               }
               
               // 손익계산서 업데이트
+              console.log('[데이터로드] updateOverviewPL 호출 전, window.overviewPL 상태:', !!window.overviewPL);
+              if (window.overviewPL) {
+                console.log('[데이터로드] window.overviewPL 데이터 샘플:', {
+                  tagRevenue: window.overviewPL.tagRevenue,
+                  revenue: window.overviewPL.revenue,
+                  directProfit: window.overviewPL.directProfit
+                });
+              }
               if (typeof updateOverviewPL === 'function') {
+                console.log('[데이터로드] updateOverviewPL 함수 호출');
                 updateOverviewPL();
+              } else {
+                console.error('[데이터로드] updateOverviewPL 함수가 정의되지 않았습니다!');
               }
               if (typeof updateBrandPL === 'function') {
                 updateBrandPL();
