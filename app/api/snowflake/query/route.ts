@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     
     const scriptPath = path.join(process.cwd(), 'scripts', 'snowflake_query.py');
     
-    return new Promise((resolve, reject) => {
+    return new Promise<NextResponse>((resolve, reject) => {
       const python = spawn('python', [scriptPath, query]);
       
       let output = '';
