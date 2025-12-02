@@ -3230,30 +3230,78 @@
         let content = (currentInsightsData.overview?.content)||'';
         let keyPoints = (currentInsightsData.overview?.keyPoints)||'';
         
-        // overview 데이터가 없으면 브랜드별 데이터를 합쳐서 생성
+        // overview 데이터가 없으면 전체 현황 KPI 데이터를 기반으로 요약 생성
         if (!content && !keyPoints) {
-          const brands = ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'];
-          const brandContents = [];
-          const brandKeyPoints = [];
+          const overviewKPI = window.overviewKPI?.OVERVIEW || {};
+          const overviewPL = window.overviewPL || {};
           
-          brands.forEach(brand => {
-            const brandData = currentInsightsData[brand];
-            if (brandData) {
-              if (brandData.content) {
-                brandContents.push(`<strong>${brand}:</strong> ${brandData.content}`);
-              }
-              if (brandData.keyPoints) {
-                brandKeyPoints.push(`<strong>${brand}:</strong> ${brandData.keyPoints}`);
-              }
-            }
-          });
+          // 주요 지표 추출
+          const revenue = overviewKPI.revenueForecast || overviewKPI.revenue || 0;
+          const revenueInHundredMillion = Math.round(revenue / 100000000);
+          const directProfit = overviewKPI.directProfitForecast || overviewKPI.directProfit || 0;
+          const directProfitInHundredMillion = Math.round(directProfit / 100000000);
+          const directProfitRate = overviewKPI.directProfitRateForecast || overviewKPI.directProfitRate || 0;
+          const discountRate = overviewKPI.discountRateForecast || overviewKPI.discountRate || 0;
+          const progressRate = overviewKPI.progressRateForecast || overviewKPI.progressRate || 0;
+          const revenueVsPlan = overviewKPI.revenueVsPlan || 0;
+          const revenueVsPrevious = overviewKPI.revenueVsPrevious || 0;
+          const profitVsPlan = overviewKPI.profitVsPlan || 0;
+          const profitVsPrevious = overviewKPI.profitVsPrevious || 0;
+          const operatingProfit = overviewKPI.operatingProfitForecast || overviewKPI.operatingProfit || 0;
+          const operatingProfitInHundredMillion = Math.round(operatingProfit / 100000000);
+          const operatingProfitRate = overviewKPI.operatingProfitRateForecast || overviewKPI.operatingProfitRate || 0;
           
-          if (brandContents.length > 0) {
-            content = brandContents.join('<br><br>');
+          // 주요내용 생성
+          const revenueVsPlanText = revenueVsPlan >= 0 ? `${revenueVsPlan.toFixed(1)}%` : `${revenueVsPlan.toFixed(1)}%`;
+          const revenueVsPreviousText = revenueVsPrevious >= 0 ? `${revenueVsPrevious.toFixed(1)}%` : `${revenueVsPrevious.toFixed(1)}%`;
+          const profitVsPlanText = profitVsPlan >= 0 ? `${profitVsPlan.toFixed(1)}%` : `${profitVsPlan.toFixed(1)}%`;
+          const profitVsPreviousText = profitVsPrevious >= 0 ? `${profitVsPrevious.toFixed(1)}%` : `${profitVsPrevious.toFixed(1)}%`;
+          
+          content = `전체 실판매액은 ${revenueInHundredMillion}억원으로 목표 대비 ${revenueVsPlanText}, 전년 대비 ${revenueVsPreviousText}를 기록했습니다. ` +
+                   `직접이익은 ${directProfitInHundredMillion}억원(직접이익율 ${directProfitRate.toFixed(1)}%)으로 목표 대비 ${profitVsPlanText}, 전년 대비 ${profitVsPreviousText}를 달성했습니다. ` +
+                   `영업이익은 ${operatingProfitInHundredMillion}억원(영업이익율 ${operatingProfitRate.toFixed(1)}%)이며, 할인율은 ${discountRate.toFixed(1)}%입니다. ` +
+                   `현재 진척율은 ${progressRate.toFixed(1)}%로 월말 목표 달성을 위한 지속적인 모니터링이 필요합니다.`;
+          
+          // 핵심인사이트 생성
+          const insights = [];
+          
+          if (revenueVsPlan < -5) {
+            insights.push(`• 목표 대비 매출 부족(${Math.abs(revenueVsPlan).toFixed(1)}%)이 커 매출 회복 전략 수립이 시급합니다.`);
+          } else if (revenueVsPlan > 0) {
+            insights.push(`• 목표 대비 ${revenueVsPlan.toFixed(1)}% 초과 달성으로 양호한 성과를 보이고 있습니다.`);
           }
-          if (brandKeyPoints.length > 0) {
-            keyPoints = brandKeyPoints.join('<br><br>');
+          
+          if (revenueVsPrevious < -3) {
+            insights.push(`• 전년 대비 매출 하락(${Math.abs(revenueVsPrevious).toFixed(1)}%)으로 시장 대응 전략 재검토가 필요합니다.`);
+          } else if (revenueVsPrevious > 3) {
+            insights.push(`• 전년 대비 ${revenueVsPrevious.toFixed(1)}% 성장으로 성장세를 유지하고 있습니다.`);
           }
+          
+          if (profitVsPlan < -5) {
+            insights.push(`• 직접이익 목표 대비 ${Math.abs(profitVsPlan).toFixed(1)}% 부족으로 수익성 개선이 필요합니다.`);
+          }
+          
+          if (directProfitRate < 25) {
+            insights.push(`• 직접이익율 ${directProfitRate.toFixed(1)}%로 수익성 개선을 위한 비용 최적화가 필요합니다.`);
+          } else if (directProfitRate > 30) {
+            insights.push(`• 직접이익율 ${directProfitRate.toFixed(1)}%로 양호한 수익성을 유지하고 있습니다.`);
+          }
+          
+          if (discountRate > 30) {
+            insights.push(`• 할인율 ${discountRate.toFixed(1)}%로 프리미엄 포지셔닝 유지를 위한 할인율 관리가 필요합니다.`);
+          }
+          
+          if (progressRate < 80) {
+            insights.push(`• 진척율 ${progressRate.toFixed(1)}%로 목표 달성을 위한 추가 노력이 필요합니다.`);
+          } else if (progressRate > 95) {
+            insights.push(`• 진척율 ${progressRate.toFixed(1)}%로 목표 달성에 근접하고 있습니다.`);
+          }
+          
+          if (insights.length === 0) {
+            insights.push(`• 전반적인 성과가 안정적으로 유지되고 있으며, 지속적인 모니터링을 통해 목표 달성을 추진하겠습니다.`);
+          }
+          
+          keyPoints = insights.join('<br>');
         }
         
         overviewInsights.innerHTML = `
