@@ -18,9 +18,16 @@ import argparse
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
+from decimal import Decimal
 from dotenv import load_dotenv
 import snowflake.connector
 import pandas as pd
+
+# Windows 콘솔 인코딩 설정
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
@@ -44,10 +51,10 @@ def get_snowflake_connection():
             warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
             database=os.getenv('SNOWFLAKE_DATABASE')
         )
-        print("✅ Snowflake 연결 성공!")
+        print("[성공] Snowflake 연결 성공!")
         return conn
     except Exception as e:
-        print(f"❌ Snowflake 연결 실패: {e}")
+        print(f"[오류] Snowflake 연결 실패: {e}")
         raise
 
 
@@ -62,7 +69,7 @@ def execute_query(conn, query: str) -> pd.DataFrame:
         cursor.close()
         return df
     except Exception as e:
-        print(f"❌ 쿼리 실행 실패: {e}")
+        print(f"[오류] 쿼리 실행 실패: {e}")
         raise
 
 
@@ -615,8 +622,8 @@ def save_to_js(clothing_df: pd.DataFrame, acc_df: pd.DataFrame,
         f.write(js_content)
     
     file_size = output_path.stat().st_size / 1024
-    print(f"   ✅ JS 파일 저장 완료: {output_path}")
-    print(f"   📊 파일 크기: {file_size:.2f} KB")
+    print(f"   [완료] JS 파일 저장 완료: {output_path}")
+    print(f"   [파일크기] 파일 크기: {file_size:.2f} KB")
 
 
 def main():
@@ -635,7 +642,7 @@ def main():
         try:
             update_date = datetime.strptime(args.update_date, '%Y-%m-%d')
         except ValueError:
-            print(f"❌ 날짜 형식 오류: {args.update_date}")
+            print(f"[오류] 날짜 형식 오류: {args.update_date}")
             print("   올바른 형식: YYYY-MM-DD (예: 2025-11-24)")
             sys.exit(1)
     else:
@@ -645,9 +652,9 @@ def main():
     dates = calculate_dates(update_date)
     
     print("=" * 60)
-    print("📊 브랜드별 현황 - 당시즌의류/ACC 재고주수 분석")
+    print("[브랜드별 현황] 당시즌의류/ACC 재고주수 분석")
     print("=" * 60)
-    print(f"\n📅 날짜 설정:")
+    print(f"\n[날짜 설정]")
     print(f"   업데이트 일자: {dates['update_date'].strftime('%Y-%m-%d')}")
     print(f"   당년 주간: {dates['cy_week_start'].strftime('%Y-%m-%d')} ~ {dates['cy_week_end'].strftime('%Y-%m-%d')}")
     print(f"   전년 동주차: {dates['py_week_start'].strftime('%Y-%m-%d')} ~ {dates['py_week_end'].strftime('%Y-%m-%d')}")
@@ -681,32 +688,32 @@ def main():
         conn = get_snowflake_connection()
         
         # 1. 당시즌의류 분석
-        print(f"\n📥 당시즌의류 분석 쿼리 실행 중...")
+        print(f"\n[진행] 당시즌의류 분석 쿼리 실행 중...")
         clothing_query = build_clothing_query(dates)
         clothing_df = execute_query(conn, clothing_query)
         clothing_df.to_csv(clothing_file, index=False, encoding='utf-8-sig')
-        print(f"   ✅ 저장 완료: {clothing_file}")
-        print(f"   📊 데이터 건수: {len(clothing_df):,}건")
+        print(f"   [완료] 저장 완료: {clothing_file}")
+        print(f"   [데이터] 데이터 건수: {len(clothing_df):,}건")
         
         # 2. ACC 재고주수 분석
-        print(f"\n📥 ACC 재고주수 분석 쿼리 실행 중...")
+        print(f"\n[진행] ACC 재고주수 분석 쿼리 실행 중...")
         acc_query = build_acc_stock_query(dates)
         acc_df = execute_query(conn, acc_query)
         acc_df.to_csv(acc_file, index=False, encoding='utf-8-sig')
-        print(f"   ✅ 저장 완료: {acc_file}")
-        print(f"   📊 데이터 건수: {len(acc_df):,}건")
+        print(f"   [완료] 저장 완료: {acc_file}")
+        print(f"   [데이터] 데이터 건수: {len(acc_df):,}건")
         
         # 3. JS 파일 생성 (옵션)
         if not args.no_js:
-            print(f"\n📥 JS 파일 생성 중...")
+            print(f"\n[진행] JS 파일 생성 중...")
             js_output_path = project_root / 'public' / f'brand_stock_analysis_{date_suffix}.js'
             save_to_js(clothing_df, acc_df, dates, js_output_path)
         
         print("\n" + "=" * 60)
-        print("✅ 모든 작업이 완료되었습니다!")
+        print("[완료] 모든 작업이 완료되었습니다!")
         print("=" * 60)
         
-        print(f"\n📁 생성된 파일:")
+        print(f"\n[생성된 파일]")
         print(f"   - {clothing_file}")
         print(f"   - {acc_file}")
         if not args.no_js:
@@ -716,27 +723,201 @@ def main():
         json_dir = project_root / 'public' / 'data' / date_suffix
         json_dir.mkdir(parents=True, exist_ok=True)
         
-        # 의류 및 ACC 데이터를 JSON으로 변환
+        # dates 딕셔너리의 datetime 객체를 문자열로 변환
+        dates_for_json = {
+            'update_date': dates['update_date'].strftime('%Y-%m-%d') if isinstance(dates.get('update_date'), datetime) else dates.get('update_date'),
+            'cy_week_start': dates['cy_week_start'].strftime('%Y-%m-%d') if isinstance(dates.get('cy_week_start'), datetime) else dates.get('cy_week_start'),
+            'cy_week_end': dates['cy_week_end'].strftime('%Y-%m-%d') if isinstance(dates.get('cy_week_end'), datetime) else dates.get('cy_week_end'),
+            'py_week_start': dates['py_week_start'].strftime('%Y-%m-%d') if isinstance(dates.get('py_week_start'), datetime) else dates.get('py_week_start'),
+            'py_week_end': dates['py_week_end'].strftime('%Y-%m-%d') if isinstance(dates.get('py_week_end'), datetime) else dates.get('py_week_end'),
+            'cy_season': dates.get('cy_season'),
+            'py_season': dates.get('py_season'),
+            'py_season_end': dates['py_season_end'].strftime('%Y-%m-%d') if isinstance(dates.get('py_season_end'), datetime) else dates.get('py_season_end'),
+            'cy_4w_start': dates['cy_4w_start'].strftime('%Y-%m-%d') if isinstance(dates.get('cy_4w_start'), datetime) else dates.get('cy_4w_start'),
+            'py_4w_start': dates['py_4w_start'].strftime('%Y-%m-%d') if isinstance(dates.get('py_4w_start'), datetime) else dates.get('py_4w_start'),
+        }
+        
+        # DataFrame을 딕셔너리로 변환 (Decimal 타입 처리)
+        def convert_decimal_to_float(obj):
+            """Decimal 타입을 float로 변환하는 재귀 함수"""
+            if isinstance(obj, Decimal):
+                return float(obj)
+            elif isinstance(obj, dict):
+                return {k: convert_decimal_to_float(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_decimal_to_float(item) for item in obj]
+            elif isinstance(obj, (int, float, str, bool, type(None))):
+                return obj
+            else:
+                # 다른 타입도 시도
+                try:
+                    return float(obj)
+                except (ValueError, TypeError):
+                    return str(obj)
+        
+        # 의류 및 ACC 데이터를 브랜드별로 그룹화하여 JSON으로 변환 (generate_brand_stock_analysis.py와 동일한 구조)
+        clothing_by_brand = {}
+        if not clothing_df.empty:
+            print(f"\n[의류 데이터 변환] 총 {len(clothing_df)}건")
+            print(f"[의류 데이터 변환] 컬럼: {list(clothing_df.columns)}")
+            
+            # 브랜드 컬럼명 확인 (한글 또는 영문)
+            brand_col = None
+            for col in ['브랜드', 'brand', 'BRAND', '브랜드코드']:
+                if col in clothing_df.columns:
+                    brand_col = col
+                    print(f"[의류 데이터 변환] 브랜드 컬럼 발견: {brand_col}")
+                    break
+            
+            if brand_col:
+                unique_brands = clothing_df[brand_col].unique()
+                print(f"[의류 데이터 변환] 브랜드 목록: {list(unique_brands)}")
+                
+                for brand_code in unique_brands:
+                    brand_code_str = str(brand_code).strip()
+                    brand_df = clothing_df[clothing_df[brand_col] == brand_code]
+                    
+                    # generate_brand_stock_analysis.py와 동일한 필드명 구조로 변환
+                    brand_items = []
+                    for _, row in brand_df.iterrows():
+                        item_data = {
+                            "category": str(row.get('대분류', '')).strip() if pd.notna(row.get('대분류')) else "",
+                            "subCategory": str(row.get('중분류', '')).strip() if pd.notna(row.get('중분류')) else "",
+                            "itemCode": str(row.get('아이템코드', '')).strip() if pd.notna(row.get('아이템코드')) else "",
+                            "itemName": str(row.get('아이템명(한글)', '')).strip() if pd.notna(row.get('아이템명(한글)')) else "",
+                            "orderTag": convert_decimal_to_float(row.get('발주(TAG)', 0)) if pd.notna(row.get('발주(TAG)', 0)) else None,
+                            "orderYoY": convert_decimal_to_float(row.get('전년비(발주)', None)) if pd.notna(row.get('전년비(발주)', None)) else None,
+                            "weeklySalesTag": convert_decimal_to_float(row.get('주간판매매출(TAG)', 0)) if pd.notna(row.get('주간판매매출(TAG)', 0)) else None,
+                            "weeklyYoY": convert_decimal_to_float(row.get('전년비(주간)', None)) if pd.notna(row.get('전년비(주간)', None)) else None,
+                            "cumSalesTag": convert_decimal_to_float(row.get('누적판매매출(TAG)', 0)) if pd.notna(row.get('누적판매매출(TAG)', 0)) else None,
+                            "cumYoY": convert_decimal_to_float(row.get('전년비(누적)', None)) if pd.notna(row.get('전년비(누적)', None)) else None,
+                            "cumSalesRate": convert_decimal_to_float(row.get('누적판매율당년', None)) if pd.notna(row.get('누적판매율당년', None)) else None,
+                            "cumSalesRateDiff": convert_decimal_to_float(row.get('누적판매율차이', None)) if pd.notna(row.get('누적판매율차이', None)) else None,
+                            "pyClosingSalesRate": convert_decimal_to_float(row.get('전년마감판매율', None)) if pd.notna(row.get('전년마감판매율', None)) else None
+                        }
+                        brand_items.append(item_data)
+                    
+                    clothing_by_brand[brand_code_str] = brand_items
+                    print(f"[의류 데이터 변환] 브랜드 {brand_code_str}: {len(brand_items)}건")
+            else:
+                print(f"[의류 데이터 변환] ⚠️ 브랜드 컬럼을 찾을 수 없습니다!")
+                print(f"[의류 데이터 변환] 사용 가능한 컬럼: {list(clothing_df.columns)}")
+        
+        acc_by_brand = {}
+        if not acc_df.empty:
+            print(f"\n[ACC 데이터 변환] 총 {len(acc_df)}건")
+            print(f"[ACC 데이터 변환] 컬럼: {list(acc_df.columns)}")
+            
+            # 브랜드 컬럼명 확인
+            brand_col = None
+            for col in ['브랜드코드', 'brand', 'BRAND', '브랜드']:
+                if col in acc_df.columns:
+                    brand_col = col
+                    print(f"[ACC 데이터 변환] 브랜드 컬럼 발견: {brand_col}")
+                    break
+            
+            if brand_col:
+                unique_brands = acc_df[brand_col].unique()
+                print(f"[ACC 데이터 변환] 브랜드 목록: {list(unique_brands)}")
+                
+                for brand_code in unique_brands:
+                    brand_code_str = str(brand_code).strip()
+                    brand_df = acc_df[acc_df[brand_col] == brand_code]
+                    
+                    # generate_brand_stock_analysis.py와 동일한 필드명 구조로 변환
+                    brand_items = []
+                    for _, row in brand_df.iterrows():
+                        # 전년비와 비중은 퍼센트 문자열로 유지
+                        yoy_rate = row.get('전년비', None)
+                        if pd.notna(yoy_rate) and yoy_rate != '':
+                            yoy_rate_str = str(yoy_rate).strip()
+                            if not yoy_rate_str.endswith('%'):
+                                try:
+                                    yoy_rate_str = f"{int(float(yoy_rate_str))}%"
+                                except:
+                                    pass
+                        else:
+                            yoy_rate_str = None
+                        
+                        share_rate = row.get('비중', '0%')
+                        if pd.notna(share_rate) and share_rate != '':
+                            share_rate_str = str(share_rate).strip()
+                        else:
+                            share_rate_str = "0%"
+                        
+                        item_data = {
+                            "category": str(row.get('카테고리', '')).strip() if pd.notna(row.get('카테고리')) else "",
+                            "itemCode": str(row.get('아이템', '')).strip() if pd.notna(row.get('아이템')) else "",
+                            "itemName": str(row.get('아이템명', '')).strip() if pd.notna(row.get('아이템명')) else "",
+                            "saleQty": int(convert_decimal_to_float(row.get('판매수량', 0))) if pd.notna(row.get('판매수량', 0)) else None,
+                            "saleAmt": int(convert_decimal_to_float(row.get('판매매출', 0))) if pd.notna(row.get('판매매출', 0)) else None,
+                            "yoyRate": yoy_rate_str,
+                            "shareRate": share_rate_str,
+                            "avg4wSaleQty": convert_decimal_to_float(row.get('4주평균판매량', None)) if pd.notna(row.get('4주평균판매량', None)) else None,
+                            "stockQty": int(convert_decimal_to_float(row.get('재고', 0))) if pd.notna(row.get('재고', 0)) else None,
+                            "stockWeeks": convert_decimal_to_float(row.get('재고주수', None)) if pd.notna(row.get('재고주수', None)) else None,
+                            "pyStockWeeks": convert_decimal_to_float(row.get('전년재고주수', None)) if pd.notna(row.get('전년재고주수', None)) else None,
+                            "stockWeeksDiff": convert_decimal_to_float(row.get('재고주수차이(당년-전년)', None)) if pd.notna(row.get('재고주수차이(당년-전년)', None)) else None
+                        }
+                        brand_items.append(item_data)
+                    
+                    acc_by_brand[brand_code_str] = brand_items
+                    print(f"[ACC 데이터 변환] 브랜드 {brand_code_str}: {len(brand_items)}건")
+            else:
+                print(f"[ACC 데이터 변환] ⚠️ 브랜드 컬럼을 찾을 수 없습니다!")
+                print(f"[ACC 데이터 변환] 사용 가능한 컬럼: {list(acc_df.columns)}")
+        
+        # 브랜드별 요약 통계 계산 (당시즌의류)
+        clothing_summary = {}
+        for brand, items in clothing_by_brand.items():
+            clothing_summary[brand] = {
+                "itemCount": len(items),
+                "totalOrderTag": sum(item.get("orderTag", 0) or 0 for item in items),
+                "totalWeeklySales": sum(item.get("weeklySalesTag", 0) or 0 for item in items),
+                "totalCumSales": sum(item.get("cumSalesTag", 0) or 0 for item in items)
+            }
+        
+        # 브랜드별 요약 통계 계산 (ACC)
+        acc_summary = {}
+        for brand, items in acc_by_brand.items():
+            acc_summary[brand] = {
+                "itemCount": len(items),
+                "totalSaleQty": sum(item.get("saleQty", 0) or 0 for item in items),
+                "totalSaleAmt": sum(item.get("saleAmt", 0) or 0 for item in items),
+                "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
+            }
+        
         stock_data = {
-            'brandStockMetadata': dates,
-            'clothingBrandStatus': clothing_df.to_dict(orient='records') if not clothing_df.empty else [],
-            'accStockAnalysis': acc_df.to_dict(orient='records') if not acc_df.empty else []
+            'brandStockMetadata': dates_for_json,
+            'clothingBrandStatus': clothing_by_brand,
+            'accStockAnalysis': acc_by_brand,
+            'clothingSummary': clothing_summary,
+            'accSummary': acc_summary
         }
         
         json_path = json_dir / "stock_analysis.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
-        print(f"  ✅ JSON 저장: {json_path}")
+        
+        print(f"\n  [완료] JSON 저장: {json_path}")
+        print(f"  [데이터] 의류 브랜드 수: {len(clothing_by_brand)}")
+        print(f"  [데이터] ACC 브랜드 수: {len(acc_by_brand)}")
+        if clothing_by_brand:
+            total_clothing_items = sum(len(items) for items in clothing_by_brand.values())
+            print(f"  [데이터] 의류 총 아이템 수: {total_clothing_items}")
+        if acc_by_brand:
+            total_acc_items = sum(len(items) for items in acc_by_brand.values())
+            print(f"  [데이터] ACC 총 아이템 수: {total_acc_items}")
         
     except Exception as e:
-        print(f"\n❌ 오류 발생: {e}")
+        print(f"\n[오류] 오류 발생: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
     finally:
         if conn:
             conn.close()
-            print("\n🔌 Snowflake 연결 종료")
+            print("\n[연결종료] Snowflake 연결 종료")
 
 
 if __name__ == "__main__":

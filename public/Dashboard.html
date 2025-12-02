@@ -409,6 +409,8 @@
           window.clothingSummary = stockAnalysis.clothingSummary || {};
           window.accSummary = stockAnalysis.accSummary || {};
           console.log('  ✓ stock_analysis.json');
+          console.log('  ✓ clothingBrandStatus 브랜드:', Object.keys(window.clothingBrandStatus || {}));
+          console.log('  ✓ accStockAnalysis 브랜드:', Object.keys(window.accStockAnalysis || {}));
         }
         
         if (treemap) {
@@ -525,15 +527,8 @@
           console.warn('  ⚠ insights_data.json 로드 실패');
         }
         
-        window.__DATA_LOADED__ = true;
-        console.log('[데이터로드] ★ 모든 JSON 로드 완료 ★');
-        console.log('[데이터로드] overviewPL:', !!window.overviewPL);
-        console.log('[데이터로드] by_brand:', !!window.by_brand);
-        console.log('[데이터로드] brandKPI:', Object.keys(window.brandKPI || {}));
-        console.log('[데이터로드] brandPLData:', Object.keys(window.brandPLData || {}));
-        
-        // 데이터 로드 완료 이벤트 발생
-        window.dispatchEvent(new CustomEvent('jsonDataLoaded'));
+        // brand_stock_analysis는 이제 JSON 파일로 로드됨 (stock_analysis.json)
+        // JS 파일 로드 코드 제거 - JSON 방식으로 통일
         
       } catch (error) {
         console.error('[데이터로드] 오류:', error);
@@ -3140,7 +3135,7 @@
             const kpi = window.brandKPI[brandCode] || window.brandKPI[currentBrand];
             if (kpi) {
               // 영업이익 값
-              const opProfitForecast = (kpi.operatingProfitForecast || 0) / 100000000;
+              const opProfitForecastKPI1 = (kpi.operatingProfitForecast || 0) / 100000000;
               const opProfitCurrent = (kpi.operatingProfit || 0) / 100000000;
               const opProfitRateForecast = kpi.operatingProfitRateForecast || 0;
               const opProfitRateCurrent = kpi.operatingProfitRate || 0;
@@ -3187,23 +3182,76 @@
                 profitYoyEl.className = 'kpi-change editable ' + (profitVsPreviousRatio >= 100 ? 'kpi-positive' : profitVsPreviousRatio === 100 ? 'kpi-neutral' : 'kpi-negative');
               }
               
-              // 영업이익 목표대비/전년대비 - 차이(%)를 비율(%)로 변환: 비율 = 100 + 차이
-              const opProfitVsPlanDiff = kpi.profitVsPlan || 0;  // 직접이익 목표대비 사용
-              const opProfitVsPlanRatio = 100 + opProfitVsPlanDiff;  // 목표대비 비율
-              let opProfitVsPreviousRatio = 0;
-              if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
-                // 전년대비 비율 = (당년 / 전년) × 100
-                opProfitVsPreviousRatio = ((kpi.operatingProfitForecast || 0) / Math.abs(kpi.operatingProfitPrevious)) * 100;
-              }
+              // 영업이익 목표대비/전년대비 - 손익계산서와 동일한 조건부 표시 로직 적용
+              const formatOperatingProfitYoyKPI = (forecast, prev) => {
+                if (!prev || prev === 0) {
+                  return '-';
+                }
+                if (prev > 0 && forecast < 0) {
+                  return '적자전환';
+                }
+                if (prev < 0 && forecast > 0) {
+                  return '흑자전환';
+                }
+                if (prev < 0 && forecast < 0) {
+                  return forecast > prev ? '적자개선' : '적자악화';
+                }
+                return Math.round((forecast / prev) * 100) + '%';
+              };
+              
+              const formatOperatingProfitAchievementKPI = (forecast, target) => {
+                if (!target || target === 0) {
+                  return '-';
+                }
+                if (target > 0 && forecast < 0) {
+                  return '적자';
+                }
+                if (target < 0 && forecast > 0) {
+                  return '흑자';
+                }
+                if (target < 0 && forecast < 0) {
+                  return forecast > target ? '적자개선' : '적자악화';
+                }
+                return Math.round((forecast / target) * 100) + '%';
+              };
+              
+              // 영업이익 값 (원 단위 -> 억원 단위)
+              const opProfitForecastKPI2 = (kpi.operatingProfitForecast || 0) / 100000000;
+              const opProfitPreviousKPI2 = (kpi.operatingProfitPrevious || 0) / 100000000;
+              const opProfitPlanKPI2 = (kpi.operatingProfitPlan || 0) / 100000000;
+              
+              const opProfitVsPlanText = formatOperatingProfitAchievementKPI(opProfitForecastKPI2, opProfitPlanKPI2);
+              const opProfitVsPreviousText = formatOperatingProfitYoyKPI(opProfitForecastKPI2, opProfitPreviousKPI2);
+              
               const opprofitChangeEl = document.getElementById('brand-opprofit-change');
               const opprofitYoyEl = document.getElementById('brand-opprofit-yoy');
+              
               if (opprofitChangeEl) {
-                opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanRatio.toFixed(1)}%`;
-                opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanRatio >= 100 ? 'kpi-positive' : 'kpi-negative');
+                if (opProfitVsPlanText === '-' || opProfitVsPlanText === '적자' || opProfitVsPlanText === '흑자' || opProfitVsPlanText.includes('적자')) {
+                  opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanText}`;
+                  opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanText.includes('흑자') || opProfitVsPlanText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+                } else {
+                  const opProfitVsPlanDiff = kpi.profitVsPlan || 0;
+                  const opProfitVsPlanRatio = 100 + opProfitVsPlanDiff;
+                  opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanRatio.toFixed(1)}%`;
+                  opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanRatio >= 100 ? 'kpi-positive' : 'kpi-negative');
+                }
               }
-              if (opprofitYoyEl && opProfitVsPreviousRatio > 0) {
-                opprofitYoyEl.textContent = `전년대비 ${opProfitVsPreviousRatio.toFixed(1)}%`;
-                opprofitYoyEl.className = 'kpi-change editable ' + (opProfitVsPreviousRatio >= 100 ? 'kpi-positive' : opProfitVsPreviousRatio === 100 ? 'kpi-neutral' : 'kpi-negative');
+              
+              if (opprofitYoyEl) {
+                if (opProfitVsPreviousText === '-' || opProfitVsPreviousText === '적자전환' || opProfitVsPreviousText === '흑자전환' || opProfitVsPreviousText.includes('적자')) {
+                  opprofitYoyEl.textContent = `전년대비 ${opProfitVsPreviousText}`;
+                  opprofitYoyEl.className = 'kpi-change editable ' + (opProfitVsPreviousText.includes('흑자') || opProfitVsPreviousText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+                } else {
+                  let opProfitVsPreviousRatio = 0;
+                  if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
+                    opProfitVsPreviousRatio = ((kpi.operatingProfitForecast || 0) / Math.abs(kpi.operatingProfitPrevious)) * 100;
+                  }
+                  if (opProfitVsPreviousRatio > 0) {
+                    opprofitYoyEl.textContent = `전년대비 ${opProfitVsPreviousRatio.toFixed(1)}%`;
+                    opprofitYoyEl.className = 'kpi-change editable ' + (opProfitVsPreviousRatio >= 100 ? 'kpi-positive' : opProfitVsPreviousRatio === 100 ? 'kpi-neutral' : 'kpi-negative');
+                  }
+                }
               }
               
               console.log('[KPI 강제 업데이트] JSON에서 직접 설정 완료:', {
@@ -3846,36 +3894,110 @@
       }
       
       // ★★★ 영업이익 목표대비/전년대비 - brand_kpi.json에서 직접 계산 (window.brandData 무시) ★★★
+      // 손익계산서와 동일한 조건부 표시 로직 적용
+      const formatOperatingProfitYoy = (forecast, prev) => {
+        if (!prev || prev === 0) {
+          return '-';
+        }
+        if (prev > 0 && forecast < 0) {
+          return '적자전환';
+        }
+        if (prev < 0 && forecast > 0) {
+          return '흑자전환';
+        }
+        if (prev < 0 && forecast < 0) {
+          // 전년 음수 → 당년 음수: 적자개선 or 적자악화
+          return forecast > prev ? '적자개선' : '적자악화';
+        }
+        // 전년 양수 → 당년 양수: 일반 퍼센트 계산
+        return Math.round((forecast / prev) * 100) + '%';
+      };
+      
+      const formatOperatingProfitAchievement = (forecast, target) => {
+        if (!target || target === 0) {
+          return '-';
+        }
+        if (target > 0 && forecast < 0) {
+          return '적자';
+        }
+        if (target < 0 && forecast > 0) {
+          return '흑자';
+        }
+        if (target < 0 && forecast < 0) {
+          // 계획 음수 → 당년 음수: 적자개선 or 적자악화
+          return forecast > target ? '적자개선' : '적자악화';
+        }
+        // 계획 양수 → 당년 양수: 일반 퍼센트 계산
+        return Math.round((forecast / target) * 100) + '%';
+      };
+      
       let opProfitVsPlan = 0;
       let opProfitVsPrevious = 0;
+      let opProfitVsPlanText = '-';
+      let opProfitVsPreviousText = '-';
       
       // ★★★ 반드시 brandKPI에서 직접 계산 (하드코딩 없음, window.brandData 무시) ★★★
       if (window.brandKPI) {
         const brandCode = brandCodeMap[currentBrand] || 'M';
         const kpi = window.brandKPI[brandCode] || window.brandKPI[currentBrand];
         if (kpi) {
-          // 목표대비: 직접이익 목표대비 사용 (JSON에 operatingProfitVsPlan 없음)
-          // 차이(%)를 비율(%)로 변환: 비율 = 100 + 차이
-          const opProfitVsPlanDiff = kpi.profitVsPlan || 0;
-          opProfitVsPlan = 100 + opProfitVsPlanDiff; // 목표대비 = 당년/계획 (비율%)
-          // 전년대비: 당년/전년 (비율%)
-          if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
-            opProfitVsPrevious = ((kpi.operatingProfitForecast || 0) / Math.abs(kpi.operatingProfitPrevious)) * 100;
+          // 영업이익 값 (원 단위 -> 억원 단위)
+          const opProfitForecast = (kpi.operatingProfitForecast || 0) / 100000000;
+          const opProfitPrevious = (kpi.operatingProfitPrevious || 0) / 100000000;
+          const opProfitPlan = (kpi.operatingProfitPlan || 0) / 100000000;
+          
+          // 목표대비: 조건부 표시
+          opProfitVsPlanText = formatOperatingProfitAchievement(opProfitForecast, opProfitPlan);
+          
+          // 전년대비: 조건부 표시
+          opProfitVsPreviousText = formatOperatingProfitYoy(opProfitForecast, opProfitPrevious);
+          
+          // 숫자 값도 계산 (일반 퍼센트인 경우)
+          if (opProfitVsPlanText !== '-' && opProfitVsPlanText !== '적자' && opProfitVsPlanText !== '흑자' && !opProfitVsPlanText.includes('적자')) {
+            const opProfitVsPlanDiff = kpi.profitVsPlan || 0;
+            opProfitVsPlan = 100 + opProfitVsPlanDiff;
+          }
+          if (opProfitVsPreviousText !== '-' && opProfitVsPreviousText !== '적자전환' && opProfitVsPreviousText !== '흑자전환' && !opProfitVsPreviousText.includes('적자')) {
+            if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
+              opProfitVsPrevious = ((kpi.operatingProfitForecast || 0) / Math.abs(kpi.operatingProfitPrevious)) * 100;
+            }
           }
           
           console.log('[영업이익 대비값] JSON에서 직접 계산:', {
             currentBrand,
             brandCode,
-            opProfitVsPlan,
-            opProfitVsPrevious,
-            operatingProfitForecast: kpi.operatingProfitForecast,
-            operatingProfitPrevious: kpi.operatingProfitPrevious
+            opProfitForecast,
+            opProfitPrevious,
+            opProfitPlan,
+            opProfitVsPlanText,
+            opProfitVsPreviousText
           });
         }
       }
       
-      setDeltaDirect('brand-opprofit-change', opProfitVsPlan);
-      setYoYDirect('brand-opprofit-yoy', opProfitVsPrevious);
+      // 목표대비 표시
+      const opprofitChangeEl = document.getElementById('brand-opprofit-change');
+      if (opprofitChangeEl) {
+        if (opProfitVsPlanText === '-' || opProfitVsPlanText === '적자' || opProfitVsPlanText === '흑자' || opProfitVsPlanText.includes('적자')) {
+          opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanText}`;
+          opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanText.includes('흑자') || opProfitVsPlanText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+        } else {
+          opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlan.toFixed(1)}%`;
+          opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlan >= 100 ? 'kpi-positive' : 'kpi-negative');
+        }
+      }
+      
+      // 전년대비 표시
+      const opprofitYoyEl = document.getElementById('brand-opprofit-yoy');
+      if (opprofitYoyEl) {
+        if (opProfitVsPreviousText === '-' || opProfitVsPreviousText === '적자전환' || opProfitVsPreviousText === '흑자전환' || opProfitVsPreviousText.includes('적자')) {
+          opprofitYoyEl.textContent = `전년대비 ${opProfitVsPreviousText}`;
+          opprofitYoyEl.className = 'kpi-change editable ' + (opProfitVsPreviousText.includes('흑자') || opProfitVsPreviousText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+        } else {
+          opprofitYoyEl.textContent = `전년대비 ${opProfitVsPrevious.toFixed(1)}%`;
+          opprofitYoyEl.className = 'kpi-change editable ' + (opProfitVsPrevious >= 100 ? 'kpi-positive' : opProfitVsPrevious === 100 ? 'kpi-neutral' : 'kpi-negative');
+        }
+      }
       // 진척율바 (직접이익 진척율 사용)
       const opprofitProgressBar = document.getElementById('brand-opprofit-progress');
       if (opprofitProgressBar) {
@@ -3900,16 +4022,41 @@
             setTextDirect('brand-opprofit-margin-rate', `(${forcedOpProfitRateForecast.toFixed(1)}%)`);
             setTextDirect('brand-current-opprofit-margin-rate', `(${forcedOpProfitRateCurrent.toFixed(1)}%)`);
             
-            // 목표대비/전년대비도 다시 설정
-            // 차이(%)를 비율(%)로 변환: 비율 = 100 + 차이
-            const forcedVsPlanDiff = kpi.profitVsPlan || 0;
-            const forcedVsPlan = 100 + forcedVsPlanDiff; // 목표대비 = 당년/계획 (비율%)
-            let forcedVsPrevious = 0;
-            if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
-              forcedVsPrevious = ((kpi.operatingProfitForecast || 0) / Math.abs(kpi.operatingProfitPrevious)) * 100; // 전년대비 = 당년/전년 (비율%)
+            // 목표대비/전년대비도 다시 설정 (조건부 표시 로직 적용)
+            const forcedOpProfitForecast2 = (kpi.operatingProfitForecast || 0) / 100000000;
+            const forcedOpProfitPrevious2 = (kpi.operatingProfitPrevious || 0) / 100000000;
+            const forcedOpProfitPlan2 = (kpi.operatingProfitPlan || 0) / 100000000;
+            
+            const forcedVsPlanText = formatOperatingProfitAchievement(forcedOpProfitForecast2, forcedOpProfitPlan2);
+            const forcedVsPreviousText = formatOperatingProfitYoy(forcedOpProfitForecast2, forcedOpProfitPrevious2);
+            
+            const forcedOpprofitChangeEl = document.getElementById('brand-opprofit-change');
+            if (forcedOpprofitChangeEl) {
+              if (forcedVsPlanText === '-' || forcedVsPlanText === '적자' || forcedVsPlanText === '흑자' || forcedVsPlanText.includes('적자')) {
+                forcedOpprofitChangeEl.textContent = `목표대비 ${forcedVsPlanText}`;
+                forcedOpprofitChangeEl.className = 'kpi-change-line editable ' + (forcedVsPlanText.includes('흑자') || forcedVsPlanText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+              } else {
+                const forcedVsPlanDiff = kpi.profitVsPlan || 0;
+                const forcedVsPlan = 100 + forcedVsPlanDiff;
+                forcedOpprofitChangeEl.textContent = `목표대비 ${forcedVsPlan.toFixed(1)}%`;
+                forcedOpprofitChangeEl.className = 'kpi-change-line editable ' + (forcedVsPlan >= 100 ? 'kpi-positive' : 'kpi-negative');
+              }
             }
-            setDeltaDirect('brand-opprofit-change', forcedVsPlan);
-            setYoYDirect('brand-opprofit-yoy', forcedVsPrevious);
+            
+            const forcedOpprofitYoyEl = document.getElementById('brand-opprofit-yoy');
+            if (forcedOpprofitYoyEl) {
+              if (forcedVsPreviousText === '-' || forcedVsPreviousText === '적자전환' || forcedVsPreviousText === '흑자전환' || forcedVsPreviousText.includes('적자')) {
+                forcedOpprofitYoyEl.textContent = `전년대비 ${forcedVsPreviousText}`;
+                forcedOpprofitYoyEl.className = 'kpi-change editable ' + (forcedVsPreviousText.includes('흑자') || forcedVsPreviousText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+              } else {
+                let forcedVsPrevious = 0;
+                if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
+                  forcedVsPrevious = ((kpi.operatingProfitForecast || 0) / Math.abs(kpi.operatingProfitPrevious)) * 100;
+                }
+                forcedOpprofitYoyEl.textContent = `전년대비 ${forcedVsPrevious.toFixed(1)}%`;
+                forcedOpprofitYoyEl.className = 'kpi-change editable ' + (forcedVsPrevious >= 100 ? 'kpi-positive' : forcedVsPrevious === 100 ? 'kpi-neutral' : 'kpi-negative');
+              }
+            }
             
             console.log('[영업이익] localStorage 덮어쓰기 방지 - 강제 업데이트 완료:', {
               forcedOpProfitForecast,
@@ -11564,6 +11711,14 @@
         if (typeof convertAccDataToInventoryFormat === 'function') {
           convertAccDataToInventoryFormat();
         }
+        
+        // 판매율/재고주수 테이블 렌더링
+        setTimeout(() => {
+          if (typeof renderItemDiffTable === 'function') {
+            console.log('[Dashboard] 판매율/재고주수 테이블 렌더링');
+            renderItemDiffTable();
+          }
+        }, 200);
         
         // 버블 차트 재초기화
         setTimeout(() => {
