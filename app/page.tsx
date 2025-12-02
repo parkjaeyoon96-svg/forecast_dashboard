@@ -78,6 +78,41 @@ export default function Home() {
       return;
     }
     
+    // 선택한 날짜를 YYYY.MM.DD 형식으로 변환
+    const formatted = formatDateFromInput(inputValue);
+    
+    // 사용 가능한 날짜 목록에 있는지 확인
+    if (!availableDates.includes(formatted)) {
+      // 사용 가능한 날짜가 아니면 알림 표시
+      alert(`선택하신 날짜(${formatted})는 데이터가 없습니다.\n\n사용 가능한 날짜:\n${availableDates.join(', ')}`);
+      
+      // 가장 가까운 사용 가능한 날짜로 자동 선택
+      if (availableDates.length > 0) {
+        const selectedDateObj = new Date(inputValue);
+        let closestDate = availableDates[0];
+        let minDiff = Infinity;
+        
+        // 선택한 날짜와 가장 가까운 사용 가능한 날짜 찾기
+        for (const dateStr of availableDates) {
+          const dateParts = dateStr.split('.');
+          const dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+          const diff = Math.abs(selectedDateObj.getTime() - dateObj.getTime());
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestDate = dateStr;
+          }
+        }
+        
+        setSelectedDate(closestDate);
+        e.target.value = formatDateForInput(closestDate);
+        alert(`가장 가까운 사용 가능한 날짜(${closestDate})로 자동 선택되었습니다.`);
+      } else {
+        setSelectedDate('');
+        e.target.value = '';
+      }
+      return;
+    }
+    
     // 날짜를 Date 객체로 변환
     const selectedDateObj = new Date(inputValue);
     const dayOfWeek = selectedDateObj.getDay(); // 0=일요일, 1=월요일, ..., 6=토요일
@@ -90,17 +125,19 @@ export default function Home() {
       
       // 조정된 날짜를 포맷팅
       const adjustedFormatted = formatDateFromInput(selectedDateObj.toISOString().split('T')[0]);
-      setSelectedDate(adjustedFormatted);
       
-      // 사용자에게 알림
-      const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-      alert(`업데이트일자는 월요일만 선택 가능합니다.\n선택하신 날짜를 다음 월요일(${adjustedFormatted})로 조정했습니다.`);
-      
-      // input 값도 업데이트
-      e.target.value = selectedDateObj.toISOString().split('T')[0];
+      // 조정된 날짜가 사용 가능한 날짜 목록에 있는지 확인
+      if (availableDates.includes(adjustedFormatted)) {
+        setSelectedDate(adjustedFormatted);
+        e.target.value = selectedDateObj.toISOString().split('T')[0];
+        alert(`업데이트일자는 월요일만 선택 가능합니다.\n선택하신 날짜를 다음 월요일(${adjustedFormatted})로 조정했습니다.`);
+      } else {
+        // 조정된 날짜가 사용 가능하지 않으면 원래 날짜 유지 (월요일이 아니더라도)
+        setSelectedDate(formatted);
+        alert(`업데이트일자는 월요일만 선택 가능하지만, 조정된 날짜(${adjustedFormatted})에 데이터가 없습니다.\n현재 선택한 날짜(${formatted})를 유지합니다.`);
+      }
     } else {
       // 월요일이면 정상 처리
-      const formatted = formatDateFromInput(inputValue);
       setSelectedDate(formatted);
     }
   };
@@ -138,8 +175,10 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <input
                 type="date"
-                value={formatDateForInput(selectedDate) || '2025-11-17'}
+                value={formatDateForInput(selectedDate) || (availableDates.length > 0 ? formatDateForInput(availableDates[0]) : '')}
                 onChange={handleDateInputChange}
+                min={availableDates.length > 0 ? formatDateForInput(availableDates[availableDates.length - 1]) : undefined}
+                max={availableDates.length > 0 ? formatDateForInput(availableDates[0]) : undefined}
                 className="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium"
                 placeholder="날짜 선택"
               />
@@ -148,8 +187,13 @@ export default function Home() {
               </div>
             </div>
             <p className="mt-2 text-xs text-amber-600 font-medium">
-              ⚠️ 월요일만 선택 가능합니다. 다른 요일을 선택하면 자동으로 다음 월요일로 조정됩니다.
+              ⚠️ JSON 파일이 있는 날짜만 선택 가능합니다. 월요일만 선택 가능하며, 다른 요일을 선택하면 자동으로 다음 월요일로 조정됩니다.
             </p>
+            {availableDates.length > 0 && (
+              <p className="mt-1 text-xs text-slate-500">
+                사용 가능한 날짜: {availableDates.join(', ')}
+              </p>
+            )}
           </div>
           
           <button
