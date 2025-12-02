@@ -24,16 +24,16 @@
     "cog": {
       "prev": 73.3,
       "target": 73.23,
-      "forecast": 74.81,
-      "yoy": 102,
-      "achievement": 102
+      "forecast": 75.97,
+      "yoy": 104,
+      "achievement": 104
     },
     "grossProfit": {
       "prev": 154.98,
       "target": 155.79,
-      "forecast": 163.7,
-      "yoy": 106,
-      "achievement": 105
+      "forecast": 162.55,
+      "yoy": 105,
+      "achievement": 104
     },
     "directCost": {
       "prev": 57.03,
@@ -89,9 +89,9 @@
     "directProfit": {
       "prev": 97.95,
       "target": 96.34,
-      "forecast": 102.57,
-      "yoy": 105,
-      "achievement": 106
+      "forecast": 101.42,
+      "yoy": 104,
+      "achievement": 105
     },
     "operatingExpense": {
       "prev": 39.4,
@@ -103,9 +103,9 @@
     "opProfit": {
       "prev": 58.55,
       "target": 57.31,
-      "forecast": 63.54,
-      "yoy": 109,
-      "achievement": 111
+      "forecast": 62.39,
+      "yoy": 107,
+      "achievement": 109
     }
   },
   "MLB_KIDS": {
@@ -133,16 +133,16 @@
     "cog": {
       "prev": 29.12,
       "target": 39.85,
-      "forecast": 29.64,
-      "yoy": 102,
-      "achievement": 74
+      "forecast": 33.58,
+      "yoy": 115,
+      "achievement": 84
     },
     "grossProfit": {
       "prev": 30.01,
       "target": 36.82,
-      "forecast": 36.81,
-      "yoy": 123,
-      "achievement": 100
+      "forecast": 32.87,
+      "yoy": 110,
+      "achievement": 89
     },
     "directCost": {
       "prev": 15.28,
@@ -198,9 +198,9 @@
     "directProfit": {
       "prev": 14.73,
       "target": 18.0,
-      "forecast": 20.28,
-      "yoy": 138,
-      "achievement": 113
+      "forecast": 16.34,
+      "yoy": 111,
+      "achievement": 91
     },
     "operatingExpense": {
       "prev": 10.94,
@@ -212,9 +212,9 @@
     "opProfit": {
       "prev": 3.79,
       "target": 7.0,
-      "forecast": 9.27,
-      "yoy": 245,
-      "achievement": 132
+      "forecast": 5.33,
+      "yoy": 141,
+      "achievement": 76
     }
   },
   "DISCOVERY": {
@@ -242,16 +242,16 @@
     "cog": {
       "prev": 194.66,
       "target": 226.1,
-      "forecast": 197.73,
-      "yoy": 102,
-      "achievement": 87
+      "forecast": 202.46,
+      "yoy": 104,
+      "achievement": 90
     },
     "grossProfit": {
       "prev": 318.38,
       "target": 346.33,
-      "forecast": 285.76,
-      "yoy": 90,
-      "achievement": 83
+      "forecast": 281.03,
+      "yoy": 88,
+      "achievement": 81
     },
     "directCost": {
       "prev": 106.85,
@@ -307,9 +307,9 @@
     "directProfit": {
       "prev": 211.53,
       "target": 226.66,
-      "forecast": 184.13,
-      "yoy": 87,
-      "achievement": 81
+      "forecast": 179.4,
+      "yoy": 85,
+      "achievement": 79
     },
     "operatingExpense": {
       "prev": 65.02,
@@ -321,9 +321,9 @@
     "opProfit": {
       "prev": 146.51,
       "target": 149.64,
-      "forecast": 107.12,
-      "yoy": 73,
-      "achievement": 72
+      "forecast": 102.39,
+      "yoy": 70,
+      "achievement": 68
     }
   },
   "DUVETICA": {
@@ -351,16 +351,16 @@
     "cog": {
       "prev": 12.34,
       "target": 19.79,
-      "forecast": 14.6,
-      "yoy": 118,
-      "achievement": 74
+      "forecast": 16.36,
+      "yoy": 133,
+      "achievement": 83
     },
     "grossProfit": {
       "prev": 14.57,
       "target": 32.69,
-      "forecast": 35.16,
-      "yoy": 241,
-      "achievement": 108
+      "forecast": 33.4,
+      "yoy": 229,
+      "achievement": 102
     },
     "directCost": {
       "prev": 7.54,
@@ -416,9 +416,9 @@
     "directProfit": {
       "prev": 7.03,
       "target": 21.3,
-      "forecast": 23.89,
-      "yoy": 340,
-      "achievement": 112
+      "forecast": 22.13,
+      "yoy": 315,
+      "achievement": 104
     },
     "operatingExpense": {
       "prev": 12.7,
@@ -430,9 +430,9 @@
     "opProfit": {
       "prev": -5.67,
       "target": 10.03,
-      "forecast": 12.63,
+      "forecast": 10.87,
       "yoy": 0,
-      "achievement": 126
+      "achievement": 108
     }
   },
   "SERGIO": {

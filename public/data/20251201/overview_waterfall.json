@@ -6,12 +6,12 @@
   },
   {
     "label": "매출원가(-)",
-    "value": 322.04,
+    "value": 333.62,
     "type": "decrease"
   },
   {
     "label": "매출총이익",
-    "value": 525.59,
+    "value": 514.01,
     "type": "subtotal"
   },
   {
@@ -21,7 +21,7 @@
   },
   {
     "label": "직접이익",
-    "value": 330.6,
+    "value": 319.02,
     "type": "subtotal"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "label": "영업이익",
-    "value": 184.93,
+    "value": 173.35,
     "type": "result"
   }
 ]
