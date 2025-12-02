@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
@@ -9,6 +9,9 @@ export default function Home() {
   const [analysisMonth, setAnalysisMonth] = useState('2025-11');
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 사용 가능한 날짜 목록 로드
@@ -34,7 +37,103 @@ export default function Home() {
         }
       })
       .catch(err => console.error('날짜 목록 로드 실패:', err));
+    
+    // 달력에 가능한 날짜 표시를 위한 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+      /* 가능한 날짜에 동그라미 표시를 위한 스타일 */
+      input[type="date"] {
+        position: relative;
+      }
+      /* Chrome/Safari에서 가능한 날짜 표시 */
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 1;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
+
+  // 달력 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setShowCalendar(false);
+      }
+    };
+
+    if (showCalendar) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCalendar]);
+
+  // 달력 날짜 생성 함수
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay()); // 주의 시작일 (일요일)
+    
+    const days = [];
+    const currentDate = new Date(startDate);
+    
+    for (let i = 0; i < 42; i++) {
+      const dateStr = `${currentDate.getFullYear()}.${String(currentDate.getMonth() + 1).padStart(2, '0')}.${String(currentDate.getDate()).padStart(2, '0')}`;
+      const isAvailable = availableDates.includes(dateStr);
+      const isCurrentMonth = currentDate.getMonth() === month;
+      const isSelected = selectedDate === dateStr;
+      
+      days.push({
+        date: new Date(currentDate),
+        dateStr,
+        isAvailable,
+        isCurrentMonth,
+        isSelected
+      });
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return days;
+  };
+
+  const handleDateClick = (dateStr: string) => {
+    if (!availableDates.includes(dateStr)) {
+      return;
+    }
+    
+    setSelectedDate(dateStr);
+    setShowCalendar(false);
+    
+    // 날짜 선택 시 분석월 자동 계산
+    const dateParam = dateStr.replace(/\./g, '');
+    fetch(`/api/calculate-date-info?date=${dateParam}`)
+      .then(res => res.json())
+      .then(dateInfo => {
+        if (dateInfo.success && dateInfo.analysisMonth) {
+          setAnalysisMonth(dateInfo.analysisMonth);
+        }
+      })
+      .catch(err => console.error('분석월 계산 실패:', err));
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
@@ -221,15 +320,78 @@ export default function Home() {
               📆 업데이트 일자 <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-3">
-              <input
-                type="date"
-                value={formatDateForInput(selectedDate) || (availableDates.length > 0 ? formatDateForInput(availableDates[0]) : '')}
-                onChange={handleDateInputChange}
-                min={availableDates.length > 0 ? formatDateForInput(availableDates[availableDates.length - 1]) : undefined}
-                max={availableDates.length > 0 ? formatDateForInput(availableDates[0]) : undefined}
-                className="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium"
-                placeholder="날짜 선택"
-              />
+              <div className="flex-1 relative" ref={calendarRef}>
+                <input
+                  type="text"
+                  readOnly
+                  value={selectedDate || '날짜를 선택하세요'}
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium cursor-pointer bg-white"
+                  placeholder="날짜 선택"
+                />
+                {showCalendar && (
+                  <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border-2 border-slate-200 p-4 z-50 min-w-[320px]">
+                    {/* 달력 헤더 */}
+                    <div className="flex items-center justify-between mb-4">
+                      <button
+                        onClick={handlePrevMonth}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <span className="text-slate-600">‹</span>
+                      </button>
+                      <h3 className="text-lg font-semibold text-slate-800">
+                        {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
+                      </h3>
+                      <button
+                        onClick={handleNextMonth}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <span className="text-slate-600">›</span>
+                      </button>
+                    </div>
+                    
+                    {/* 요일 헤더 */}
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
+                        <div
+                          key={index}
+                          className="text-center text-xs font-semibold text-slate-600 py-2"
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* 날짜 그리드 */}
+                    <div className="grid grid-cols-7 gap-1">
+                      {generateCalendarDays().map((day, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleDateClick(day.dateStr)}
+                          disabled={!day.isAvailable}
+                          className={`
+                            relative p-2 rounded-lg text-sm transition-all
+                            ${!day.isCurrentMonth ? 'text-slate-300' : 'text-slate-800'}
+                            ${day.isAvailable 
+                              ? 'hover:bg-indigo-100 cursor-pointer' 
+                              : 'cursor-not-allowed opacity-50'
+                            }
+                            ${day.isSelected 
+                              ? 'bg-indigo-600 text-white font-semibold' 
+                              : ''
+                            }
+                          `}
+                        >
+                          {day.date.getDate()}
+                          {day.isAvailable && !day.isSelected && (
+                            <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="text-slate-600 text-sm">
                 📅
               </div>
@@ -260,15 +422,15 @@ export default function Home() {
               <span className="text-2xl">📅</span>
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-bold text-slate-800 mb-3">업데이트일자 안내</h3>
+              <h3 className="text-base font-bold text-slate-800 mb-3">📅 업데이트일자 안내</h3>
               <p className="text-sm text-slate-700 leading-relaxed mb-3">
-                업데이트일자는 <strong className="text-indigo-700">전 주 매출에 대한 분석</strong>을 제공합니다.
+                분석월의 1일 ~ 업데이트 일자 전 일까지의 분석내용을 제공합니다.
               </p>
               <p className="text-sm text-slate-600 mb-2">
-                <strong className="text-indigo-700">예시:</strong> 업데이트일자에 <strong className="text-indigo-700">2025.11.17</strong>을 입력하면
+                <strong className="text-indigo-700">예시:</strong> 업데이트일자에 <strong className="text-indigo-700">2025.11.24</strong>을 선택하면
               </p>
               <p className="text-sm text-slate-700 font-medium">
-                → <span className="text-indigo-700 font-bold">2025-11-10 (월) ~ 2025-11-16 (일)</span> 주차별 분석 자료가 표시됩니다.
+                → <span className="text-indigo-700 font-bold">2025-11-01 (월) ~ 2025-11-23 (일)</span> 의 누적 매출에 대한 분석 자료가 표시됩니다.
               </p>
             </div>
           </div>

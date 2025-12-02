@@ -608,7 +608,7 @@
     .brand-btn.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-color:transparent;box-shadow:0 4px 15px rgba(79,70,229,.3);}
     .content-body{flex:1;display:flex;gap:20px;min-height:0;}
     .charts-area{flex:1;display:flex;flex-direction:column;gap:15px;min-width:0;max-width:calc(100vw - 480px);}
-    .kpi-section{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;flex-shrink:0;min-height:180px;}
+    .kpi-section{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex-shrink:0;min-height:180px;}
     .kpi-card{background:linear-gradient(135deg,#fff,#f8fafc);border-radius:10px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid #e2e8f0;transition:transform .3s ease,box-shadow .3s ease;}
     .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.15);}
     .kpi-title{color:#64748b;font-size:15px;margin-bottom:6px;font-weight:600;}
@@ -623,7 +623,7 @@
     .kpi-positive{color:#059669;}
     .kpi-negative{color:#dc2626;}
     .treemap-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;min-height:600px;margin-bottom:15px;}
-    .charts-grid{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:350px 350px;gap:12px;min-height:580px;}
+    .charts-grid{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:350px 350px;gap:10px;min-height:580px;}
     .chart-container{background:#fff;border-radius:10px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid #e2e8f0;display:flex;flex-direction:column;}
     .chart-title{color:#1e293b;font-size:16px;font-weight:700;margin-bottom:10px;text-align:center;flex-shrink:0;}
     .chart-wrapper{flex:1;position:relative;min-height:180px;}
@@ -980,6 +980,14 @@
                 <div class="overview-kpi-card review" onclick="openBubbleModal('review')" style="padding:12px;border-radius:6px;border-left:3px solid #6b7280;background:#f3f4f6;text-align:center;cursor:pointer;transition:transform 0.2s;">
                   <div style="font-size:18px;font-weight:700;margin-bottom:3px;" id="overviewReviewCount">0</div>
                   <div style="font-size:10px;font-weight:600;color:#374151;line-height:1.3;">📋 저성장+저재고</div>
+                </div>
+              </div>
+              <!-- 분석 기간 정보 -->
+              <div id="overviewAnalysisDateInfo" style="margin-top:15px;padding:12px 14px;background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:4px;font-size:12px;color:#1e40af;line-height:1.8;">
+                <div style="font-weight:600;margin-bottom:4px;color:#1e293b;">📅 분석 기간</div>
+                <div style="color:#475569;">
+                  <div>당해 분석 기간 : <span id="overviewCyPeriod">-</span></div>
+                  <div>전년 분석 기간 : <span id="overviewPyPeriod">-</span></div>
                 </div>
               </div>
               <!-- 9분면 KPI -->
@@ -4076,6 +4084,45 @@
         const opProfitTarget_원 = plData.opProfit.target * 100000000;
         const opProfitForecast_원 = plData.opProfit.forecast * 100000000;
         
+        // 영업이익 조건부 표시 함수
+        const formatOperatingProfitYoy = (forecast, prev) => {
+          if (!prev || prev === 0) {
+            return '-';
+          }
+          if (prev > 0 && forecast < 0) {
+            return '적자전환';
+          }
+          if (prev < 0 && forecast > 0) {
+            return '흑자전환';
+          }
+          if (prev < 0 && forecast < 0) {
+            // 전년 음수 → 당년 음수: 적자개선 or 적자악화
+            // 당년이 전년보다 나아지면(적자가 줄어들면) 개선, 나빠지면(적자가 늘어나면) 악화
+            return forecast > prev ? '적자개선' : '적자악화';
+          }
+          // 전년 양수 → 당년 양수: 일반 퍼센트 계산
+          return Math.round((forecast / prev) * 100) + '%';
+        };
+        
+        const formatOperatingProfitAchievement = (forecast, target) => {
+          if (!target || target === 0) {
+            return '-';
+          }
+          if (target > 0 && forecast < 0) {
+            return '적자';
+          }
+          if (target < 0 && forecast > 0) {
+            return '흑자';
+          }
+          if (target < 0 && forecast < 0) {
+            // 계획 음수 → 당년 음수: 적자개선 or 적자악화
+            // 당년이 계획보다 나아지면(적자가 줄어들면) 개선, 나빠지면(적자가 늘어나면) 악화
+            return forecast > target ? '적자개선' : '적자악화';
+          }
+          // 계획 양수 → 당년 양수: 일반 퍼센트 계산
+          return Math.round((forecast / target) * 100) + '%';
+        };
+        
         // 계산 함수들
         const tagRevenueYoy = plData.tagRevenue?.yoy || calcPercent(tagRevenueForecast_원, tagRevenuePrev_원);
         const tagRevenueAchievement = plData.tagRevenue?.achievement || calcPercent(tagRevenueForecast_원, tagRevenueTarget_원, true);
@@ -4091,8 +4138,8 @@
         const directProfitAchievement = calcPercent(directProfitForecast_원, directProfitTarget_원, true);
         const operatingExpenseYoy = calcPercent(operatingExpenseForecast_원, operatingExpensePrev_원);
         const operatingExpenseAchievement = calcPercent(operatingExpenseForecast_원, operatingExpenseTarget_원, true);
-        const opProfitYoy = calcPercent(opProfitForecast_원, opProfitPrev_원);
-        const opProfitAchievement = calcPercent(opProfitForecast_원, opProfitTarget_원, true);
+        const opProfitYoy = formatOperatingProfitYoy(opProfitForecast_원, opProfitPrev_원);
+        const opProfitAchievement = formatOperatingProfitAchievement(opProfitForecast_원, opProfitTarget_원);
         
         // 진척율 계산 (직접이익 기준)
         const progressPrev = directProfitTarget_원 > 0 ? (directProfitPrev_원 / directProfitTarget_원) * 100 : 0;
@@ -4136,7 +4183,7 @@
           <tr><td class="item-name sub-item">- 기타</td><td class="editable" contenteditable="false">(${formatNumber(기타.prev)})</td><td class="editable" contenteditable="false">(${formatNumber(기타.target)})</td><td class="editable" contenteditable="false">(${formatNumber(기타.forecast)})</td><td class="editable" contenteditable="false">${기타.yoy === '#DIV/0!' ? 기타.yoy : 기타.yoy + '%'}</td><td class="editable" contenteditable="false">${기타.achievement === '#DIV/0!' ? 기타.achievement : 기타.achievement + '%'}</td></tr>
           <tr class="total-row"><td class="item-name">직접이익</td><td class="editable" contenteditable="false">${formatNumber(directProfitPrev_원)}</td><td class="editable" contenteditable="false">${formatNumber(directProfitTarget_원)}</td><td class="editable" contenteditable="false">${formatNumber(directProfitForecast_원)}</td><td class="editable" contenteditable="false">${directProfitYoy === '#DIV/0!' ? directProfitYoy : directProfitYoy + '%'}</td><td class="editable" contenteditable="false">${directProfitAchievement}%</td></tr>
           <tr><td class="item-name sub-item">(영업비)</td><td class="editable" contenteditable="false">(${formatNumber(operatingExpensePrev_원)})</td><td class="editable" contenteditable="false">(${formatNumber(operatingExpenseTarget_원)})</td><td class="editable" contenteditable="false">(${formatNumber(operatingExpenseForecast_원)})</td><td class="editable" contenteditable="false">${operatingExpenseYoy === '#DIV/0!' ? operatingExpenseYoy : operatingExpenseYoy + '%'}</td><td class="editable" contenteditable="false">${operatingExpenseAchievement === '#DIV/0!' ? operatingExpenseAchievement : operatingExpenseAchievement + '%'}</td></tr>
-          <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">${formatNumber(opProfitPrev_원)}</td><td class="editable" contenteditable="false">${formatNumber(opProfitTarget_원)}</td><td class="editable" contenteditable="false">${formatNumber(opProfitForecast_원)}</td><td class="editable" contenteditable="false">${opProfitYoy === '#DIV/0!' ? opProfitYoy : opProfitYoy + '%'}</td><td class="editable" contenteditable="false">${opProfitAchievement}%</td></tr>
+          <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">${formatNumber(opProfitPrev_원)}</td><td class="editable" contenteditable="false">${formatNumber(opProfitTarget_원)}</td><td class="editable" contenteditable="false">${formatNumber(opProfitForecast_원)}</td><td class="editable" contenteditable="false">${opProfitYoy}</td><td class="editable" contenteditable="false">${opProfitAchievement}</td></tr>
         `;
         
         // ★★★ 손익계산서는 localStorage에서 로드하지 않음 (JSON 데이터만 사용) ★★★
@@ -4266,12 +4313,49 @@
         const grossProfitAchievement = calcPercent(aggregated.grossProfit.forecast, aggregated.grossProfit.target, true);
         const directCostYoy = calcPercent(aggregated.directCost.forecast, aggregated.directCost.prev);
         const directCostAchievement = calcPercent(aggregated.directCost.forecast, aggregated.directCost.target, true);
+        // 영업이익 조건부 표시 함수
+        const formatOperatingProfitYoy = (forecast, prev) => {
+          if (!prev || prev === 0) {
+            return '-';
+          }
+          if (prev > 0 && forecast < 0) {
+            return '적자전환';
+          }
+          if (prev < 0 && forecast > 0) {
+            return '흑자전환';
+          }
+          if (prev < 0 && forecast < 0) {
+            // 전년 음수 → 당년 음수: 적자개선 or 적자악화
+            return forecast > prev ? '적자개선' : '적자악화';
+          }
+          // 전년 양수 → 당년 양수: 일반 퍼센트 계산
+          return Math.round((forecast / prev) * 100) + '%';
+        };
+        
+        const formatOperatingProfitAchievement = (forecast, target) => {
+          if (!target || target === 0) {
+            return '-';
+          }
+          if (target > 0 && forecast < 0) {
+            return '적자';
+          }
+          if (target < 0 && forecast > 0) {
+            return '흑자';
+          }
+          if (target < 0 && forecast < 0) {
+            // 계획 음수 → 당년 음수: 적자개선 or 적자악화
+            return forecast > target ? '적자개선' : '적자악화';
+          }
+          // 계획 양수 → 당년 양수: 일반 퍼센트 계산
+          return Math.round((forecast / target) * 100) + '%';
+        };
+        
         const directProfitYoy = calcPercent(aggregated.directProfit.forecast, aggregated.directProfit.prev);
         const directProfitAchievement = calcPercent(aggregated.directProfit.forecast, aggregated.directProfit.target, true);
         const operatingExpenseYoy = calcPercent(aggregated.operatingExpense.forecast, aggregated.operatingExpense.prev);
         const operatingExpenseAchievement = calcPercent(aggregated.operatingExpense.forecast, aggregated.operatingExpense.target, true);
-        const opProfitYoy = calcPercent(aggregated.opProfit.forecast, aggregated.opProfit.prev);
-        const opProfitAchievement = calcPercent(aggregated.opProfit.forecast, aggregated.opProfit.target, true);
+        const opProfitYoy = formatOperatingProfitYoy(aggregated.opProfit.forecast, aggregated.opProfit.prev);
+        const opProfitAchievement = formatOperatingProfitAchievement(aggregated.opProfit.forecast, aggregated.opProfit.target);
 
         // 직접비 세부 항목 YOY 및 Achievement
         const 인건비Yoy = calcPercent(aggregated.directCostDetail.인건비.forecast, aggregated.directCostDetail.인건비.prev);
@@ -4321,7 +4405,7 @@
           <tr><td class="item-name sub-item">- 기타</td><td class="editable" contenteditable="false">(${formatNumber(aggregated.directCostDetail.기타.prev)})</td><td class="editable" contenteditable="false">(${formatNumber(aggregated.directCostDetail.기타.target)})</td><td class="editable" contenteditable="false">(${formatNumber(aggregated.directCostDetail.기타.forecast)})</td><td class="editable" contenteditable="false">${기타Yoy === '#DIV/0!' ? 기타Yoy : 기타Yoy + '%'}</td><td class="editable" contenteditable="false">${기타Achievement === '#DIV/0!' ? 기타Achievement : 기타Achievement + '%'}</td></tr>
           <tr class="total-row"><td class="item-name">직접이익</td><td class="editable" contenteditable="false">${formatNumber(aggregated.directProfit.prev)}</td><td class="editable" contenteditable="false">${formatNumber(aggregated.directProfit.target)}</td><td class="editable" contenteditable="false">${formatNumber(aggregated.directProfit.forecast)}</td><td class="editable" contenteditable="false">${directProfitYoy === '#DIV/0!' ? directProfitYoy : directProfitYoy + '%'}</td><td class="editable" contenteditable="false">${directProfitAchievement}%</td></tr>
           <tr><td class="item-name sub-item">(영업비)</td><td class="editable" contenteditable="false">(${formatNumber(aggregated.operatingExpense.prev)})</td><td class="editable" contenteditable="false">(${formatNumber(aggregated.operatingExpense.target)})</td><td class="editable" contenteditable="false">(${formatNumber(aggregated.operatingExpense.forecast)})</td><td class="editable" contenteditable="false">${operatingExpenseYoy === '#DIV/0!' ? operatingExpenseYoy : operatingExpenseYoy + '%'}</td><td class="editable" contenteditable="false">${operatingExpenseAchievement === '#DIV/0!' ? operatingExpenseAchievement : operatingExpenseAchievement + '%'}</td></tr>
-          <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">${formatNumber(aggregated.opProfit.prev)}</td><td class="editable" contenteditable="false">${formatNumber(aggregated.opProfit.target)}</td><td class="editable" contenteditable="false">${formatNumber(aggregated.opProfit.forecast)}</td><td class="editable" contenteditable="false">${opProfitYoy === '#DIV/0!' ? opProfitYoy : opProfitYoy + '%'}</td><td class="editable" contenteditable="false">${opProfitAchievement}%</td></tr>
+          <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">${formatNumber(aggregated.opProfit.prev)}</td><td class="editable" contenteditable="false">${formatNumber(aggregated.opProfit.target)}</td><td class="editable" contenteditable="false">${formatNumber(aggregated.opProfit.forecast)}</td><td class="editable" contenteditable="false">${opProfitYoy}</td><td class="editable" contenteditable="false">${opProfitAchievement}</td></tr>
         `;
 
         // 테이블 생성 후 편집 내용 적용

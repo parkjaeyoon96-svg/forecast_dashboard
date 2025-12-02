@@ -86,17 +86,17 @@
     "achievement": 92
   },
   "operatingExpense": {
-    "prev": 128.06,
+    "prev": 135.72,
     "target": 145.67,
     "forecast": 145.67,
-    "yoy": 114,
+    "yoy": 107,
     "achievement": 100
   },
   "opProfit": {
-    "prev": 202.24,
+    "prev": 194.58,
     "target": 215.0,
     "forecast": 184.93,
-    "yoy": 91,
+    "yoy": 95,
     "achievement": 86
   }
 }

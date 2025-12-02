@@ -691,7 +691,7 @@ def create_brand_pl_data(date_str: str) -> Dict:
                     op_expense_col = col
             
             if brand_col:
-                brand_df = df_previous[df_previous[brand_col].astype(str).str.strip() == brand_code]
+                brand_df = df_previous[df_previous[brand_col].astype(str).str.strip() == brand_code].copy()
                 
                 if not brand_df.empty:
                     # 공통 채널 분리 (영업비만 공통 채널에서 추출, 매출원가는 공통 포함하여 전체 합산)
@@ -816,8 +816,36 @@ def create_brand_pl_data(date_str: str) -> Dict:
                     
                     # 전년 영업비 (공통 채널)
                     prev_op_expense = 0.0
+                    
+                    # 영업비 컬럼 재확인 (brand_df에서 다시 검색)
+                    if not op_expense_col:
+                        for col in brand_df.columns:
+                            col_str = str(col).strip()
+                            if '영업비' in col_str:
+                                op_expense_col = col
+                                print(f"    [영업비-prev] 컬럼 재검색 성공: {op_expense_col}")
+                                break
+                    
+                    # 공통 채널 데이터 재확인
+                    if 채널_col and op_expense_col:
+                        op_expense_df = brand_df[brand_df[채널_col].astype(str).str.strip() == '공통']
+                    
                     if op_expense_col and not op_expense_df.empty:
                         prev_op_expense = op_expense_df[op_expense_col].sum()
+                        print(f"    [영업비-prev] 컬럼: {op_expense_col}")
+                        print(f"    [영업비-prev] 공통 채널 데이터 행 수: {len(op_expense_df)}")
+                        print(f"    [영업비-prev] 합계: {prev_op_expense:,.0f}원 ({prev_op_expense/100000000:.2f}억원)")
+                    else:
+                        if not op_expense_col:
+                            print(f"    [WARNING] 전년 영업비 컬럼을 찾을 수 없습니다.")
+                            print(f"    [DEBUG] 사용 가능한 컬럼: {list(brand_df.columns)}")
+                        if op_expense_df.empty:
+                            print(f"    [WARNING] 전년 영업비 공통 채널 데이터가 없습니다.")
+                            # 공통 채널이 없으면 전체 브랜드 데이터에서 영업비 합산 시도
+                            if op_expense_col and not brand_df.empty:
+                                prev_op_expense = brand_df[op_expense_col].sum()
+                                if prev_op_expense > 0:
+                                    print(f"    [영업비-prev] 공통 채널 없음, 전체 브랜드 데이터에서 합산: {prev_op_expense:,.0f}원 ({prev_op_expense/100000000:.2f}억원)")
                     
                     # 전년 영업비 저장 (억원 단위)
                     pl_data['operatingExpense']['prev'] = round(prev_op_expense / 100000000, 2)

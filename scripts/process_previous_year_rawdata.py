@@ -1062,9 +1062,43 @@ def aggregate_by_brand_channel_with_direct_costs(df: pd.DataFrame, operating_exp
                     suffixes=('', '_merge')
                 )
                 
+                # 공통 채널이 없는 브랜드에 대해 공통 채널 행 추가
+                for brand_code in operating_expenses_df['브랜드코드'].unique():
+                    brand_op_expense = operating_expenses_df[operating_expenses_df['브랜드코드'] == brand_code]['영업비'].iloc[0] if len(operating_expenses_df[operating_expenses_df['브랜드코드'] == brand_code]) > 0 else 0
+                    
+                    if brand_op_expense > 0:
+                        # 해당 브랜드의 공통 채널이 있는지 확인
+                        brand_rows = df_aggregated[df_aggregated['브랜드코드'] == brand_code]
+                        has_common = len(brand_rows[brand_rows['채널명'].astype(str).str.strip() == '공통']) > 0
+                        
+                        if not has_common:
+                            # 공통 채널 행 생성
+                            if len(brand_rows) > 0:
+                                common_row = brand_rows.iloc[0].copy()
+                                # 모든 수치 컬럼을 0으로 설정
+                                for col in df_aggregated.columns:
+                                    if col not in ['브랜드코드', '채널명']:
+                                        try:
+                                            # 숫자형 컬럼인지 확인하고 0으로 설정
+                                            pd.to_numeric(common_row[col], errors='raise')
+                                            common_row[col] = 0
+                                        except:
+                                            pass  # 숫자가 아니면 그대로 유지
+                                
+                                # 채널명을 '공통'으로 설정
+                                common_row['채널명'] = '공통'
+                                
+                                # 영업비만 설정
+                                common_row['영업비'] = brand_op_expense
+                                common_row['영업비_merge'] = brand_op_expense
+                                
+                                # 공통 채널 행을 df_aggregated에 추가
+                                df_aggregated = pd.concat([df_aggregated, pd.DataFrame([common_row])], ignore_index=True)
+                                print(f"    [영업비] {brand_code} 브랜드: 공통 채널 없음, 영업비 {brand_op_expense:,.0f}원으로 공통 채널 행 추가")
+                
                 # 채널명이 '공통'인 경우만 영업비_merge 값을 사용, 나머지는 0
                 df_aggregated['영업비'] = df_aggregated.apply(
-                    lambda row: row['영업비_merge'] if pd.notna(row['영업비_merge']) and str(row.get('채널명', '')).strip() == '공통' else 0,
+                    lambda row: row['영업비_merge'] if pd.notna(row.get('영업비_merge', 0)) and str(row.get('채널명', '')).strip() == '공통' else 0,
                     axis=1
                 )
                 

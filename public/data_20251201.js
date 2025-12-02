@@ -5,7 +5,7 @@
   if (typeof window !== 'undefined') {}
 
   
-  // Overview 데이터 (자동 생성: 2025-12-02 10:36:32)
+  // Overview 데이터 (자동 생성: 2025-12-02 13:59:26)
   // window.D 초기화 확인
   if (typeof window.D === 'undefined') {
     window.D = {};
@@ -148,17 +148,17 @@
     "achievement": 92
   },
   "operatingExpense": {
-    "prev": 128.06,
+    "prev": 135.72,
     "target": 145.67,
     "forecast": 145.67,
-    "yoy": 114,
+    "yoy": 107,
     "achievement": 100
   },
   "opProfit": {
-    "prev": 202.24,
+    "prev": 194.58,
     "target": 215.0,
     "forecast": 184.93,
-    "yoy": 91,
+    "yoy": 95,
     "achievement": 86
   }
 };
@@ -250,17 +250,17 @@
     "achievement": 92
   },
   "operatingExpense": {
-    "prev": 128.06,
+    "prev": 135.72,
     "target": 145.67,
     "forecast": 145.67,
-    "yoy": 114,
+    "yoy": 107,
     "achievement": 100
   },
   "opProfit": {
-    "prev": 202.24,
+    "prev": 194.58,
     "target": 215.0,
     "forecast": 184.93,
-    "yoy": 91,
+    "yoy": 95,
     "achievement": 86
   }
 };
@@ -351,7 +351,7 @@
     "operatingProfitRateForecast": 17.21,
     "revenuePrevious": 118074005629.0,
     "directProfitPrevious": 33030145110.0,
-    "operatingProfitPrevious": 20223812853.0,
+    "operatingProfitPrevious": 19458096111.0,
     "revenuePlan": 129986524000.0,
     "directProfitPlan": 36066665000.0,
     "directProfitRatePlan": 30.52,
