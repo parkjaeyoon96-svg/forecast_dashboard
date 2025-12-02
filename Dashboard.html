@@ -19,10 +19,15 @@
     .header-content{display:flex;justify-content:space-between;align-items:center;}
     .header-content h1{color:#1e293b;font-size:24px;font-weight:700;}
     .header-content p{color:#64748b;font-size:14px;}
-    .edit-btn,.reset-btn,.save-btn,.export-btn,.ai-btn{padding:8px 16px;border:2px solid #4f46e5;background:#fff;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;transition:all .3s ease;color:#4f46e5;}
-    .edit-btn:hover,.reset-btn:hover,.save-btn:hover,.export-btn:hover{background:#4f46e5;color:#fff;}
+    .edit-btn,.reset-btn,.save-btn,.ai-btn{padding:8px 16px;border:2px solid #4f46e5;background:#fff;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;transition:all .3s ease;color:#4f46e5;}
+    .edit-btn:hover,.reset-btn:hover,.save-btn:hover{background:#4f46e5;color:#fff;}
     .ai-btn{border-color:#9333ea;color:#9333ea;}
     .ai-btn:hover{background:#9333ea;color:#fff;}
+    .date-input-group{display:flex;gap:12px;align-items:center;margin-top:8px;}
+    .date-input-label{font-size:13px;color:#64748b;font-weight:500;white-space:nowrap;}
+    .date-input{padding:6px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;color:#1e293b;background:#fff;min-width:120px;transition:all .2s ease;}
+    .date-input:focus{outline:none;border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,0.1);}
+    .date-input:hover{border-color:#cbd5e1;}
     .ai-note{position:absolute;right:8px;top:8px;max-width:42%;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400e;box-shadow:0 4px 12px rgba(0,0,0,.08);} 
     .chart-container{position:relative;}
     /* AI 요약 모달 */
@@ -41,8 +46,6 @@
     .reset-btn:hover{background:#dc2626;color:#fff;}
     .save-btn{border-color:#059669;color:#059669;}
     .save-btn:hover{background:#059669;color:#fff;}
-    .export-btn{border-color:#0ea5e9;color:#0ea5e9;}
-    .export-btn:hover{background:#0ea5e9;color:#fff;}
     .editable{position:relative;transition:all .2s ease;}
     .editable[contenteditable="true"]{background:#fef3c7;border-radius:4px;padding:2px 4px;outline:2px dashed #f59e0b;cursor:text;}
     .editable[contenteditable="true"]:focus{outline:2px solid #f59e0b;background:#fef9e7;}
@@ -69,15 +72,24 @@
     .brand-btn.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-color:transparent;box-shadow:0 4px 15px rgba(79,70,229,.3);}
     .content-body{flex:1;display:flex;gap:20px;min-height:0;}
     .charts-area{flex:1;display:flex;flex-direction:column;gap:15px;min-width:0;max-width:calc(100vw - 480px);}
-    .kpi-section{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:15px;flex-shrink:0;min-height:180px;}
+    .kpi-section{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;flex-shrink:0;min-height:180px;}
+    .kpi-value-with-rate{display:flex;align-items:baseline;gap:4px;}
+    .kpi-rate{color:#64748b;font-size:13px;font-weight:500;}
     .kpi-card{background:linear-gradient(135deg,#fff,#f8fafc);border-radius:10px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid #e2e8f0;transition:transform .3s ease,box-shadow .3s ease;}
     .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.15);}
     .kpi-title{color:#64748b;font-size:15px;margin-bottom:6px;font-weight:600;}
     .kpi-value{color:#1e293b;font-size:20px;font-weight:700;margin-bottom:4px;}
+    .kpi-value-line{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;}
+    .kpi-value-line + .kpi-value-line{margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;}
+    .kpi-value-with-rate{display:flex;align-items:baseline;gap:4px;}
+    .kpi-rate{color:#64748b;font-size:13px;font-weight:500;}
+    .kpi-card #brand-current-discount-rate,.kpi-card #brand-discount-rate,.kpi-card #brand-current-profit-margin-rate,.kpi-card #brand-profit-margin-rate,.kpi-card #brand-current-opprofit-margin-rate,.kpi-card #brand-opprofit-margin-rate{color:#3b82f6 !important;font-weight:600 !important;}
+    .kpi-label{color:#94a3b8;font-size:12px;font-weight:500;}
     .kpi-change{font-size:11px;font-weight:500;}
     .kpi-change-line{font-size:11px;font-weight:500;margin-bottom:2px;}
     .kpi-positive{color:#059669;}
     .kpi-negative{color:#dc2626;}
+    .treemap-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;min-height:600px;margin-bottom:15px;}
     .charts-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;min-height:580px;}
     .chart-container{background:#fff;border-radius:10px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid #e2e8f0;display:flex;flex-direction:column;}
     .chart-title{color:#1e293b;font-size:16px;font-weight:700;margin-bottom:10px;text-align:center;flex-shrink:0;}
@@ -196,13 +208,15 @@
     <div class="header-content">
       <div>
       <h1>📊 월중 손익예측 대시보드</h1>
-      <p id="last-updated">업데이트: 2025년 8월 17일 09:00</p>
+      <div id="last-updated">
+        <p style="margin:4px 0;font-size:14px;">업데이트 일자: <span id="update-date">-</span></p>
+        <div id="date-info" style="font-size:12px;color:#64748b;margin-top:2px;"></div>
+      </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
           <button id="ai-btn" class="ai-btn">🤖 AI분석</button>
         <button id="edit-mode-btn" class="edit-btn">✏️ 편집 모드</button>
         <button id="save-btn" class="save-btn" style="display:none;">💾 저장</button>
-        <button id="export-btn" class="export-btn">⬇️ 내보내기</button>
       </div>
     </div>
   </div>
@@ -228,60 +242,68 @@
         <div class="content-body">
           <div class="charts-area">
             <div class="kpi-section">
-              <!-- 현시점 KPI -->
+              <!-- 실판매출 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">실판매출 (현시점)</div>
-                <div class="kpi-value editable" contenteditable="false">881.6억원</div>
+                <div class="kpi-title">실판매출</div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">881.6억원</span>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">881.6억원</span>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
                 <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -5%</div>
                 <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -4%</div>
                 <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
               </div>
+              
+              <!-- 직접이익 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">직접이익 (현시점)</div>
-                <div class="kpi-value editable" contenteditable="false">191.4억원</div>
+                <div class="kpi-title">직접이익</div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">191.4억원</span>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">191.4억원</span>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
                 <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -8%</div>
                 <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -5%</div>
                 <div class="progress-bar"><div class="progress-fill" style="width:92%"></div></div>
               </div>
-              <div class="kpi-card">
-                <div class="kpi-title">직접이익율 (현시점)</div>
-                <div class="kpi-value editable" contenteditable="false">21.7%</div>
-                <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -0.7%p</div>
-                <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -0.2%p</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">진척율 (현시점)</div>
-                <div class="kpi-value editable" contenteditable="false">95%</div>
-                <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -5%</div>
-                <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -4%</div>
-              </div>
               
-              <!-- 월말 예상 KPI -->
+              <!-- 영업이익 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">실판매출 (월말 예상)</div>
-                <div class="kpi-value editable" contenteditable="false">881.6억원</div>
-                <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -5%</div>
-                <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -4%</div>
-                <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">영업이익 (월말 예상)</div>
-                <div class="kpi-value editable" contenteditable="false">63.4억원</div>
+                <div class="kpi-title">영업이익</div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">63.4억원</span>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">63.4억원</span>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
                 <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -21%</div>
                 <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -27%</div>
                 <div class="progress-bar"><div class="progress-fill" style="width:79%"></div></div>
               </div>
+              
+              <!-- 직접이익 진척율 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">영업이익율 (월말 예상)</div>
-                <div class="kpi-value editable" contenteditable="false">7.2%</div>
-                <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -1.4%p</div>
-                <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -2.3%p</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">목표달성율 (월말 예상)</div>
-                <div class="kpi-value editable" contenteditable="false">95%</div>
+                <div class="kpi-title">직접이익 진척율</div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">95%</span>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <span class="kpi-value editable" contenteditable="false">95%</span>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
                 <div class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -5%</div>
                 <div class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -4%</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
               </div>
             </div>
 
@@ -311,6 +333,18 @@
               <div class="chart-container">
                 <div class="chart-title">월중 누적 매출 추이</div>
                 <div class="chart-wrapper"><canvas id="cumulativeTrendChart"></canvas></div>
+              </div>
+              <!-- 전체현황 트리맵: 채널별 매출구성 -->
+              <div class="chart-container" id="overviewTreemapContainerChannel" style="height:100%;">
+                <div class="chart-title" id="overviewTreemapTitleChannel">채널별 매출구성(현시점)</div>
+                <button id="overviewTreemapDrillbackChannel" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
+                <div class="chart-wrapper" id="overviewTreemapWrapperChannel" style="flex:1;min-height:300px;height:100%;"></div>
+              </div>
+              <!-- 전체현황 트리맵: 아이템별 매출구성 -->
+              <div class="chart-container" id="overviewTreemapContainerItem" style="height:100%;">
+                <div class="chart-title" id="overviewTreemapTitleItem">아이템별 매출구성(현시점)</div>
+                <button id="overviewTreemapDrillbackItem" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
+                <div class="chart-wrapper" id="overviewTreemapWrapperItem" style="flex:1;min-height:300px;height:100%;"></div>
               </div>
             </div>
 
@@ -445,60 +479,86 @@
         <div class="content-body">
           <div class="charts-area">
             <div class="kpi-section">
-              <!-- 현시점 KPI -->
+              <!-- 실판매출(할인율) 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">실판매출 (현시점)</div>
-                <div id="brand-current-revenue" class="kpi-value editable" contenteditable="false">349.3억원</div>
-                <div id="brand-current-revenue-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +5%</div>
-                <div id="brand-current-revenue-yoy" class="kpi-change kpi-positive editable" contenteditable="false">전년 대비 +5%</div>
-                <div class="progress-bar"><div class="progress-fill" style="width:105%"></div></div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">직접이익 (현시점)</div>
-                <div id="brand-current-profit" class="kpi-value editable" contenteditable="false">94.2억원</div>
-                <div id="brand-current-profit-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +1%</div>
-                <div id="brand-current-profit-yoy" class="kpi-change kpi-neutral editable" contenteditable="false">전년 대비 0%</div>
-                <div class="progress-bar"><div class="progress-fill" style="width:101%"></div></div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">직접이익율 (현시점)</div>
-                <div id="brand-current-margin" class="kpi-value editable" contenteditable="false">27.0%</div>
-                <div id="brand-current-margin-change" class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -1.1%p</div>
-                <div id="brand-current-margin-yoy" class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -1.2%p</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">진척율 (현시점)</div>
-                <div id="brand-current-progress" class="kpi-value editable" contenteditable="false">105%</div>
-                <div id="brand-current-progress-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +5%</div>
-                <div id="brand-current-progress-yoy" class="kpi-change kpi-positive editable" contenteditable="false">전년 대비 +5%</div>
-              </div>
-              
-              <!-- 월말 예상 KPI -->
-              <div class="kpi-card">
-                <div class="kpi-title">실판매출 (월말 예상)</div>
-                <div id="brand-revenue" class="kpi-value editable" contenteditable="false">349.3억원</div>
+                <div class="kpi-title">실판매출(할인율)</div>
+                <div class="kpi-value-line">
+                  <div class="kpi-value-with-rate">
+                    <span id="brand-current-revenue" class="kpi-value editable" contenteditable="false">349.3억원</span>
+                    <span id="brand-current-discount-rate" class="kpi-rate" style="color:#3b82f6 !important;font-weight:600 !important;">(0.0%)</span>
+                  </div>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <div class="kpi-value-with-rate">
+                    <span id="brand-revenue" class="kpi-value editable" contenteditable="false">349.3억원</span>
+                    <span id="brand-discount-rate" class="kpi-rate" style="color:#3b82f6 !important;font-weight:600 !important;">(0.0%)</span>
+                  </div>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
                 <div id="brand-revenue-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +5%</div>
                 <div id="brand-revenue-yoy" class="kpi-change kpi-positive editable" contenteditable="false">전년 대비 +5%</div>
-                <div class="progress-bar"><div class="progress-fill" style="width:105%"></div></div>
+                <div class="progress-bar"><div id="brand-revenue-progress" class="progress-fill" style="width:105%"></div></div>
               </div>
+              
+              <!-- 직접이익(이익율) 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">영업이익 (월말 예상)</div>
-                <div id="brand-opprofit" class="kpi-value editable" contenteditable="false">51.1억원</div>
+                <div class="kpi-title">직접이익(이익율)</div>
+                <div class="kpi-value-line">
+                  <div class="kpi-value-with-rate">
+                    <span id="brand-current-profit" class="kpi-value editable" contenteditable="false">94.2억원</span>
+                    <span id="brand-current-profit-margin-rate" class="kpi-rate" style="color:#3b82f6 !important;font-weight:600 !important;">(0.0%)</span>
+                  </div>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <div class="kpi-value-with-rate">
+                    <span id="brand-profit" class="kpi-value editable" contenteditable="false">94.2억원</span>
+                    <span id="brand-profit-margin-rate" class="kpi-rate" style="color:#3b82f6 !important;font-weight:600 !important;">(0.0%)</span>
+                  </div>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
+                <div id="brand-profit-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +1%</div>
+                <div id="brand-profit-yoy" class="kpi-change kpi-neutral editable" contenteditable="false">전년 대비 0%</div>
+                <div class="progress-bar"><div id="brand-profit-progress" class="progress-fill" style="width:101%"></div></div>
+              </div>
+              
+              <!-- 영업이익(이익율) 통합 KPI -->
+              <div class="kpi-card">
+                <div class="kpi-title">영업이익(이익율)</div>
+                <div class="kpi-value-line">
+                  <div class="kpi-value-with-rate">
+                    <span id="brand-current-opprofit" class="kpi-value editable" contenteditable="false">51.1억원</span>
+                    <span id="brand-current-opprofit-margin-rate" class="kpi-rate" style="color:#3b82f6 !important;font-weight:600 !important;">(0.0%)</span>
+                  </div>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <div class="kpi-value-with-rate">
+                    <span id="brand-opprofit" class="kpi-value editable" contenteditable="false">51.1억원</span>
+                    <span id="brand-opprofit-margin-rate" class="kpi-rate" style="color:#3b82f6 !important;font-weight:600 !important;">(0.0%)</span>
+                  </div>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
                 <div id="brand-opprofit-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +2%</div>
                 <div id="brand-opprofit-yoy" class="kpi-change kpi-positive editable" contenteditable="false">전년 대비 +3%</div>
-                <div class="progress-bar"><div class="progress-fill" style="width:102%"></div></div>
+                <div class="progress-bar"><div id="brand-opprofit-progress" class="progress-fill" style="width:102%"></div></div>
               </div>
+              
+              <!-- 직접이익 진척율 통합 KPI -->
               <div class="kpi-card">
-                <div class="kpi-title">영업이익율 (월말 예상)</div>
-                <div id="brand-opmargin" class="kpi-value editable" contenteditable="false">14.6%</div>
-                <div id="brand-opmargin-change" class="kpi-change-line kpi-negative editable" contenteditable="false">목표 대비 -0.5%p</div>
-                <div id="brand-opmargin-yoy" class="kpi-change kpi-negative editable" contenteditable="false">전년 대비 -0.2%p</div>
-              </div>
-              <div class="kpi-card">
-                <div class="kpi-title">목표달성율 (월말 예상)</div>
-                <div id="brand-achievement" class="kpi-value editable" contenteditable="false">105%</div>
-                <div id="brand-achievement-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +5%</div>
-                <div class="kpi-change kpi-positive editable" contenteditable="false">전년 대비 +5%</div>
+                <div class="kpi-title">직접이익 진척율</div>
+                <div class="kpi-value-line">
+                  <span id="brand-current-progress" class="kpi-value editable" contenteditable="false">105%</span>
+                  <span class="kpi-label">(현시점)</span>
+                </div>
+                <div class="kpi-value-line">
+                  <span id="brand-progress" class="kpi-value editable" contenteditable="false">105%</span>
+                  <span class="kpi-label">(월말예상)</span>
+                </div>
+                <div id="brand-progress-change" class="kpi-change-line kpi-positive editable" contenteditable="false">목표 대비 +5%</div>
+                <div id="brand-progress-yoy" class="kpi-change kpi-positive editable" contenteditable="false">전년 대비 +5%</div>
+                <div class="progress-bar"><div id="brand-progress-progress" class="progress-fill" style="width:105%"></div></div>
               </div>
             </div>
 
@@ -507,14 +567,14 @@
               <div class="chart-container">
                 <div class="chart-title" id="treemapTitleChannel">채널별 매출구성</div>
                 <button id="treemapDrillbackChannel" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
-                <div class="chart-wrapper" id="treemapWrapperChannel" style="height:300px;"></div>
-                  </div>
+                <div class="chart-wrapper" id="treemapWrapperChannel" style="height:250px;"></div>
+              </div>
               <!-- 1행 2열: 아이템별 매출구성 (히트맵) -->
               <div class="chart-container">
                 <div class="chart-title" id="treemapTitleItem">아이템별 매출구성</div>
                 <button id="treemapDrillbackItem" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
-                <div class="chart-wrapper" id="treemapWrapperItem" style="height:300px;"></div>
-                </div>
+                <div class="chart-wrapper" id="treemapWrapperItem" style="height:250px;"></div>
+              </div>
               <!-- 2행 1열: 매출 계획/전년비 (레이더차트) -->
               <div class="chart-container">
                 <div class="chart-title">매출 계획/전년비</div>
@@ -677,7 +737,7 @@
     <!-- 손익계산서 패널 -->
     <div class="financial-report">
       <div id="overview-pl">
-        <h3>📊 전체 손익계산서 (8월)</h3>
+        <h3>📊 전체 손익계산서</h3>
         <table class="pl-table">
           <thead><tr><th class="item-name">구분</th><th>전년</th><th>목표</th><th>월말예상</th><th>전년대비</th><th>달성률</th></tr></thead>
           <tbody>
@@ -693,12 +753,13 @@
             <tr class="total-row"><td class="item-name">직접이익</td><td class="editable" contenteditable="false">40.5</td><td class="editable" contenteditable="false">56.1</td><td class="editable" contenteditable="false">43.1</td><td class="editable" contenteditable="false">106%</td><td class="editable" contenteditable="false">77%</td></tr>
             <tr><td class="item-name sub-item">(영업비)</td><td></td><td></td><td></td><td></td><td></td></tr>
             <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">40.5</td><td class="editable" contenteditable="false">56.1</td><td class="editable" contenteditable="false">43.1</td><td class="editable" contenteditable="false">106%</td><td class="editable" contenteditable="false">77%</td></tr>
+            <tr><td class="item-name">할인율</td><td class="editable" contenteditable="false" id="overview-discount-prev">-</td><td class="editable" contenteditable="false" id="overview-discount-target">-</td><td class="editable" contenteditable="false" id="overview-discount-forecast">-</td><td class="editable" contenteditable="false" id="overview-discount-yoy">-</td><td class="editable" contenteditable="false" id="overview-discount-achievement">-</td></tr>
           </tbody>
         </table>
       </div>
 
       <div id="brand-pl" style="display:none;">
-        <h3>📊 MLB 손익계산서 (8월)</h3>
+        <h3>📊 MLB 손익계산서</h3>
         <table class="pl-table">
           <thead><tr><th class="item-name">구분</th><th>전년</th><th>목표</th><th>월말예상</th><th>전년대비</th><th>달성률</th></tr></thead>
           <tbody>
@@ -1082,7 +1143,10 @@
           if (currentSection === 'overview'){
             // 전체 현황: 한장요약 표시
             console.log('showAISummary 호출');
-            showAISummary();
+            showAISummary().catch(err => {
+              console.error('AI 분석 표시 오류:', err);
+              alert('AI 분석을 불러오는 중 오류가 발생했습니다. 콘솔을 확인해주세요.');
+            });
           } else {
             // 브랜드별 분석: 파트별 분석 표시/토글
           window.aiPartMode = !window.aiPartMode;
@@ -1096,6 +1160,26 @@
         });
       } else {
         console.error('AI 버튼을 찾을 수 없습니다');
+      }
+      
+      // 데이터 로드 후 전체 손익계산서 할인율 업데이트
+      if (typeof loadAllDashboardData === 'function') {
+        loadAllDashboardData().then(() => {
+          setTimeout(() => {
+            if (typeof updateOverviewDiscountRate === 'function') {
+              updateOverviewDiscountRate();
+            }
+          }, 500);
+        }).catch(err => {
+          console.error('데이터 로드 오류:', err);
+        });
+      } else {
+        // loadAllDashboardData가 없으면 직접 호출 (데이터가 이미 로드된 경우)
+        setTimeout(() => {
+          if (typeof updateOverviewDiscountRate === 'function') {
+            updateOverviewDiscountRate();
+          }
+        }, 1000);
       }
     });
     // ---------- AI 기능 구현 ----------
@@ -1215,9 +1299,29 @@
       }
     }
 
-    function showAISummary(){
+    async function showAISummary(){
       const backdrop = ensureAIModal();
       const contentEl = document.getElementById('ai-modal-content');
+      
+      // 로딩 표시
+      contentEl.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;">🤖 AI 분석 데이터를 불러오는 중...</div>';
+      backdrop.style.display = 'flex';
+      
+      try {
+        // insightsData가 비동기로 로드 중이면 완료될 때까지 대기
+        if (insightsDataPromise) {
+          const loadedInsights = await insightsDataPromise;
+          if (loadedInsights) {
+            // 로드된 데이터로 insightsData 업데이트
+            Object.assign(insightsData, loadedInsights);
+            console.log('✅ AI 인사이트 데이터 로드 완료, 모달에 표시');
+          }
+          insightsDataPromise = null; // 한 번만 로드
+        }
+      } catch (error) {
+        console.error('AI 인사이트 데이터 로드 오류:', error);
+      }
+      
       let html = '';
       
       // 브랜드 순서 정의
@@ -1236,28 +1340,33 @@
       const edits = savedEdits ? JSON.parse(savedEdits) : {};
       
       // 전체 현황 섹션
-      if (insightsData.overview) {
+      if (insightsData && insightsData.overview) {
         const editKey0 = 'ai-summary-0';
         const editKey1 = 'ai-summary-1';
-        const c = edits[editKey0] !== undefined ? edits[editKey0] : (insightsData.overview.content || '');
-        const k = edits[editKey1] !== undefined ? edits[editKey1] : (insightsData.overview.keyPoints || '');
+        const c = edits[editKey0] !== undefined ? edits[editKey0] : (insightsData.overview.content || '데이터가 없습니다.');
+        const k = edits[editKey1] !== undefined ? edits[editKey1] : (insightsData.overview.keyPoints || '데이터가 없습니다.');
         html += `<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:2px solid #e5e7eb;">
           <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:700;color:#1f2937;">📈 전체 현황</h3>
           <div class="ai-editable" style="margin-bottom:10px;line-height:1.6;">${c}</div>
           <div class="ai-editable" style="white-space:pre-line;line-height:1.6;">${k}</div>
+        </div>`;
+      } else {
+        html += `<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:2px solid #e5e7eb;">
+          <h3 style="margin:0 0 10px 0;font-size:16px;font-weight:700;color:#1f2937;">📈 전체 현황</h3>
+          <div class="ai-editable" style="margin-bottom:10px;line-height:1.6;color:#ef4444;">AI 분석 데이터를 불러올 수 없습니다. 데이터 파일을 확인해주세요.</div>
         </div>`;
       }
       
       // 각 브랜드별 섹션
       let editIndex = 2;
       brandOrder.forEach((brandKey, index) => {
-        const brandData = insightsData[brandKey];
+        const brandData = insightsData && insightsData[brandKey];
         if (brandData) {
           const brandName = brandDisplayNames[brandKey] || brandKey;
           const editKeyContent = `ai-summary-${editIndex}`;
           const editKeyPoints = `ai-summary-${editIndex + 1}`;
-          const c = edits[editKeyContent] !== undefined ? edits[editKeyContent] : (brandData.content || '');
-          const k = edits[editKeyPoints] !== undefined ? edits[editKeyPoints] : (brandData.keyPoints || '');
+          const c = edits[editKeyContent] !== undefined ? edits[editKeyContent] : (brandData.content || '데이터가 없습니다.');
+          const k = edits[editKeyPoints] !== undefined ? edits[editKeyPoints] : (brandData.keyPoints || '데이터가 없습니다.');
           const isLast = index === brandOrder.length - 1;
           
           html += `<div style="margin-bottom:${isLast ? '0' : '20px'};padding-bottom:${isLast ? '0' : '20px'};border-bottom:${isLast ? 'none' : '2px solid #e5e7eb'};">
@@ -1275,39 +1384,610 @@
       setTimeout(() => {
         loadAISummaryEdits();
       }, 50);
-      
-      backdrop.style.display = 'flex';
     }
 
-    function renderAIPartNotes(){
+    // 날짜 파라미터 가져오기
+    function getDateParam() {
+      // URL 파라미터에서 가져오기
+      const urlParams = new URLSearchParams(window.location.search);
+      let dateParam = urlParams.get('date');
+      
+      // 없으면 전역 변수에서 가져오기
+      if (!dateParam && window.__DATA_DATE__) {
+        dateParam = window.__DATA_DATE__;
+      }
+      
+      // 기본값
+      if (!dateParam || dateParam.length !== 8) {
+        dateParam = '20251124';
+      }
+      
+      return dateParam;
+    }
+    
+    // 브랜드 코드 매핑
+    const brandCodeMap = {
+      'MLB': 'M',
+      'MLB_KIDS': 'I',
+      'DISCOVERY': 'X',
+      'DUVETICA': 'V',
+      'SERGIO': 'ST',
+      'SUPRA': 'W'
+    };
+    
+    // 브랜드명 매핑 (역방향)
+    const brandNameMap = {
+      'M': 'MLB',
+      'I': 'MLB_KIDS',
+      'X': 'DISCOVERY',
+      'V': 'DUVETICA',
+      'ST': 'SERGIO',
+      'W': 'SUPRA'
+    };
+    
+    // 손익계산서 JSON 기반 인사이트 생성
+    async function generatePLInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        const brandName = brandNameMap[brandCode] || 'MLB';
+        
+        const response = await fetch(`${baseUrl}/brand_pl.json`);
+        if (!response.ok) return '손익계산서 데이터를 불러올 수 없습니다.';
+        
+        const data = await response.json();
+        const plData = data[brandName] || data[brandCode];
+        
+        if (!plData) return '해당 브랜드의 손익계산서 데이터가 없습니다.';
+        
+        const revenue = plData.revenue || {};
+        const grossProfit = plData.grossProfit || {};
+        const directProfit = plData.directProfit || {};
+        const opProfit = plData.opProfit || {};
+        const discountRate = plData.discountRate || {};
+        
+        let insight = `<strong>📊 손익계산서 분석</strong><br>`;
+        
+        // 매출 분석
+        if (revenue.forecast && revenue.target) {
+          const achievement = revenue.achievement || 0;
+          const yoy = revenue.yoy || 0;
+          insight += `• 실판매액 <strong>${(revenue.forecast / 100).toFixed(2)}억원</strong>으로 목표 대비 <strong>${achievement}%</strong> 달성률을 보이고 있습니다.<br>`;
+          if (yoy > 0) {
+            insight += `• 전년 대비 <strong>${yoy}%</strong> 성장을 기록하여 ${yoy >= 110 ? '안정적인' : yoy >= 100 ? '소폭' : '감소하는'} 성장세를 유지하고 있습니다.<br>`;
+          }
+        }
+        
+        // 할인율 분석
+        if (discountRate.forecast && discountRate.target) {
+          const discountForecast = discountRate.forecast;
+          const discountTarget = discountRate.target;
+          if (discountForecast > discountTarget) {
+            insight += `• 할인율 <strong>${discountForecast}%</strong>는 목표 <strong>${discountTarget}%</strong> 대비 높은 수준으로 할인율 관리 개선이 필요하며,<br>`;
+          } else {
+            insight += `• 할인율 <strong>${discountForecast}%</strong>는 목표 <strong>${discountTarget}%</strong> 대비 양호한 수준입니다.<br>`;
+          }
+        }
+        
+        // 직접비 효율 분석
+        if (directProfit.forecast && directProfit.target) {
+          const directProfitAchievement = directProfit.achievement || 0;
+          insight += `• 직접비 효율이 목표 대비 <strong>${directProfitAchievement}%</strong>로 ${directProfitAchievement >= 95 ? '양호한' : '개선이 필요한'} 비용 관리를 보이고 있습니다.<br>`;
+        }
+        
+        // 영업이익 분석
+        if (opProfit.forecast) {
+          const opProfitValue = (opProfit.forecast / 100).toFixed(2);
+          const opProfitAchievement = opProfit.achievement || 0;
+          insight += `• 영업이익은 <strong>${opProfitValue}억원</strong>으로 목표 대비 <strong>${opProfitAchievement}%</strong> 달성률을 기록했습니다.<br>`;
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('손익계산서 인사이트 생성 오류:', error);
+        return '손익계산서 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+    
+    // 트리맵 JSON 기반 인사이트 생성
+    async function generateTreemapInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        
+        const response = await fetch(`${baseUrl}/treemap.json`);
+        if (!response.ok) {
+          // 폴백: 기존 함수 사용
+          return generateTreemapInsightFromData();
+        }
+        
+        const data = await response.json();
+        const channelTreemap = data.channelTreemapData?.channels || {};
+        const itemTreemap = data.itemTreemapData?.items || {};
+        
+        // 브랜드별 채널 데이터 찾기
+        let brandChannelData = null;
+        let brandItemData = null;
+        
+        // 전체 데이터에서 해당 브랜드의 채널별 매출 합계 계산
+        const channelTotals = {};
+        const itemTotals = {};
+        
+        // 채널별 데이터 분석
+        Object.keys(channelTreemap).forEach(channelKey => {
+          const channelData = channelTreemap[channelKey];
+          if (channelData && channelData.sales) {
+            const sales = channelData.sales / 100000000; // 억원 단위
+            channelTotals[channelKey] = sales;
+          }
+        });
+        
+        // 아이템별 데이터 분석
+        Object.keys(itemTreemap).forEach(itemKey => {
+          const itemData = itemTreemap[itemKey];
+          if (itemData && itemData.sales) {
+            const sales = itemData.sales / 100000000; // 억원 단위
+            itemTotals[itemKey] = sales;
+          }
+        });
+        
+        // 채널별 정렬
+        const channelAnalysis = Object.entries(channelTotals)
+          .map(([channel, value]) => ({ channel, value }))
+          .sort((a, b) => b.value - a.value);
+        
+        // 아이템별 정렬
+        const itemAnalysis = Object.entries(itemTotals)
+          .map(([item, value]) => ({ item, value }))
+          .sort((a, b) => b.value - a.value);
+        
+        const totalChannelSales = channelAnalysis.reduce((sum, ch) => sum + ch.value, 0);
+        const totalItemSales = itemAnalysis.reduce((sum, it) => sum + it.value, 0);
+        
+        // 인사이트 생성
+        let insight = `<strong>📊 채널별 매출구성 분석</strong><br>`;
+        
+        if (channelAnalysis.length > 0) {
+          channelAnalysis.forEach((ch, idx) => {
+            const percentage = totalChannelSales > 0 ? ((ch.value / totalChannelSales) * 100).toFixed(1) : 0;
+            if (idx === 0) {
+              insight += `• <strong>${ch.channel}</strong>이(가) 전체 매출의 <strong>${percentage}%</strong>를 차지하며 가장 큰 비중을 보이고 있습니다. (${ch.value.toFixed(1)}억원)<br>`;
+            } else if (idx === 1) {
+              insight += `• <strong>${ch.channel}</strong>이(가) <strong>${percentage}%</strong>로 두 번째로 높은 비중을 차지합니다. (${ch.value.toFixed(1)}억원)<br>`;
+            }
+          });
+          
+          // 채널 집중도 분석
+          const top3ChannelShare = channelAnalysis.slice(0, 3).reduce((sum, ch) => {
+            const percentage = totalChannelSales > 0 ? ((ch.value / totalChannelSales) * 100) : 0;
+            return sum + percentage;
+          }, 0);
+          if (top3ChannelShare > 60) {
+            insight += `• 상위 3개 채널이 전체의 <strong>${top3ChannelShare.toFixed(1)}%</strong>를 차지하여 채널 집중도가 높습니다.<br>`;
+          }
+        }
+        
+        insight += `<br><strong>📦 아이템별 매출구성 분석</strong><br>`;
+        
+        if (itemAnalysis.length > 0) {
+          itemAnalysis.forEach((it, idx) => {
+            const percentage = totalItemSales > 0 ? ((it.value / totalItemSales) * 100).toFixed(1) : 0;
+            if (idx === 0) {
+              insight += `• <strong>${it.item}</strong>이(가) 전체 매출의 <strong>${percentage}%</strong>를 차지하며 가장 큰 비중을 보이고 있습니다. (${it.value.toFixed(1)}억원)<br>`;
+            } else if (idx === 1) {
+              insight += `• <strong>${it.item}</strong>이(가) <strong>${percentage}%</strong>로 두 번째로 높은 비중을 차지합니다. (${it.value.toFixed(1)}억원)<br>`;
+            }
+          });
+          
+          // 아이템 다양성 분석
+          if (itemAnalysis.length >= 3) {
+            const top3ItemShare = itemAnalysis.slice(0, 3).reduce((sum, it) => {
+              const percentage = totalItemSales > 0 ? ((it.value / totalItemSales) * 100) : 0;
+              return sum + percentage;
+            }, 0);
+            if (top3ItemShare > 70) {
+              insight += `• 상위 3개 아이템이 전체의 <strong>${top3ItemShare.toFixed(1)}%</strong>를 차지하여 상품 라인업 집중도가 높습니다.<br>`;
+            }
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('트리맵 인사이트 생성 오류:', error);
+        // 폴백: 기존 함수 사용
+        return generateTreemapInsightFromData();
+      }
+    }
+    
+    // 트리맵 데이터 기반 인사이트 생성 함수 (폴백)
+    function generateTreemapInsightFromData() {
+      try {
+        const channelData = getChannelTreemapData();
+        const itemData = getItemTreemapData();
+        
+        if (!channelData || !channelData[0] || !itemData || !itemData[0]) {
+          return '트리맵 데이터를 불러올 수 없습니다.';
+        }
+        
+        const channelLabels = channelData[0].labels || [];
+        const channelValues = channelData[0].values || [];
+        const itemLabels = itemData[0].labels || [];
+        const itemValues = itemData[0].values || [];
+        
+        // 채널별 총 매출 계산
+        const totalChannelSales = channelValues.reduce((sum, val) => sum + val, 0);
+        
+        // 채널별 비중 및 분석
+        const channelAnalysis = channelLabels.map((label, idx) => {
+          const value = channelValues[idx] || 0;
+          const percentage = totalChannelSales > 0 ? ((value / totalChannelSales) * 100).toFixed(1) : 0;
+          return { channel: label, value: value, percentage: parseFloat(percentage) };
+        }).sort((a, b) => b.value - a.value);
+        
+        // 아이템별 총 매출 계산
+        const totalItemSales = itemValues.reduce((sum, val) => sum + val, 0);
+        
+        // 아이템별 비중 및 분석
+        const itemAnalysis = itemLabels.map((label, idx) => {
+          const value = itemValues[idx] || 0;
+          const percentage = totalItemSales > 0 ? ((value / totalItemSales) * 100).toFixed(1) : 0;
+          return { item: label, value: value, percentage: parseFloat(percentage) };
+        }).sort((a, b) => b.value - a.value);
+        
+        // 인사이트 생성
+        let insight = `<strong>📊 채널별 매출구성 분석</strong><br>`;
+        
+        if (channelAnalysis.length > 0) {
+          const topChannel = channelAnalysis[0];
+          insight += `• <strong>${topChannel.channel}</strong>이(가) 전체 매출의 ${topChannel.percentage}%를 차지하며 가장 큰 비중을 보이고 있습니다. (${topChannel.value.toFixed(1)}억원)<br>`;
+          
+          if (channelAnalysis.length > 1) {
+            const secondChannel = channelAnalysis[1];
+            insight += `• <strong>${secondChannel.channel}</strong>이(가) ${secondChannel.percentage}%로 두 번째로 높은 비중을 차지합니다. (${secondChannel.value.toFixed(1)}억원)<br>`;
+          }
+          
+          // 채널 집중도 분석
+          const top3ChannelShare = channelAnalysis.slice(0, 3).reduce((sum, ch) => sum + ch.percentage, 0);
+          if (top3ChannelShare > 60) {
+            insight += `• 상위 3개 채널이 전체의 ${top3ChannelShare.toFixed(1)}%를 차지하여 채널 집중도가 높습니다.<br>`;
+          }
+        }
+        
+        insight += `<br><strong>📦 아이템별 매출구성 분석</strong><br>`;
+        
+        if (itemAnalysis.length > 0) {
+          const topItem = itemAnalysis[0];
+          insight += `• <strong>${topItem.item}</strong>이(가) 전체 매출의 ${topItem.percentage}%를 차지하며 가장 큰 비중을 보이고 있습니다. (${topItem.value.toFixed(1)}억원)<br>`;
+          
+          if (itemAnalysis.length > 1) {
+            const secondItem = itemAnalysis[1];
+            insight += `• <strong>${secondItem.item}</strong>이(가) ${secondItem.percentage}%로 두 번째로 높은 비중을 차지합니다. (${secondItem.value.toFixed(1)}억원)<br>`;
+          }
+          
+          // 아이템 다양성 분석
+          if (itemAnalysis.length >= 3) {
+            const top3ItemShare = itemAnalysis.slice(0, 3).reduce((sum, it) => sum + it.percentage, 0);
+            if (top3ItemShare > 70) {
+              insight += `• 상위 3개 아이템이 전체의 ${top3ItemShare.toFixed(1)}%를 차지하여 상품 라인업 집중도가 높습니다.<br>`;
+            }
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('트리맵 인사이트 생성 오류:', error);
+        return '트리맵 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+
+    // 레이더 차트 JSON 기반 인사이트 생성
+    async function generateRadarInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        const brandName = brandNameMap[brandCode] || 'MLB';
+        
+        const response = await fetch(`${baseUrl}/radar_chart.json`);
+        if (!response.ok) return '매출 계획/전년비 데이터를 불러올 수 없습니다.';
+        
+        const data = await response.json();
+        const channelPlan = data.channelPlan?.[brandName] || {};
+        const channelYoy = data.channelYoy?.[brandName] || {};
+        const channelCurrent = data.channelCurrent?.[brandName] || {};
+        
+        let insight = `<strong>📊 매출 계획/전년비 분석</strong><br>`;
+        
+        // 채널별 계획 대비 달성률 분석
+        const channelAnalysis = [];
+        Object.keys(channelPlan).forEach(channel => {
+          const plan = channelPlan[channel] || 0;
+          const current = channelCurrent[channel] || 0;
+          const yoy = channelYoy[channel] || 0;
+          if (plan > 0) {
+            const achievement = (current / plan * 100).toFixed(1);
+            channelAnalysis.push({ channel, plan, current, yoy, achievement: parseFloat(achievement) });
+          }
+        });
+        
+        channelAnalysis.sort((a, b) => b.achievement - a.achievement);
+        
+        if (channelAnalysis.length > 0) {
+          const topChannel = channelAnalysis[0];
+          insight += `• <strong>${topChannel.channel}</strong>이(가) 목표 대비 <strong>${topChannel.achievement}%</strong>로 가장 높은 달성률을 보이고 있습니다.<br>`;
+          
+          const lowChannel = channelAnalysis[channelAnalysis.length - 1];
+          if (lowChannel.achievement < 90) {
+            insight += `• <strong>${lowChannel.channel}</strong>은(는) 목표 대비 <strong>${lowChannel.achievement}%</strong>로 개선이 필요합니다.<br>`;
+          }
+          
+          // 전년 대비 성장 채널 분석
+          const growthChannels = channelAnalysis.filter(ch => ch.yoy > 110);
+          if (growthChannels.length > 0) {
+            insight += `• 전년 대비 <strong>110% 이상</strong> 성장한 채널이 <strong>${growthChannels.length}개</strong>로 성장세가 양호합니다.<br>`;
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('레이더 차트 인사이트 생성 오류:', error);
+        return '매출 계획/전년비 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+    
+    // 채널별 손익 JSON 기반 인사이트 생성
+    async function generateChannelPLInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        
+        const response = await fetch(`${baseUrl}/channel_pl.json`);
+        if (!response.ok) return '주요 채널별 손익 데이터를 불러올 수 없습니다.';
+        
+        const data = await response.json();
+        const channelData = data[brandCode] || {};
+        
+        let insight = `<strong>📊 주요 채널별 손익 분석</strong><br>`;
+        
+        const channelAnalysis = [];
+        Object.keys(channelData).forEach(channel => {
+          const ch = channelData[channel];
+          if (ch && ch.revenue) {
+            const revenue = ch.revenue / 100000000; // 억원 단위
+            const grossProfit = ch.grossProfit / 100000000;
+            const grossProfitRate = ch.grossProfitRate || 0;
+            channelAnalysis.push({ channel, revenue, grossProfit, grossProfitRate });
+          }
+        });
+        
+        channelAnalysis.sort((a, b) => b.revenue - a.revenue);
+        
+        if (channelAnalysis.length > 0) {
+          const topChannel = channelAnalysis[0];
+          insight += `• <strong>${topChannel.channel}</strong>이(가) 매출 <strong>${topChannel.revenue.toFixed(1)}억원</strong>으로 가장 큰 비중을 차지하며, 매출총이익률은 <strong>${topChannel.grossProfitRate.toFixed(1)}%</strong>입니다.<br>`;
+          
+          // 수익성 분석
+          const highMarginChannels = channelAnalysis.filter(ch => ch.grossProfitRate > 70);
+          if (highMarginChannels.length > 0) {
+            insight += `• 매출총이익률 <strong>70% 이상</strong>인 고수익 채널이 <strong>${highMarginChannels.length}개</strong>로 수익성 구조가 양호합니다.<br>`;
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('채널별 손익 인사이트 생성 오류:', error);
+        return '주요 채널별 손익 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+    
+    // 주차별 매출추세 JSON 기반 인사이트 생성
+    async function generateWeeklyInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        
+        const response = await fetch(`${baseUrl}/weekly_trend.json`);
+        if (!response.ok) return '주차별 매출 추세 데이터를 불러올 수 없습니다.';
+        
+        const data = await response.json();
+        const weeklyData = data.weeklySalesTrend?.[brandCode] || {};
+        
+        let insight = `<strong>📊 주차별 매출 추세 분석</strong><br>`;
+        
+        // 전체 채널 합계 계산
+        let totalCurrent = [];
+        let totalPrevious = [];
+        
+        Object.keys(weeklyData).forEach(channel => {
+          const channelData = weeklyData[channel];
+          if (channelData.current && channelData.previous) {
+            channelData.current.forEach((week, idx) => {
+              if (!totalCurrent[idx]) totalCurrent[idx] = 0;
+              totalCurrent[idx] += week.value || 0;
+            });
+            channelData.previous.forEach((week, idx) => {
+              if (!totalPrevious[idx]) totalPrevious[idx] = 0;
+              totalPrevious[idx] += week.value || 0;
+            });
+          }
+        });
+        
+        if (totalCurrent.length > 0) {
+          const currentTotal = totalCurrent.reduce((sum, val) => sum + val, 0) / 100000000;
+          const previousTotal = totalPrevious.reduce((sum, val) => sum + val, 0) / 100000000;
+          const yoy = previousTotal > 0 ? ((currentTotal / previousTotal - 1) * 100).toFixed(1) : 0;
+          
+          insight += `• 현재까지 누적 매출은 <strong>${currentTotal.toFixed(1)}억원</strong>으로 전년 대비 <strong>${yoy > 0 ? '+' : ''}${yoy}%</strong> ${yoy > 0 ? '성장' : '감소'}했습니다.<br>`;
+          
+          // 최근 주차 추세 분석
+          if (totalCurrent.length >= 3) {
+            const recent3Weeks = totalCurrent.slice(-3);
+            const avgRecent = recent3Weeks.reduce((sum, val) => sum + val, 0) / 3 / 100000000;
+            const earlier3Weeks = totalCurrent.slice(0, 3);
+            const avgEarlier = earlier3Weeks.reduce((sum, val) => sum + val, 0) / 3 / 100000000;
+            
+            if (avgRecent > avgEarlier * 1.1) {
+              insight += `• 최근 3주 평균 매출이 초기 3주 대비 <strong>${((avgRecent / avgEarlier - 1) * 100).toFixed(1)}%</strong> 증가하여 상승 추세를 보이고 있습니다.<br>`;
+            } else if (avgRecent < avgEarlier * 0.9) {
+              insight += `• 최근 3주 평균 매출이 초기 3주 대비 <strong>${((1 - avgRecent / avgEarlier) * 100).toFixed(1)}%</strong> 감소하여 하락 추세를 보이고 있습니다.<br>`;
+            }
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('주차별 매출 추세 인사이트 생성 오류:', error);
+        return '주차별 매출 추세 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+    
+    // 재고주수 JSON 기반 인사이트 생성
+    async function generateInventoryInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        
+        const response = await fetch(`${baseUrl}/stock_analysis.json`);
+        if (!response.ok) return '재고주수 데이터를 불러올 수 없습니다.';
+        
+        const data = await response.json();
+        const stockData = data.clothingBrandStatus?.[brandCode] || [];
+        
+        let insight = `<strong>📊 재고주수 분석</strong><br>`;
+        
+        if (stockData.length > 0) {
+          // 재고주수 높은 상품 분석
+          const highStockItems = stockData.filter(item => item.stockWeeks > 40);
+          if (highStockItems.length > 0) {
+            insight += `• 재고주수 <strong>40주 이상</strong>인 상품이 <strong>${highStockItems.length}개</strong>로 재고 관리가 필요합니다.<br>`;
+          }
+          
+          // 전년 대비 재고 증가 상품
+          const increasedStockItems = stockData.filter(item => item.stockWeeksDiff > 10);
+          if (increasedStockItems.length > 0) {
+            insight += `• 전년 대비 재고주수가 <strong>10주 이상</strong> 증가한 상품이 <strong>${increasedStockItems.length}개</strong>입니다.<br>`;
+          }
+          
+          // 판매율 낮은 상품
+          const lowSalesRateItems = stockData.filter(item => item.cumSalesRate < 0.3);
+          if (lowSalesRateItems.length > 0) {
+            insight += `• 누적 판매율 <strong>30% 미만</strong>인 상품이 <strong>${lowSalesRateItems.length}개</strong>로 판매 전략 재검토가 필요합니다.<br>`;
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('재고주수 인사이트 생성 오류:', error);
+        return '재고주수 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+    
+    // 판매율 JSON 기반 인사이트 생성
+    async function generateSaleRateInsight() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        
+        const response = await fetch(`${baseUrl}/stock_analysis.json`);
+        if (!response.ok) return '판매율 데이터를 불러올 수 없습니다.';
+        
+        const data = await response.json();
+        const stockData = data.clothingBrandStatus?.[brandCode] || [];
+        
+        let insight = `<strong>📊 판매율 분석</strong><br>`;
+        
+        if (stockData.length > 0) {
+          // 평균 판매율 계산
+          const avgSalesRate = stockData.reduce((sum, item) => sum + (item.cumSalesRate || 0), 0) / stockData.length;
+          insight += `• 평균 누적 판매율은 <strong>${(avgSalesRate * 100).toFixed(1)}%</strong>입니다.<br>`;
+          
+          // 판매율 높은 상품
+          const highSalesRateItems = stockData.filter(item => item.cumSalesRate > 0.6);
+          if (highSalesRateItems.length > 0) {
+            insight += `• 누적 판매율 <strong>60% 이상</strong>인 상품이 <strong>${highSalesRateItems.length}개</strong>로 판매 성과가 우수합니다.<br>`;
+          }
+          
+          // 판매율 낮은 상품
+          const lowSalesRateItems = stockData.filter(item => item.cumSalesRate < 0.3);
+          if (lowSalesRateItems.length > 0) {
+            insight += `• 누적 판매율 <strong>30% 미만</strong>인 상품이 <strong>${lowSalesRateItems.length}개</strong>로 판매 전략 개선이 필요합니다.<br>`;
+          }
+          
+          // 전년 대비 판매율 변화
+          const improvedItems = stockData.filter(item => item.cumSalesRateDiff > 0.05);
+          if (improvedItems.length > 0) {
+            insight += `• 전년 대비 판매율이 <strong>5%p 이상</strong> 개선된 상품이 <strong>${improvedItems.length}개</strong>입니다.<br>`;
+          }
+        }
+        
+        return insight;
+      } catch (error) {
+        console.error('판매율 인사이트 생성 오류:', error);
+        return '판매율 데이터 분석 중 오류가 발생했습니다.';
+      }
+    }
+
+    async function renderAIPartNotes(){
       // 모든 파트별 분석 노트 제거
       clearAIPartNotes();
+
+      // AI 인사이트 데이터가 로드되지 않았으면 로드 시도
+      if (insightsDataPromise) {
+        try {
+          const loadedInsights = await insightsDataPromise;
+          if (loadedInsights) {
+            // 로드된 데이터로 insightsData 업데이트
+            Object.assign(insightsData, loadedInsights);
+            console.log('✅ AI 인사이트 데이터 적용 완료');
+          }
+          insightsDataPromise = null; // 한 번만 로드
+        } catch (error) {
+          console.error('AI 인사이트 데이터 로드 오류:', error);
+        }
+      }
 
       // 브랜드별 데이터 가져오기
       const brandData = insightsData[currentBrand] || insightsData.MLB;
       
-      // 각 그래프별 인사이트 분석 데이터 구조 (추후 ChatGPT API로 연결될 예정)
+      // 각 영역별 JSON 파일 기반 인사이트 생성 (비동기)
+      const [plInsight, treemapInsight, radarInsight, channelPLInsight, weeklyInsight, inventoryInsight, saleRateInsight] = await Promise.all([
+        generatePLInsight(),
+        generateTreemapInsight(),
+        generateRadarInsight(),
+        generateChannelPLInsight(),
+        generateWeeklyInsight(),
+        generateInventoryInsight(),
+        generateSaleRateInsight()
+      ]);
+      
+      // 각 그래프별 인사이트 분석 데이터 구조
       const insights = {
         treemap: { // 채널별/아이템별 매출구성
-          content: brandData?.treemapInsight || '채널별/아이템별 매출구성 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.treemapInsight || treemapInsight || '채널별/아이템별 매출구성 분석 내용이 여기에 표시됩니다.'
         },
         radar: { // 매출 계획/전년비
-          content: brandData?.radarInsight || '매출 계획/전년비 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.radarInsight || radarInsight || '매출 계획/전년비 분석 내용이 여기에 표시됩니다.'
         },
         channelPl: { // 주요 채널별 손익 분석
-          content: brandData?.channelPlInsight || '주요 채널별 손익 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.channelPlInsight || channelPLInsight || '주요 채널별 손익 분석 내용이 여기에 표시됩니다.'
         },
         weekly: { // 주차별 매출 추세
-          content: brandData?.weeklyInsight || '주차별 매출 추세 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.weeklyInsight || weeklyInsight || '주차별 매출 추세 분석 내용이 여기에 표시됩니다.'
         },
         saleRate: { // 판매율 분석
-          content: brandData?.saleRateInsight || '판매율 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.saleRateInsight || saleRateInsight || '판매율 분석 내용이 여기에 표시됩니다.'
         },
         inventory: { // 재고주수 분석
-          content: brandData?.inventoryInsight || '재고주수 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.inventoryInsight || inventoryInsight || '재고주수 분석 내용이 여기에 표시됩니다.'
         },
         pl: { // 손익계산서 분석
-          content: brandData?.part1 || '손익계산서 분석 내용이 여기에 표시됩니다. ChatGPT API 연결 후 실제 분석 결과가 표시됩니다.'
+          content: brandData?.part1 || plInsight || '손익계산서 분석 내용이 여기에 표시됩니다.'
         }
       };
 
@@ -1412,7 +2092,6 @@
       
       // 우측 패널과 중앙 컨텐츠의 상단 위치 차이 계산
       const financialReportRect = financialReport.getBoundingClientRect();
-      const mainContentRect = mainContent.getBoundingClientRect();
       const financialReportScrollTop = financialReport.scrollTop || 0;
       
       // 각 그래프/표 요소 찾기 및 위치 측정
@@ -1425,68 +2104,77 @@
         'ai-insight-inventory': document.querySelector('#itemDiffTable')?.closest('.chart-container')
       };
       
-      // 각 메모 위치 조정
+      // 각 메모의 초기 위치를 해당 차트/테이블 요소 아래에 배치
       Object.entries(elements).forEach(([noteId, element]) => {
         const note = document.getElementById(noteId);
-        if (note && element) {
+        if (note && element && note.style.display !== 'none') {
           // 중앙 컨텐츠의 그래프 요소 위치 (viewport 기준)
           const elementRect = element.getBoundingClientRect();
           // 우측 패널 내부의 상대적 위치 계산
           const relativeTop = elementRect.top - financialReportRect.top + financialReportScrollTop;
           
-          // 우측 패널 패딩(20px) 고려
-          note.style.top = Math.max(0, relativeTop + 20) + 'px';
+          // 차트/테이블 요소의 높이를 고려하여 그 아래에 배치
+          const elementHeight = elementRect.height || 0;
+          note.style.top = Math.max(0, relativeTop + elementHeight + 10) + 'px'; // 10px 간격
         }
       });
       
-      // 폴백: 요소를 찾지 못한 경우 기본값 사용
-      const fallbackPositions = {
-        'ai-insight-treemap': 320,
-        'ai-insight-radar': 450,
-        'ai-insight-channel-pl': 640,
-        'ai-insight-weekly': 640,
-        'ai-insight-sale-rate': 940,
-        'ai-insight-inventory': 1020
-      };
-      
-      // 메모가 표시된 후 겹치지 않도록 위치 재조정
+      // 메모들이 겹치지 않도록 순차적으로 재배치
       setTimeout(() => {
-        // 1. 채널별/아이템별 매출구성 아래에 매출 계획/전년비 배치
-        const treemapNote = document.getElementById('ai-insight-treemap');
-        const radarNote = document.getElementById('ai-insight-radar');
-        if (treemapNote && radarNote && treemapNote.style.display !== 'none' && radarNote.style.display !== 'none') {
-          const treemapRect = treemapNote.getBoundingClientRect();
-          const relativeTop = treemapRect.top - financialReportRect.top + financialReportScrollTop;
-          radarNote.style.top = (relativeTop + treemapRect.height + 15) + 'px'; // 15px 간격
-        }
+        const noteOrder = [
+          'ai-insight-treemap',
+          'ai-insight-radar',
+          'ai-insight-channel-pl',
+          'ai-insight-weekly',
+          'ai-insight-sale-rate',
+          'ai-insight-inventory'
+        ];
         
-        // 2. 주요 채널별 손익 아래에 주차별 매출 추세 배치
-        const channelPlNote = document.getElementById('ai-insight-channel-pl');
-        const weeklyNote = document.getElementById('ai-insight-weekly');
-        if (channelPlNote && weeklyNote && channelPlNote.style.display !== 'none' && weeklyNote.style.display !== 'none') {
-          const channelPlRect = channelPlNote.getBoundingClientRect();
-          const relativeTop = channelPlRect.top - financialReportRect.top + financialReportScrollTop;
-          weeklyNote.style.top = (relativeTop + channelPlRect.height + 15) + 'px'; // 15px 간격
-        }
+        let currentTop = 0;
+        const spacing = 15; // 메모 간 간격
         
-        // 3. 재고주수 분석은 판매율 분석 아래에 위치하도록 조정
-        const saleRateNote = document.getElementById('ai-insight-sale-rate');
-        if (saleRateNote && saleRateNote.style.display !== 'none') {
-          const saleRateRect = saleRateNote.getBoundingClientRect();
-          const inventoryNote = document.getElementById('ai-insight-inventory');
-          if (inventoryNote && inventoryNote.style.display !== 'none') {
-            const relativeTop = saleRateRect.top - financialReportRect.top + financialReportScrollTop;
-            inventoryNote.style.top = (relativeTop + saleRateRect.height + 15) + 'px'; // 15px 간격
+        noteOrder.forEach((noteId, index) => {
+          const note = document.getElementById(noteId);
+          if (note && note.style.display !== 'none') {
+            // 첫 번째 메모는 초기 위치 유지
+            if (index === 0) {
+              const noteRect = note.getBoundingClientRect();
+              currentTop = noteRect.top - financialReportRect.top + financialReportScrollTop;
+            } else {
+              // 이전 메모의 높이를 고려하여 배치
+              const prevNote = document.getElementById(noteOrder[index - 1]);
+              if (prevNote && prevNote.style.display !== 'none') {
+                const prevNoteRect = prevNote.getBoundingClientRect();
+                const prevNoteRelativeTop = prevNoteRect.top - financialReportRect.top + financialReportScrollTop;
+                currentTop = prevNoteRelativeTop + prevNoteRect.height + spacing;
+              }
+            }
+            
+            note.style.top = currentTop + 'px';
           }
-        }
-      }, 50);
+        });
+      }, 100);
       
-      Object.entries(fallbackPositions).forEach(([noteId, fallbackTop]) => {
-        const note = document.getElementById(noteId);
-        if (note && !elements[noteId]) {
-          note.style.top = fallbackTop + 'px';
-        }
-      });
+      // 폴백: 요소를 찾지 못한 경우 기본값 사용 (순차적으로 배치)
+      setTimeout(() => {
+        const fallbackPositions = {
+          'ai-insight-treemap': 320,
+          'ai-insight-radar': 450,
+          'ai-insight-channel-pl': 640,
+          'ai-insight-weekly': 640,
+          'ai-insight-sale-rate': 940,
+          'ai-insight-inventory': 1020
+        };
+        
+        // 요소를 찾지 못한 메모들에 대해 fallback 위치 사용
+        Object.entries(elements).forEach(([noteId, element]) => {
+          const note = document.getElementById(noteId);
+          if (note && !element && note.style.display !== 'none') {
+            const fallbackTop = fallbackPositions[noteId] || 320;
+            note.style.top = fallbackTop + 'px';
+          }
+        });
+      }, 150);
     }
 
     function clearAIPartNotes(){
@@ -1534,6 +2222,30 @@
       SUPRA:{current:{revenue:{value:2.5,target:4.0,achievement:63,yoy:-22.5},profit:{value:-1.3,target:-0.5,achievement:-68,yoy:-14.9},margin:{value:-52.0,target:-12.3,change:-39.7,yoy:6.7},progress:{value:63,target:100,achievement:63,yoy:-22.5}},revenue:{target:4.0,forecast:2.5,achievement:63,yoy:77},profit:{target:-0.5,forecast:-1.3,achievement:-68,yoy:85},margin:{target:-12.3,forecast:-52.0,change:-39.7},channels:{온라인자사:{target:0.72,forecast:1.04,achievement:145},온라인제휴:{target:1.08,forecast:1.46,achievement:136}}}
     };
 
+    // AI 인사이트 데이터 로드 (JSON 파일에서)
+    async function loadAIInsightsData() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}/ai_insights`;
+        const response = await fetch(`${baseUrl}/insights_data_${dateParam}.json`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ AI 인사이트 데이터 로드 완료:', data);
+          return data;
+        } else {
+          console.log('ℹ️ AI 인사이트 파일이 없습니다. 기본값을 사용합니다.');
+          return null;
+        }
+      } catch (error) {
+        console.log('ℹ️ AI 인사이트 로드 실패. 기본값을 사용합니다:', error);
+        return null;
+      }
+    }
+    
+    // AI 인사이트 데이터 초기화 (비동기)
+    let insightsDataPromise = loadAIInsightsData();
+    
     let insightsData = (D.insightsData) ? D.insightsData : {
       overview:{content:"10월 31일 기준 전체 브랜드 통합 실판매액은 881.6억원으로 목표(929.3억원) 대비 95% 달성, 전년(916.6억원) 대비 96%를 기록하며 목표에 다소 미달하고 있습니다. MLB가 전체 매출의 39.6%를 차지하며 105% 달성률로 가장 높은 성과를 보이고 있으나, DISCOVERY(-12%), MLB KIDS(-11%), SUPRA(-37%)가 부진하며 전체 실적을 하회하고 있습니다. 영업이익은 47.3억원으로 전년(50.4억원) 대비 94% 수준입니다.",keyPoints:"• 총 실판매액: 881.6억원 (목표 대비 95%, 전년 대비 96%) • 영업이익: 47.3억원 (목표 대비 102%, 전년 대비 94%) • MLB: 349.3억원으로 105% 달성, 유일한 목표 초과 브랜드 • DUVETICA: 209% 성장으로 급성장세 (전년 18.5억→38.7억) • 부진 브랜드: DISCOVERY(-13%), MLB KIDS(-11%), SUPRA(-37%) 개선 시급"},
       MLB:{
@@ -1890,6 +2602,15 @@
       console.log('updateBrandView 호출:', {currentBrand, data});
       if(!data) return;
 
+      // 할인율/이익율 파란색 스타일 적용 함수
+      const applyBlueStyle = (id) => {
+        const el = document.getElementById(id);
+        if(el) {
+          el.style.setProperty('color', '#3b82f6', 'important');
+          el.style.setProperty('font-weight', '600', 'important');
+        }
+      };
+
       // 직접 DOM 업데이트 (localStorage 무시)
       const setTextDirect = (id, text) => {
         const el = document.getElementById(id);
@@ -1910,49 +2631,113 @@
         el.className = 'kpi-change editable ' + (val>=0?'kpi-positive':val===0?'kpi-neutral':'kpi-negative');
       };
 
-      // 현시점 KPI
-      setTextDirect('brand-current-revenue', `${data.current.revenue.value}억원`);
-      setDeltaDirect('brand-current-revenue-change', data.current.revenue.achievement - 100);
-      setYoYDirect('brand-current-revenue-yoy', data.current.revenue.yoy);
-
-      setTextDirect('brand-current-profit', `${data.current.profit.value}억원`);
-      setDeltaDirect('brand-current-profit-change', data.current.profit.achievement - 100);
-      setYoYDirect('brand-current-profit-yoy', data.current.profit.yoy);
-
-      setTextDirect('brand-current-margin', `${data.current.margin.value}%`);
-      setDeltaDirect('brand-current-margin-change', data.current.margin.change, true);
-      setYoYDirect('brand-current-margin-yoy', data.current.margin.yoy, true);
-
-      setTextDirect('brand-current-progress', `${data.current.progress.value}%`);
-      setDeltaDirect('brand-current-progress-change', data.current.progress.achievement - 100);
-      setYoYDirect('brand-current-progress-yoy', data.current.progress.yoy);
-
-      // 월말 예상 KPI
-      console.log('브랜드 매출 데이터:', {currentBrand, forecast: data.revenue.forecast});
-      setTextDirect('brand-revenue', `${data.revenue.forecast}억원`);
+      // 실판매출(할인율) 통합 KPI (현시점 + 월말예상)
+      const revenueCurrent = parseFloat(data.current.revenue.value) || 0;
+      const revenueForecast = parseFloat(data.revenue.forecast) || 0;
+      setTextDirect('brand-current-revenue', `${revenueCurrent.toFixed(1)}억원`);
+      setTextDirect('brand-revenue', `${revenueForecast.toFixed(1)}억원`);
+      // 할인율 계산 (데이터에서 가져오거나 계산)
+      const discountRateCurrent = data.current.revenue.discountRate || 0;
+      const discountRateForecast = data.revenue.discountRate || 0;
+      const discountRateCurrentEl = document.getElementById('brand-current-discount-rate');
+      const discountRateEl = document.getElementById('brand-discount-rate');
+      if(discountRateCurrentEl) {
+        discountRateCurrentEl.textContent = `(${discountRateCurrent.toFixed(1)}%)`;
+        applyBlueStyle('brand-current-discount-rate');
+      }
+      if(discountRateEl) {
+        discountRateEl.textContent = `(${discountRateForecast.toFixed(1)}%)`;
+        applyBlueStyle('brand-discount-rate');
+      }
       setDeltaDirect('brand-revenue-change', data.revenue.achievement - 100);
       const yoyValue = data.revenue.yoy >= 100 ? data.revenue.yoy - 100 : data.revenue.yoy;
       setYoYDirect('brand-revenue-yoy', yoyValue);
-
-      // 영업이익 데이터 (brandPLData에서 가져오기)
-      const plData = brandPLData[currentBrand];
-      if (plData && plData.opProfit) {
-        setTextDirect('brand-opprofit', `${plData.opProfit.forecast}억원`);
-        setDeltaDirect('brand-opprofit-change', plData.opProfit.achievement - 100);
-        setYoYDirect('brand-opprofit-yoy', plData.opProfit.yoy);
-        
-        // 영업이익률 계산
-        const opMargin = plData.revenue.forecast > 0 ? (plData.opProfit.forecast / plData.revenue.forecast * 100) : 0;
-        const prevOpMargin = plData.revenue.prev > 0 ? (plData.opProfit.prev / plData.revenue.prev * 100) : 0;
-        const targetOpMargin = plData.revenue.target > 0 ? (plData.opProfit.target / plData.revenue.target * 100) : 0;
-        setTextDirect('brand-opmargin', `${opMargin.toFixed(1)}%`);
-        setDeltaDirect('brand-opmargin-change', opMargin - targetOpMargin, true);
-        setYoYDirect('brand-opmargin-yoy', opMargin - prevOpMargin, true);
+      // 진척율바 업데이트
+      const revenueProgressBar = document.getElementById('brand-revenue-progress');
+      if (revenueProgressBar) {
+        revenueProgressBar.style.width = `${data.revenue.achievement}%`;
       }
 
-      setTextDirect('brand-achievement', `${data.revenue.achievement}%`);
-      setDeltaDirect('brand-achievement-change', data.revenue.achievement - 100);
-      setYoYDirect('brand-achievement-yoy', yoyValue);
+      // 직접이익(이익율) 통합 KPI (현시점 + 월말예상)
+      const profitCurrent = parseFloat(data.current.profit.value) || 0;
+      // 직접이익 월말예상은 직접이익율과 실판매출로 계산하거나 데이터에서 가져오기
+      const profitForecast = data.current.profit.value; // 일단 현시점 값 사용 (나중에 데이터로 교체)
+      const profitForecastValue = parseFloat(profitForecast) || 0;
+      setTextDirect('brand-current-profit', `${profitCurrent.toFixed(1)}억원`);
+      setTextDirect('brand-profit', `${profitForecastValue.toFixed(1)}억원`);
+      // 직접이익율 계산
+      const profitMarginRateCurrent = revenueCurrent > 0 ? (profitCurrent / revenueCurrent * 100) : 0;
+      const profitMarginRateForecast = revenueForecast > 0 ? (profitForecastValue / revenueForecast * 100) : 0;
+      const profitMarginRateCurrentEl = document.getElementById('brand-current-profit-margin-rate');
+      const profitMarginRateEl = document.getElementById('brand-profit-margin-rate');
+      if(profitMarginRateCurrentEl) {
+        profitMarginRateCurrentEl.textContent = `(${profitMarginRateCurrent.toFixed(1)}%)`;
+        applyBlueStyle('brand-current-profit-margin-rate');
+      }
+      if(profitMarginRateEl) {
+        profitMarginRateEl.textContent = `(${profitMarginRateForecast.toFixed(1)}%)`;
+        applyBlueStyle('brand-profit-margin-rate');
+      }
+      setDeltaDirect('brand-profit-change', data.current.profit.achievement ? data.current.profit.achievement - 100 : 0);
+      setYoYDirect('brand-profit-yoy', data.current.profit.yoy);
+      // 진척율바 업데이트
+      const profitProgressBar = document.getElementById('brand-profit-progress');
+      if (profitProgressBar && data.current.profit.achievement) {
+        profitProgressBar.style.width = `${data.current.profit.achievement}%`;
+      }
+
+      // 영업이익(이익율) 통합 KPI (현시점 + 월말예상)
+      const plData = brandPLData[currentBrand];
+      if (plData && plData.opProfit) {
+        // 현시점 (월말예상과 동일하게 표시하거나 별도 데이터 사용)
+        const opProfitCurrent = plData.opProfit.forecast; // 일단 월말예상 값 사용
+        const opProfitCurrentValue = parseFloat(opProfitCurrent) || 0;
+        const opProfitForecastValue = parseFloat(plData.opProfit.forecast) || 0;
+        setTextDirect('brand-current-opprofit', `${opProfitCurrentValue.toFixed(1)}억원`);
+        setTextDirect('brand-opprofit', `${opProfitForecastValue.toFixed(1)}억원`);
+        // 영업이익율 계산
+        const opProfitMarginRateCurrent = revenueCurrent > 0 ? (opProfitCurrentValue / revenueCurrent * 100) : 0;
+        const opProfitMarginRateForecast = revenueForecast > 0 ? (opProfitForecastValue / revenueForecast * 100) : 0;
+        const opProfitMarginRateCurrentEl = document.getElementById('brand-current-opprofit-margin-rate');
+        const opProfitMarginRateEl = document.getElementById('brand-opprofit-margin-rate');
+        if(opProfitMarginRateCurrentEl) {
+          opProfitMarginRateCurrentEl.textContent = `(${opProfitMarginRateCurrent.toFixed(1)}%)`;
+          applyBlueStyle('brand-current-opprofit-margin-rate');
+        }
+        if(opProfitMarginRateEl) {
+          opProfitMarginRateEl.textContent = `(${opProfitMarginRateForecast.toFixed(1)}%)`;
+          applyBlueStyle('brand-opprofit-margin-rate');
+        }
+        setDeltaDirect('brand-opprofit-change', plData.opProfit.achievement - 100);
+        setYoYDirect('brand-opprofit-yoy', plData.opProfit.yoy);
+        // 진척율바 업데이트
+        const opprofitProgressBar = document.getElementById('brand-opprofit-progress');
+        if (opprofitProgressBar) {
+          opprofitProgressBar.style.width = `${plData.opProfit.achievement}%`;
+        }
+      }
+
+      // 진척율 통합 KPI (현시점 + 월말예상)
+      setTextDirect('brand-current-progress', `${data.current.progress.value}%`);
+      // 월말예상 진척율은 목표달성율 사용
+      setTextDirect('brand-progress', `${data.revenue.achievement}%`);
+      setDeltaDirect('brand-progress-change', data.revenue.achievement - 100);
+      setYoYDirect('brand-progress-yoy', yoyValue);
+      // 진척율바 업데이트
+      const progressProgressBar = document.getElementById('brand-progress-progress');
+      if (progressProgressBar) {
+        progressProgressBar.style.width = `${data.revenue.achievement}%`;
+      }
+
+      // 모든 할인율/이익율 요소에 파란색 스타일 강제 적용
+      setTimeout(() => {
+        applyBlueStyle('brand-current-discount-rate');
+        applyBlueStyle('brand-discount-rate');
+        applyBlueStyle('brand-current-profit-margin-rate');
+        applyBlueStyle('brand-profit-margin-rate');
+        applyBlueStyle('brand-current-opprofit-margin-rate');
+        applyBlueStyle('brand-opprofit-margin-rate');
+      }, 0);
 
       // 브랜드별 손익계산서 업데이트
       updateBrandPL();
@@ -1966,6 +2751,65 @@
       setTimeout(()=>{ initBrandCharts(); initRadarToggle(); },100);
     }
 
+    // 전체 손익계산서 할인율 업데이트
+    function updateOverviewDiscountRate() {
+      if (!window.overviewPL) return;
+      
+      const plData = window.overviewPL;
+      
+      // 할인율 계산: (1 - revenue / tagRevenue) * 100
+      let discountPrev = '-';
+      let discountTarget = '-';
+      let discountForecast = '-';
+      
+      if (plData.tagRevenue && plData.tagRevenue.prev && plData.revenue && plData.revenue.prev) {
+        if (plData.tagRevenue.prev > 0) {
+          discountPrev = ((1 - plData.revenue.prev / plData.tagRevenue.prev) * 100).toFixed(1);
+        }
+      }
+      
+      if (plData.tagRevenue && plData.tagRevenue.target && plData.revenue && plData.revenue.target) {
+        if (plData.tagRevenue.target > 0) {
+          discountTarget = ((1 - plData.revenue.target / plData.tagRevenue.target) * 100).toFixed(1);
+        }
+      }
+      
+      if (plData.tagRevenue && plData.tagRevenue.forecast && plData.revenue && plData.revenue.forecast) {
+        if (plData.tagRevenue.forecast > 0) {
+          discountForecast = ((1 - plData.revenue.forecast / plData.tagRevenue.forecast) * 100).toFixed(1);
+        }
+      }
+      
+      // 할인율 값 업데이트
+      const prevEl = document.getElementById('overview-discount-prev');
+      const targetEl = document.getElementById('overview-discount-target');
+      const forecastEl = document.getElementById('overview-discount-forecast');
+      
+      if (prevEl) prevEl.textContent = discountPrev !== '-' ? `${discountPrev}%` : '-';
+      if (targetEl) targetEl.textContent = discountTarget !== '-' ? `${discountTarget}%` : '-';
+      if (forecastEl) forecastEl.textContent = discountForecast !== '-' ? `${discountForecast}%` : '-';
+      
+      // 전년대비 계산: 당년할인율 - 전년할인율
+      if (discountForecast !== '-' && discountPrev !== '-') {
+        const yoy = parseFloat(discountForecast) - parseFloat(discountPrev);
+        const yoyEl = document.getElementById('overview-discount-yoy');
+        if (yoyEl) {
+          const sign = yoy >= 0 ? '+' : '';
+          yoyEl.textContent = `${sign}${yoy.toFixed(1)}%p`;
+        }
+      }
+      
+      // 달성률 계산: 당년할인율 - 계획할인율
+      if (discountForecast !== '-' && discountTarget !== '-') {
+        const achievement = parseFloat(discountForecast) - parseFloat(discountTarget);
+        const achievementEl = document.getElementById('overview-discount-achievement');
+        if (achievementEl) {
+          const sign = achievement >= 0 ? '+' : '';
+          achievementEl.textContent = `${sign}${achievement.toFixed(1)}%p`;
+        }
+      }
+    }
+
     // 브랜드별 손익계산서 업데이트
     function updateBrandPL() {
       const plData = brandPLData[currentBrand];
@@ -1974,7 +2818,7 @@
       // 손익계산서 제목 업데이트
       const plTitle = document.querySelector('#brand-pl h3');
       if (plTitle) {
-        plTitle.textContent = `📊 ${currentBrand} 손익계산서 (8월)`;
+        plTitle.textContent = `📊 ${currentBrand} 손익계산서`;
       }
 
       // 손익계산서 테이블 업데이트
@@ -2001,7 +2845,26 @@
           <tr class="total-row"><td class="item-name">직접이익</td><td class="editable" contenteditable="false">${plData.directProfit.prev}</td><td class="editable" contenteditable="false">${plData.directProfit.target}</td><td class="editable" contenteditable="false">${plData.directProfit.forecast}</td><td class="editable" contenteditable="false">${directProfitYoy}%</td><td class="editable" contenteditable="false">${plData.directProfit.achievement}%</td></tr>
           <tr><td class="item-name sub-item">(영업비)</td><td></td><td></td><td></td><td></td><td></td></tr>
           <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">${plData.opProfit.prev}</td><td class="editable" contenteditable="false">${plData.opProfit.target}</td><td class="editable" contenteditable="false">${plData.opProfit.forecast}</td><td class="editable" contenteditable="false">${opProfitYoy}%</td><td class="editable" contenteditable="false">${plData.opProfit.achievement}%</td></tr>
+          <tr><td class="item-name">할인율</td><td class="editable" contenteditable="false">${plData.discountRate?.prev !== undefined ? `${plData.discountRate.prev}%` : '-'}</td><td class="editable" contenteditable="false">${plData.discountRate?.target !== undefined ? `${plData.discountRate.target}%` : '-'}</td><td class="editable" contenteditable="false">${plData.discountRate?.forecast !== undefined ? `${plData.discountRate.forecast}%` : '-'}</td><td class="editable" contenteditable="false" id="brand-discount-yoy">-</td><td class="editable" contenteditable="false" id="brand-discount-achievement">-</td></tr>
         `;
+        
+        // 할인율 전년대비 및 달성률 계산
+        if (plData.discountRate && plData.discountRate.forecast !== undefined && plData.discountRate.prev !== undefined) {
+          const discountYoy = plData.discountRate.forecast - plData.discountRate.prev;
+          const discountYoyEl = document.getElementById('brand-discount-yoy');
+          if (discountYoyEl) {
+            const sign = discountYoy >= 0 ? '+' : '';
+            discountYoyEl.textContent = `${sign}${discountYoy.toFixed(1)}%p`;
+          }
+        }
+        if (plData.discountRate && plData.discountRate.forecast !== undefined && plData.discountRate.target !== undefined) {
+          const discountAchievement = plData.discountRate.forecast - plData.discountRate.target;
+          const discountAchievementEl = document.getElementById('brand-discount-achievement');
+          if (discountAchievementEl) {
+            const sign = discountAchievement >= 0 ? '+' : '';
+            discountAchievementEl.textContent = `${sign}${discountAchievement.toFixed(1)}%p`;
+          }
+        }
         
         // 테이블 생성 후 편집 내용 적용
         loadEdits();
@@ -2148,8 +3011,13 @@
         SUPRA: { prev: -1.54, target: -0.49, forecast: -1.31 }
       };
 
-      const channels = (channelPlMode === 'revenue' ? channelRevenueData : channelProfitData)[currentBrand] || channelRevenueData.MLB;
-      const totals = (channelPlMode === 'revenue' ? brandRevenueTotals : brandProfitTotals)[currentBrand] || brandRevenueTotals.MLB;
+      // channelPlMode에 따라 데이터 선택
+      const isRevenueMode = channelPlMode === 'revenue';
+      const channelData = isRevenueMode ? channelRevenueData : channelProfitData;
+      const totalsData = isRevenueMode ? brandRevenueTotals : brandProfitTotals;
+      
+      const channels = channelData[currentBrand] || channelData.MLB;
+      const totals = totalsData[currentBrand] || totalsData.MLB;
       const inlineBody = document.getElementById('channel-pl-inline-body');
       if (inlineBody) {
         // 전체 합계 사용 (주요 채널 합계가 아닌 브랜드 전체 합계)
@@ -2403,6 +3271,9 @@
 
       // 전체 브랜드 레이더 차트
       initAllBrandsRadarChart();
+      
+      // 전체현황 트리맵 초기화
+      initOverviewTreemap();
 
       // Waterfall 차트 (손익 구조) - 7단계 (위에서 아래로 차감)
       // 손익계산서 데이터 (억원 단위) - brandPLData에서 전체 합산
@@ -3613,7 +4484,7 @@
         sortSel.setAttribute('data-listener','true');
         sortSel.addEventListener('change', (e)=>{ itemTableSort = e.target.value; renderItemDiffTable(); });
       }
-      // 표 CSV 내보내기 버튼은 제거됨
+      // 표 CSV n튼은 제거됨
       if(btnAlert && !btnAlert.hasAttribute('data-listener')){
         btnAlert.setAttribute('data-listener','true');
         btnAlert.addEventListener('click', ()=>{ itemTableAlertOnly = !itemTableAlertOnly; updateItemTableButtons(); renderItemDiffTable(); });
@@ -4747,6 +5618,35 @@
     let channelTreemapPath = []; // 채널 트리맵 드릴다운 경로
     let itemTreemapPath = []; // 아이템 트리맵 드릴다운 경로
     
+    // 트리맵 크기 저장 키
+    const TREEMAP_SIZE_STORAGE_KEY = 'treemap_sizes';
+    
+    // 트리맵 크기 가져오기 (저장된 크기가 있으면 사용, 없으면 현재 크기 계산 후 저장)
+    function getTreemapSize(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return null;
+      
+      const storedSizes = JSON.parse(localStorage.getItem(TREEMAP_SIZE_STORAGE_KEY) || '{}');
+      
+      // 저장된 크기가 있으면 사용
+      if (storedSizes[containerId]) {
+        return storedSizes[containerId];
+      }
+      
+      // 저장된 크기가 없으면 현재 크기 계산
+      const rect = container.getBoundingClientRect();
+      const size = {
+        width: rect.width,
+        height: rect.height
+      };
+      
+      // localStorage에 저장
+      storedSizes[containerId] = size;
+      localStorage.setItem(TREEMAP_SIZE_STORAGE_KEY, JSON.stringify(storedSizes));
+      
+      return size;
+    }
+    
     // 채널 목록 정의
     const channelList = ['백화점', '면세점', '직영점(가두)', '대리점', '아울렛', '사입', '직영몰', '기타', '제휴몰', '자사몰'];
     
@@ -4904,15 +5804,11 @@
     
     // -------- 트리맵 초기화 (채널별/아이템별 분리) --------
     function initTreemap() {
-      // 채널별 트리맵 업데이트
+      // 채널별 트리맵 업데이트 (동시에 업데이트하여 크기 동기화)
       setTimeout(() => {
         updateChannelTreemap();
-      }, 100);
-      
-      // 아이템별 트리맵 업데이트
-      setTimeout(() => {
         updateItemTreemap();
-      }, 150);
+      }, 100);
       
       // 드릴백 버튼 이벤트 리스너
       const drillbackChannelBtn = document.getElementById('treemapDrillbackChannel');
@@ -5188,6 +6084,253 @@
           titleElement.textContent = '아이템별 매출구성';
         }
       }
+    }
+    
+    // -------- 전체현황 트리맵 데이터 (모든 브랜드 합산) --------
+    function getOverviewChannelTreemapData() {
+      const channelItemSalesData = getChannelItemSalesData();
+      if (!channelItemSalesData || Object.keys(channelItemSalesData).length === 0) return [];
+      
+      const labels = [];
+      const values = [];
+      const parents = [];
+      const ids = [];
+      
+      // 모든 브랜드의 채널별 매출 합계 계산
+      const channelTotals = {};
+      Object.keys(channelItemSalesData).forEach(brandCode => {
+        const brandSalesData = channelItemSalesData[brandCode];
+        if (!brandSalesData) return;
+        
+        Object.keys(brandSalesData).forEach(channelKey => {
+          const channelItems = brandSalesData[channelKey];
+          let channelTotal = 0;
+          Object.values(channelItems).forEach(value => {
+            if (value > 0) channelTotal += value;
+          });
+          if (channelTotal > 0) {
+            const mappedChannel = channelNameToFinal[channelKey] || channelKey;
+            if (!channelTotals[mappedChannel]) channelTotals[mappedChannel] = 0;
+            channelTotals[mappedChannel] += channelTotal;
+          }
+        });
+      });
+      
+      // 채널을 매출순으로 정렬 (내림차순)
+      const sortedChannels = Object.keys(channelTotals)
+        .map(channel => ({ channel, value: channelTotals[channel] || 0 }))
+        .filter(item => item.value > 0)
+        .sort((a, b) => b.value - a.value);
+      
+      // 전체 매출 합계 계산
+      const totalValue = sortedChannels.reduce((sum, item) => sum + item.value, 0);
+      
+      // 정렬된 순서대로 데이터 추가
+      const customText = [];
+      const customDataArray = [];
+      sortedChannels.forEach((item, index) => {
+        const percentage = totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : 0;
+        labels.push(item.channel);
+        values.push(item.value / 100000000);
+        parents.push('');
+        ids.push(`overview-channel-${index}`);
+        customDataArray.push([percentage, 0]);
+        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage}%)</span>`);
+      });
+      
+      return [{
+        type: 'treemap',
+        labels: labels,
+        values: values,
+        parents: parents,
+        ids: ids,
+        text: customText,
+        textinfo: 'text',
+        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<extra></extra>',
+        customdata: customDataArray,
+        textfont: { size: 14 },
+        marker: {
+          colors: [
+            'rgba(79,70,229,0.8)', 'rgba(124,58,237,0.8)', 'rgba(59,130,246,0.8)', 
+            'rgba(16,185,129,0.8)', 'rgba(245,158,11,0.8)', 'rgba(239,68,68,0.8)',
+            'rgba(168,85,247,0.8)', 'rgba(34,197,94,0.8)', 'rgba(251,146,60,0.8)', 
+            'rgba(244,63,94,0.8)'
+          ]
+        }
+      }];
+    }
+    
+    function getOverviewItemTreemapData() {
+      const channelItemSalesData = getChannelItemSalesData();
+      if (!channelItemSalesData || Object.keys(channelItemSalesData).length === 0) return [];
+      
+      const labels = [];
+      const values = [];
+      const parents = [];
+      const ids = [];
+      
+      // 모든 브랜드의 아이템별 매출 합계 계산
+      const itemTotals = {};
+      Object.keys(channelItemSalesData).forEach(brandCode => {
+        const brandSalesData = channelItemSalesData[brandCode];
+        if (!brandSalesData) return;
+        
+        Object.keys(brandSalesData).forEach(channelKey => {
+          const channelItems = brandSalesData[channelKey];
+          Object.keys(channelItems).forEach(itemKey => {
+            const itemValue = channelItems[itemKey];
+            if (itemValue > 0) {
+              if (!itemTotals[itemKey]) itemTotals[itemKey] = 0;
+              itemTotals[itemKey] += itemValue;
+            }
+          });
+        });
+      });
+      
+      // 아이템을 매출순으로 정렬 (내림차순)
+      const sortedItems = Object.keys(itemTotals)
+        .map(item => ({ item, value: itemTotals[item] || 0 }))
+        .filter(item => item.value > 0)
+        .sort((a, b) => b.value - a.value);
+      
+      // 전체 매출 합계 계산
+      const totalValue = sortedItems.reduce((sum, item) => sum + item.value, 0);
+      
+      // 정렬된 순서대로 데이터 추가
+      const customText = [];
+      const customDataArray = [];
+      sortedItems.forEach((item, index) => {
+        const percentage = totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : 0;
+        labels.push(item.item);
+        values.push(item.value / 100000000);
+        parents.push('');
+        ids.push(`overview-item-${index}`);
+        customDataArray.push([percentage, 0]);
+        customText.push(`<b style="font-size:15px;color:white;">${item.item}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage}%)</span>`);
+      });
+      
+      return [{
+        type: 'treemap',
+        labels: labels,
+        values: values,
+        parents: parents,
+        ids: ids,
+        text: customText,
+        textinfo: 'text',
+        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<extra></extra>',
+        customdata: customDataArray,
+        textfont: { size: 14 },
+        marker: {
+          colors: [
+            'rgba(79,70,229,0.8)', 'rgba(124,58,237,0.8)', 'rgba(59,130,246,0.8)', 'rgba(16,185,129,0.8)',
+            'rgba(245,158,11,0.8)', 'rgba(239,68,68,0.8)', 'rgba(168,85,247,0.8)'
+          ]
+        }
+      }];
+    }
+    
+    // -------- 전체현황 트리맵 초기화 --------
+    function initOverviewTreemap() {
+      const channelWrapper = document.getElementById('overviewTreemapWrapperChannel');
+      const itemWrapper = document.getElementById('overviewTreemapWrapperItem');
+      const channelContainer = document.getElementById('overviewTreemapContainerChannel');
+      const itemContainer = document.getElementById('overviewTreemapContainerItem');
+      
+      if (!channelWrapper || !itemWrapper || !channelContainer || !itemContainer) {
+        console.warn('전체현황 트리맵 컨테이너를 찾을 수 없습니다.');
+        return;
+      }
+      
+      // 데이터가 로드되었는지 확인
+      const channelItemSalesData = getChannelItemSalesData();
+      if (!channelItemSalesData || Object.keys(channelItemSalesData).length === 0) {
+        console.warn('전체현황 트리맵 데이터가 아직 로드되지 않았습니다. 잠시 후 다시 시도합니다.');
+        setTimeout(() => {
+          initOverviewTreemap();
+        }, 500);
+        return;
+      }
+      
+      // 두 컨테이너의 배경 크기를 동일하게 맞추기
+      const syncContainerHeights = () => {
+        const channelRect = channelContainer.getBoundingClientRect();
+        const itemRect = itemContainer.getBoundingClientRect();
+        
+        // 두 컨테이너 중 더 큰 높이를 기준으로 동일하게 설정
+        const maxHeight = Math.max(channelRect.height, itemRect.height);
+        channelContainer.style.height = `${maxHeight}px`;
+        itemContainer.style.height = `${maxHeight}px`;
+      };
+      
+      // wrapper 크기를 가져와서 트리맵 크기 설정 (Dashboard_demo.html과 동일하게)
+      const getContainerSize = () => {
+        const itemRect = container.getBoundingClientRect();
+        const channelRect = channelContainer ? channelContainer.getBoundingClientRect() : null;
+        
+        // 두 컨테이너 중 작은 크기를 기준으로 동일하게 설정
+        let width = itemRect.width;
+        let height = itemRect.height;
+        
+        if (channelRect) {
+          width = Math.min(width, channelRect.width);
+          height = Math.min(height, channelRect.height);
+        }
+        
+        return { width, height };
+      };
+      
+      // DOM이 완전히 렌더링된 후 크기 계산
+      setTimeout(() => {
+        // 먼저 컨테이너 높이 동기화
+        syncContainerHeights();
+        
+        // 외부 컨테이너 크기 계산 (트리맵 크기는 외부 컨테이너에 맞춤)
+        const containerSize = getContainerSize();
+        // wrapper 내부 여백을 고려하여 크기 조정
+        const padding = 28; // padding 14px * 2
+        const titleHeight = 40; // 제목 높이
+        const buttonHeight = 0; // 버튼이 없으면 0, 있으면 추가
+        const width = containerSize.width - padding;
+        const height = containerSize.height - padding - titleHeight - buttonHeight;
+        
+        // 채널별 트리맵
+        const channelData = getOverviewChannelTreemapData();
+        if (channelData && channelData.length > 0 && channelData[0].labels && channelData[0].labels.length > 0) {
+          const channelLayout = { 
+            width: width,
+            height: height,
+            margin:{ l:0, r:0, t:0, b:0 }, 
+            paper_bgcolor:'rgba(0,0,0,0)', 
+            plot_bgcolor:'rgba(0,0,0,0)', 
+            font:{ size:14, weight:600 }
+          };
+          const channelConfig = { responsive:false, displayModeBar:false };
+          
+          if (window.Plotly) {
+            window.Plotly.purge(channelWrapper);
+            window.Plotly.newPlot(channelWrapper, channelData, channelLayout, channelConfig);
+          }
+        }
+        
+        // 아이템별 트리맵
+        const itemData = getOverviewItemTreemapData();
+        if (itemData && itemData.length > 0 && itemData[0].labels && itemData[0].labels.length > 0) {
+          const itemLayout = { 
+            width: width,
+            height: height,
+            margin:{ l:0, r:0, t:0, b:0 }, 
+            paper_bgcolor:'rgba(0,0,0,0)', 
+            plot_bgcolor:'rgba(0,0,0,0)', 
+            font:{ size:14, weight:600 }
+          };
+          const itemConfig = { responsive:false, displayModeBar:false };
+          
+          if (window.Plotly) {
+            window.Plotly.purge(itemWrapper);
+            window.Plotly.newPlot(itemWrapper, itemData, itemLayout, itemConfig);
+          }
+        }
+      }, 200);
     }
     
     // -------- 트리맵 데이터 생성 --------
@@ -6838,7 +7981,34 @@
       return m[label] || '0억';
     }
     // -------- 리사이즈 --------
-    window.addEventListener('resize',()=>{ Object.values(charts).forEach(c=>{ if(c) c.resize(); }); });
+    window.addEventListener('resize',()=>{ 
+      // 브랜드별 트리맵 크기 재계산
+      if (document.getElementById('content-brand')?.classList.contains('active')) {
+        setTimeout(() => {
+          updateChannelTreemap();
+          updateItemTreemap();
+        }, 100);
+      }
+      
+      // 전체현황 트리맵 크기 재계산
+      if (document.getElementById('content-overview')?.classList.contains('active')) {
+        setTimeout(() => {
+          // 컨테이너 높이 동기화
+          const channelContainer = document.getElementById('overviewTreemapContainerChannel');
+          const itemContainer = document.getElementById('overviewTreemapContainerItem');
+          if (channelContainer && itemContainer) {
+            const channelRect = channelContainer.getBoundingClientRect();
+            const itemRect = itemContainer.getBoundingClientRect();
+            const maxHeight = Math.max(channelRect.height, itemRect.height);
+            channelContainer.style.height = `${maxHeight}px`;
+            itemContainer.style.height = `${maxHeight}px`;
+          }
+          initOverviewTreemap();
+        }, 100);
+      }
+      
+      Object.values(charts).forEach(c=>{ if(c) c.resize(); }); 
+    });
 
     // -------- 초기화 --------
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -6998,399 +8168,6 @@
       }catch(e){ console.error('renderOverviewTrendByMode failed', e); }
     }
 
-    // -------- 정적 HTML 내보내기 (현재 화면 상태 그대로 하드코딩) --------
-    function exportStaticHTML(){
-      try{
-        // 1. 현재 차트 데이터 추출 (기능 유지를 위해 데이터만 하드코딩)
-        const exportedChartData = {};
-        
-        // 브랜드별 매출 차트 데이터 추출
-        let hardcodedBrandLabels = ['MLB','MLB KIDS','DISCOVERY','DUVETICA','SERGIO','SUPRA'];
-        let hardcodedBrandSales = [236.9,78.9,42.1,28.7,31.2,16.8];
-        let hardcodedBrandProfit = [16.6,11.8,4.8,3.9,4.2,1.8];
-        
-        if (charts.brandRevenue && charts.brandRevenue.data) {
-          exportedChartData.brandRevenue = {
-            labels: [...(charts.brandRevenue.data.labels || [])],
-            datasets: charts.brandRevenue.data.datasets.map(ds => ({
-              label: ds.label || '',
-              data: [...(ds.data || [])],
-              backgroundColor: ds.backgroundColor,
-              borderColor: ds.borderColor,
-              borderWidth: ds.borderWidth,
-              yAxisID: ds.yAxisID
-            }))
-          };
-          // 하드코딩 값 업데이트
-          if (exportedChartData.brandRevenue.labels.length > 0) {
-            hardcodedBrandLabels = [...exportedChartData.brandRevenue.labels];
-          }
-          exportedChartData.brandRevenue.datasets.forEach((ds, idx) => {
-            if (ds.label && ds.label.includes('매출') && ds.data.length > 0) {
-              hardcodedBrandSales = [...ds.data];
-            }
-            if (ds.label && ds.label.includes('이익') && ds.data.length > 0) {
-              hardcodedBrandProfit = [...ds.data];
-            }
-          });
-        }
-        
-        // 브랜드별 기여도 차트
-        if (charts.brandContribution && charts.brandContribution.data) {
-          exportedChartData.brandContribution = {
-            labels: [...(charts.brandContribution.data.labels || [])],
-            datasets: charts.brandContribution.data.datasets.map(ds => ({
-              label: ds.label || '',
-              data: [...(ds.data || [])],
-              backgroundColor: Array.isArray(ds.backgroundColor) ? [...ds.backgroundColor] : ds.backgroundColor,
-              borderColor: Array.isArray(ds.borderColor) ? [...ds.borderColor] : ds.borderColor,
-              borderWidth: ds.borderWidth
-            }))
-          };
-        }
-        
-        // 주차별 매출 추세 차트
-        let hardcodedWeeklyLabels = ['1주차','2주차','3주차','4주차','5주차'];
-        let hardcodedWeeklyData = {};
-        
-        if (charts.weeklyTrend && charts.weeklyTrend.data) {
-          exportedChartData.weeklyTrend = {
-            labels: [...(charts.weeklyTrend.data.labels || [])],
-            datasets: charts.weeklyTrend.data.datasets.map(ds => ({
-              label: ds.label || '',
-              data: [...(ds.data || [])],
-              type: ds.type,
-              backgroundColor: ds.backgroundColor,
-              borderColor: ds.borderColor,
-              borderWidth: ds.borderWidth,
-              tension: ds.tension,
-              fill: ds.fill,
-              pointRadius: ds.pointRadius,
-              borderDash: ds.borderDash
-            }))
-          };
-          if (exportedChartData.weeklyTrend.labels.length > 0) {
-            hardcodedWeeklyLabels = [...exportedChartData.weeklyTrend.labels];
-          }
-          exportedChartData.weeklyTrend.datasets.forEach(ds => {
-            hardcodedWeeklyData[ds.label] = [...ds.data];
-          });
-        }
-        
-        // 라이다 차트
-        let hardcodedRadarData = {};
-        if (charts.radar && charts.radar.data) {
-          exportedChartData.radar = {
-            labels: [...(charts.radar.data.labels || [])],
-            datasets: charts.radar.data.datasets.map(ds => ({
-              label: ds.label || '',
-              data: [...(ds.data || [])],
-              borderColor: ds.borderColor,
-              backgroundColor: ds.backgroundColor,
-              borderWidth: ds.borderWidth,
-              pointRadius: ds.pointRadius
-            }))
-          };
-          exportedChartData.radar.datasets.forEach(ds => {
-            hardcodedRadarData[ds.label] = {
-              labels: [...exportedChartData.radar.labels],
-              data: [...ds.data]
-            };
-          });
-        }
-        
-        // 2. 현재 화면의 모든 텍스트/숫자 값 추출
-        const currentTextValues = {};
-        document.querySelectorAll('.editable').forEach((el) => {
-          const key = getElementKey(el);
-          const isTableCell = el.tagName === 'TD' || el.closest('table');
-          const content = isTableCell ? el.textContent.trim() : el.innerHTML.trim();
-          currentTextValues[key] = content;
-        });
-        
-        // 3. 현재 KPI 값 추출
-        const currentKPIValues = {};
-        ['overview-current-revenue', 'overview-current-profit', 'overview-current-margin'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) currentKPIValues[id] = el.textContent.trim();
-        });
-        
-        // 4. 현재 브랜드별 KPI 값 추출
-        const currentBrandKPIValues = {};
-        ['brand-current-revenue', 'brand-current-profit', 'brand-current-margin'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) currentBrandKPIValues[id] = el.textContent.trim();
-        });
-        
-        // 5. 현재 모드 상태 추출
-        const currentModes = {
-          overviewMode: window.overviewMode || 'weekly',
-          weeklyMode: weeklyMode || 'weekly',
-          radarChartType: window.radarChartType || 'channel',
-          treemapCurrentType: typeof treemapCurrentType !== 'undefined' ? treemapCurrentType : 'channel'
-        };
-        
-        // 6. 저장된 편집 내용 수집
-        const savedEdits = localStorage.getItem('dashboard_edits');
-        const savedAISummaryEdits = localStorage.getItem('ai-summary-edits');
-        const savedAIPartEdits = {};
-        ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'].forEach(brand => {
-          const edits = localStorage.getItem(`ai-part-edits-${brand}`);
-          if (edits) savedAIPartEdits[brand] = JSON.parse(edits);
-        });
-        
-        // 7. DOM 복제
-        const clone = document.documentElement.cloneNode(true);
-        
-        // 7-1. body 스타일 수정: 가로 스크롤 제거 (레이아웃 유지)
-        const body = clone.querySelector('body');
-        if (body) {
-          body.style.overflowX = 'hidden';
-        }
-        
-        // 8. 편집된 내용 적용
-        if (savedEdits) {
-          const edits = JSON.parse(savedEdits);
-          const editables = clone.querySelectorAll('.editable');
-          editables.forEach(el => {
-            const key = getElementKey(el);
-            if (edits[key] !== undefined) {
-              if (el.innerHTML && el.innerHTML.includes('<')) {
-                el.innerHTML = edits[key];
-              } else {
-                el.textContent = edits[key];
-              }
-            }
-          });
-        }
-        
-        // AI 한장요약 편집 내용 적용
-        if (savedAISummaryEdits) {
-          const edits = JSON.parse(savedAISummaryEdits);
-          const editables = clone.querySelectorAll('.ai-editable');
-          editables.forEach((el, index) => {
-            const key = `ai-summary-${index}`;
-            if (edits[key] !== undefined) {
-              el.innerHTML = edits[key];
-            }
-          });
-        }
-        
-        // AI 파트별 분석 편집 내용 적용
-        Object.keys(savedAIPartEdits).forEach(brand => {
-          const edits = savedAIPartEdits[brand];
-          const editables = clone.querySelectorAll(`.ai-part-editable`);
-          editables.forEach(el => {
-            const id = el.id || '';
-            let key = '';
-            if (id.includes('treemap')) key = 'ai-part-treemap';
-            else if (id.includes('radar')) key = 'ai-part-radar';
-            else if (id.includes('channel-pl')) key = 'ai-part-channel-pl';
-            else if (id.includes('weekly')) key = 'ai-part-weekly';
-            else if (id.includes('sale-rate')) key = 'ai-part-sale-rate';
-            else if (id.includes('inventory')) key = 'ai-part-inventory';
-            else if (id.includes('ai-part-note-1')) key = 'ai-part-pl';
-            
-            if (key && edits[key] !== undefined) {
-              el.innerHTML = edits[key];
-            }
-          });
-        });
-        
-        // 9. 편집모드 및 동적 속성 제거
-        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
-        
-        // 10. 스크립트에 하드코딩된 데이터 주입
-        const scripts = clone.querySelectorAll('script');
-        scripts.forEach(script => {
-          if (script.textContent) {
-            // window.DASHBOARD_DATA를 현재 상태로 하드코딩
-            if (script.textContent.includes('const D = window.DASHBOARD_DATA')) {
-              // 현재 추출한 데이터로 D 객체 생성
-              // 하드코딩된 데이터 주입
-              const exportedStaticData = {
-                chartData: exportedChartData,
-                textValues: currentTextValues,
-                kpiValues: currentKPIValues,
-                brandKPIValues: currentBrandKPIValues,
-                modes: currentModes,
-                edits: savedEdits ? JSON.parse(savedEdits) : {},
-                aiSummaryEdits: savedAISummaryEdits ? JSON.parse(savedAISummaryEdits) : {},
-                aiPartEdits: savedAIPartEdits,
-                hardcodedBrandData: {
-                  labels: hardcodedBrandLabels,
-                  sales: hardcodedBrandSales,
-                  profit: hardcodedBrandProfit
-                },
-                hardcodedWeeklyData: {
-                  labels: hardcodedWeeklyLabels,
-                  datasets: hardcodedWeeklyData
-                },
-                hardcodedRadarData: hardcodedRadarData
-              };
-              
-              const hardcodedData = `const D = window.DASHBOARD_DATA || {};\n// 내보낸 시점의 하드코딩된 데이터\nwindow.EXPORTED_STATIC_DATA = ${JSON.stringify(exportedStaticData, null, 2)};\n// 외부 데이터 소스 무효화\nwindow.DASHBOARD_DATA = null;\nwindow.USE_EXPORTED_DATA = true;`;
-              
-              script.textContent = script.textContent.replace(
-                /const D = window\.DASHBOARD_DATA \|\| \{\};/,
-                hardcodedData
-              );
-            }
-            
-            // 차트 초기화 함수들이 하드코딩된 데이터를 사용하도록 수정
-            if (script.textContent.includes('function initOverviewCharts')) {
-              // 외부 데이터 무효화하고 하드코딩된 값 사용
-              script.textContent = script.textContent.replace(
-                /const rows = Array\.isArray\(D\.by_brand\) \? D\.by_brand : null;/g,
-                `// 내보낸 파일: 하드코딩된 데이터 사용\nconst rows = null; // 외부 데이터 무효화`
-              );
-              
-              // 폴백 값들을 현재 추출한 값으로 교체
-              script.textContent = script.textContent.replace(
-                /const labels = rows \? rows\.map\(r=> \(r\.BRAND\|\|r\.brand\|\|r\.name\) \) : \['MLB','MLB KIDS','DISCOVERY','DUVETICA','SERGIO','SUPRA'\];/g,
-                `const labels = ${JSON.stringify(hardcodedBrandLabels)}; // 내보낸 시점의 하드코딩된 값`
-              );
-              script.textContent = script.textContent.replace(
-                /const sales  = rows \? rows\.map\(r=> Number\(r\.SALES\|\|r\.sales\|\|r\.revenue\|\|0\) \) : \[236\.9,78\.9,42\.1,28\.7,31\.2,16\.8\];/g,
-                `const sales = ${JSON.stringify(hardcodedBrandSales)}; // 내보낸 시점의 하드코딩된 값`
-              );
-              script.textContent = script.textContent.replace(
-                /const profit = rows \? rows\.map\(r=> Number\(r\.DIRECT_PROFIT\|\|r\.profit\|\|0\) \) : \[16\.6,11\.8,4\.8,3\.9,4\.2,1\.8\];/g,
-                `const profit = ${JSON.stringify(hardcodedBrandProfit)}; // 내보낸 시점의 하드코딩된 값`
-              );
-            }
-            
-            // 주차별 매출 추세 차트 하드코딩
-            if (script.textContent.includes('updateWeeklyTrendChart')) {
-              // 주차별 데이터 하드코딩
-              if (Object.keys(hardcodedWeeklyData).length > 0) {
-                script.textContent = script.textContent.replace(
-                  /const labels = \['1주차','2주차','3주차','4주차','5주차'\];/g,
-                  `const labels = ${JSON.stringify(hardcodedWeeklyLabels)}; // 내보낸 시점의 하드코딩된 값`
-                );
-                // 각 데이터셋 값도 하드코딩 (정확한 패턴 찾아서 교체)
-                Object.keys(hardcodedWeeklyData).forEach(label => {
-                  const data = hardcodedWeeklyData[label];
-                  const regex = new RegExp(`label: '${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}',[^}]*data: \\[[^\\]]*\\]`, 'g');
-                  script.textContent = script.textContent.replace(regex, (match) => {
-                    return match.replace(/data: \[[^\]]*\]/, `data: ${JSON.stringify(data)}`);
-                  });
-                });
-              }
-            }
-            
-            if (script.textContent.includes('function initBrandCharts')) {
-              script.textContent = script.textContent.replace(
-                /const brandKey = getBrandKey\(currentBrand\);/g,
-                `// 내보낸 파일: 하드코딩된 데이터 사용\nconst brandKey = getBrandKey(currentBrand);\n// window.DASHBOARD_DATA는 null로 설정되어 폴백 값만 사용`
-              );
-            }
-          }
-        });
-        
-        // 11. 스크립트 추가: 내보낸 데이터 사용 로직
-        const head = clone.querySelector('head');
-        if (head) {
-          const exportScript = document.createElement('script');
-          exportScript.textContent = `
-            // 내보낸 파일 초기화 스크립트
-            (function() {
-              if (window.EXPORTED_STATIC_DATA) {
-                // 차트 데이터가 있으면 차트 초기화 시 사용
-                window.ORIGINAL_CHART_DATA = window.EXPORTED_STATIC_DATA.chartData;
-                
-                // 편집 내용 로드
-                if (window.EXPORTED_STATIC_DATA.edits) {
-                  Object.keys(window.EXPORTED_STATIC_DATA.edits).forEach(key => {
-                    const el = document.querySelector('[data-key="' + key + '"]');
-                    if (el) el.innerHTML = window.EXPORTED_STATIC_DATA.edits[key];
-                  });
-                }
-                
-                // AI 편집 내용 로드
-                if (window.EXPORTED_STATIC_DATA.aiSummaryEdits) {
-                  const edits = window.EXPORTED_STATIC_DATA.aiSummaryEdits;
-                  document.querySelectorAll('.ai-editable').forEach((el, index) => {
-                    const key = 'ai-summary-' + index;
-                    if (edits[key]) el.innerHTML = edits[key];
-                  });
-                }
-                
-                // 모드 상태 복원
-                if (window.EXPORTED_STATIC_DATA.modes) {
-                  const modes = window.EXPORTED_STATIC_DATA.modes;
-                  if (modes.overviewMode) window.overviewMode = modes.overviewMode;
-                  if (modes.weeklyMode) window.weeklyMode = modes.weeklyMode;
-                  if (modes.radarChartType) window.radarChartType = modes.radarChartType;
-                  if (modes.treemapCurrentType !== undefined) window.treemapCurrentType = modes.treemapCurrentType;
-                }
-                
-                // 주차별/누적 버튼 이벤트 재연결 (브랜드별 분석용)
-                setTimeout(function() {
-                  if (typeof initWeeklyTrendChart === 'function') {
-                    initWeeklyTrendChart();
-                  }
-                }, 500);
-              }
-            })();
-          `;
-          head.appendChild(exportScript);
-        }
-        
-        // 분석대상일 추출 (YYYY-MM-DD 형식 또는 다른 형식에서 YYMMDD로 변환)
-        let analysisDate = '250817'; // 기본값
-        
-        // D.last_updated에서 날짜 추출 시도
-        if (D.last_updated) {
-          const dateStr = D.last_updated;
-          // "2024-08-17 09:00" 형식 또는 "2024년 8월 17일" 형식 처리
-          const yearMatch = dateStr.match(/20(\d{2})/);
-          const monthMatch = dateStr.match(/(?:-|년\s*)(\d{1,2})(?:월|[-/])/);
-          const dayMatch = dateStr.match(/(?:월\s*|[-/])(\d{1,2})(?:일|\s|$)/);
-          
-          if (yearMatch && monthMatch && dayMatch) {
-            const year = yearMatch[1];
-            const month = monthMatch[1].padStart(2, '0');
-            const day = dayMatch[1].padStart(2, '0');
-            analysisDate = year + month + day;
-          }
-        } else {
-          // last-updated 요소에서 추출 시도
-          const lastUpdatedEl = document.getElementById('last-updated');
-          if (lastUpdatedEl) {
-            const text = lastUpdatedEl.textContent;
-            const yearMatch = text.match(/20(\d{2})/);
-            const monthMatch = text.match(/(?:년\s*)(\d{1,2})(?:월)/);
-            const dayMatch = text.match(/(?:월\s*)(\d{1,2})(?:일)/);
-            
-            if (yearMatch && monthMatch && dayMatch) {
-              const year = yearMatch[1];
-              const month = monthMatch[1].padStart(2, '0');
-              const day = dayMatch[1].padStart(2, '0');
-              analysisDate = year + month + day;
-            }
-          }
-        }
-        
-        const html = '<!DOCTYPE html>\n' + clone.outerHTML;
-        const blob = new Blob([html], {type:'text/html;charset=utf-8;'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `월중 손익예측대시보드_${analysisDate}.html`;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        
-        alert('✅ 내보내기가 완료되었습니다!\n현재 화면 상태가 하드코딩되어 저장되었습니다.\n모든 기능은 유지되며 데이터만 고정됩니다.');
-      }catch(err){
-        alert('내보내기 중 오류가 발생했습니다. 콘솔을 확인해주세요.');
-        console.error('Export error:', err);
-      }
-    }
-    const topExportBtn = document.getElementById('export-btn');
-    if(topExportBtn && !topExportBtn.hasAttribute('data-listener')){
-      topExportBtn.setAttribute('data-listener','true');
-      topExportBtn.addEventListener('click', exportStaticHTML);
-    }
-    
     // -------- 주차별 매출 추세 (주차별/누적) --------
     let weeklyMode = 'weekly'; // 'weekly' or 'cumulative'
     let weeklyChannelFilter = 'all'; // 선택된 채널 필터

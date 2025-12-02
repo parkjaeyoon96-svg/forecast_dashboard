@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
+  const [analysisMonth, setAnalysisMonth] = useState('2025-11');
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -32,11 +33,16 @@ export default function Home() {
       alert('날짜를 선택해주세요.');
       return;
     }
+    if (!analysisMonth) {
+      alert('분석월을 선택해주세요.');
+      return;
+    }
     setLoading(true);
     try {
       // YYYY.MM.DD -> YYYYMMDD 변환
       const dateParam = selectedDate.replace(/\./g, '');
-      router.push(`/dashboard?date=${dateParam}`);
+      // 분석월을 URL 파라미터로 전달
+      router.push(`/dashboard?date=${dateParam}&month=${analysisMonth}`);
     } catch (error) {
       console.error('대시보드 열기 오류:', error);
       alert('대시보드를 열 수 없습니다.');
@@ -111,16 +117,28 @@ export default function Home() {
           </p>
         </div>
         
-        {/* 업데이트 날짜 선택 섹션 */}
+        {/* 분석월 및 업데이트 날짜 선택 섹션 */}
         <div className="w-full bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
           <div className="mb-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              업데이트 날짜 <span className="text-red-500">*</span>
+              분석월 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="month"
+              value={analysisMonth}
+              onChange={(e) => setAnalysisMonth(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium"
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              업데이트 일자 <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-3">
               <input
                 type="date"
-                value={formatDateForInput(selectedDate)}
+                value={formatDateForInput(selectedDate) || '2025-11-17'}
                 onChange={handleDateInputChange}
                 className="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium"
                 placeholder="날짜 선택"

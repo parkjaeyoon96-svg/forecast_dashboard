@@ -2,22 +2,30 @@
 채널별, 아이템별 트리맵 데이터 + 할인율 메트릭 + 모든 대시보드 데이터 생성 스크립트
 
 생성물 (public/):
-- treemap_data_YYYYMMDD.js   (브랜드→채널→아이템 실판매액)
-- data_YYYYMMDD.js           (모든 대시보드 데이터: KPI, PL 테이블, 브랜드별 집계 등)
+- data_YYYYMMDD.js           (모든 대시보드 데이터 통합: 트리맵, KPI, PL 테이블, 브랜드별 집계 등)
 
 할인율 정의:
 - 할인율 = 1 - (실판매액 합 / TAG매출 합)
+
+참고:
+- treemap_data.js는 중복이므로 생성하지 않음
+- data.js에 모든 데이터가 통합되어 있음
 """
 
 import os
 import json
 import pandas as pd
 from datetime import datetime
+import sys
 
 # 경로
 ROOT = os.path.dirname(os.path.dirname(__file__))
 INPUT_DIR = os.path.join(ROOT, "raw")
 OUTPUT_DIR = os.path.join(ROOT, "public")
+
+# brandPLData 생성 모듈 import
+sys.path.append(os.path.dirname(__file__))
+from create_brand_pl_data import create_brand_pl_data
 
 # 브랜드 코드 → 이름
 BRAND_MAPPING = {
@@ -31,7 +39,7 @@ BRAND_MAPPING = {
 
 def find_latest_processed_file(date_str: str = None) -> str:
     """
-    전처리 완료 파일 찾기 (새 구조: raw/YYYYMM/present/YYYYMMDD/)
+    전처리 완료 파일 찾기 (새 구조: raw/YYYYMM/current_year/YYYYMMDD/)
     
     Args:
         date_str: YYYYMMDD 형식의 날짜 문자열 (예: "20251117")
@@ -61,7 +69,7 @@ def find_latest_processed_file(date_str: str = None) -> str:
         print(f"[OK] 전처리 파일 ({date_str}): {os.path.basename(files[0][0])}")
         return files[0][0]
     
-    # 날짜가 지정되지 않은 경우: 모든 월별 폴더의 present/YYYYMMDD/에서 최신 파일 찾기
+    # 날짜가 지정되지 않은 경우: 모든 월별 폴더의 current_year/YYYYMMDD/에서 최신 파일 찾기
     files = []
     for month_item in os.listdir(INPUT_DIR):
         month_path = os.path.join(INPUT_DIR, month_item)
@@ -69,13 +77,13 @@ def find_latest_processed_file(date_str: str = None) -> str:
             continue
         
         # YYYYMM 형식의 월별 폴더
-        present_dir = os.path.join(month_path, "present")
-        if not os.path.exists(present_dir):
+        current_year_dir = os.path.join(month_path, "current_year")
+        if not os.path.exists(current_year_dir):
             continue
         
-        # present 폴더 내의 날짜별 폴더 찾기
-        for date_item in os.listdir(present_dir):
-            date_folder = os.path.join(present_dir, date_item)
+        # current_year 폴더 내의 날짜별 폴더 찾기
+        for date_item in os.listdir(current_year_dir):
+            date_folder = os.path.join(current_year_dir, date_item)
             if os.path.isdir(date_folder) and date_item.isdigit() and len(date_item) == 8:
                 for fn in os.listdir(date_folder):
                     if fn.endswith("_전처리완료.csv"):
@@ -94,9 +102,9 @@ def find_latest_processed_file(date_str: str = None) -> str:
         if os.path.isdir(item_path) and item.isdigit() and len(item) == 8:
             # 날짜 폴더 (YYYYMMDD 형식) - 기존 구조
             for fn in os.listdir(item_path):
-        if fn.endswith("_전처리완료.csv"):
+                if fn.endswith("_전처리완료.csv"):
                     path = os.path.join(item_path, fn)
-            files.append((path, os.path.getmtime(path)))
+                    files.append((path, os.path.getmtime(path)))
         elif os.path.isfile(item_path) and item.endswith("_전처리완료.csv"):
             # 루트 폴더에 직접 있는 파일 (기존 방식 호환)
             files.append((item_path, os.path.getmtime(item_path)))
@@ -318,12 +326,13 @@ def to_channel_pl(channel_pl_df: pd.DataFrame) -> dict:
         }
     return out
 
-def save_data_js(treemap_data: dict, metrics: dict, brand_kpi: dict, channel_pl: dict, out_path: str):
+def save_data_js(treemap_data: dict, metrics: dict, brand_kpi: dict, channel_pl: dict, brand_pl_data: dict, out_path: str):
     """
     window 전역만 갱신하도록 즉시 실행(IIFE) 형태로 기록 (재선언 충돌 방지)
     metrics: dict with keys: channelMetrics, channelItemMetrics, itemMetrics, itemChannelMetrics
     brand_kpi: 브랜드별 KPI 데이터
     channel_pl: 채널별 PL 테이블 데이터
+    brand_pl_data: 브랜드별 손익계산서 데이터
     """
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
@@ -345,7 +354,10 @@ def save_data_js(treemap_data: dict, metrics: dict, brand_kpi: dict, channel_pl:
         f.write(";\n")
         f.write("  var channelPL = ")
         f.write(json.dumps(channel_pl, ensure_ascii=False, indent=2))
-            f.write(";\n")
+        f.write(";\n")
+        f.write("  var brandPLData = ")
+        f.write(json.dumps(brand_pl_data, ensure_ascii=False, indent=2))
+        f.write(";\n")
         f.write("  if (typeof window !== 'undefined') {\n")
         f.write("    window.brandNames = brandNames;\n")
         f.write("    window.channelItemSalesData = channelItemSalesData;\n")
@@ -355,6 +367,21 @@ def save_data_js(treemap_data: dict, metrics: dict, brand_kpi: dict, channel_pl:
         f.write("    window.itemChannelMetrics = itemChannelMetrics;\n")
         f.write("    window.brandKPI = brandKPI;\n")
         f.write("    window.channelPL = channelPL;\n")
+        f.write("    window.brandPLData = brandPLData;\n")
+        f.write("  }\n")
+        f.write("  // D 객체에 brandPLData 추가\n")
+        f.write("  if (typeof window !== 'undefined') {\n")
+        f.write("    if (typeof window.DASHBOARD_DATA === 'undefined') {\n")
+        f.write("      window.DASHBOARD_DATA = {};\n")
+        f.write("    }\n")
+        f.write("    window.DASHBOARD_DATA.brandPLData = brandPLData;\n")
+        f.write("  }\n")
+        f.write("  // 전역 D 객체에 할당 (Dashboard.html에서 사용)\n")
+        f.write("  if (typeof window !== 'undefined') {\n")
+        f.write("    if (typeof window.D === 'undefined') {\n")
+        f.write("      window.D = window.DASHBOARD_DATA || {};\n")
+        f.write("    }\n")
+        f.write("    window.D.brandPLData = brandPLData;\n")
         f.write("  }\n")
         f.write("  console.log('[Data.js] 모든 대시보드 데이터 로드 완료');\n")
         f.write("})();\n")
@@ -385,16 +412,30 @@ def main(date_str: str = None):
     item_channel_metrics = to_nested_metrics_item_channel(itc_sum)
     brand_kpi = to_brand_kpi(brand_sum)
     channel_pl_data = to_channel_pl(channel_pl_df)
+    
+    # brandPLData 생성
+    # date_str이 없으면 파일 경로에서 날짜 추출
+    if not date_str:
+        # 파일 경로에서 날짜 추출: raw/YYYYMM/current_year/YYYYMMDD/ke30_YYYYMMDD_YYYYMM_전처리완료.csv
+        import re
+        path_match = re.search(r'(\d{8})', path)
+        if path_match:
+            date_str = path_match.group(1)
+    
+    if date_str:
+        brand_pl_data = create_brand_pl_data(date_str)
+    else:
+        # 날짜를 찾을 수 없으면 빈 딕셔너리
+        print("  [WARNING] 날짜를 찾을 수 없어 brandPLData를 생성할 수 없습니다.")
+        brand_pl_data = {}
 
     # 날짜별 파일명 생성
     if date_str:
-        treemap_js_path = os.path.join(OUTPUT_DIR, f"treemap_data_{date_str}.js")
         data_js_path = os.path.join(OUTPUT_DIR, f"data_{date_str}.js")
     else:
-    treemap_js_path = os.path.join(OUTPUT_DIR, "treemap_data.js")
-    data_js_path = os.path.join(OUTPUT_DIR, "data.js")
+        data_js_path = os.path.join(OUTPUT_DIR, "data.js")
 
-    save_treemap_js(treemap_data, treemap_js_path)
+    # data.js만 생성 (treemap_data.js는 중복이므로 제거)
     save_data_js(
         treemap_data,
         {
@@ -405,6 +446,7 @@ def main(date_str: str = None):
         },
         brand_kpi,
         channel_pl_data,
+        brand_pl_data,
         data_js_path
     )
 

@@ -10,10 +10,10 @@ export async function GET() {
     const rawDir = join(process.cwd(), 'raw');
     const files = await readdir(rawDir);
     
-    // 새 구조: raw/YYYYMM/present/YYYYMMDD/ke30_YYYYMMDD_YYYYMM_전처리완료.csv
+    // 새 구조: raw/YYYYMM/current_year/YYYYMMDD/ke30_YYYYMMDD_YYYYMM_전처리완료.csv
     const dateMap = new Map<string, string>(); // 날짜 -> 파일명 매핑
     
-    // 1. 새 구조에서 찾기: raw/YYYYMM/present/YYYYMMDD/
+    // 1. 새 구조에서 찾기: raw/YYYYMM/current_year/YYYYMMDD/
     for (const item of files) {
       const itemPath = join(rawDir, item);
       try {
@@ -21,15 +21,15 @@ export async function GET() {
         if (stats.isDirectory() && /^\d{6}$/.test(item)) {
           // 월별 폴더 (YYYYMM 형식)
           const monthPath = itemPath;
-          const presentPath = join(monthPath, 'present');
+          const currentYearPath = join(monthPath, 'current_year');
           
           try {
-            const presentStats = await stat(presentPath);
-            if (presentStats.isDirectory()) {
-              // present 폴더 내의 날짜별 폴더 찾기
-              const dateFolders = await readdir(presentPath);
+            const currentYearStats = await stat(currentYearPath);
+            if (currentYearStats.isDirectory()) {
+              // current_year 폴더 내의 날짜별 폴더 찾기
+              const dateFolders = await readdir(currentYearPath);
               for (const dateFolder of dateFolders) {
-                const dateFolderPath = join(presentPath, dateFolder);
+                const dateFolderPath = join(currentYearPath, dateFolder);
                 try {
                   const dateStats = await stat(dateFolderPath);
                   if (dateStats.isDirectory() && /^\d{8}$/.test(dateFolder)) {
@@ -39,7 +39,7 @@ export async function GET() {
                       if (file.endsWith('_전처리완료.csv')) {
                         const dateStr = dateFolder; // 폴더명이 날짜
                         const formatted = `${dateStr.slice(0, 4)}.${dateStr.slice(4, 6)}.${dateStr.slice(6, 8)}`;
-                        dateMap.set(formatted, join(item, 'present', dateFolder, file));
+                        dateMap.set(formatted, join(item, 'current_year', dateFolder, file));
                       }
                     }
                   }
@@ -49,7 +49,7 @@ export async function GET() {
               }
             }
           } catch (e) {
-            // present 폴더가 없는 경우 무시
+            // current_year 폴더가 없는 경우 무시
           }
         }
       } catch (e) {

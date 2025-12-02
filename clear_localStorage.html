@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalStorage 초기화</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .button {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .button:hover {
+            background: #d32f2f;
+        }
+        .button.success {
+            background: #4caf50;
+        }
+        .button.success:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .list {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        .list li {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ 대시보드 LocalStorage 초기화</h1>
+        
+        <div class="info">
+            <strong>⚠️ 주의사항:</strong>
+            <ul class="list">
+                <li>이 작업은 대시보드에서 편집한 모든 내용을 삭제합니다.</li>
+                <li>삭제된 데이터는 복구할 수 없습니다.</li>
+                <li>초기화 후 대시보드를 새로고침하면 원본 JSON 데이터가 표시됩니다.</li>
+            </ul>
+        </div>
+
+        <button class="button" onclick="clearAll()">전체 초기화</button>
+        <button class="button success" onclick="checkStorage()">현재 상태 확인</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // 대시보드에서 사용하는 모든 localStorage 키 목록
+        const STORAGE_KEYS = [
+            'dashboard_edits',           // 편집된 데이터
+            'dashboard_original',        // 원본 데이터
+            'treemap_sizes',             // 트리맵 크기
+            'ai-summary-edits',          // AI 요약 편집
+            // 브랜드별 AI 파트 편집 (동적으로 생성됨)
+        ];
+
+        // 브랜드 목록
+        const BRANDS = ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'];
+
+        function clearAll() {
+            if (!confirm('정말로 모든 localStorage 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+
+            let clearedCount = 0;
+            const clearedItems = [];
+
+            // 기본 키들 삭제
+            STORAGE_KEYS.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    clearedItems.push(key);
+                    clearedCount++;
+                }
+            });
+
+            // 브랜드별 AI 파트 편집 삭제
+            BRANDS.forEach(brand => {
+                const key = `ai-part-edits-${brand}`;
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    clearedItems.push(key);
+                    clearedCount++;
+                }
+            });
+
+            // 기타 대시보드 관련 키 찾아서 삭제
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (
+                    key.startsWith('dashboard_') ||
+                    key.startsWith('ai-') ||
+                    key.includes('treemap') ||
+                    key.includes('edits')
+                )) {
+                    localStorage.removeItem(key);
+                    if (!clearedItems.includes(key)) {
+                        clearedItems.push(key);
+                        clearedCount++;
+                    }
+                }
+            }
+
+            const resultDiv = document.getElementById('result');
+            if (clearedCount > 0) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>✅ 초기화 완료!</strong><br>
+                    <strong>삭제된 항목 수:</strong> ${clearedCount}개<br>
+                    <strong>삭제된 키:</strong><br>
+                    <ul class="list">
+                        ${clearedItems.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <br>
+                    <strong>다음 단계:</strong> 대시보드를 새로고침하세요.
+                `;
+            } else {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>ℹ️ 삭제할 데이터가 없습니다.</strong><br>
+                    localStorage에 저장된 대시보드 관련 데이터가 없습니다.
+                `;
+            }
+        }
+
+        function checkStorage() {
+            const foundItems = [];
+            let totalSize = 0;
+
+            // 기본 키들 확인
+            STORAGE_KEYS.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    const size = new Blob([value]).size;
+                    totalSize += size;
+                    foundItems.push({
+                        key: key,
+                        size: (size / 1024).toFixed(2) + ' KB',
+                        preview: value.substring(0, 100) + (value.length > 100 ? '...' : '')
+                    });
+                }
+            });
+
+            // 브랜드별 AI 파트 편집 확인
+            BRANDS.forEach(brand => {
+                const key = `ai-part-edits-${brand}`;
+                const value = localStorage.getItem(key);
+                if (value) {
+                    const size = new Blob([value]).size;
+                    totalSize += size;
+                    foundItems.push({
+                        key: key,
+                        size: (size / 1024).toFixed(2) + ' KB',
+                        preview: value.substring(0, 100) + (value.length > 100 ? '...' : '')
+                    });
+                }
+            });
+
+            // 기타 대시보드 관련 키 확인
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (
+                    key.startsWith('dashboard_') ||
+                    key.startsWith('ai-') ||
+                    key.includes('treemap') ||
+                    key.includes('edits')
+                )) {
+                    if (!foundItems.find(item => item.key === key)) {
+                        const value = localStorage.getItem(key);
+                        const size = new Blob([value]).size;
+                        totalSize += size;
+                        foundItems.push({
+                            key: key,
+                            size: (size / 1024).toFixed(2) + ' KB',
+                            preview: value.substring(0, 100) + (value.length > 100 ? '...' : '')
+                        });
+                    }
+                }
+            }
+
+            const resultDiv = document.getElementById('result');
+            if (foundItems.length > 0) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>📊 현재 저장된 데이터:</strong><br>
+                    <strong>총 항목 수:</strong> ${foundItems.length}개<br>
+                    <strong>총 크기:</strong> ${(totalSize / 1024).toFixed(2)} KB<br><br>
+                    <strong>저장된 키 목록:</strong><br>
+                    <ul class="list">
+                        ${foundItems.map(item => `<li><strong>${item.key}</strong> (${item.size})</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>ℹ️ 저장된 데이터가 없습니다.</strong><br>
+                    localStorage에 대시보드 관련 데이터가 없습니다.
+                `;
+            }
+        }
+
+        // 페이지 로드 시 자동으로 현재 상태 확인
+        window.onload = function() {
+            checkStorage();
+        };
+    </script>
+</body>
+</html>
+

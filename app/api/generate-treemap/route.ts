@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     // 원본 전처리 파일 존재 여부 확인
     const rawDir = join(process.cwd(), 'raw');
     const yearMonth = dateParam.slice(0, 6); // YYYYMM
-    const dateFolder = join(rawDir, yearMonth, 'present', dateParam);
+    const dateFolder = join(rawDir, yearMonth, 'current_year', dateParam);
     let sourceFileExists = false;
     
     try {

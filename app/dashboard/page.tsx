@@ -13,12 +13,15 @@ function DashboardContent() {
     document.body.style.padding = '0';
     document.body.style.overflow = 'hidden';
     
-    // URL에서 날짜 파라미터 가져오기
+    // URL에서 날짜 파라미터와 분석월 파라미터 가져오기
     const dateParam = searchParams.get('date');
+    const monthParam = searchParams.get('month');
     const timestamp = Date.now();
     
-    // 날짜 파라미터가 있으면 전달
-    if (dateParam) {
+    // 날짜 파라미터와 분석월 파라미터가 있으면 전달
+    if (dateParam && monthParam) {
+      setSrc(`/Dashboard.html?date=${dateParam}&month=${monthParam}&t=${timestamp}`);
+    } else if (dateParam) {
       setSrc(`/Dashboard.html?date=${dateParam}&t=${timestamp}`);
     } else {
       setSrc(`/Dashboard.html?t=${timestamp}`);

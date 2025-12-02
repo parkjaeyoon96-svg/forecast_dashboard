@@ -53,7 +53,13 @@ export async function GET(request: Request) {
       console.warn(`경고: 주차 시작일이 월요일이 아닙니다. (요일: ${weekStartDayOfWeek})`);
     }
     
-    // 당월 (YYYY-MM 형식)
+    // 주차 시작일의 월을 분석월로 사용
+    const analysisYear = weekStartDate.getFullYear();
+    const analysisMonthNum = weekStartDate.getMonth() + 1;
+    const analysisMonth = `${analysisYear}-${String(analysisMonthNum).padStart(2, '0')}`; // 2025-11
+    const analysisMonthYYYYMM = `${analysisYear}${String(analysisMonthNum).padStart(2, '0')}`; // 202511
+    
+    // 당월 (업데이트일자의 월, YYYY-MM 형식) - 기존 호환성 유지
     const currentMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
     
     // 전년동주차 (정확히 52주 전, 즉 364일 전)
@@ -90,7 +96,9 @@ export async function GET(request: Request) {
         endFormatted: formatDateDot(weekEndDate),
         display: `${formatDateDot(weekStartDate)} ~ ${formatDateDot(weekEndDate)}`
       },
-      currentMonth: currentMonth,
+      analysisMonth: analysisMonth, // 주차 시작일의 월 (2025-11)
+      analysisMonthYYYYMM: analysisMonthYYYYMM, // 주차 시작일의 월 (202511, 배치에서 사용)
+      currentMonth: currentMonth, // 업데이트일자의 월 (기존 호환성 유지)
       prevYearWeek: {
         start: formatDate(prevYearWeekStart),
         end: formatDate(prevYearWeekEnd),

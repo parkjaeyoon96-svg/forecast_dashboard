@@ -17,9 +17,9 @@
       var urlParams = new URLSearchParams(window.location.search);
       var dateParam = urlParams.get('date');
       
-      // 날짜 파라미터가 없으면 기본값 사용
+      // 날짜 파라미터가 없으면 기본값 사용 (최신 날짜)
       if (!dateParam || dateParam.length !== 8) {
-        dateParam = '20251124';
+        dateParam = '20251201';
         console.log('[데이터로드] 날짜 파라미터 없음, 기본값:', dateParam);
       }
       
@@ -54,21 +54,21 @@
       try {
         // Overview 개별 파일 우선 로드 시도
         const [overviewKPI, overviewByBrand, overviewPL, overviewWaterfall, overviewTrend] = await Promise.all([
-          fetch(`${baseUrl}/overview_kpi.json`).then(r => {
+          fetch(`${baseUrl}/overview_kpi.json?t=${Date.now()}`).then(r => {
             console.log(`[데이터로드] overview_kpi.json 응답:`, r.status, r.ok);
             return r.ok ? r.json() : null;
           }).catch(err => {
             console.error(`[데이터로드] overview_kpi.json 로드 실패:`, err);
             return null;
           }),
-          fetch(`${baseUrl}/overview_by_brand.json`).then(r => {
+          fetch(`${baseUrl}/overview_by_brand.json?t=${Date.now()}`).then(r => {
             console.log(`[데이터로드] overview_by_brand.json 응답:`, r.status, r.ok);
             return r.ok ? r.json() : null;
           }).catch(err => {
             console.error(`[데이터로드] overview_by_brand.json 로드 실패:`, err);
             return null;
           }),
-          fetch(`${baseUrl}/overview_pl.json`).then(r => {
+          fetch(`${baseUrl}/overview_pl.json?t=${Date.now()}`).then(r => {
             console.log(`[데이터로드] overview_pl.json 응답:`, r.status, r.ok, r.statusText);
             if (!r.ok) {
               console.error(`[데이터로드] overview_pl.json 로드 실패 - 상태:`, r.status, r.statusText);
@@ -80,14 +80,14 @@
             console.error(`[데이터로드] 시도한 URL:`, `${baseUrl}/overview_pl.json`);
             return null;
           }),
-          fetch(`${baseUrl}/overview_waterfall.json`).then(r => {
+          fetch(`${baseUrl}/overview_waterfall.json?t=${Date.now()}`).then(r => {
             console.log(`[데이터로드] overview_waterfall.json 응답:`, r.status, r.ok);
             return r.ok ? r.json() : null;
           }).catch(err => {
             console.error(`[데이터로드] overview_waterfall.json 로드 실패:`, err);
             return null;
           }),
-          fetch(`${baseUrl}/overview_trend.json`).then(r => {
+          fetch(`${baseUrl}/overview_trend.json?t=${Date.now()}`).then(r => {
             console.log(`[데이터로드] overview_trend.json 응답:`, r.status, r.ok);
             return r.ok ? r.json() : null;
           }).catch(err => {
@@ -116,6 +116,11 @@
               directProfit: overviewPL.directProfit,
               opProfit: overviewPL.opProfit
             });
+            // ★★★ JSON 로드 직후 즉시 손익계산서 업데이트 (다른 전체현황 데이터처럼) ★★★
+            if (typeof updateOverviewPL === 'function') {
+              console.log('[데이터로드] overview_pl.json 로드 직후 updateOverviewPL 즉시 호출');
+              updateOverviewPL();
+            }
           } else {
             console.warn('  ✗ overview_pl.json 로드 실패 또는 데이터 없음');
           }
@@ -1433,8 +1438,13 @@
 
     // ========== 편집 모드 기능 (개선 버전) ==========
     let isEditMode = false;
-    const STORAGE_KEY = 'dashboard_edits';
-    const ORIGINAL_DATA_KEY = 'dashboard_original';
+    // ★★★ 날짜별로 localStorage 키 분리 (각 업데이트 일자별로 독립적으로 저장) ★★★
+    const getStorageKey = (baseKey) => {
+      const dateStr = window.__DATA_DATE__ || '';
+      return dateStr ? `${baseKey}_${dateStr}` : baseKey;
+    };
+    const STORAGE_KEY = getStorageKey('dashboard_edits');
+    const ORIGINAL_DATA_KEY = getStorageKey('dashboard_original');
 
     // ID 기반으로 고유 키 생성
     function getElementKey(el) {
@@ -1503,12 +1513,28 @@
         const editables = document.querySelectorAll('.editable');
         const originalData = {};
         editables.forEach((el) => {
+          // ★★★ KPI와 손익계산서는 원본 데이터에도 저장하지 않음 ★★★
+          const isKPI = el.closest('.kpi-card') !== null || 
+                       el.closest('#overview-kpi-4') !== null || 
+                       el.closest('#overview-kpi-9') !== null ||
+                       el.closest('#brand-kpi') !== null ||
+                       (el.id && (el.id.includes('overview-') || el.id.includes('brand-')) && 
+                        (el.id.includes('revenue') || el.id.includes('profit') || el.id.includes('opprofit') || el.id.includes('progress')));
+          
+          const isPL = el.closest('#overview-pl') !== null || 
+                       el.closest('#brand-pl') !== null ||
+                       el.closest('.pl-table') !== null;
+          
+          if (isKPI || isPL) {
+            return; // KPI와 손익계산서는 원본 데이터에도 저장하지 않음
+          }
+          
           const key = getElementKey(el);
           // innerHTML이 있는 요소는 innerHTML로, 아니면 textContent로
           originalData[key] = el.innerHTML && el.innerHTML.includes('<') ? el.innerHTML : el.textContent;
         });
         localStorage.setItem(ORIGINAL_DATA_KEY, JSON.stringify(originalData));
-        console.log(`📦 원본 데이터 ${Object.keys(originalData).length}개 항목 저장됨`);
+        console.log(`📦 원본 데이터 ${Object.keys(originalData).length}개 항목 저장됨 (KPI 및 손익계산서 제외)`);
       }, 1000);
     }
 
@@ -1522,6 +1548,22 @@
       let changedCount = 0;
       
       editables.forEach((el) => {
+        // ★★★ KPI와 손익계산서는 저장하지 않음 ★★★
+        const isKPI = el.closest('.kpi-card') !== null || 
+                     el.closest('#overview-kpi-4') !== null || 
+                     el.closest('#overview-kpi-9') !== null ||
+                     el.closest('#brand-kpi') !== null ||
+                     (el.id && (el.id.includes('overview-') || el.id.includes('brand-')) && 
+                      (el.id.includes('revenue') || el.id.includes('profit') || el.id.includes('opprofit') || el.id.includes('progress')));
+        
+        const isPL = el.closest('#overview-pl') !== null || 
+                     el.closest('#brand-pl') !== null ||
+                     el.closest('.pl-table') !== null;
+        
+        if (isKPI || isPL) {
+          return; // KPI와 손익계산서는 저장하지 않음
+        }
+        
         const key = getElementKey(el);
         // innerHTML이 있는 요소는 innerHTML로, 아니면 textContent로
         const currentValue = el.innerHTML && el.innerHTML.includes('<') ? el.innerHTML : el.textContent;
@@ -1564,11 +1606,21 @@
         const editables = document.querySelectorAll('.editable');
         let loadedCount = 0;
         editables.forEach((el) => {
-          // ★★★ JSON 데이터 우선: KPI 목표대비/전년대비, 영업이익, 주요 채널별 손익은 localStorage에서 로드하지 않음 ★★★
+          // ★★★ KPI와 손익계산서는 localStorage에서 로드하지 않음 (JSON 데이터만 사용) ★★★
+          const isKPI = el.closest('.kpi-card') !== null || 
+                       el.closest('#overview-kpi-4') !== null || 
+                       el.closest('#overview-kpi-9') !== null ||
+                       el.closest('#brand-kpi') !== null ||
+                       (el.id && (el.id.includes('overview-') || el.id.includes('brand-')) && 
+                        (el.id.includes('revenue') || el.id.includes('profit') || el.id.includes('opprofit') || el.id.includes('progress')));
+          
+          const isPL = el.closest('#overview-pl') !== null || 
+                       el.closest('#brand-pl') !== null ||
+                       el.closest('.pl-table') !== null;
+          
+          // 제외할 요소들 (기존 패턴)
           const id = el.id || '';
           const className = el.className || '';
-          
-          // 제외할 요소들
           const excludePatterns = [
             'opprofit', '영업이익',  // 영업이익
             'revenue-change', 'revenue-yoy',  // 매출 목표대비/전년대비
@@ -1585,9 +1637,10 @@
             (el.closest('table') && el.closest('table').querySelector('#channel-pl-inline-body') === channelPLTableBody)  // 같은 테이블 내에 있는지 확인
           );
           
-          const shouldExclude = excludePatterns.some(pattern => 
-            id.includes(pattern) || className.includes(pattern)
-          ) || isInChannelPLTable;
+          const shouldExclude = isKPI || isPL || 
+                                excludePatterns.some(pattern => 
+                                  id.includes(pattern) || className.includes(pattern)
+                                ) || isInChannelPLTable;
           
           if (shouldExclude) {
             return; // JSON 데이터 우선이므로 localStorage에서 로드하지 않음
@@ -1604,7 +1657,7 @@
             loadedCount++;
           }
         });
-        console.log(`✅ ${loadedCount}개 항목이 로드되었습니다 (총 ${Object.keys(data).length}개 저장됨, KPI 목표대비/전년대비 및 주요 채널별 손익 제외)`);
+        console.log(`✅ ${loadedCount}개 항목이 로드되었습니다 (총 ${Object.keys(data).length}개 저장됨, KPI 및 손익계산서 제외)`);
       } else {
         console.log('⚠️ 저장된 편집 내용이 없습니다.');
       }
@@ -1636,15 +1689,26 @@
     // localStorage 완전 초기화 (천단위 콤마 없는 값 제거)
     function clearAllLocalStorage() {
       // dashboard 관련 localStorage 키 모두 삭제
-      localStorage.removeItem('dashboard_edits');
-      localStorage.removeItem('dashboard_original');
-      localStorage.removeItem('treemap_sizes');
-      // AI 관련 편집 내용도 삭제
-      localStorage.removeItem('ai-summary-edits');
-      // 브랜드별 AI 편집 내용 삭제
-      ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'].forEach(brand => {
-        localStorage.removeItem(`ai-part-edits-${brand}`);
-      });
+      // ★★★ 날짜별로 localStorage 키 사용 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      if (dateStr) {
+        localStorage.removeItem(`dashboard_edits_${dateStr}`);
+        localStorage.removeItem(`dashboard_original_${dateStr}`);
+        localStorage.removeItem(`ai-summary-edits_${dateStr}`);
+        // 브랜드별 AI 편집 내용 삭제
+        ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'].forEach(brand => {
+          localStorage.removeItem(`ai-part-edits-${brand}_${dateStr}`);
+        });
+      } else {
+        // 날짜가 없으면 기존 방식 (하위 호환성)
+        localStorage.removeItem('dashboard_edits');
+        localStorage.removeItem('dashboard_original');
+        localStorage.removeItem('ai-summary-edits');
+        ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'].forEach(brand => {
+          localStorage.removeItem(`ai-part-edits-${brand}`);
+        });
+      }
+      localStorage.removeItem('treemap_sizes'); // treemap_sizes는 날짜와 무관하게 유지
       console.log('✅ localStorage 초기화 완료 (천단위 콤마 없는 값 제거)');
       // 페이지 새로고침하여 포맷팅 재적용
       location.reload();
@@ -1676,7 +1740,24 @@
     function applyEditMode() {
       const editables = document.querySelectorAll('.editable');
       editables.forEach(el => {
-        el.contentEditable = isEditMode;
+        // ★★★ KPI와 손익계산서는 항상 편집 불가능 ★★★
+        const isKPI = el.closest('.kpi-card') !== null || 
+                     el.closest('#overview-kpi-4') !== null || 
+                     el.closest('#overview-kpi-9') !== null ||
+                     el.closest('#brand-kpi') !== null ||
+                     el.id && (el.id.includes('overview-') || el.id.includes('brand-')) && 
+                     (el.id.includes('revenue') || el.id.includes('profit') || el.id.includes('opprofit') || el.id.includes('progress'));
+        
+        const isPL = el.closest('#overview-pl') !== null || 
+                     el.closest('#brand-pl') !== null ||
+                     el.closest('.pl-table') !== null;
+        
+        if (isKPI || isPL) {
+          // KPI와 손익계산서는 항상 편집 불가능
+          el.contentEditable = false;
+        } else {
+          el.contentEditable = isEditMode;
+        }
       });
       
       // AI 파트별 분석 편집 모드도 함께 적용
@@ -1723,13 +1804,19 @@
         }
       });
       
-      localStorage.setItem(`ai-part-edits-${currentBrand}`, JSON.stringify(edits));
-      console.log(`✅ ${currentBrand} 브랜드 AI 파트별 분석 편집 내용 저장됨:`, edits);
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `ai-part-edits-${currentBrand}_${dateStr}` : `ai-part-edits-${currentBrand}`;
+      localStorage.setItem(storageKey, JSON.stringify(edits));
+      console.log(`✅ ${currentBrand} 브랜드 AI 파트별 분석 편집 내용 저장됨 (날짜: ${dateStr}):`, edits);
     }
     
     // AI 파트별 분석 편집 내용 로드
     function loadAIPartEdits() {
-      const savedEdits = localStorage.getItem(`ai-part-edits-${currentBrand}`);
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `ai-part-edits-${currentBrand}_${dateStr}` : `ai-part-edits-${currentBrand}`;
+      const savedEdits = localStorage.getItem(storageKey);
       if (!savedEdits) return;
       
       const edits = JSON.parse(savedEdits);
@@ -1799,26 +1886,7 @@
                 window.updateBrandDataFromKPI();
               }
               
-              // JSON 파일에서 brandPLData 로드 시도 (우선 사용)
-              try {
-                const jsonFileName = dateStr ? `brand_pl_data_${dateStr}.json` : 'brand_pl_data.json';
-                const response = await fetch(`/${jsonFileName}?t=${Date.now()}`);
-                if (response.ok) {
-                  const jsonData = await response.json();
-                  brandPLData = jsonData;
-                  window.brandPLData = jsonData;
-                  console.log('[데이터로드] brandPLData JSON 로드 완료');
-                  // JSON 로드 후 손익계산서 업데이트
-                  if (typeof updateOverviewPL === 'function') {
-                    updateOverviewPL();
-                  }
-                  if (typeof updateBrandPL === 'function') {
-                    updateBrandPL();
-                  }
-                }
-              } catch (e) {
-                console.log('[데이터로드] brandPLData JSON 없음, data.js 데이터 사용');
-              }
+              // brandPLData는 loadAllDashboardData()에서 이미 로드됨 (brand_pl.json)
               
               // dataLoaded 이벤트 발생
               console.log('[Dashboard] 데이터 로드 완료, dataLoaded 이벤트 발생');
@@ -1844,42 +1912,57 @@
                 window.lastUpdated = formattedDate;
               }
               
-              // brandPLData JSON 로드
-              try {
-                const jsonFileName = dateStr ? `brand_pl_data_${dateStr}.json` : 'brand_pl_data.json';
-                const response = await fetch(`/${jsonFileName}?t=${Date.now()}`);
-                if (response.ok) {
-                  const jsonData = await response.json();
-                  brandPLData = jsonData;
-                  window.brandPLData = jsonData;
-                  console.log('[데이터로드] brandPLData JSON 로드 완료');
-                }
-              } catch (e) {
-                console.warn('[데이터로드] brandPLData JSON 로드 실패:', e);
-              }
+              // brandPLData는 loadAllDashboardData()에서 이미 로드됨 (brand_pl.json)
               
               // brandKPI 데이터로 brandData 업데이트
               if (typeof window.brandKPI !== 'undefined' && typeof window.updateBrandDataFromKPI === 'function') {
                 window.updateBrandDataFromKPI();
               }
               
-              // 손익계산서 업데이트
-              console.log('[데이터로드] updateOverviewPL 호출 전, window.overviewPL 상태:', !!window.overviewPL);
+              // 손익계산서 업데이트 (이미 overview_pl.json 로드 시 호출되었지만, 재확인)
+              console.log('[데이터로드] updateOverviewPL 재확인, window.overviewPL 상태:', !!window.overviewPL);
               if (window.overviewPL) {
                 console.log('[데이터로드] window.overviewPL 데이터 샘플:', {
                   tagRevenue: window.overviewPL.tagRevenue,
                   revenue: window.overviewPL.revenue,
                   directProfit: window.overviewPL.directProfit
                 });
-              }
-              if (typeof updateOverviewPL === 'function') {
-                console.log('[데이터로드] updateOverviewPL 함수 호출');
-                updateOverviewPL();
+                // ★★★ window.overviewPL이 있으면 다시 한번 업데이트 (확실하게) ★★★
+                if (typeof updateOverviewPL === 'function') {
+                  console.log('[데이터로드] updateOverviewPL 재호출 (확실하게)');
+                  updateOverviewPL();
+                }
               } else {
-                console.error('[데이터로드] updateOverviewPL 함수가 정의되지 않았습니다!');
+                console.warn('[데이터로드] window.overviewPL이 없습니다. window.D.overviewPL 확인 중...');
+                // window.D.overviewPL 확인 (data_20251201.js에서 로드된 경우)
+                if (window.D && window.D.overviewPL) {
+                  console.log('[데이터로드] window.D.overviewPL 발견, window.overviewPL에 복사');
+                  window.overviewPL = window.D.overviewPL;
+                  if (typeof updateOverviewPL === 'function') {
+                    updateOverviewPL();
+                  }
+                } else {
+                  console.error('[데이터로드] overview_pl.json 데이터를 찾을 수 없습니다!');
+                }
               }
               if (typeof updateBrandPL === 'function') {
                 updateBrandPL();
+              }
+              
+              // 주차별 매출 추세 차트 업데이트 (weekly_trend.json 로드 후)
+              console.log('[데이터로드] updateWeeklyTrendChart 호출 전, window.weeklySalesTrend 상태:', !!window.weeklySalesTrend);
+              if (window.weeklySalesTrend && window.weeklySalesTrend.rawData) {
+                console.log('[데이터로드] window.weeklySalesTrend 데이터:', {
+                  weeks: window.weeklySalesTrend.weeks?.length,
+                  brands: window.weeklySalesTrend.brands,
+                  rawDataCount: window.weeklySalesTrend.rawData?.length
+                });
+              }
+              if (typeof updateWeeklyTrendChart === 'function') {
+                console.log('[데이터로드] updateWeeklyTrendChart 함수 호출');
+                updateWeeklyTrendChart();
+              } else {
+                console.warn('[데이터로드] updateWeeklyTrendChart 함수가 아직 정의되지 않았습니다.');
               }
               
               // 채널별 손익 데이터 로드 확인
@@ -1907,26 +1990,6 @@
             
             // data.js 로드 코드 제거됨 - 더 이상 사용하지 않음
             return Promise.resolve();
-          };
-          
-          const loadTreemapV2 = () => {
-            return new Promise((resolveTreemapV2) => {
-              const treemapV2Js = document.createElement('script');
-              if (dateStr && dateStr.length === 8) {
-                treemapV2Js.src = `/treemap_data_v2_${dateStr}.js?t=${Date.now()}`;
-              } else {
-                treemapV2Js.src = `/treemap_data_v2.js?t=${Date.now()}`;
-              }
-              treemapV2Js.onload = () => {
-                console.log(`treemap_data_v2${dateStr ? '_' + dateStr : ''}.js 로드 완료`);
-                resolveTreemapV2();
-              };
-              treemapV2Js.onerror = () => {
-                console.warn(`treemap_data_v2${dateStr ? '_' + dateStr : ''}.js 로드 실패 (선택적)`);
-                resolveTreemapV2(); // treemap_v2는 선택적이므로 실패해도 계속 진행
-              };
-              document.head.appendChild(treemapV2Js);
-            });
           };
           
           // window.brandKPI 데이터로 brandData 업데이트 함수 (전역으로 등록)
@@ -2056,8 +2119,8 @@
             }
           };
           
-          // 병렬 로드로 성능 개선 (data.js에 모든 데이터 통합, treemap_v2는 선택적)
-          Promise.all([loadData(), loadTreemapV2()])
+          // JSON 파일만 로드 (JS 파일 제거)
+          loadData()
             .then(() => {
               console.log('모든 데이터 파일 로드 완료');
               resolve();
@@ -2398,8 +2461,11 @@
         edits[key] = el.innerHTML || el.textContent;
       });
       
-      localStorage.setItem('ai-summary-edits', JSON.stringify(edits));
-      console.log('✅ AI 한장요약 편집 내용 저장됨:', edits);
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `ai-summary-edits_${dateStr}` : 'ai-summary-edits';
+      localStorage.setItem(storageKey, JSON.stringify(edits));
+      console.log(`✅ AI 한장요약 편집 내용 저장됨 (날짜: ${dateStr}):`, edits);
     }
     
     // AI 한장요약 편집 내용 로드
@@ -2407,7 +2473,10 @@
       const contentEl = document.getElementById('ai-modal-content');
       if (!contentEl) return;
       
-      const edits = localStorage.getItem('ai-summary-edits');
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `ai-summary-edits_${dateStr}` : 'ai-summary-edits';
+      const edits = localStorage.getItem(storageKey);
       if (edits) {
         const data = JSON.parse(edits);
         const editables = contentEl.querySelectorAll('.ai-editable');
@@ -2445,7 +2514,10 @@
       };
       
       // 저장된 편집 내용 로드
-      const savedEdits = localStorage.getItem('ai-summary-edits');
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `ai-summary-edits_${dateStr}` : 'ai-summary-edits';
+      const savedEdits = localStorage.getItem(storageKey);
       const edits = savedEdits ? JSON.parse(savedEdits) : {};
       
       // 전체 현황 섹션
@@ -2556,7 +2628,10 @@
       };
 
       // 저장된 편집 내용 로드
-      const savedEdits = localStorage.getItem(`ai-part-edits-${currentBrand}`);
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `ai-part-edits-${currentBrand}_${dateStr}` : `ai-part-edits-${currentBrand}`;
+      const savedEdits = localStorage.getItem(storageKey);
       const edits = savedEdits ? JSON.parse(savedEdits) : {};
       
       // 각 그래프별 인사이트 분석 노트 렌더링
@@ -3951,8 +4026,8 @@
           <tr class="total-row"><td class="item-name">영업이익</td><td class="editable" contenteditable="false">${formatNumber(opProfitPrev_원)}</td><td class="editable" contenteditable="false">${formatNumber(opProfitTarget_원)}</td><td class="editable" contenteditable="false">${formatNumber(opProfitForecast_원)}</td><td class="editable" contenteditable="false">${opProfitYoy === '#DIV/0!' ? opProfitYoy : opProfitYoy + '%'}</td><td class="editable" contenteditable="false">${opProfitAchievement}%</td></tr>
         `;
         
-        // 테이블 생성 후 편집 내용 적용
-        loadEdits();
+        // ★★★ 손익계산서는 localStorage에서 로드하지 않음 (JSON 데이터만 사용) ★★★
+        // loadEdits() 호출 제거 - 손익계산서는 항상 JSON 데이터만 표시
         if(isEditMode) applyEditMode();
       }
 
@@ -3967,6 +4042,14 @@
       
       if (!overviewPL) {
         console.warn('[전체손익] window.overviewPL 데이터가 없습니다.');
+        console.warn('[전체손익] window.overviewPL 확인:', window.overviewPL);
+        console.warn('[전체손익] window.D.overviewPL 확인:', window.D?.overviewPL);
+        // window.D.overviewPL도 확인 (data_20251201.js에서 로드된 경우)
+        if (window.D && window.D.overviewPL) {
+          console.log('[전체손익] window.D.overviewPL 사용');
+          window.overviewPL = window.D.overviewPL;
+          return updateOverviewPL(); // 재귀 호출
+        }
         return;
       }
       
@@ -4388,6 +4471,24 @@
     function setText(id, text){ 
       const el=document.getElementById(id); 
       if(el) {
+        // ★★★ KPI와 손익계산서는 항상 JSON 데이터만 사용 (localStorage 무시) ★★★
+        const isKPI = el.closest('.kpi-card') !== null || 
+                     el.closest('#overview-kpi-4') !== null || 
+                     el.closest('#overview-kpi-9') !== null ||
+                     el.closest('#brand-kpi') !== null ||
+                     (id && (id.includes('overview-') || id.includes('brand-')) && 
+                      (id.includes('revenue') || id.includes('profit') || id.includes('opprofit') || id.includes('progress')));
+        
+        const isPL = el.closest('#overview-pl') !== null || 
+                     el.closest('#brand-pl') !== null ||
+                     el.closest('.pl-table') !== null;
+        
+        if (isKPI || isPL) {
+          // KPI와 손익계산서는 항상 JSON 데이터만 사용
+          el.textContent = text;
+          return;
+        }
+        
         // 저장된 편집 내용이 있는지 확인
         const edits = localStorage.getItem(STORAGE_KEY);
         if (edits) {
@@ -4408,6 +4509,25 @@
       const sign = val>=0?'+':'';
       const defaultText = `목표 대비 ${sign}${parseFloat(val).toFixed(1)}${isPctPt?'%p':'%'}`;
       
+      // ★★★ KPI와 손익계산서는 항상 JSON 데이터만 사용 (localStorage 무시) ★★★
+      const isKPI = el.closest('.kpi-card') !== null || 
+                   el.closest('#overview-kpi-4') !== null || 
+                   el.closest('#overview-kpi-9') !== null ||
+                   el.closest('#brand-kpi') !== null ||
+                   (id && (id.includes('overview-') || id.includes('brand-')) && 
+                    (id.includes('revenue') || id.includes('profit') || id.includes('opprofit') || id.includes('progress')));
+      
+      const isPL = el.closest('#overview-pl') !== null || 
+                   el.closest('#brand-pl') !== null ||
+                   el.closest('.pl-table') !== null;
+      
+      if (isKPI || isPL) {
+        // KPI와 손익계산서는 항상 JSON 데이터만 사용
+        el.textContent = defaultText;
+        el.className = 'kpi-change-line editable ' + (val>=0?'kpi-positive':'kpi-negative');
+        return;
+      }
+      
       // 저장된 편집 내용이 있는지 확인
       const edits = localStorage.getItem(STORAGE_KEY);
       if (edits) {
@@ -4423,6 +4543,25 @@
       const el=document.getElementById(id); if(!el) return;
       const sign = val>=0?'+':'';
       const defaultText = `전년 대비 ${sign}${parseFloat(val).toFixed(1)}${isPctPt?'%p':'%'}`;
+      
+      // ★★★ KPI와 손익계산서는 항상 JSON 데이터만 사용 (localStorage 무시) ★★★
+      const isKPI = el.closest('.kpi-card') !== null || 
+                   el.closest('#overview-kpi-4') !== null || 
+                   el.closest('#overview-kpi-9') !== null ||
+                   el.closest('#brand-kpi') !== null ||
+                   (id && (id.includes('overview-') || id.includes('brand-')) && 
+                    (id.includes('revenue') || id.includes('profit') || id.includes('opprofit') || id.includes('progress')));
+      
+      const isPL = el.closest('#overview-pl') !== null || 
+                   el.closest('#brand-pl') !== null ||
+                   el.closest('.pl-table') !== null;
+      
+      if (isKPI || isPL) {
+        // KPI와 손익계산서는 항상 JSON 데이터만 사용
+        el.textContent = defaultText;
+        el.className = 'kpi-change editable ' + (val>=0?'kpi-positive':'kpi-negative');
+        return;
+      }
       
       // 저장된 편집 내용이 있는지 확인
       const edits = localStorage.getItem(STORAGE_KEY);
@@ -8813,15 +8952,15 @@
       
       // 브랜드별 채널 목록 설정 (명시적으로 지정된 채널만 사용)
       // ★ brandToUse 사용 (currentBrand 기반) ★
-      let labels = [];
+      let allLabels = [];
       if (brandToUse === 'MLB') {
         // MLB: 백화점, 면세점, RF, 직영점(가두), 자사몰, 제휴몰, 대리점, 직영몰
         // 주의: '사입', '기타' 등은 레이더 차트에 포함하지 않음
-        labels = ['백화점', '면세점', 'RF', '직영점(가두)', '자사몰', '제휴몰', '대리점', '직영몰'];
+        allLabels = ['백화점', '면세점', 'RF', '직영점(가두)', '자사몰', '제휴몰', '대리점', '직영몰'];
       } else {
         // MLB 외: 백화점, 면세점, 직영점(가두), 자사몰, 제휴몰, 대리점, 직영몰, 아울렛
         // 주의: '사입', '기타' 등은 레이더 차트에 포함하지 않음
-        labels = ['백화점', '면세점', '직영점(가두)', '자사몰', '제휴몰', '대리점', '직영몰', '아울렛'];
+        allLabels = ['백화점', '면세점', '직영점(가두)', '자사몰', '제휴몰', '대리점', '직영몰', '아울렛'];
       }
       
       console.log('[getChannelRadarData] 실제 데이터 사용:', brandToUse, brandCode);
@@ -8831,27 +8970,28 @@
       
       // 전년 데이터: brandKPI에서 채널별 전년 데이터 가져오기 (단위: 원)
       const brandYoyData = brandKPIData[brandCode]?.channelYoy || {};
-      const prevMap = {};
-      labels.forEach(label => {
-        if (label === '직영점(가두)') {
-          prevMap[label] = ((brandYoyData['직영점(가두)'] || brandYoyData['직영점'] || brandYoyData['직영가두'] || 0)) / 100000000;
-        } else if (label === '직영몰') {
-          prevMap[label] = (brandYoyData['직영몰'] || 0) / 100000000;
-        } else if (label === '아울렛') {
-          prevMap[label] = (brandYoyData['아울렛'] || 0) / 100000000;
-        } else if (label === 'RF') {
-          prevMap[label] = (brandYoyData['RF'] || 0) / 100000000;
-        } else if (label === '자사몰') {
-          prevMap[label] = (brandYoyData['자사몰'] || (brandYoyData['온라인'] ? brandYoyData['온라인']/2 : 0)) / 100000000;
-        } else if (label === '제휴몰') {
-          prevMap[label] = (brandYoyData['제휴몰'] || (brandYoyData['온라인'] ? brandYoyData['온라인']/2 : 0)) / 100000000;
-        } else {
-          prevMap[label] = (brandYoyData[label] || 0) / 100000000;
-        }
-      });
       
       // 계획 데이터: brandKPI에서 채널별 계획 데이터 가져오기 (단위: 원)
       const brandPlanData = brandKPIData[brandCode]?.channelPlan || {};
+      
+      // 전년 매출 가져오기 헬퍼 함수
+      const getYoySales = (name) => {
+        if (name === '직영점(가두)') {
+          return ((brandYoyData['직영점(가두)'] || brandYoyData['직영점'] || brandYoyData['직영가두'] || 0)) / 100000000;
+        } else if (name === '직영몰') {
+          return (brandYoyData['직영몰'] || 0) / 100000000;
+        } else if (name === '아울렛') {
+          return (brandYoyData['아울렛'] || 0) / 100000000;
+        } else if (name === 'RF') {
+          return (brandYoyData['RF'] || 0) / 100000000;
+        } else if (name === '자사몰') {
+          return (brandYoyData['자사몰'] || (brandYoyData['온라인'] ? brandYoyData['온라인']/2 : 0)) / 100000000;
+        } else if (name === '제휴몰') {
+          return (brandYoyData['제휴몰'] || (brandYoyData['온라인'] ? brandYoyData['온라인']/2 : 0)) / 100000000;
+        } else {
+          return (brandYoyData[name] || 0) / 100000000;
+        }
+      };
       
       // 당년 데이터에서 채널별 매출 가져오기 (억원 단위)
       const getCurrentSales = (name) => {
@@ -8870,22 +9010,41 @@
         }
       };
       
+      // 계획 매출 가져오기 헬퍼 함수
+      const getPlanSales = (name) => {
+        if (name === '직영점(가두)') {
+          return (brandPlanData['직영점(가두)'] || brandPlanData['직영점'] || brandPlanData['직영가두'] || 0) / 100000000;
+        } else if (name === '직영몰') {
+          return (brandPlanData['직영몰'] || 0) / 100000000;
+        } else if (name === '아울렛') {
+          return (brandPlanData['아울렛'] || 0) / 100000000;
+        } else if (name === 'RF') {
+          return (brandPlanData['RF'] || 0) / 100000000;
+        } else if (name === '자사몰' || name === '제휴몰') {
+          return (brandPlanData[name] || (brandPlanData['온라인'] ? brandPlanData['온라인']/2 : 0)) / 100000000;
+        } else {
+          return (brandPlanData[name] || 0) / 100000000;
+        }
+      };
+      
+      // ★ 전년/당년/계획 중 하나라도 매출이 있는 채널만 필터링 ★
+      const labels = allLabels.filter(label => {
+        const yoySales = getYoySales(label);
+        const currentSales = getCurrentSales(label);
+        const planSales = getPlanSales(label);
+        // 전년, 당년, 계획 중 하나라도 0보다 크면 포함
+        return yoySales > 0 || currentSales > 0 || planSales > 0;
+      });
+      
+      const prevMap = {};
+      labels.forEach(label => {
+        prevMap[label] = getYoySales(label);
+      });
+      
       // 계획 매출 값 저장 (토글에서 사용)
       const planSalesMap = {};
       labels.forEach(n => {
-        if (n === '직영점(가두)') {
-          planSalesMap[n] = (brandPlanData['직영점(가두)'] || brandPlanData['직영점'] || brandPlanData['직영가두'] || 0) / 100000000;
-        } else if (n === '직영몰') {
-          planSalesMap[n] = (brandPlanData['직영몰'] || 0) / 100000000;
-        } else if (n === '아울렛') {
-          planSalesMap[n] = (brandPlanData['아울렛'] || 0) / 100000000;
-        } else if (n === 'RF') {
-          planSalesMap[n] = (brandPlanData['RF'] || 0) / 100000000;
-        } else if (n === '자사몰' || n === '제휴몰') {
-          planSalesMap[n] = (brandPlanData[n] || (brandPlanData['온라인'] ? brandPlanData['온라인']/2 : 0)) / 100000000;
-        } else {
-          planSalesMap[n] = (brandPlanData[n] || 0) / 100000000;
-        }
+        planSalesMap[n] = getPlanSales(n);
       });
       
       // 당년 매출 값 저장 (토글에서 사용)
@@ -9242,7 +9401,6 @@
       console.log('[getItemRadarData] 실제 데이터 사용:', brandToUse, brandCode);
       
       // 아이템 목록 정의 (표시 순서)
-      // 조건: 차시즌의류 없을 경우 레이더 차트에 표기하지 않음
       const allItems = ['당시즌의류', '과시즌의류', '차시즌의류', '모자', '가방', '신발', '기타'];
       
       // 당년 데이터: brandKPI에서 아이템별 당년 데이터 가져오기
@@ -9253,10 +9411,6 @@
       
       // 계획 데이터: brandKPI에서 아이템별 계획 데이터 가져오기
       const brandItemPlan = brandKPIData[brandCode]?.itemPlan || {};
-      
-      // 차시즌의류가 없거나 0인 경우 제외
-      const hasNextSeason = (brandItemCurrent['차시즌의류'] || 0) > 0 || (brandItemYoy['차시즌의류'] || 0) > 0 || (brandItemPlan['차시즌의류'] || 0) > 0;
-      const labels = hasNextSeason ? allItems : allItems.filter(item => item !== '차시즌의류');
       
       // 당년 매출 가져오기 (억원 단위)
       const getCurrentSales = (name) => {
@@ -9272,6 +9426,15 @@
       const getPlanSales = (name) => {
         return (brandItemPlan[name] || 0) / 100000000;
       };
+      
+      // ★ 전년/당년/계획 중 하나라도 매출이 있는 아이템만 필터링 ★
+      const labels = allItems.filter(item => {
+        const yoySales = getYoySales(item);
+        const currentSales = getCurrentSales(item);
+        const planSales = getPlanSales(item);
+        // 전년, 당년, 계획 중 하나라도 0보다 크면 포함
+        return yoySales > 0 || currentSales > 0 || planSales > 0;
+      });
       
       // 계획 매출 값 저장 (토글에서 사용)
       const planSalesMap = {};
@@ -11113,7 +11276,10 @@
       saveOriginalData();
       
       // localStorage에 천단위 콤마 없는 값이 있으면 자동으로 초기화 (최초 1회만)
-      const hasOldFormat = localStorage.getItem('dashboard_edits');
+      // ★★★ 날짜별로 localStorage 키 분리 ★★★
+      const dateStr = window.__DATA_DATE__ || '';
+      const storageKey = dateStr ? `dashboard_edits_${dateStr}` : 'dashboard_edits';
+      const hasOldFormat = localStorage.getItem(storageKey);
       if (hasOldFormat) {
         try {
           const edits = JSON.parse(hasOldFormat);
@@ -11533,10 +11699,14 @@
         
         // 6. 저장된 편집 내용 수집
         const savedEdits = localStorage.getItem('dashboard_edits');
-        const savedAISummaryEdits = localStorage.getItem('ai-summary-edits');
+        // ★★★ 날짜별로 localStorage 키 분리 ★★★
+        const dateStr = window.__DATA_DATE__ || '';
+        const aiSummaryKey = dateStr ? `ai-summary-edits_${dateStr}` : 'ai-summary-edits';
+        const savedAISummaryEdits = localStorage.getItem(aiSummaryKey);
         const savedAIPartEdits = {};
         ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'].forEach(brand => {
-          const edits = localStorage.getItem(`ai-part-edits-${brand}`);
+          const aiPartKey = dateStr ? `ai-part-edits-${brand}_${dateStr}` : `ai-part-edits-${brand}`;
+          const edits = localStorage.getItem(aiPartKey);
           if (edits) savedAIPartEdits[brand] = JSON.parse(edits);
         });
         
