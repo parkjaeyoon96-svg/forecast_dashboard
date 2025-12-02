@@ -3227,19 +3227,46 @@
       console.log('renderInsights currentBrand 데이터:', currentInsightsData[currentBrand]);
 
       if(currentSection==='overview'){
-        const content = (currentInsightsData.overview?.content)||'';
-        const keyPoints = (currentInsightsData.overview?.keyPoints)||'';
+        let content = (currentInsightsData.overview?.content)||'';
+        let keyPoints = (currentInsightsData.overview?.keyPoints)||'';
+        
+        // overview 데이터가 없으면 브랜드별 데이터를 합쳐서 생성
+        if (!content && !keyPoints) {
+          const brands = ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO', 'SUPRA'];
+          const brandContents = [];
+          const brandKeyPoints = [];
+          
+          brands.forEach(brand => {
+            const brandData = currentInsightsData[brand];
+            if (brandData) {
+              if (brandData.content) {
+                brandContents.push(`<strong>${brand}:</strong> ${brandData.content}`);
+              }
+              if (brandData.keyPoints) {
+                brandKeyPoints.push(`<strong>${brand}:</strong> ${brandData.keyPoints}`);
+              }
+            }
+          });
+          
+          if (brandContents.length > 0) {
+            content = brandContents.join('<br><br>');
+          }
+          if (brandKeyPoints.length > 0) {
+            keyPoints = brandKeyPoints.join('<br><br>');
+          }
+        }
+        
         overviewInsights.innerHTML = `
           <div style="margin-bottom: 20px;">
             <div style="font-size: 16px; font-weight: 600; color: #92400e; margin-bottom: 10px;">📋 주요내용</div>
             <div style="margin-left: 10px; color: #78350f; line-height: 1.5;">
-              ${content}
+              ${content || '데이터가 없습니다.'}
             </div>
           </div>
           <div>
             <div style="font-size: 16px; font-weight: 600; color: #92400e; margin-bottom: 10px;">💡 핵심인사이트</div>
             <div style="margin-left: 10px; color: #78350f; line-height: 1.5;">
-              ${keyPoints}
+              ${keyPoints || '데이터가 없습니다.'}
             </div>
           </div>
         `;
