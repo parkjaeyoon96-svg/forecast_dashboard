@@ -18,7 +18,19 @@ export default function Home() {
         if (data.success && data.dates.length > 0) {
           setAvailableDates(data.dates);
           // 기본값을 최신 날짜로 설정
-          setSelectedDate(data.dates[0]);
+          const latestDate = data.dates[0];
+          setSelectedDate(latestDate);
+          
+          // 최신 날짜로부터 분석월 자동 계산
+          const dateParam = latestDate.replace(/\./g, '');
+          fetch(`/api/calculate-date-info?date=${dateParam}`)
+            .then(res => res.json())
+            .then(dateInfo => {
+              if (dateInfo.success && dateInfo.analysisMonth) {
+                setAnalysisMonth(dateInfo.analysisMonth);
+              }
+            })
+            .catch(err => console.error('분석월 계산 실패:', err));
         }
       })
       .catch(err => console.error('날짜 목록 로드 실패:', err));
@@ -131,14 +143,47 @@ export default function Home() {
         setSelectedDate(adjustedFormatted);
         e.target.value = selectedDateObj.toISOString().split('T')[0];
         alert(`업데이트일자는 월요일만 선택 가능합니다.\n선택하신 날짜를 다음 월요일(${adjustedFormatted})로 조정했습니다.`);
+        
+        // 조정된 날짜로 분석월 자동 계산
+        const dateParam = adjustedFormatted.replace(/\./g, '');
+        fetch(`/api/calculate-date-info?date=${dateParam}`)
+          .then(res => res.json())
+          .then(dateInfo => {
+            if (dateInfo.success && dateInfo.analysisMonth) {
+              setAnalysisMonth(dateInfo.analysisMonth);
+            }
+          })
+          .catch(err => console.error('분석월 계산 실패:', err));
       } else {
         // 조정된 날짜가 사용 가능하지 않으면 원래 날짜 유지 (월요일이 아니더라도)
         setSelectedDate(formatted);
         alert(`업데이트일자는 월요일만 선택 가능하지만, 조정된 날짜(${adjustedFormatted})에 데이터가 없습니다.\n현재 선택한 날짜(${formatted})를 유지합니다.`);
+        
+        // 원래 날짜로 분석월 자동 계산
+        const dateParam = formatted.replace(/\./g, '');
+        fetch(`/api/calculate-date-info?date=${dateParam}`)
+          .then(res => res.json())
+          .then(dateInfo => {
+            if (dateInfo.success && dateInfo.analysisMonth) {
+              setAnalysisMonth(dateInfo.analysisMonth);
+            }
+          })
+          .catch(err => console.error('분석월 계산 실패:', err));
       }
     } else {
       // 월요일이면 정상 처리
       setSelectedDate(formatted);
+      
+      // 업데이트 일자 선택 시 분석월 자동 계산
+      const dateParam = formatted.replace(/\./g, '');
+      fetch(`/api/calculate-date-info?date=${dateParam}`)
+        .then(res => res.json())
+        .then(dateInfo => {
+          if (dateInfo.success && dateInfo.analysisMonth) {
+            setAnalysisMonth(dateInfo.analysisMonth);
+          }
+        })
+        .catch(err => console.error('분석월 계산 실패:', err));
     }
   };
 
@@ -158,19 +203,22 @@ export default function Home() {
         <div className="w-full bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
           <div className="mb-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              분석월 <span className="text-red-500">*</span>
+              📅 분석월 <span className="text-red-500">*</span>
             </label>
             <input
               type="month"
               value={analysisMonth}
               onChange={(e) => setAnalysisMonth(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium"
+              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium bg-white"
             />
+            <p className="mt-1 text-xs text-slate-500">
+              업데이트 일자를 선택하면 자동으로 계산됩니다. 필요시 수동으로 변경할 수 있습니다.
+            </p>
           </div>
           
           <div className="mb-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              업데이트 일자 <span className="text-red-500">*</span>
+              📆 업데이트 일자 <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-3">
               <input
