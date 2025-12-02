@@ -2149,13 +2149,31 @@
                 // URL에서 받은 분석월을 사용하거나, 없으면 API에서 받은 analysisMonth(주차 시작일 기준) 사용
                 const displayMonth = monthParam || dateInfo.analysisMonth || dateInfo.currentMonth;
                 
-                // 매출일자 계산: 월초 ~ 업데이트일자의 하루 전
-                const year = dateParam.slice(0, 4);
-                const month = dateParam.slice(4, 6);
-                const day = parseInt(dateParam.slice(6, 8));
-                const prevDay = String(day - 1).padStart(2, '0');
-                const salesDateStart = `${year}-${month}-01`;
-                const salesDateEnd = `${year}-${month}-${prevDay}`;
+                // 매출일자 계산: 분석월의 1일 ~ 업데이트일자의 d-1
+                // 단, 업데이트 일자가 분석월을 넘어갈 경우 말일로 설정
+                const analysisMonthStr = displayMonth.replace('-', ''); // 2025-11 -> 202511
+                const analysisYear = parseInt(analysisMonthStr.slice(0, 4));
+                const analysisMonth = parseInt(analysisMonthStr.slice(4, 6));
+                
+                const updateYear = parseInt(dateParam.slice(0, 4));
+                const updateMonth = parseInt(dateParam.slice(4, 6));
+                const updateDay = parseInt(dateParam.slice(6, 8));
+                
+                // 매출일자 시작: 분석월의 1일
+                const salesDateStart = `${analysisYear}-${String(analysisMonth).padStart(2, '0')}-01`;
+                
+                // 매출일자 종료 계산
+                let salesDateEnd;
+                // 업데이트 일자가 분석월을 넘어가는지 확인
+                if (updateYear > analysisYear || (updateYear === analysisYear && updateMonth > analysisMonth)) {
+                  // 분석월의 말일로 설정
+                  const lastDay = new Date(analysisYear, analysisMonth, 0).getDate();
+                  salesDateEnd = `${analysisYear}-${String(analysisMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+                } else {
+                  // 업데이트 일자의 d-1
+                  const prevDay = updateDay - 1;
+                  salesDateEnd = `${updateYear}-${String(updateMonth).padStart(2, '0')}-${String(prevDay).padStart(2, '0')}`;
+                }
                 
                 dateInfoElement.innerHTML = `분석월: ${displayMonth} | 매출일자 : ${salesDateStart} ~ ${salesDateEnd}`;
               }
@@ -2167,12 +2185,32 @@
               // API 실패 시에도 분석월/매출일자 표시
               const dateInfoElement = document.getElementById('date-info');
               if (dateInfoElement && monthParam) {
-                const year = dateParam.slice(0, 4);
-                const month = dateParam.slice(4, 6);
-                const day = parseInt(dateParam.slice(6, 8));
-                const prevDay = String(day - 1).padStart(2, '0');
-                const salesDateStart = `${year}-${month}-01`;
-                const salesDateEnd = `${year}-${month}-${prevDay}`;
+                // 매출일자 계산: 분석월의 1일 ~ 업데이트일자의 d-1
+                // 단, 업데이트 일자가 분석월을 넘어갈 경우 말일로 설정
+                const analysisMonthStr = monthParam.replace('-', ''); // 2025-11 -> 202511
+                const analysisYear = parseInt(analysisMonthStr.slice(0, 4));
+                const analysisMonth = parseInt(analysisMonthStr.slice(4, 6));
+                
+                const updateYear = parseInt(dateParam.slice(0, 4));
+                const updateMonth = parseInt(dateParam.slice(4, 6));
+                const updateDay = parseInt(dateParam.slice(6, 8));
+                
+                // 매출일자 시작: 분석월의 1일
+                const salesDateStart = `${analysisYear}-${String(analysisMonth).padStart(2, '0')}-01`;
+                
+                // 매출일자 종료 계산
+                let salesDateEnd;
+                // 업데이트 일자가 분석월을 넘어가는지 확인
+                if (updateYear > analysisYear || (updateYear === analysisYear && updateMonth > analysisMonth)) {
+                  // 분석월의 말일로 설정
+                  const lastDay = new Date(analysisYear, analysisMonth, 0).getDate();
+                  salesDateEnd = `${analysisYear}-${String(analysisMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+                } else {
+                  // 업데이트 일자의 d-1
+                  const prevDay = updateDay - 1;
+                  salesDateEnd = `${updateYear}-${String(updateMonth).padStart(2, '0')}-${String(prevDay).padStart(2, '0')}`;
+                }
+                
                 dateInfoElement.innerHTML = `분석월: ${monthParam} | 매출일자 : ${salesDateStart} ~ ${salesDateEnd}`;
               }
             }
