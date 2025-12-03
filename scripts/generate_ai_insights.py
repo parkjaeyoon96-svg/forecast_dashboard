@@ -1788,9 +1788,17 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                 top30_count = max(1, int(len(sorted_by_sales) * 0.3))
                                 top30_items = sorted_by_sales[:top30_count]
                                 
-                                # 판매율 차이(cumSalesRateDiff)가 가장 작은 것 (절대값 기준)
+                                # 판매율 차이가 가장 나쁜(가장 작은 값, 음수) 아이템 찾기
                                 if top30_items:
-                                    min_diff_item = min(top30_items, key=lambda x: abs(x.get("cumSalesRateDiff", 999)) if x.get("cumSalesRateDiff") is not None else 999)
+                                    # 판매율 차이가 음수인 아이템 중에서 가장 나쁜 것 찾기
+                                    negative_diff_items = [item for item in top30_items if item.get("cumSalesRateDiff") is not None and item.get("cumSalesRateDiff", 0) < 0]
+                                    
+                                    if negative_diff_items:
+                                        # 가장 나쁜(가장 작은 값) 아이템 찾기
+                                        worst_diff_item = min(negative_diff_items, key=lambda x: x.get("cumSalesRateDiff", 0))
+                                    else:
+                                        # 음수인 아이템이 없으면 판매율 차이가 가장 작은(0에 가까운) 아이템 찾기
+                                        worst_diff_item = min(top30_items, key=lambda x: abs(x.get("cumSalesRateDiff", 999)) if x.get("cumSalesRateDiff") is not None else 999)
                                     
                                     # 상위 2개 아이템 정보
                                     if len(top2_items) >= 2:
@@ -1803,15 +1811,21 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         item2_rate = item2.get("cumSalesRate", 0) * 100 if item2.get("cumSalesRate") else 0
                                         item2_diff = item2.get("cumSalesRateDiff", 0) * 100 if item2.get("cumSalesRateDiff") is not None else 0
                                         
-                                        # 판매율 차이가 가장 작은 것 (절대값 기준, 0에 가까운 것)
-                                        min_diff_item = min(top30_items, key=lambda x: abs(x.get("cumSalesRateDiff", 999)) if x.get("cumSalesRateDiff") is not None else 999)
-                                        min_diff_name = min_diff_item.get("itemName", "")
-                                        min_diff_rate = min_diff_item.get("cumSalesRate", 0) * 100 if min_diff_item.get("cumSalesRate") else 0
-                                        min_diff_value = min_diff_item.get("cumSalesRateDiff", 0) * 100 if min_diff_item.get("cumSalesRateDiff") is not None else 0
+                                        worst_diff_name = worst_diff_item.get("itemName", "")
+                                        worst_diff_value = worst_diff_item.get("cumSalesRateDiff", 0) * 100 if worst_diff_item.get("cumSalesRateDiff") is not None else 0
                                         
-                                        # 1위, 2위와 min_diff_item이 다른 경우만 추가
-                                        if min_diff_name != item1_name and min_diff_name != item2_name:
-                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
+                                        # 판매율 차이가 나쁜(음수) 아이템이 있고, 1위나 2위와 다른 경우
+                                        if worst_diff_value < 0 and worst_diff_name != item1_name and worst_diff_name != item2_name:
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p), 반면 <strong>{worst_diff_name}</strong>는 누적판매율 전년대비 {worst_diff_value:+.1f}%p로 조치 필요합니다.")
+                                        # 1위나 2위 중 하나가 나쁜 경우
+                                        elif item1_diff < 0 or item2_diff < 0:
+                                            bad_items = []
+                                            if item1_diff < 0:
+                                                bad_items.append(f"<strong>{item1_name}</strong>({item1_diff:+.1f}%p)")
+                                            if item2_diff < 0:
+                                                bad_items.append(f"<strong>{item2_name}</strong>({item2_diff:+.1f}%p)")
+                                            bad_text = ", ".join(bad_items)
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p), {bad_text}는 조치 필요합니다.")
                                         else:
                                             key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p)입니다.")
                                     elif len(top2_items) >= 1:
@@ -1819,10 +1833,17 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         item1_name = item1.get("itemName", "")
                                         item1_rate = item1.get("cumSalesRate", 0) * 100 if item1.get("cumSalesRate") else 0
                                         item1_diff = item1.get("cumSalesRateDiff", 0) * 100 if item1.get("cumSalesRateDiff") is not None else 0
-                                        min_diff_name = min_diff_item.get("itemName", "")
-                                        min_diff_value = min_diff_item.get("cumSalesRateDiff", 0) * 100 if min_diff_item.get("cumSalesRateDiff") is not None else 0
+                                        worst_diff_name = worst_diff_item.get("itemName", "")
+                                        worst_diff_value = worst_diff_item.get("cumSalesRateDiff", 0) * 100 if worst_diff_item.get("cumSalesRateDiff") is not None else 0
                                         
-                                        key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
+                                        # 판매율 차이가 나쁜(음수) 아이템이 있고, 1위와 다른 경우
+                                        if worst_diff_value < 0 and worst_diff_name != item1_name:
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{worst_diff_name}</strong>는 누적판매율 전년대비 {worst_diff_value:+.1f}%p로 조치 필요합니다.")
+                                        # 1위가 나쁜 경우
+                                        elif item1_diff < 0:
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p)로 조치 필요합니다.")
+                                        else:
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p)입니다.")
             
             # 5. 재고주수 판매매출 높은거 2개, 판매매출이 0원인곳 제외 상위 30%중 재고주수가 가장 높은곳
             if stock_file.exists():
@@ -1899,17 +1920,17 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                         if labor_cost > 0:
                             # 직접비율 = (인건비 / 실판매액) * 1.1 * 100
                             labor_ratio = ((labor_cost / revenue_forecast) * 1.1) * 100
-                            direct_cost_items.append(f"인건비 {labor_ratio:.1f}%")
+                            direct_cost_items.append(f"<strong>인건비</strong> {labor_ratio:.1f}%")
                         
                         if rent_cost > 0:
                             # 직접비율 = (임차관리비 / 실판매액) * 1.1 * 100
                             rent_ratio = ((rent_cost / revenue_forecast) * 1.1) * 100
-                            direct_cost_items.append(f"임차관리비 {rent_ratio:.1f}%")
+                            direct_cost_items.append(f"<strong>임차관리비</strong> {rent_ratio:.1f}%")
                         
                         if logistics_cost > 0:
                             # 직접비율 = (물류운송비 / 실판매액) * 1.1 * 100
                             logistics_ratio = ((logistics_cost / revenue_forecast) * 1.1) * 100
-                            direct_cost_items.append(f"물류운송비 {logistics_ratio:.1f}%")
+                            direct_cost_items.append(f"<strong>물류운송비</strong> {logistics_ratio:.1f}%")
                         
                         if direct_cost_items:
                             direct_cost_text = ", ".join(direct_cost_items)
