@@ -524,9 +524,13 @@ def aggregate_by_channel(df, plan_dir: str = None, channel_master: Dict[str, int
     return df_aggregated
 
 
-def main():
+def main(analysis_month=None, update_date=None):
     """
     메인 실행 함수
+    
+    Args:
+        analysis_month: YYYYMM 형식의 분석월 (지정된 경우)
+        update_date: YYYYMMDD 형식의 업데이트일자 (지정된 경우)
     """
     print("=" * 80)
     print("KE30 전체 전처리 파이프라인 시작")
@@ -550,7 +554,15 @@ def main():
     # Step 2: KE30 파일 찾기 및 읽기
     # ==========================================
     print("\n[2단계] KE30 파일 찾기 및 읽기...")
-    excel_path, base_filename = process_ke30.find_latest_ke30_file()
+    
+    if update_date:
+        # 날짜가 지정된 경우: 해당 날짜의 파일 찾기
+        excel_path, base_filename = process_ke30.find_ke30_file_by_date(update_date)
+        if not excel_path:
+            raise FileNotFoundError(f"[ERROR] 업데이트일자 {update_date}에 해당하는 KE30 파일을 찾을 수 없습니다.")
+    else:
+        # 최신 파일 자동 선택
+        excel_path, base_filename = process_ke30.find_latest_ke30_file()
     
     # 파일명에서 날짜 추출 (예: ke30_20251117_202511 -> 20251117, 202511)
     match = re.match(r'ke30_(\d{8})_(\d{6})', base_filename)
@@ -560,27 +572,42 @@ def main():
     date_str = match.group(1)  # 20251117 (업데이트일자)
     file_analysis_month = match.group(2)  # 202511 (파일명의 분석월)
     
+    # 분석월이 지정된 경우 사용, 아니면 파일명에서 추출
+    if analysis_month:
+        final_analysis_month = analysis_month
+        print(f"\n[INFO] 지정된 분석월 사용: {final_analysis_month}")
+    else:
+        final_analysis_month = file_analysis_month
+        print(f"\n[INFO] 파일명에서 분석월 추출: {final_analysis_month}")
+    
+    # 업데이트일자가 지정된 경우 사용, 아니면 파일명에서 추출
+    if update_date:
+        final_update_date = update_date
+        print(f"[INFO] 지정된 업데이트일자 사용: {final_update_date}")
+    else:
+        final_update_date = date_str
+        print(f"[INFO] 파일명에서 업데이트일자 추출: {final_update_date}")
+    
     # 업데이트일자로부터 주차 시작일의 월 계산
-    calculated_analysis_month = calculate_analysis_month_from_update_date(date_str)
+    calculated_analysis_month = calculate_analysis_month_from_update_date(final_update_date)
     
     # 파일명의 분석월과 계산된 분석월 비교
-    if file_analysis_month != calculated_analysis_month:
-        print(f"\n[WARNING] 파일명의 분석월({file_analysis_month})과 계산된 분석월({calculated_analysis_month})이 다릅니다.")
-        print(f"   업데이트일자: {date_str}")
-        print(f"   파일명 분석월: {file_analysis_month}")
+    if final_analysis_month != calculated_analysis_month:
+        print(f"\n[WARNING] 사용할 분석월({final_analysis_month})과 계산된 분석월({calculated_analysis_month})이 다릅니다.")
+        print(f"   업데이트일자: {final_update_date}")
+        print(f"   사용할 분석월: {final_analysis_month}")
         print(f"   계산된 분석월(주차 시작일 기준): {calculated_analysis_month}")
-        print(f"   → 파일명의 분석월({file_analysis_month})을 사용합니다.")
+        print(f"   → 지정된 분석월({final_analysis_month})을 사용합니다.")
     else:
-        print(f"\n[INFO] 분석월 확인: {file_analysis_month} (파일명과 계산 결과 일치)")
+        print(f"\n[INFO] 분석월 확인: {final_analysis_month} (지정값과 계산 결과 일치)")
     
-    # 파일명의 분석월을 사용 (사용자 요청에 따라)
-    analysis_month = file_analysis_month
+    analysis_month = final_analysis_month
+    date_str = final_update_date
     analysis_month_formatted = f"{analysis_month[:4]}-{analysis_month[4:6]}"  # 2025-11
     
-    print(f"\n[INFO] 분석월 설정:")
+    print(f"\n[INFO] 최종 설정:")
     print(f"   업데이트일자: {date_str}")
-    print(f"   사용할 분석월: {analysis_month} (파일명에서 추출)")
-    print(f"   계산된 분석월: {calculated_analysis_month} (주차 시작일 기준, 참고용)")
+    print(f"   사용할 분석월: {analysis_month}")
     
     # 출력 디렉토리 생성
     date_output_dir = CSV_OUTPUT_DIR / analysis_month / "current_year" / date_str
@@ -638,16 +665,28 @@ def main():
     # 직접비율 및 계획 금액 추출
     if rates_output_path.exists():
         print(f"  [INFO] 기존 직접비율 파일 발견: {rates_output_path}")
-        print(f"  [INFO] 기존 파일 재사용 중...")
+        print(f"  [INFO] 기존 파일 재사용 중 (계획 파일 재계산 생략)...")
         rates_pivoted_df = pd.read_csv(rates_output_path, encoding='utf-8-sig')
         print(f"  [OK] 기존 직접비율 파일 로드 완료")
         
-        # rates_df와 plan_amounts_df는 직접비 계산에 필요하므로 계획 파일에서 추출
-        plan_amounts_df = extract_direct.extract_plan_amounts(str(PLAN_DIR), channel_master_for_direct_cost)
-        rates_df = extract_direct.extract_direct_cost_rates(str(PLAN_DIR), channel_master_for_direct_cost)
+        # 직접비율 파일이 있으면 rates_df와 plan_amounts_df도 별도 파일에서 로드 시도
+        # rates_df 파일 경로
+        rates_df_path = PLAN_DIR / f"{analysis_month}R_직접비율_상세.csv"
+        plan_amounts_path = PLAN_DIR / f"{analysis_month}R_직접비금액_상세.csv"
+        
+        if rates_df_path.exists() and plan_amounts_path.exists():
+            print(f"  [INFO] 기존 상세 데이터 파일 발견, 재사용 중...")
+            rates_df = pd.read_csv(rates_df_path, encoding='utf-8-sig')
+            plan_amounts_df = pd.read_csv(plan_amounts_path, encoding='utf-8-sig')
+            print(f"  [OK] 기존 상세 데이터 파일 로드 완료 (계획 파일 재계산 생략)")
+        else:
+            # 상세 파일이 없으면 계획 파일에서 추출 (하위 호환성)
+            print(f"  [INFO] 상세 데이터 파일이 없어 계획 파일에서 추출합니다...")
+            plan_amounts_df = extract_direct.extract_plan_amounts(str(PLAN_DIR), channel_master_for_direct_cost)
+            rates_df = extract_direct.extract_direct_cost_rates(str(PLAN_DIR), channel_master_for_direct_cost)
     else:
         # 기존 파일이 없으면 추출 및 저장
-        print(f"  [INFO] 직접비율 파일이 없어 새로 추출합니다...")
+        print(f"  [INFO] 직접비율 파일이 없어 계획 파일에서 새로 추출합니다...")
         plan_amounts_df = extract_direct.extract_plan_amounts(str(PLAN_DIR), channel_master_for_direct_cost)
         rates_df = extract_direct.extract_direct_cost_rates(str(PLAN_DIR), channel_master_for_direct_cost)
         rates_pivoted_df = extract_direct.pivot_and_format_rates(rates_df, channel_master_for_direct_cost)
@@ -656,6 +695,13 @@ def main():
         rates_output_path.parent.mkdir(parents=True, exist_ok=True)
         rates_pivoted_df.to_csv(rates_output_path, index=False, encoding='utf-8-sig')
         print(f"  [OK] 직접비율 파일 저장: {rates_output_path}")
+        
+        # 상세 데이터도 저장 (다음 실행 시 재사용)
+        rates_df_path = PLAN_DIR / f"{analysis_month}R_직접비율_상세.csv"
+        plan_amounts_path = PLAN_DIR / f"{analysis_month}R_직접비금액_상세.csv"
+        rates_df.to_csv(rates_df_path, index=False, encoding='utf-8-sig')
+        plan_amounts_df.to_csv(plan_amounts_path, index=False, encoding='utf-8-sig')
+        print(f"  [OK] 상세 데이터 파일 저장: {rates_df_path.name}, {plan_amounts_path.name}")
     
     # 채널/아이템별 집계 데이터는 직접비 계산 제외 (매출총이익까지만)
     print("\n  [채널/아이템별 집계 데이터] 직접비 계산 제외 (매출총이익까지만 유지)")

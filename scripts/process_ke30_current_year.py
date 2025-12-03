@@ -164,6 +164,39 @@ def find_latest_ke30_file():
     return latest_file[0], latest_file[3]  # (전체경로, 파일명)
 
 
+def find_ke30_file_by_date(update_date: str):
+    """
+    지정된 업데이트일자에 해당하는 KE30 엑셀 파일 찾기
+    
+    Args:
+        update_date: YYYYMMDD 형식의 업데이트일자
+    
+    Returns:
+        tuple: (파일 전체 경로, 파일명(확장자 제외)) 또는 (None, None) if not found
+    """
+    if not os.path.exists(KE30_INPUT_DIR):
+        raise FileNotFoundError(f"[ERROR] 폴더가 없습니다: {KE30_INPUT_DIR}")
+    
+    # ke30_로 시작하고 지정된 날짜를 포함하는 엑셀 파일 찾기
+    files = []
+    for filename in os.listdir(KE30_INPUT_DIR):
+        if filename.startswith(FILE_PREFIX) and update_date in filename and (filename.endswith('.xlsx') or filename.endswith('.xls')):
+            filepath = os.path.join(KE30_INPUT_DIR, filename)
+            mtime = os.path.getmtime(filepath)
+            # 확장자 제거한 파일명
+            base_name = os.path.splitext(filename)[0]
+            files.append((filepath, mtime, filename, base_name))
+    
+    if not files:
+        return None, None
+    
+    # 최신 파일 선택 (수정 시간 기준)
+    latest_file = sorted(files, key=lambda x: x[1], reverse=True)[0]
+    print(f"[OK] 지정된 날짜의 파일 발견: {latest_file[2]}")
+    
+    return latest_file[0], latest_file[3]  # (전체경로, 파일명)
+
+
 def convert_excel_to_csv(excel_path, output_csv_path):
     """
     엑셀 파일을 CSV로 변환
@@ -601,14 +634,60 @@ def add_cost_calculation_fields(df, jeonganbi_master, evaluation_master, analysi
     
     # 제간비율 마스터 딕셔너리 생성 (브랜드+시즌 -> 비율)
     jeonganbi_map = {}
-    if '브랜드' in jeonganbi_master.columns and '대상시즌' in jeonganbi_master.columns and '비율' in jeonganbi_master.columns:
+    
+    # 컬럼명 찾기 (공백 제거하여 매칭)
+    brand_col = None
+    season_col = None
+    rate_col = None
+    
+    for col in jeonganbi_master.columns:
+        col_clean = str(col).strip()
+        if '브랜드' in col_clean:
+            brand_col = col
+        elif '대상시즌' in col_clean or '시즌' in col_clean:
+            season_col = col
+        elif '비율' in col_clean:
+            rate_col = col
+    
+    if brand_col and season_col and rate_col:
+        print(f"   제간비율 마스터 컬럼: 브랜드={brand_col}, 시즌={season_col}, 비율={rate_col}")
+        
         for _, row in jeonganbi_master.iterrows():
-            brand = str(row['브랜드']).strip()
-            season = str(row['대상시즌']).strip()
-            rate = float(row['비율']) if pd.notna(row['비율']) else 0
+            brand = str(row[brand_col]).strip()
+            season = str(row[season_col]).strip()
+            rate_val = row[rate_col]
+            
+            if pd.notna(rate_val) and brand and season:
+                # 퍼센트 문자열 처리 ('5%' -> 0.05, '5' -> 0.05, '0.05' -> 0.05)
+                rate_str = str(rate_val).strip().replace(',', '').replace(' ', '')
+                
+                try:
+                    # 퍼센트 기호가 있는 경우
+                    if '%' in rate_str:
+                        rate = float(rate_str.replace('%', '')) / 100
+                    else:
+                        rate = float(rate_str)
+                        # 값이 1보다 크면 퍼센트로 간주하여 100으로 나눔 (예: 5 -> 0.05)
+                        if rate > 1:
+                            rate = rate / 100
+                        # 값이 이미 소수 형태인 경우 (0~1 사이)는 그대로 사용
+                except (ValueError, TypeError):
+                    rate = 0
+            else:
+                rate = 0
+            
             key = f"{brand}_{season}"
             jeonganbi_map[key] = rate
+        
         print(f"   제간비율 매핑: {len(jeonganbi_map)}개 조합")
+        # 샘플 출력 (최대 5개)
+        sample_count = 0
+        for key, rate in list(jeonganbi_map.items())[:5]:
+            print(f"     {key}: {rate}")
+            sample_count += 1
+    else:
+        print(f"   [WARNING] 제간비율 마스터 컬럼을 찾을 수 없습니다.")
+        print(f"     현재 컬럼: {list(jeonganbi_master.columns)}")
     
     # 평가율 마스터 딕셔너리 생성 (브랜드+시즌+평가감환입월 -> 평가율)
     # 평가감 환입월 = 분석월의 1달 전 (예: 분석월 2025.11 -> 평가감 환입월 2025.10)

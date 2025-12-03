@@ -530,6 +530,12 @@
         // brand_stock_analysis는 이제 JSON 파일로 로드됨 (stock_analysis.json)
         // JS 파일 로드 코드 제거 - JSON 방식으로 통일
         
+        // 데이터 로드 완료 표시 및 이벤트 발생
+        window.__DATA_LOADED__ = true;
+        console.log('[데이터로드] ✅ 모든 데이터 로드 완료, jsonDataLoaded 이벤트 발생');
+        console.log('[데이터로드] overviewPL:', !!window.overviewPL);
+        window.dispatchEvent(new CustomEvent('jsonDataLoaded'));
+        
       } catch (error) {
         console.error('[데이터로드] 오류:', error);
         window.__DATA_LOADED__ = true; // 에러 시에도 계속 진행
@@ -918,8 +924,8 @@
               <div class="chart-title">당시즌의류/ACC재고주수 분석</div>
               <div style="display:flex;justify-content:center;align-items:center;margin:8px 0 15px 0;">
                 <div style="display:flex;gap:6px;align-items:center;">
-                  <button id="overviewBtnSaleRate" style="background:#e5e7eb;color:#374151;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">판매율</button>
-                  <button id="overviewBtnInventory" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">재고주수</button>
+                  <button id="overviewBtnSaleRate" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">판매율</button>
+                  <button id="overviewBtnInventory" style="background:#e5e7eb;color:#374151;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">재고주수</button>
                 </div>
               </div>
               <!-- 버블 차트용 컨트롤 (재고주수 모드일 때만 표시) -->
@@ -945,7 +951,7 @@
                 </div>
               </div>
               <!-- 판매율 히트맵 (판매율 버튼 클릭 시 표시) -->
-              <div id="overviewHeatmapContainer" style="display:none;margin-bottom:20px;">
+              <div id="overviewHeatmapContainer" style="display:block;margin-bottom:20px;">
                 <div class="heatmap-table" style="overflow-x:auto;">
                   <table id="overviewHeatmapTable" style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px;">
                     <!-- JavaScript로 동적 생성 -->
@@ -953,7 +959,7 @@
                 </div>
               </div>
               <!-- 버블 차트 (재고주수 버튼 클릭 시 표시) -->
-              <div id="overviewBubbleContainer">
+              <div id="overviewBubbleContainer" style="display:none;">
               <div class="chart-wrapper" style="height:700px;">
                 <canvas id="overviewBubbleChart"></canvas>
                 </div>
@@ -3230,12 +3236,19 @@
                 if (opProfitVsPlanText === '-' || opProfitVsPlanText === '적자' || opProfitVsPlanText === '흑자' || opProfitVsPlanText.includes('적자')) {
                   opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanText}`;
                   opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanText.includes('흑자') || opProfitVsPlanText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
+              } else {
+                // 영업이익 계획이 있으면 직접 계산, 없으면 직접이익 목표대비 사용
+                if (opProfitPlanKPI2 > 0 && opProfitForecastKPI2 !== 0) {
+                  const opProfitVsPlanRatio = (opProfitForecastKPI2 / opProfitPlanKPI2) * 100;
+                  opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanRatio.toFixed(1)}%`;
+                  opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanRatio >= 100 ? 'kpi-positive' : 'kpi-negative');
                 } else {
                   const opProfitVsPlanDiff = kpi.profitVsPlan || 0;
                   const opProfitVsPlanRatio = 100 + opProfitVsPlanDiff;
                   opprofitChangeEl.textContent = `목표대비 ${opProfitVsPlanRatio.toFixed(1)}%`;
                   opprofitChangeEl.className = 'kpi-change-line editable ' + (opProfitVsPlanRatio >= 100 ? 'kpi-positive' : 'kpi-negative');
                 }
+              }
               }
               
               if (opprofitYoyEl) {
@@ -3913,8 +3926,13 @@
         return Math.round((forecast / prev) * 100) + '%';
       };
       
-      const formatOperatingProfitAchievement = (forecast, target) => {
+      const formatOperatingProfitAchievement = (forecast, target, fallbackVsPlan = null) => {
+        // target이 없거나 0이면 fallback 사용 (직접이익 목표대비)
         if (!target || target === 0) {
+          if (fallbackVsPlan !== null) {
+            // fallback이 있으면 직접이익 목표대비 사용
+            return fallbackVsPlan >= 100 ? `${fallbackVsPlan.toFixed(1)}%` : `${fallbackVsPlan.toFixed(1)}%`;
+          }
           return '-';
         }
         if (target > 0 && forecast < 0) {
@@ -3954,8 +3972,10 @@
           
           // 숫자 값도 계산 (일반 퍼센트인 경우)
           if (opProfitVsPlanText !== '-' && opProfitVsPlanText !== '적자' && opProfitVsPlanText !== '흑자' && !opProfitVsPlanText.includes('적자')) {
-            const opProfitVsPlanDiff = kpi.profitVsPlan || 0;
-            opProfitVsPlan = 100 + opProfitVsPlanDiff;
+            // 영업이익 계획이 있으면 직접 계산
+            if (opProfitPlan > 0 && opProfitForecast !== 0) {
+              opProfitVsPlan = (opProfitForecast / opProfitPlan) * 100;
+            }
           }
           if (opProfitVsPreviousText !== '-' && opProfitVsPreviousText !== '적자전환' && opProfitVsPreviousText !== '흑자전환' && !opProfitVsPreviousText.includes('적자')) {
             if (kpi.operatingProfitPrevious && kpi.operatingProfitPrevious !== 0) {
@@ -4036,10 +4056,12 @@
                 forcedOpprofitChangeEl.textContent = `목표대비 ${forcedVsPlanText}`;
                 forcedOpprofitChangeEl.className = 'kpi-change-line editable ' + (forcedVsPlanText.includes('흑자') || forcedVsPlanText.includes('개선') ? 'kpi-positive' : 'kpi-negative');
               } else {
-                const forcedVsPlanDiff = kpi.profitVsPlan || 0;
-                const forcedVsPlan = 100 + forcedVsPlanDiff;
-                forcedOpprofitChangeEl.textContent = `목표대비 ${forcedVsPlan.toFixed(1)}%`;
-                forcedOpprofitChangeEl.className = 'kpi-change-line editable ' + (forcedVsPlan >= 100 ? 'kpi-positive' : 'kpi-negative');
+                // 영업이익 계획이 있으면 직접 계산
+                if (forcedOpProfitPlan2 > 0 && forcedOpProfitForecast2 !== 0) {
+                  const forcedVsPlan = (forcedOpProfitForecast2 / forcedOpProfitPlan2) * 100;
+                  forcedOpprofitChangeEl.textContent = `목표대비 ${forcedVsPlan.toFixed(1)}%`;
+                  forcedOpprofitChangeEl.className = 'kpi-change-line editable ' + (forcedVsPlan >= 100 ? 'kpi-positive' : 'kpi-negative');
+                }
               }
             }
             
@@ -4104,6 +4126,11 @@
       const rfBtn = document.getElementById('weeklyChannelFilterRF');
       if (rfBtn) {
         rfBtn.style.display = (currentBrand === 'MLB') ? 'block' : 'none';
+      }
+
+      // 브랜드별 주차별 매출 추세 차트 업데이트
+      if (typeof updateWeeklyTrendChart === 'function') {
+        updateWeeklyTrendChart();
       }
 
       setTimeout(()=>{ initBrandCharts(); initRadarToggle(); },100);
@@ -5713,7 +5740,7 @@
     }
     
     // -------- 전체현황 판매율/재고주수 모드 관리 --------
-    let overviewMode = 'inventory'; // 'sale' | 'inventory' (기본값: 재고주수)
+    let overviewMode = 'sale'; // 'sale' | 'inventory' (기본값: 판매율)
     
     function initOverviewModeButtons(){
       const btnSaleRate = document.getElementById('overviewBtnSaleRate');
@@ -11727,6 +11754,14 @@
             initOverviewBubbleChart();
           }
         }, 100);
+        
+        // 판매율/재고주수 모드 뷰 업데이트 (데이터 로드 후 그래프 표시)
+        setTimeout(() => {
+          if (typeof updateOverviewModeView === 'function') {
+            console.log('[Dashboard] 판매율/재고주수 모드 뷰 업데이트');
+            updateOverviewModeView();
+          }
+        }, 300);
       }
       
       // ★ 로컬 brandPLData 변수를 window.brandPLData로 업데이트
@@ -11809,6 +11844,25 @@
           }
         };
         waitForChannelProfitLoss();
+      }
+      
+      // ★★★ 전체 손익계산서 업데이트 (함수가 정의된 후 호출) ★★★
+      if (window.overviewPL) {
+        console.log('[Dashboard] ✅ overviewPL 데이터 확인, updateOverviewPL 호출 시도');
+        const tryUpdateOverviewPL = (retryCount = 0) => {
+          if (typeof updateOverviewPL === 'function') {
+            console.log('[Dashboard] ✅ updateOverviewPL 함수 발견, 호출');
+            updateOverviewPL();
+          } else if (retryCount < 10) {
+            console.log(`[Dashboard] updateOverviewPL 함수 대기 중... (${retryCount + 1}/10)`);
+            setTimeout(() => tryUpdateOverviewPL(retryCount + 1), 100);
+          } else {
+            console.warn('[Dashboard] ⚠️ updateOverviewPL 함수를 찾을 수 없습니다');
+          }
+        };
+        tryUpdateOverviewPL();
+      } else {
+        console.warn('[Dashboard] ⚠️ window.overviewPL 데이터가 없습니다');
       }
       
       // 데이터 확인 후 초기화

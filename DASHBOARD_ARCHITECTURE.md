@@ -432,3 +432,4 @@ console.log('weeklySalesTrend:', !!window.weeklySalesTrend);
 - `updateOverviewPL()` 직접 호출하여 테이블이 업데이트되는지 확인
 
 
+

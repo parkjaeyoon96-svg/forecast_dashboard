@@ -927,6 +927,13 @@ def convert_to_dict_format(result_df: pd.DataFrame, brand_agg: Dict) -> Dict:
         direct_profit_previous = int(kpi.get('직접이익(전년)', 0))
         direct_profit_plan = int(kpi.get('직접이익(목표)', 0))
         
+        # ★ 영업이익 계획 계산: 직접이익 계획 - 영업비 계획 ★
+        # 먼저 계획 파일에서 직접 가져온 값이 있으면 사용, 없으면 계산
+        op_profit_plan = int(kpi.get('영업이익(목표)', 0))
+        if op_profit_plan == 0:
+            # 계산: 직접이익 계획 - 영업비 계획
+            op_profit_plan = direct_profit_plan - op_expense_plan
+        
         # ★ 목표대비 계산 (월말예상 vs 목표) ★
         # 목표대비 = (월말예상 - 목표) / 목표 × 100
         revenue_vs_plan = round(((revenue_forecast - revenue_plan) / revenue_plan * 100), 1) if revenue_plan > 0 else 0
@@ -964,6 +971,8 @@ def convert_to_dict_format(result_df: pd.DataFrame, brand_agg: Dict) -> Dict:
             'revenuePlan': revenue_plan,
             'directProfitPlan': direct_profit_plan,
             'directProfitRatePlan': round(kpi.get('직접이익율(목표)', 0.0), 2),
+            # ★ 영업이익 계획 추가 (직접이익 계획 - 영업비 계획) ★
+            'operatingProfitPlan': int(op_profit_plan),
             # ★ 목표대비/전년대비 (%) ★
             'revenueVsPlan': revenue_vs_plan,         # 매출 목표대비
             'revenueVsPrevious': revenue_vs_previous, # 매출 전년대비

@@ -11,16 +11,39 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 def main():
-    print("=" * 80)
-    print("  Current Year Data Processing (Full Pipeline)")
-    print("=" * 80)
-    print()
+    # 인자 확인
+    analysis_month = None
+    update_date = None
+    
+    if len(sys.argv) >= 3:
+        # 분석월과 업데이트일자가 모두 지정된 경우
+        analysis_month = sys.argv[1]  # YYYYMM
+        update_date = sys.argv[2]     # YYYYMMDD
+        print("=" * 80)
+        print("  Current Year Data Processing (Full Pipeline)")
+        print("  날짜 지정 모드")
+        print("=" * 80)
+        print(f"  분석월: {analysis_month}")
+        print(f"  업데이트일자: {update_date}")
+        print()
+    else:
+        # 최신 파일 자동 선택 모드
+        print("=" * 80)
+        print("  Current Year Data Processing (Full Pipeline)")
+        print("  최신 파일 자동 선택 모드")
+        print("=" * 80)
+        print()
     
     # Step 1: KE30 Full Pipeline
     print("[Step 1/3] Running KE30 full pipeline (전처리 + 직접비 계산)...")
     from scripts.process_ke30_full_pipeline import main as run_ke30_pipeline
     try:
-        run_ke30_pipeline()
+        if analysis_month and update_date:
+            # 날짜가 지정된 경우
+            run_ke30_pipeline(analysis_month=analysis_month, update_date=update_date)
+        else:
+            # 최신 파일 자동 선택
+            run_ke30_pipeline()
     except Exception as e:
         print(f"[ERROR] KE30 full pipeline failed: {e}")
         import traceback
@@ -29,29 +52,35 @@ def main():
     print()
     
     # Step 2: Find date folder from metadata
-    print("[Step 2/3] Finding date folder from metadata...")
-    raw_dir = project_root / "raw"
-    date_folder = None
-    
-    # Find latest date folder with metadata.json
-    if raw_dir.exists():
-        for year_month_dir in sorted(raw_dir.iterdir(), reverse=True):
-            if year_month_dir.is_dir() and year_month_dir.name.isdigit() and len(year_month_dir.name) == 6:
-                current_year_dir = year_month_dir / "current_year"
-                if current_year_dir.exists():
-                    for date_dir in sorted(current_year_dir.iterdir(), reverse=True):
-                        if date_dir.is_dir() and date_dir.name.isdigit() and len(date_dir.name) == 8:
-                            metadata_path = date_dir / "metadata.json"
-                            if metadata_path.exists():
-                                date_folder = date_dir.name
-                                break
+    if update_date:
+        # 날짜가 지정된 경우 해당 날짜 사용
+        date_folder = update_date
+        print(f"[Step 2/3] Using specified date folder: {date_folder}")
+    else:
+        # 기존 로직: 최신 파일 찾기
+        print("[Step 2/3] Finding date folder from metadata...")
+        raw_dir = project_root / "raw"
+        date_folder = None
+        
+        # Find latest date folder with metadata.json
+        if raw_dir.exists():
+            for year_month_dir in sorted(raw_dir.iterdir(), reverse=True):
+                if year_month_dir.is_dir() and year_month_dir.name.isdigit() and len(year_month_dir.name) == 6:
+                    current_year_dir = year_month_dir / "current_year"
+                    if current_year_dir.exists():
+                        for date_dir in sorted(current_year_dir.iterdir(), reverse=True):
+                            if date_dir.is_dir() and date_dir.name.isdigit() and len(date_dir.name) == 8:
+                                metadata_path = date_dir / "metadata.json"
+                                if metadata_path.exists():
+                                    date_folder = date_dir.name
+                                    break
                 if date_folder:
                     break
-    
-    if not date_folder:
-        print("[WARNING] Date folder with metadata.json not found.")
-        print("Preprocessing completed.")
-        return 0
+        
+        if not date_folder:
+            print("[WARNING] Date folder with metadata.json not found.")
+            print("Preprocessing completed.")
+            return 0
     
     print(f"Date folder found: {date_folder}")
     print()

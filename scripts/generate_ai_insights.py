@@ -494,68 +494,80 @@ class AIInsightGenerator:
         insights_list = []
         actions_list = []
         
-        weekly_data = data.get("weeklySalesTrend", {})
-        if weekly_data:
-            total_current = 0
-            total_previous = 0
-            weekly_trends = []
-            
-            # 브랜드별 데이터 처리
-            if isinstance(weekly_data, dict):
-                for brand_code, brand_weekly in weekly_data.items():
-                    if isinstance(brand_weekly, dict):
-                        for channel, channel_data in brand_weekly.items():
-                            if isinstance(channel_data, dict):
-                                current = channel_data.get("current", [])
-                                previous = channel_data.get("previous", [])
-                                
-                                if current and isinstance(current, list):
-                                    current_sum = sum(w.get("value", 0) for w in current if isinstance(w, dict))
-                                    total_current += current_sum
-                                    
-                                    # 최근 4주 추세 분석
-                                    if len(current) >= 4:
-                                        recent_4weeks = [w.get("value", 0) for w in current[-4:] if isinstance(w, dict)]
-                                        if len(recent_4weeks) >= 2:
-                                            recent_avg = sum(recent_4weeks) / len(recent_4weeks)
-                                            earlier_avg = sum(recent_4weeks[:2]) / 2 if len(recent_4weeks) >= 2 else recent_avg
-                                            if earlier_avg > 0:
-                                                trend = ((recent_avg - earlier_avg) / earlier_avg * 100)
-                                                weekly_trends.append({
-                                                    "channel": channel,
-                                                    "trend": trend,
-                                                    "recent_avg": recent_avg
-                                                })
-                                
-                                if previous and isinstance(previous, list):
-                                    total_previous += sum(w.get("value", 0) for w in previous if isinstance(w, dict))
+        # overview_trend.json 구조: weekly_current, weekly_prev, cumulative_current, cumulative_prev
+        weekly_current = data.get("weekly_current", [])
+        weekly_prev = data.get("weekly_prev", [])
+        cumulative_current = data.get("cumulative_current", [])
+        cumulative_prev = data.get("cumulative_prev", [])
+        
+        # 누적 매출 분석 (전년 대비)
+        # 데이터는 백만원 단위이므로 100으로 나눠서 억원 단위로 변환
+        if cumulative_current and cumulative_prev and len(cumulative_current) > 0 and len(cumulative_prev) > 0:
+            total_current = cumulative_current[-1] if cumulative_current else 0
+            total_previous = cumulative_prev[-1] if cumulative_prev else 0
             
             if total_previous > 0:
-                current_billion = total_current / 100000000
-                previous_billion = total_previous / 100000000
-                yoy = ((current_billion / previous_billion - 1) * 100) if previous_billion > 0 else 0
+                current_billion = total_current / 100  # 백만원 -> 억원
+                previous_billion = total_previous / 100  # 백만원 -> 억원
+                yoy_pct = ((current_billion / previous_billion - 1) * 100) if previous_billion > 0 else 0
                 
-                if yoy > 110:
-                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy:+.1f}%</strong> 성장하여 강한 성장세를 보이고 있습니다.<br>")
-                elif yoy > 100:
-                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy:+.1f}%</strong> 성장했습니다.<br>")
-                elif yoy < 95:
-                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy:+.1f}%</strong> 감소했습니다.<br>")
+                if yoy_pct > 10:
+                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy_pct:+.1f}%</strong> 성장하여 강한 성장세를 보이고 있습니다.<br>")
+                elif yoy_pct > 0:
+                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy_pct:+.1f}%</strong> 성장했습니다.<br>")
+                elif yoy_pct < -5:
+                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy_pct:+.1f}%</strong> 감소했습니다.<br>")
                     actions_list.append(f"<strong>💡 액션:</strong> 전년 대비 매출이 하락하고 있습니다. 마케팅 강화 및 프로모션 전략 수립을 통해 매출 회복이 필요합니다.<br>")
                 else:
-                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy:+.1f}%</strong> 수준을 유지하고 있습니다.<br>")
+                    insights_list.append(f"• 현재까지 누적 매출은 <strong>{current_billion:.1f}억원</strong>으로 전년 대비 <strong>{yoy_pct:+.1f}%</strong> 수준을 유지하고 있습니다.<br>")
+        
+        # 최근 주차별 추세 분석
+        if weekly_current and weekly_prev and len(weekly_current) >= 4 and len(weekly_prev) >= 4:
+            # 최근 4주 평균 vs 이전 4주 평균 비교
+            recent_4weeks_current = weekly_current[-4:] if len(weekly_current) >= 4 else weekly_current
+            recent_4weeks_prev = weekly_prev[-4:] if len(weekly_prev) >= 4 else weekly_prev
             
-            # 최근 추세 분석
-            if weekly_trends:
-                declining = [t for t in weekly_trends if t["trend"] < -10]
-                if declining:
-                    worst = min(declining, key=lambda x: x["trend"])
-                    actions_list.append(f"<strong>💡 액션:</strong> {worst['channel']} 채널의 최근 4주 매출이 <strong>{worst['trend']:.1f}%</strong> 하락 추세입니다. 즉각적인 마케팅 개입이 필요합니다.<br>")
+            if len(recent_4weeks_current) >= 2 and len(recent_4weeks_prev) >= 2:
+                recent_avg_current = sum(recent_4weeks_current) / len(recent_4weeks_current)
+                recent_avg_prev = sum(recent_4weeks_prev) / len(recent_4weeks_prev)
                 
-                growing = [t for t in weekly_trends if t["trend"] > 10]
-                if growing:
-                    best = max(growing, key=lambda x: x["trend"])
-                    insights_list.append(f"• <strong>{best['channel']}</strong> 채널이 최근 4주간 <strong>{best['trend']:.1f}%</strong> 성장하여 긍정적인 추세를 보이고 있습니다.<br>")
+                # 최근 2주 vs 그 이전 2주 비교 (추세 분석)
+                if len(recent_4weeks_current) >= 4:
+                    latest_2weeks = sum(recent_4weeks_current[-2:]) / 2
+                    earlier_2weeks = sum(recent_4weeks_current[:2]) / 2
+                    if earlier_2weeks > 0:
+                        trend = ((latest_2weeks - earlier_2weeks) / earlier_2weeks * 100)
+                        
+                        if trend < -10:
+                            actions_list.append(f"<strong>💡 액션:</strong> 최근 2주 매출이 이전 2주 대비 <strong>{trend:.1f}%</strong> 하락 추세입니다. 즉각적인 마케팅 개입이 필요합니다.<br>")
+                        elif trend > 10:
+                            insights_list.append(f"• 최근 2주 매출이 이전 2주 대비 <strong>{trend:+.1f}%</strong> 성장하여 긍정적인 추세를 보이고 있습니다.<br>")
+                
+                # 전년 동기 대비 최근 4주 평균 비교
+                if recent_avg_prev > 0:
+                    recent_yoy = ((recent_avg_current / recent_avg_prev - 1) * 100)
+                    if recent_yoy > 10:
+                        insights_list.append(f"• 최근 4주 평균 매출은 전년 동기 대비 <strong>{recent_yoy:+.1f}%</strong>로 강한 성장세를 보이고 있습니다.<br>")
+                    elif recent_yoy < -5:
+                        actions_list.append(f"<strong>💡 액션:</strong> 최근 4주 평균 매출이 전년 동기 대비 <strong>{recent_yoy:+.1f}%</strong>로 하락하고 있습니다. 프로모션 강화가 필요합니다.<br>")
+        
+        # 채널별 추세 분석 추가
+        channel_trends = data.get("channel_trends", [])
+        if channel_trends:
+            # 성장률 기준으로 정렬
+            sorted_channels = sorted(channel_trends, key=lambda x: x.get("growth_rate", 0), reverse=True)
+            
+            # 상위 성장 채널
+            growing_channels = [ch for ch in sorted_channels if ch.get("growth_rate", 0) > 10]
+            if growing_channels:
+                top_growing = growing_channels[0]
+                insights_list.append(f"• <strong>{top_growing['channel']}</strong> 채널이 최근 4주간 <strong>{top_growing['growth_rate']:.1f}%</strong> 성장하여 긍정적인 추세를 보이고 있습니다.<br>")
+            
+            # 하락 채널
+            declining_channels = [ch for ch in sorted_channels if ch.get("growth_rate", 0) < -10]
+            if declining_channels:
+                worst_declining = declining_channels[-1]
+                actions_list.append(f"<strong>💡 액션:</strong> <strong>{worst_declining['channel']}</strong> 채널의 최근 4주 매출이 <strong>{worst_declining['growth_rate']:.1f}%</strong> 하락 추세입니다. 즉각적인 마케팅 개입이 필요합니다.<br>")
         
         insight += "".join(insights_list) if insights_list else "• 주차별 매출 추세를 분석 중입니다.<br>"
         if actions_list:
@@ -674,80 +686,129 @@ class AIInsightGenerator:
         return insight
     
     def _analyze_overview_local(self, data: Dict) -> str:
-        """전체 현황 로컬 분석"""
+        """전체 현황 로컬 분석 - 새로운 형식"""
         insight = ""
+        parts = []
         
         # KPI 데이터 분석
         kpi_data = data.get("kpi", {})
+        pl_data = data.get("pl", {})
+        by_brand = data.get("by_brand", [])
+        stock_data = data.get("stock", {})
+        
+        # 1. 실판매출 목표대비, 전년대비 (월말예상실판매출/목표OR전년 실판매출)
         if kpi_data:
             revenue_forecast = kpi_data.get("revenueForecast", 0) / 100000000
             revenue_plan = kpi_data.get("revenuePlan", 0) / 100000000
-            revenue_vs_plan = kpi_data.get("revenueVsPlan", 0)
-            revenue_vs_previous = kpi_data.get("revenueVsPrevious", 0)
+            revenue_previous = kpi_data.get("revenuePrevious", 0) / 100000000
+            revenue_vs_plan_pct = (revenue_forecast / revenue_plan * 100) if revenue_plan > 0 else 0
+            revenue_vs_prev_pct = (revenue_forecast / revenue_previous * 100) if revenue_previous > 0 else 0
             
             if revenue_plan > 0:
-                achievement = (revenue_forecast / revenue_plan * 100) if revenue_plan > 0 else 0
-                insight += f"• 전체 실판매액은 <strong>{revenue_forecast:.1f}억원</strong>으로 목표 대비 <strong>{achievement:.1f}%</strong> 달성률을 보이고 있습니다.<br>"
-                if revenue_vs_plan < 0:
-                    insight += f"• 목표 대비 <strong>{abs(revenue_vs_plan):.1f}%</strong> 부족하여 목표 달성을 위한 추가 노력이 필요합니다.<br>"
-            
-            if revenue_vs_previous:
-                insight += f"• 전년 대비 <strong>{revenue_vs_previous:+.1f}%</strong> {'성장' if revenue_vs_previous > 0 else '감소'}했습니다.<br>"
-            
-            direct_profit_rate = kpi_data.get("directProfitRateForecast", 0)
-            if direct_profit_rate:
-                insight += f"• 직접이익률은 <strong>{direct_profit_rate:.1f}%</strong>로 {'양호한' if direct_profit_rate >= 30 else '개선이 필요한'} 수준입니다.<br>"
-            
-            op_profit_rate = kpi_data.get("operatingProfitRateForecast", 0)
-            if op_profit_rate:
-                insight += f"• 영업이익률은 <strong>{op_profit_rate:.1f}%</strong>로 {'양호한' if op_profit_rate >= 15 else '개선이 필요한'} 수준입니다.<br>"
+                parts.append(f"전체 실판매액은 <strong>{revenue_forecast:.0f}억원</strong>으로 목표 대비 <strong>{revenue_vs_plan_pct:.0f}%</strong>, 전년 대비 <strong>{revenue_vs_prev_pct:.0f}%</strong>를 예상합니다.")
         
-        # PL 데이터 분석
-        pl_data = data.get("pl", {})
-        if pl_data:
+        # 2. 할인율 목표대비, 전년대비 (할인율 1-실판매액/TAG매출)
+        if kpi_data and pl_data:
+            # 할인율 계산: 1 - 실판매액/TAG매출
+            tag_revenue = pl_data.get("tagRevenue", {})
             revenue = pl_data.get("revenue", {})
-            if revenue:
-                forecast = revenue.get("forecast", 0)
-                target = revenue.get("target", 0)
-                achievement = revenue.get("achievement", 0)
-                if achievement < 95:
-                    insight += f"• 매출 달성률이 <strong>{achievement}%</strong>로 목표 미달 위험이 있습니다.<br>"
-        
-        # 브랜드별 기여도 분석
-        by_brand = data.get("by_brand", {})
-        if by_brand:
-            brand_contributions = []
+            discount_rate_forecast = 0
+            discount_rate_plan = 0
+            discount_rate_previous = 0
             
-            # 딕셔너리인 경우
-            if isinstance(by_brand, dict):
-                for brand, brand_data in by_brand.items():
-                    if isinstance(brand_data, dict):
-                        revenue = brand_data.get("revenue", 0) or brand_data.get("forecast", 0) or brand_data.get("SALES", 0)
-                        if revenue:
-                            brand_contributions.append({
-                                "brand": brand,
-                                "revenue": revenue
-                            })
-            # 리스트인 경우
-            elif isinstance(by_brand, list):
-                for brand_info in by_brand:
-                    if isinstance(brand_info, dict):
-                        brand = brand_info.get("BRAND") or brand_info.get("brand") or brand_info.get("name", "")
-                        revenue = brand_info.get("SALES", 0) or brand_info.get("revenue", 0) or brand_info.get("forecast", 0)
-                        if revenue and brand:
-                            brand_contributions.append({
-                                "brand": brand,
-                                "revenue": revenue
-                            })
-            
-            if brand_contributions:
-                brand_contributions.sort(key=lambda x: x["revenue"], reverse=True)
-                total_revenue = sum(b["revenue"] for b in brand_contributions)
+            if tag_revenue and revenue:
+                tag_forecast = tag_revenue.get("forecast", 0)
+                revenue_forecast_amt = revenue.get("forecast", 0)
+                tag_target = tag_revenue.get("target", 0)
+                tag_prev = tag_revenue.get("prev", 0)
+                revenue_target = revenue.get("target", 0)
+                revenue_prev = revenue.get("prev", 0)
                 
-                if brand_contributions and total_revenue > 0:
-                    top_brand = brand_contributions[0]
-                    share = (top_brand["revenue"] / total_revenue * 100)
-                    insight += f"• <strong>{top_brand['brand']}</strong> 브랜드가 전체 매출의 <strong>{share:.1f}%</strong>를 차지하며 가장 큰 기여를 하고 있습니다.<br>"
+                # 현재 할인율 계산
+                if tag_forecast > 0:
+                    discount_rate_forecast = (1 - revenue_forecast_amt / tag_forecast) * 100
+                
+                # 목표 할인율 계산
+                if tag_target > 0 and revenue_target > 0:
+                    discount_rate_plan = (1 - revenue_target / tag_target) * 100
+                
+                # 전년 할인율 계산
+                if tag_prev > 0 and revenue_prev > 0:
+                    discount_rate_previous = (1 - revenue_prev / tag_prev) * 100
+            
+            discount_vs_plan_pct = discount_rate_forecast - discount_rate_plan
+            discount_vs_prev_pct = discount_rate_forecast - discount_rate_previous
+            
+            if discount_rate_forecast > 0:
+                parts.append(f"할인율은 <strong>{discount_rate_forecast:.1f}%</strong>로 전년대비 <strong>{discount_vs_prev_pct:+.1f}%p</strong> 목표대비 <strong>{discount_vs_plan_pct:+.1f}%p</strong> 입니다.")
+        
+        # 3. 직접이익 목표대비, 전년대비 (월말예상직접이익/목표OR전년 직접이익)
+        if pl_data:
+            direct_profit = pl_data.get("directProfit", {})
+            revenue = pl_data.get("revenue", {})
+            if direct_profit and revenue:
+                direct_forecast = direct_profit.get("forecast", 0)
+                direct_target = direct_profit.get("target", 0)
+                direct_prev = direct_profit.get("prev", 0)
+                forecast_revenue = revenue.get("forecast", 0)
+                
+                # 직접이익율 = 직접이익/실판매액*1.1
+                direct_rate = (direct_forecast / forecast_revenue * 100 * 1.1) if forecast_revenue > 0 else 0
+                
+                # 목표대비, 전년대비 계산
+                direct_vs_plan_pct = (direct_forecast / direct_target * 100) if direct_target > 0 else 0
+                direct_vs_prev_pct = (direct_forecast / direct_prev * 100) if direct_prev > 0 else 0
+                
+                parts.append(f"직접이익은 <strong>{direct_forecast:.0f}억원</strong>(직접이익율 {direct_rate:.1f}%)으로 목표 대비 <strong>{direct_vs_plan_pct:.0f}%</strong>, 전년 대비 <strong>{direct_vs_prev_pct:.0f}%</strong>를 달성했습니다.")
+        
+        # 4. 직접비 매출 비중: 인건비, 임차관리비, 물류운송비 항목만 (직접비/실판매출*1.1)
+        if pl_data:
+            direct_cost_detail = pl_data.get("directCostDetail", {})
+            revenue = pl_data.get("revenue", {})
+            if direct_cost_detail and revenue:
+                forecast_revenue = revenue.get("forecast", 0)
+                
+                # 인건비, 임차관리비, 물류운송비만 추출
+                labor_cost = direct_cost_detail.get("인건비", {}).get("forecast", 0)
+                rent_cost = direct_cost_detail.get("임차관리비", {}).get("forecast", 0)
+                logistics_cost = direct_cost_detail.get("물류운송비", {}).get("forecast", 0)
+                
+                total_selected_cost = labor_cost + rent_cost + logistics_cost
+                
+                if forecast_revenue > 0:
+                    # 직접비 매출 비중 = (직접비/실판매출)*1.1
+                    cost_ratio = (total_selected_cost / forecast_revenue * 100 * 1.1) if forecast_revenue > 0 else 0
+                    parts.append(f"직접비 매출 비중: 인건비, 임차관리비, 물류운송비 항목만 <strong>{cost_ratio:.1f}%</strong>입니다.")
+        
+        # 5. 영업이익 목표대비, 전년대비 (월말예상영업이익/목표OR전년 영업이익)
+        if pl_data:
+            op_profit = pl_data.get("opProfit", {})
+            revenue = pl_data.get("revenue", {})
+            if op_profit and revenue:
+                op_forecast = op_profit.get("forecast", 0)
+                op_target = op_profit.get("target", 0)
+                op_prev = op_profit.get("prev", 0)
+                forecast_revenue = revenue.get("forecast", 0)
+                op_rate = (op_forecast / forecast_revenue * 100) if forecast_revenue > 0 else 0
+                
+                # 목표대비, 전년대비 계산
+                op_vs_plan_pct = (op_forecast / op_target * 100) if op_target > 0 else 0
+                op_vs_prev_pct = (op_forecast / op_prev * 100) if op_prev > 0 else 0
+                
+                parts.append(f"영업이익은 <strong>{op_forecast:.0f}억원</strong>(영업이익율 {op_rate:.1f}%)으로 목표대비 <strong>{op_vs_plan_pct:.0f}%</strong>, 전년대비 <strong>{op_vs_prev_pct:.0f}%</strong>입니다.")
+        
+        # 6. 직접이익 진척율
+        if kpi_data:
+            progress_rate = kpi_data.get("progressRateForecast", 0)
+            if progress_rate > 0:
+                parts.append(f"직접이익 진척율은 <strong>{progress_rate:.0f}%</strong>로 월말 목표 달성을 위해 지속적 모니터링이 필요합니다.")
+        
+        # 인사이트 통합 - 줄글 형태로 연결 (마침표로 자연스럽게 연결)
+        if parts:
+            # 각 부분을 공백으로 연결하여 하나의 연속된 문단으로 만듦
+            insight = " ".join(parts)
+        else:
+            insight = "전체 현황 데이터를 분석 중입니다."
         
         return insight
 
@@ -817,66 +878,240 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
         overview_insight = generator.generate_insight(overview_data, "전체 현황", "overview")
         insights["overview"] = overview_insight
         
-        # keyPoints 생성 (주요 포인트 추출)
+        # keyPoints 생성 (핵심인사이트) - 새로운 형식
         key_points = []
         kpi_data = overview_data.get("kpi", {})
+        pl_data = overview_data.get("pl", {})
         by_brand_data = overview_data.get("by_brand", {})
+        stock_data = overview_data.get("stock", {})
         
-        if kpi_data and isinstance(kpi_data, dict) and "OVERVIEW" in kpi_data:
-            kpi = kpi_data["OVERVIEW"]
-            revenue_forecast = kpi.get("revenueForecast", 0) / 100000000
-            revenue_plan = kpi.get("revenuePlan", 0) / 100000000
-            revenue_vs_plan = kpi.get("revenueVsPlan", 0)
-            revenue_vs_previous = kpi.get("revenueVsPrevious", 0)
-            
-            key_points.append(f"• 총 실판매액: {revenue_forecast:.1f}억원 (목표 대비 {100 + revenue_vs_plan:.1f}%, 전년 대비 {100 + revenue_vs_previous:.1f}%)")
-            
-            op_profit = kpi.get("operatingProfitForecast", 0) / 100000000
-            if op_profit:
-                key_points.append(f"• 영업이익: {op_profit:.1f}억원")
-        
-        # 브랜드별 기여도 요약
+        # 1. 전년대비 매출이 높은 브랜드, 낮은 브랜드
         if by_brand_data:
-            brand_contributions = []
+            brand_analysis = []
             
-            # 딕셔너리인 경우
-            if isinstance(by_brand_data, dict):
-                for brand, brand_info in by_brand_data.items():
-                    if isinstance(brand_info, dict):
-                        revenue = brand_info.get("revenue", 0) or brand_info.get("forecast", 0) or brand_info.get("SALES", 0)
-                        if revenue:
-                            brand_contributions.append({
-                                "brand": brand,
-                                "revenue": revenue
-                            })
             # 리스트인 경우
-            elif isinstance(by_brand_data, list):
+            if isinstance(by_brand_data, list):
                 for brand_info in by_brand_data:
                     if isinstance(brand_info, dict):
-                        brand = brand_info.get("BRAND") or brand_info.get("brand") or brand_info.get("name", "")
-                        revenue = brand_info.get("SALES", 0) or brand_info.get("revenue", 0) or brand_info.get("forecast", 0)
-                        if revenue and brand:
-                            brand_contributions.append({
+                        brand = brand_info.get("BRAND") or brand_info.get("brand", "")
+                        yoy_sales = brand_info.get("YOY_SALES", 0)
+                        # SUPRA 제외
+                        if brand and brand.upper() != "SUPRA" and yoy_sales > 0:
+                            brand_analysis.append({
                                 "brand": brand,
-                                "revenue": revenue
+                                "yoy": yoy_sales
                             })
             
-            if brand_contributions:
-                brand_contributions.sort(key=lambda x: x["revenue"], reverse=True)
-                total_revenue = sum(b["revenue"] for b in brand_contributions)
-                if brand_contributions and total_revenue > 0:
-                    top_brand = brand_contributions[0]
-                    share = (top_brand["revenue"] / total_revenue * 100)
-                    key_points.append(f"• {top_brand['brand']}: {top_brand['revenue']:.1f}억원으로 {share:.1f}% 기여, {'목표 초과' if share > 20 else '주요 브랜드'}")
+            if brand_analysis:
+                highest_yoy = max(brand_analysis, key=lambda x: x["yoy"])
+                lowest_yoy = min(brand_analysis, key=lambda x: x["yoy"])
+                key_points.append(f"전년대비 매출증가가 가장 높은 브랜드는 <strong>{highest_yoy['brand']}</strong>({highest_yoy['yoy']}%)이며, 가장 낮은 브랜드는 <strong>{lowest_yoy['brand']}</strong>({lowest_yoy['yoy']}%)입니다.")
+        
+        # 2. 브랜드별 영업이익 비중이 가장 높은 브랜드, 낮은 브랜드
+        if by_brand_data:
+            brand_op_profit = []
+            total_op_profit = 0
+            
+            # 리스트인 경우
+            if isinstance(by_brand_data, list):
+                for brand_info in by_brand_data:
+                    if isinstance(brand_info, dict):
+                        brand = brand_info.get("BRAND") or brand_info.get("brand", "")
+                        op_profit = brand_info.get("OPERATING_PROFIT", 0)
+                        # SUPRA 제외
+                        if brand and brand.upper() != "SUPRA":
+                            brand_op_profit.append({
+                                "brand": brand,
+                                "op_profit": op_profit
+                            })
+                            total_op_profit += op_profit if op_profit > 0 else 0
+            
+            if brand_op_profit and total_op_profit > 0:
+                # 영업이익이 양수인 것만 필터링
+                positive_brands = [b for b in brand_op_profit if b["op_profit"] > 0]
+                if positive_brands:
+                    highest_op = max(positive_brands, key=lambda x: x["op_profit"])
+                    highest_share = (highest_op["op_profit"] / total_op_profit * 100) if total_op_profit > 0 else 0
+                    
+                    # 영업이익이 가장 낮은 브랜드 (양수 중)
+                    if len(positive_brands) > 1:
+                        lowest_op = min(positive_brands, key=lambda x: x["op_profit"])
+                        lowest_share = (lowest_op["op_profit"] / total_op_profit * 100) if total_op_profit > 0 else 0
+                        key_points.append(f"영업이익 비중이 가장 높은 브랜드는 <strong>{highest_op['brand']}</strong>({highest_op['op_profit']:.0f}억원) 전체비중 <strong>{highest_share:.1f}%</strong>이며, 영업이익이 가장 낮은 브랜드는 <strong>{lowest_op['brand']}</strong>({lowest_op['op_profit']:.0f}억원) 전체비중 <strong>{lowest_share:.1f}%</strong>입니다.")
+                    else:
+                        key_points.append(f"영업이익 비중이 가장 높은 브랜드는 <strong>{highest_op['brand']}</strong>({highest_op['op_profit']:.0f}억원) 전체비중 <strong>{highest_share:.1f}%</strong>입니다.")
+        
+        # 3. 판매율이 가장 높은 것, 낮은 것
+        if stock_data:
+            clothing_data = stock_data.get("clothingBrandStatus", {})
+            if clothing_data and isinstance(clothing_data, dict):
+                all_items = []
+                for brand_code, items in clothing_data.items():
+                    # SUPRA 제외 (브랜드 코드 'W')
+                    if brand_code == 'W' or brand_code == 'SUPRA':
+                        continue
+                    
+                    if isinstance(items, list):
+                        brand_name = BRAND_NAME_MAP.get(brand_code, brand_code)
+                        for item in items:
+                            if isinstance(item, dict):
+                                sales_rate = item.get("cumSalesRate")
+                                sales_tag = item.get("cumSalesTag", 0) or item.get("orderTag", 0)
+                                item_name = item.get("itemName") or item.get("아이템명", "")
+                                if sales_rate is not None and isinstance(sales_rate, (int, float)) and sales_rate > 0 and item_name:
+                                    all_items.append({
+                                        "name": item_name,
+                                        "brand": brand_name,
+                                        "rate": sales_rate,
+                                        "sales": sales_tag
+                                    })
+                
+                if all_items:
+                    highest = max(all_items, key=lambda x: x["rate"])
+                    valid_low = [i for i in all_items if i["sales"] > 0]
+                    if valid_low:
+                        lowest = min(valid_low, key=lambda x: x["rate"])
+                        key_points.append(f"판매율이 가장 높은 것은 <strong>{highest['brand']}</strong> <strong>{highest['name']}</strong> ({highest['rate']*100:.1f}%)이며, 낮은 것은 <strong>{lowest['brand']}</strong> <strong>{lowest['name']}</strong>({lowest['rate']*100:.0f}%)입니다.")
+        
+        # 4. 재고주수 적극발주인 곳 중에 재고주수 가장 적은 곳, 재고주수 긴급조치 중 재고주수 가장 긴 것 중에 매출 1억 이상인 것
+        if stock_data:
+            acc_data = stock_data.get("accStockAnalysis", {})
+            if acc_data and isinstance(acc_data, dict):
+                active_order_items = []  # 적극발주
+                urgent_action_items = []  # 긴급조치
+                
+                for brand_code, items in acc_data.items():
+                    # SUPRA 제외 (브랜드 코드 'W')
+                    if brand_code == 'W' or brand_code == 'SUPRA':
+                        continue
+                    
+                    if isinstance(items, list):
+                        brand_name = BRAND_NAME_MAP.get(brand_code, brand_code)
+                        for item in items:
+                            if isinstance(item, dict):
+                                stock_weeks = item.get("stockWeeks")
+                                yoy_rate = item.get("yoyRate")
+                                sale_amt = item.get("saleAmt", 0)
+                                item_name = item.get("itemName") or item.get("아이템명", "")
+                                
+                                if stock_weeks is not None and isinstance(stock_weeks, (int, float)) and item_name and sale_amt > 0:
+                                    # 전년 대비 비율 파싱
+                                    yoy_value = None
+                                    if yoy_rate:
+                                        if isinstance(yoy_rate, (int, float)):
+                                            yoy_value = yoy_rate
+                                        elif isinstance(yoy_rate, str):
+                                            try:
+                                                yoy_value = float(yoy_rate.replace('%', '').strip())
+                                            except:
+                                                pass
+                                    
+                                    # 적극발주: 재고주수 < 30주 && 전년 대비 >= 120%
+                                    if stock_weeks < 30 and yoy_value is not None and yoy_value >= 120:
+                                        active_order_items.append({
+                                            "name": item_name,
+                                            "brand": brand_name,
+                                            "sales": sale_amt,
+                                            "weeks": stock_weeks
+                                        })
+                                    
+                                    # 긴급조치: 재고주수 >= 50주 && 전년 대비 < 100% && 매출 >= 1억
+                                    if stock_weeks >= 50 and yoy_value is not None and yoy_value < 100 and sale_amt >= 100000000:
+                                        urgent_action_items.append({
+                                            "name": item_name,
+                                            "brand": brand_name,
+                                            "sales": sale_amt,
+                                            "weeks": stock_weeks
+                                        })
+                
+                # 적극발주 중 재고주수가 가장 적은 곳
+                inventory_text = ""
+                if active_order_items:
+                    shortest_active = min(active_order_items, key=lambda x: x["weeks"])
+                    sales_millions = shortest_active['sales'] / 1000000
+                    inventory_text = f"<strong>{shortest_active['brand']}</strong> <strong>{shortest_active['name']}</strong>(매출: {sales_millions:.0f}백만원) {shortest_active['weeks']:.1f}주로 적극 발주가 필요하며"
+                
+                # 긴급조치 중 재고주수가 가장 긴 것 중에 매출 1억 이상인 것
+                if urgent_action_items:
+                    longest_urgent = max(urgent_action_items, key=lambda x: x["weeks"])
+                    sales_millions = longest_urgent['sales'] / 1000000
+                    if inventory_text:
+                        inventory_text += f", <strong>{longest_urgent['brand']}</strong> <strong>{longest_urgent['name']}</strong>(매출: {sales_millions:.0f}백만원) {longest_urgent['weeks']:.1f}주로 긴급 조치가 필요합니다"
+                    else:
+                        inventory_text = f"<strong>{longest_urgent['brand']}</strong> <strong>{longest_urgent['name']}</strong>(매출: {sales_millions:.0f}백만원) {longest_urgent['weeks']:.1f}주로 긴급 조치가 필요합니다"
+                
+                if inventory_text:
+                    key_points.append(f"아이템 중 {inventory_text}.")
     else:
         overview_insight = ""
         key_points = []
     
+    # 전체 현황 그래프별 인사이트 생성
+    # 1. 손익계산서 분석
+    pl_insight = ""
+    if pl_data:
+        pl_insight = generator.generate_insight(pl_data, "전체 현황", "pl")
+    
+    # 2. 트리맵 분석 (브랜드별 기여도)
+    treemap_insight = ""
+    treemap_file = base_dir / "treemap.json"
+    if treemap_file.exists():
+        print("[ANALYZING] 전체 현황 트리맵 분석 중...")
+        treemap_data = load_json_file(treemap_file)
+        if treemap_data:
+            # 전체 브랜드 데이터를 하나로 합침
+            all_brand_treemap = {}
+            if "channelTreemapData" in treemap_data and "byBrand" in treemap_data["channelTreemapData"]:
+                all_brand_treemap["channelTreemapData"] = {"byBrand": treemap_data["channelTreemapData"]["byBrand"]}
+            if "itemTreemapData" in treemap_data and "byBrand" in treemap_data["itemTreemapData"]:
+                all_brand_treemap["itemTreemapData"] = {"byBrand": treemap_data["itemTreemapData"]["byBrand"]}
+            if all_brand_treemap:
+                treemap_insight = generator.generate_insight(all_brand_treemap, "전체 현황", "treemap")
+    
+    # 3. 레이더 차트 분석
+    radar_insight = ""
+    radar_file = base_dir / "radar_chart.json"
+    if radar_file.exists():
+        print("[ANALYZING] 전체 현황 레이더 차트 분석 중...")
+        radar_data = load_json_file(radar_file)
+        if radar_data:
+            radar_insight = generator.generate_insight(radar_data, "전체 현황", "radar")
+    
+    # 4. 주차별 매출추세 분석
+    weekly_insight = ""
+    if trend_data:
+        weekly_insight = generator.generate_insight(trend_data, "전체 현황", "weekly")
+    
+    # 5. 재고주수 분석
+    inventory_insight = ""
+    sale_rate_insight = ""
+    if stock_data:
+        if "clothingBrandStatus" in stock_data:
+            inventory_insight = generator.generate_insight(stock_data, "전체 현황", "inventory")
+            sale_rate_insight = generator.generate_insight(stock_data, "전체 현황", "sale_rate")
+    
     # HTML insightsData 형식에 맞게 변환
+    # keyPoints는 줄바꿈을 <br>로 변환하여 HTML에서 표시되도록 함
+    # 각 항목 앞에 "- " 구분자 추가
+    formatted_key_points = []
+    if key_points:
+        for point in key_points:
+            # 이미 "- "로 시작하는지 확인
+            if not point.strip().startswith("-"):
+                formatted_key_points.append(f"- {point}")
+            else:
+                formatted_key_points.append(point)
+    
     overview_data_format = {
         "overview": {
             "content": overview_insight,
-            "keyPoints": " ".join(key_points) if key_points else ""
+            "keyPoints": "<br>".join(formatted_key_points) if formatted_key_points else "",
+            "plInsight": pl_insight,
+            "treemapInsight": treemap_insight,
+            "radarInsight": radar_insight,
+            "weeklyInsight": weekly_insight,
+            "inventoryInsight": inventory_insight,
+            "saleRateInsight": sale_rate_insight
         }
     }
     
@@ -965,11 +1200,76 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
     
     # 4. 채널별 손익 분석
     channel_pl_file = base_dir / "channel_pl.json"
+    channel_profit_loss_file = base_dir / "channel_profit_loss.json"
+    
+    channel_pl_data = None
+    
+    # 먼저 channel_pl.json 파일 확인
     if channel_pl_file.exists():
         print(f"[ANALYZING] 채널별 손익 분석 중... ({brand})")
         channel_pl_data = load_json_file(channel_pl_file)
         if channel_pl_data and brand_code in channel_pl_data:
             insights["channelPl"] = generator.generate_insight(channel_pl_data[brand_code], brand, "channel_pl")
+    # channel_profit_loss.json 파일 사용 (channel_pl.json이 없는 경우)
+    elif channel_profit_loss_file.exists():
+        print(f"[ANALYZING] 채널별 손익 분석 중... ({brand})")
+        channel_profit_loss_data = load_json_file(channel_profit_loss_file)
+        
+        if channel_profit_loss_data:
+            # channel_profit_loss.json 구조를 channel_pl 구조로 변환
+            channel_revenue_data = channel_profit_loss_data.get("channelRevenueData", {})
+            channel_profit_data = channel_profit_loss_data.get("channelProfitData", {})
+            
+            # 브랜드명 매핑
+            brand_name_map = {
+                'M': 'MLB',
+                'I': 'MLB_KIDS',
+                'X': 'DISCOVERY',
+                'V': 'DUVETICA',
+                'ST': 'SERGIO',
+                'W': 'SUPRA'
+            }
+            brand_name = brand_name_map.get(brand_code, brand)
+            
+            # 브랜드별 데이터 변환
+            if brand_name in channel_revenue_data and brand_name in channel_profit_data:
+                revenue_list = channel_revenue_data[brand_name]
+                profit_list = channel_profit_data[brand_name]
+                
+                # 딕셔너리 형태로 변환: {채널명: {revenue, grossProfitRate, operatingProfit, operatingProfitRate}}
+                converted_data = {}
+                
+                # revenue와 profit 데이터를 채널명 기준으로 매칭
+                revenue_dict = {item.get("channel"): item for item in revenue_list if isinstance(item, dict)}
+                profit_dict = {item.get("channel"): item for item in profit_list if isinstance(item, dict)}
+                
+                for channel_name in set(list(revenue_dict.keys()) + list(profit_dict.keys())):
+                    revenue_item = revenue_dict.get(channel_name, {})
+                    profit_item = profit_dict.get(channel_name, {})
+                    
+                    # forecast 값 사용 (월말예상)
+                    revenue = revenue_item.get("forecast", 0)  # 이미 억원 단위
+                    profit = profit_item.get("forecast", 0)  # 이미 억원 단위
+                    
+                    # 매출총이익률 계산: 직접이익/매출*100
+                    # 직접이익 = 매출 - 매출원가이므로, 직접이익률을 역산하여 매출총이익률 근사치 계산
+                    # 또는 직접이익률 데이터 사용
+                    forecast_rate = profit_item.get("forecastRate", 0)  # 직접이익률
+                    
+                    # 매출총이익률 근사: 직접이익률을 매출총이익률로 근사 (일반적으로 직접이익률보다 높음)
+                    # 직접이익률이 30%면 매출총이익률은 약 70-80% 정도로 추정
+                    gross_profit_rate = forecast_rate * 2.5 if forecast_rate > 0 else 0
+                    gross_profit_rate = min(gross_profit_rate, 95)  # 최대 95%로 제한
+                    
+                    converted_data[channel_name] = {
+                        "revenue": revenue * 100000000,  # 원 단위로 변환 (함수에서 다시 억원으로 나눔)
+                        "grossProfitRate": gross_profit_rate,
+                        "operatingProfit": profit * 100000000,  # 원 단위로 변환
+                        "operatingProfitRate": forecast_rate
+                    }
+                
+                if converted_data:
+                    insights["channelPl"] = generator.generate_insight(converted_data, brand, "channel_pl")
     
     # 5. 주차별 매출추세 분석
     weekly_file = base_dir / "weekly_trend.json"
@@ -977,7 +1277,144 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
         print(f"[ANALYZING] 주차별 매출추세 분석 중... ({brand})")
         weekly_data = load_json_file(weekly_file)
         if weekly_data:
-            insights["weekly"] = generator.generate_insight(weekly_data, brand, "weekly")
+            from collections import defaultdict
+            
+            brand_weekly_data = {}
+            brand_weekly_raw = None
+            
+            # 구조 1: weeklySalesTrend 구조 (20251201 이후)
+            if "weeklySalesTrend" in weekly_data and brand_code in weekly_data["weeklySalesTrend"]:
+                brand_channels = weekly_data["weeklySalesTrend"][brand_code]
+                
+                # 주차별로 current와 previous 값을 합산
+                weekly_current_dict = defaultdict(float)
+                weekly_prev_dict = defaultdict(float)
+                
+                for channel_name, channel_data in brand_channels.items():
+                    if "current" in channel_data:
+                        for week_data in channel_data["current"]:
+                            week = week_data.get("week", "")
+                            value = week_data.get("value", 0) or 0
+                            weekly_current_dict[week] += value
+                    
+                    if "previous" in channel_data:
+                        for week_data in channel_data["previous"]:
+                            week = week_data.get("week", "")
+                            value = week_data.get("value", 0) or 0
+                            weekly_prev_dict[week] += value
+                
+                # 주차 순서대로 정렬하여 배열로 변환
+                sorted_weeks = sorted(set(list(weekly_current_dict.keys()) + list(weekly_prev_dict.keys())))
+                weekly_current = [weekly_current_dict.get(week, 0) for week in sorted_weeks]
+                weekly_prev = [weekly_prev_dict.get(week, 0) for week in sorted_weeks]
+                
+                # 누적 매출 계산 (원 단위 -> 백만원 단위로 변환)
+                cumulative_current = []
+                cumulative_prev = []
+                cumsum_current = 0
+                cumsum_prev = 0
+                
+                for curr, prev in zip(weekly_current, weekly_prev):
+                    cumsum_current += curr / 1000000
+                    cumsum_prev += prev / 1000000
+                    cumulative_current.append(cumsum_current)
+                    cumulative_prev.append(cumsum_prev)
+                
+                weekly_current_million = [val / 1000000 for val in weekly_current]
+                weekly_prev_million = [val / 1000000 for val in weekly_prev]
+                
+                # 채널별 추세 분석
+                channel_trends = []
+                for channel_name, channel_data in brand_channels.items():
+                    if "current" in channel_data and "previous" in channel_data:
+                        current_values = [item.get("value", 0) or 0 for item in channel_data["current"][-4:]]
+                        prev_values = [item.get("value", 0) or 0 for item in channel_data["previous"][-4:]]
+                        
+                        if len(current_values) >= 4 and len(prev_values) >= 4:
+                            current_sum = sum(current_values)
+                            prev_sum = sum(prev_values)
+                            
+                            if prev_sum > 0:
+                                growth_rate = ((current_sum - prev_sum) / prev_sum) * 100
+                                channel_trends.append({
+                                    "channel": channel_name,
+                                    "growth_rate": growth_rate,
+                                    "current_sum": current_sum / 100000000
+                                })
+                
+                brand_weekly_data = {
+                    "weekly_current": weekly_current_million,
+                    "weekly_prev": weekly_prev_million,
+                    "cumulative_current": cumulative_current,
+                    "cumulative_prev": cumulative_prev,
+                    "channel_trends": channel_trends
+                }
+                
+            # 구조 2: summary.byBrand 구조 (20251117, 20251124)
+            elif "summary" in weekly_data and "byBrand" in weekly_data["summary"]:
+                if brand_code in weekly_data["summary"]["byBrand"]:
+                    brand_weekly_raw = weekly_data["summary"]["byBrand"][brand_code]
+                    weekly_dict = brand_weekly_raw.get("weekly", {})
+                    
+                    # 주차별 데이터 추출 및 정렬
+                    weeks_list = list(weekly_dict.keys())
+                    # 주차 순서 정렬 (9/21, 10/5 등)
+                    def sort_weeks(week_str):
+                        parts = week_str.split('/')
+                        return (int(parts[0]), int(parts[1]))
+                    weeks_list_sorted = sorted(weeks_list, key=sort_weeks)
+                    
+                    weekly_current = []
+                    weekly_prev = []
+                    
+                    for week_key in weeks_list_sorted:
+                        week_data = weekly_dict.get(week_key, {})
+                        current_val = week_data.get("당년", 0) or 0
+                        prev_val = week_data.get("전년", 0) or 0
+                        weekly_current.append(current_val)
+                        weekly_prev.append(prev_val)
+                    
+                    # 누적 매출 계산 (원 단위 -> 백만원 단위)
+                    cumulative_current = []
+                    cumulative_prev = []
+                    cumsum_current = 0
+                    cumsum_prev = 0
+                    
+                    for curr, prev in zip(weekly_current, weekly_prev):
+                        cumsum_current += curr / 1000000
+                        cumsum_prev += prev / 1000000
+                        cumulative_current.append(cumsum_current)
+                        cumulative_prev.append(cumsum_prev)
+                    
+                    weekly_current_million = [val / 1000000 for val in weekly_current]
+                    weekly_prev_million = [val / 1000000 for val in weekly_prev]
+                    
+                    # 채널별 추세 분석
+                    channel_trends = []
+                    channels_dict = brand_weekly_raw.get("channels", {})
+                    for channel_name, channel_data in channels_dict.items():
+                        if isinstance(channel_data, dict):
+                            current_val = channel_data.get("당년", 0) or 0
+                            prev_val = channel_data.get("전년", 0) or 0
+                            
+                            if prev_val > 0:
+                                growth_rate = ((current_val - prev_val) / prev_val) * 100
+                                channel_trends.append({
+                                    "channel": channel_name,
+                                    "growth_rate": growth_rate,
+                                    "current_sum": current_val / 100000000
+                                })
+                    
+                    brand_weekly_data = {
+                        "weekly_current": weekly_current_million,
+                        "weekly_prev": weekly_prev_million,
+                        "cumulative_current": cumulative_current,
+                        "cumulative_prev": cumulative_prev,
+                        "channel_trends": channel_trends
+                    }
+            
+            if brand_weekly_data:
+                insights["weekly"] = generator.generate_insight(brand_weekly_data, brand, "weekly")
     
     # 6. 재고주수 분석
     stock_file = base_dir / "stock_analysis.json"
@@ -1070,54 +1507,419 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                 direct_efficiency = (direct_profit_forecast / direct_profit_plan * 100)
                 content += f"직접비 효율이 목표 대비 {direct_efficiency:.0f}%로 {'양호한' if direct_efficiency >= 95 else '개선이 필요한'} 비용 관리를 보이고 있습니다."
             
-            # 핵심인사이트 생성
-            if revenue_forecast > 0:
-                # 목표 미달성 시
-                if revenue_achievement < 95:
-                    if discount_rate_plan > 0:
-                        key_points.append(f"• 목표 달성을 위해 할인율 관리 강화 (현재 {discount_rate_forecast:.1f}% → 목표 {discount_rate_plan:.1f}%)")
-                
-                # 전년 대비 하락 시
-                if revenue_vs_previous < 0:
-                    key_points.append(f"• 전년 대비 {100 + revenue_vs_previous:.1f}%로 하락, 매출 회복 전략 수립 필요")
-                
-                # 할인율 관리 필요 시
-                if discount_rate_plan > 0 and discount_rate_forecast > discount_rate_plan:
-                    key_points.append(f"• 할인율 관리 강화 (현재 {discount_rate_forecast:.1f}% → 목표 {discount_rate_plan:.1f}%)")
-                
-                # 직접비 효율 개선 필요 시
-                if direct_profit_plan > 0:
-                    direct_efficiency = (direct_profit_forecast / direct_profit_plan * 100)
-                    if direct_efficiency < 95:
-                        key_points.append(f"• 직접비 효율 유지 및 인건비, 물류운송비 최적화 지속")
-                
-                # 목표 미달성 시
-                if revenue_achievement < 100:
-                    gap = revenue_plan - revenue_forecast
-                    key_points.append(f"• 목표 대비 {100 - revenue_achievement:.0f}% 부족분 회복을 위한 프로모션 전략 조정")
-                
-                # 성공 사례 인사이트 (목표 초과 달성 및 전년 대비 성장)
-                if revenue_achievement >= 100 and revenue_vs_previous > 0:
-                    if revenue_achievement >= 105:
-                        key_points.append(f"• 목표 대비 {revenue_achievement:.0f}% 초과 달성, 성장 모멘텀 지속을 위한 신제품 라인업 확대 및 마케팅 강화")
-                    else:
-                        key_points.append(f"• 목표 달성 및 전년 대비 {100 + revenue_vs_previous:.1f}% 성장, 성공 모델 분석하여 타 브랜드 적용 방안 검토")
-                
-                # 전년 대비 높은 성장 시
-                if revenue_vs_previous > 50:
-                    key_points.append(f"• 전년 대비 {100 + revenue_vs_previous:.1f}% 폭발적 성장, 성장 모멘텀 지속을 위한 신제품 라인업 확대 및 마케팅 강화")
-                
-                # 수익성 우수 시
-                if direct_profit_plan > 0:
-                    direct_efficiency = (direct_profit_forecast / direct_profit_plan * 100)
-                    if direct_efficiency >= 120:
-                        key_points.append(f"• 직접비 효율 목표 대비 {direct_efficiency:.0f}%로 매우 우수, 수익성 최적화 지속")
+            # 핵심인사이트 생성 (새로운 형식)
+            # 1. 현재 시점 기준 판매매출 가장 높은 채널과 아이템
+            treemap_file = base_dir / "treemap.json"
+            if treemap_file.exists():
+                treemap_data = load_json_file(treemap_file)
+                if treemap_data:
+                    # treemap 구조: channelTreemapData.byBrand.M.channel.channels
+                    brand_channel_data = treemap_data.get("channelTreemapData", {}).get("byBrand", {}).get(brand_code, {})
+                    brand_item_data = treemap_data.get("itemTreemapData", {}).get("byBrand", {}).get(brand_code, {})
+                    
+                    channel_treemap = brand_channel_data.get("channel", {}) if isinstance(brand_channel_data, dict) else {}
+                    item_treemap = brand_item_data.get("item", {}) if isinstance(brand_item_data, dict) else {}
+                    
+                    # 채널별 매출 분석
+                    channels_data = channel_treemap.get("channels", {}) if isinstance(channel_treemap, dict) else {}
+                    if channels_data and isinstance(channels_data, dict):
+                        channels = []
+                        total_sales = channel_treemap.get("total", {}).get("sales", 0) if isinstance(channel_treemap, dict) else 0
+                        for ch_name, ch_data in channels_data.items():
+                            if isinstance(ch_data, dict):
+                                sales = ch_data.get("sales", 0)
+                                share = ch_data.get("share", 0)
+                                if sales > 0:
+                                    channels.append({
+                                        "name": ch_name,
+                                        "sales": sales,
+                                        "share": share
+                                    })
+                        
+                        if channels and total_sales > 0:
+                            # 매출이 가장 높은 채널
+                            top_channel = max(channels, key=lambda x: x["sales"])
+                            top_channel_sales_billion = top_channel["sales"] / 100000000
+                            top_channel_share = (top_channel["sales"] / total_sales * 100) if total_sales > 0 else top_channel["share"]
+                            
+                            # 현재시점 기준 날짜 계산 (업데이트 일자 -1일, 분석월 넘어가면 월말)
+                            from datetime import timedelta
+                            try:
+                                update_date = datetime.strptime(date_str, "%Y%m%d")
+                                current_date = update_date - timedelta(days=1)
+                                # 분석월 계산 (YYYYMM)
+                                analysis_month = date_str[:6]
+                                month_end = datetime.strptime(analysis_month + "01", "%Y%m%d").replace(day=28) + timedelta(days=4)
+                                month_end = month_end - timedelta(days=month_end.day)
+                                
+                                if current_date > month_end:
+                                    current_date_str = month_end.strftime("%Y-%m-%d")
+                                else:
+                                    current_date_str = current_date.strftime("%Y-%m-%d")
+                            except:
+                                current_date_str = date_str[:4] + "-" + date_str[4:6] + "-" + date_str[6:8]
+                            
+                            # 아이템별 매출 분석
+                            top_item_name = ""
+                            top_item_sales = 0
+                            top_item_share = 0
+                            items_data = item_treemap.get("items", {}) if isinstance(item_treemap, dict) else {}
+                            if items_data and isinstance(items_data, dict):
+                                items = []
+                                total_item_sales = item_treemap.get("total", {}).get("sales", 0) if isinstance(item_treemap, dict) else 0
+                                for item_name, item_data in items_data.items():
+                                    if isinstance(item_data, dict):
+                                        item_sales = item_data.get("sales", 0)
+                                        if item_sales > 0:
+                                            items.append({
+                                                "name": item_name,
+                                                "sales": item_sales
+                                            })
+                                
+                                if items and total_item_sales > 0:
+                                    top_item = max(items, key=lambda x: x["sales"])
+                                    top_item_name = top_item["name"]
+                                    top_item_sales = top_item["sales"]
+                                    top_item_share = (top_item_sales / total_item_sales * 100) if total_item_sales > 0 else 0
+                            
+                            if top_item_name:
+                                key_points.append(f"- 현재시점기준({current_date_str}) 판매 비중이 가장 높은 채널은 <strong>{top_channel['name']}</strong>({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%, 아이템 판매비중이 가장 높은 곳은 <strong>{top_item_name}</strong>({top_item_sales/100000000:.0f}억원)으로 전체비중 {top_item_share:.0f}%입니다.")
+                            else:
+                                key_points.append(f"- 현재시점기준({current_date_str}) 판매 비중이 가장 높은 채널은 <strong>{top_channel['name']}</strong>({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%입니다.")
+            
+            # 2. 채널 중 직접이익이 가장 높은 곳과 낮은 곳
+            channel_pl_file = base_dir / "channel_pl.json"
+            if channel_pl_file.exists():
+                channel_pl_data = load_json_file(channel_pl_file)
+                if channel_pl_data and brand_code in channel_pl_data:
+                    brand_channel_pl = channel_pl_data[brand_code]
+                    if isinstance(brand_channel_pl, dict):
+                        channels_profit = []
+                        for ch_name, ch_data in brand_channel_pl.items():
+                            if isinstance(ch_data, dict):
+                                revenue = ch_data.get("revenue", 0)
+                                gross_profit = ch_data.get("grossProfit", 0)
+                                direct_cost = ch_data.get("directCost", 0) if ch_data.get("directCost") else 0
+                                # 직접이익 = 매출총이익 - 직접비 (또는 직접이익 필드가 있으면 사용)
+                                direct_profit = ch_data.get("directProfit", 0) if ch_data.get("directProfit") else (gross_profit - direct_cost)
+                                direct_profit_rate = (direct_profit / revenue * 100) if revenue > 0 else 0
+                                
+                                if revenue > 0:
+                                    channels_profit.append({
+                                        "name": ch_name,
+                                        "direct_profit": direct_profit,
+                                        "direct_profit_rate": direct_profit_rate
+                                    })
+                        
+                        if channels_profit:
+                            highest_profit = max(channels_profit, key=lambda x: x["direct_profit"])
+                            lowest_profit = min(channels_profit, key=lambda x: x["direct_profit"])
+                            
+                            highest_profit_billion = highest_profit["direct_profit"] / 100000000
+                            lowest_profit_billion = lowest_profit["direct_profit"] / 100000000
+                            
+                            if highest_profit["name"] != lowest_profit["name"]:
+                                key_points.append(f"- 월말 예상 직접이익이 가장 높은 채널은 <strong>{highest_profit['name']}</strong>으로 {highest_profit_billion:.1f}억원(직접이익율 {highest_profit['direct_profit_rate']:.0f}%), 가장 낮은 채널은 <strong>{lowest_profit['name']}</strong>으로 {lowest_profit_billion:.1f}억원(직접이익율 {lowest_profit['direct_profit_rate']:.0f}%)입니다.")
+                            else:
+                                key_points.append(f"- 월말 예상 직접이익이 가장 높은 채널은 <strong>{highest_profit['name']}</strong>으로 {highest_profit_billion:.1f}억원(직접이익율 {highest_profit['direct_profit_rate']:.0f}%)입니다.")
+            
+            # 3. 최근 4주간 매출추세가 가장 좋은 채널, 나쁜 채널
+            weekly_file = base_dir / "weekly_trend.json"
+            if weekly_file.exists():
+                weekly_data = load_json_file(weekly_file)
+                if weekly_data:
+                    # 새로운 구조: weeklySalesTrend.byBrand.M
+                    if "weeklySalesTrend" in weekly_data and brand_code in weekly_data["weeklySalesTrend"]:
+                        brand_channels = weekly_data["weeklySalesTrend"][brand_code]
+                        channel_trends = []
+                        
+                        for channel_name, channel_data in brand_channels.items():
+                            if isinstance(channel_data, dict) and "current" in channel_data and "previous" in channel_data:
+                                current_values = [item.get("value", 0) or 0 for item in channel_data["current"][-4:]]
+                                prev_values = [item.get("value", 0) or 0 for item in channel_data["previous"][-4:]]
+                                
+                                if len(current_values) >= 4 and len(prev_values) >= 4:
+                                    current_sum = sum(current_values)
+                                    prev_sum = sum(prev_values)
+                                    
+                                    if prev_sum > 0:
+                                        growth_rate = ((current_sum - prev_sum) / prev_sum) * 100
+                                        channel_trends.append({
+                                            "name": channel_name,
+                                            "trend": growth_rate,
+                                            "current_sum": current_sum
+                                        })
+                        
+                        if channel_trends:
+                            best_channel = max(channel_trends, key=lambda x: x["trend"])
+                            worst_channel = min(channel_trends, key=lambda x: x["trend"])
+                            
+                            if best_channel["name"] != worst_channel["name"]:
+                                key_points.append(f"- 최근 4주간 <strong>{best_channel['name']}</strong> 채널이 {best_channel['trend']:+.1f}% 성장하여 긍정적 추세를 보이는 반면, <strong>{worst_channel['name']}</strong> 채널의 매출이 {worst_channel['trend']:+.1f}%로 하락 추세입니다.")
+                            else:
+                                key_points.append(f"- 최근 4주간 <strong>{best_channel['name']}</strong> 채널이 {best_channel['trend']:+.1f}% 성장하여 긍정적 추세를 보이고 있습니다.")
+                    # 기존 구조: summary.byBrand.M (20251124 형식)
+                    elif "summary" in weekly_data and "byBrand" in weekly_data["summary"]:
+                        if brand_code in weekly_data["summary"]["byBrand"]:
+                            brand_weekly = weekly_data["summary"]["byBrand"][brand_code]
+                            weekly_dict = brand_weekly.get("weekly", {})
+                            channels_weekly = brand_weekly.get("channels", {})
+                            
+                            # 최근 4주 추세 계산: 주차별 데이터에서 최근 4주 추출
+                            channel_trends = []
+                            
+                            # 주차 순서 정렬
+                            def sort_weeks(week_str):
+                                parts = week_str.split('/')
+                                return (int(parts[0]), int(parts[1]))
+                            
+                            weeks_list = sorted(weekly_dict.keys(), key=sort_weeks)
+                            
+                            # 최근 4주만 추출
+                            if len(weeks_list) >= 4:
+                                recent_4_weeks = weeks_list[-4:]
+                                
+                                # Raw 데이터에서 최근 4주간 채널별 매출 추출
+                                if "rawData" in weekly_data:
+                                    from collections import defaultdict
+                                    
+                                    # Raw 데이터에서 브랜드별, 채널별 최근 4주 합계 계산
+                                    channel_current = defaultdict(float)
+                                    channel_prev = defaultdict(float)
+                                    
+                                    for record in weekly_data.get("rawData", []):
+                                        if record.get("브랜드") == brand_code:
+                                            channel_name = record.get("채널명", "")
+                                            구분 = record.get("구분", "")
+                                            종료일 = record.get("종료일", "")
+                                            
+                                            # 종료일에서 주차 레이블 생성 (월/일 형식)
+                                            if 종료일:
+                                                try:
+                                                    date_obj = datetime.strptime(종료일, "%Y-%m-%d")
+                                                    week_label = f"{date_obj.month}/{date_obj.day}"
+                                                    
+                                                    if week_label in recent_4_weeks:
+                                                        실판매출 = record.get("실판매출", 0) or 0
+                                                        
+                                                        if 구분 == "당년":
+                                                            channel_current[channel_name] += 실판매출
+                                                        elif 구분 == "전년":
+                                                            channel_prev[channel_name] += 실판매출
+                                                except:
+                                                    pass
+                                    
+                                    # 채널별 4주 추세 계산
+                                    for ch_name in set(list(channel_current.keys()) + list(channel_prev.keys())):
+                                        curr_sum = channel_current.get(ch_name, 0)
+                                        prev_sum = channel_prev.get(ch_name, 0)
+                                        
+                                        if prev_sum > 0:
+                                            growth_rate = ((curr_sum - prev_sum) / prev_sum) * 100
+                                            channel_trends.append({
+                                                "name": ch_name,
+                                                "trend": growth_rate
+                                            })
+                            
+                            # 채널별 YOY 데이터를 대체 방법으로 사용 (4주 데이터가 없는 경우)
+                            if not channel_trends and channels_weekly and isinstance(channels_weekly, dict):
+                                for ch_name, ch_data in channels_weekly.items():
+                                    if isinstance(ch_data, dict) and "YOY" in ch_data:
+                                        yoy = ch_data.get("YOY", 0)
+                                        channel_trends.append({
+                                            "name": ch_name,
+                                            "trend": yoy
+                                        })
+                            
+                            if channel_trends:
+                                best_channel = max(channel_trends, key=lambda x: x["trend"])
+                                worst_channel = min(channel_trends, key=lambda x: x["trend"])
+                                
+                                if best_channel["name"] != worst_channel["name"]:
+                                    key_points.append(f"- 최근 4주간 <strong>{best_channel['name']}</strong> 채널이 {best_channel['trend']:+.1f}% 성장하여 긍정적 추세를 보이는 반면, <strong>{worst_channel['name']}</strong> 채널의 매출이 {worst_channel['trend']:+.1f}%로 하락 추세입니다.")
+                                else:
+                                    key_points.append(f"- 최근 4주간 <strong>{best_channel['name']}</strong> 채널이 {best_channel['trend']:+.1f}% 성장하여 긍정적 추세를 보이고 있습니다.")
+                    # 구형 구조: byBrand.M (직접 접근)
+                    elif "byBrand" in weekly_data and brand_code in weekly_data["byBrand"]:
+                        brand_weekly = weekly_data["byBrand"][brand_code]
+                        weekly_data_brand = brand_weekly.get("weekly", {})
+                        channels_weekly = brand_weekly.get("channels", {})
+                        
+                        if channels_weekly and isinstance(channels_weekly, dict):
+                            # 채널별 YOY 데이터가 있다면 사용
+                            channel_trends = []
+                            for ch_name, ch_data in channels_weekly.items():
+                                if isinstance(ch_data, dict) and "YOY" in ch_data:
+                                    yoy = ch_data.get("YOY", 0)
+                                    channel_trends.append({
+                                        "name": ch_name,
+                                        "trend": yoy
+                                    })
+                            
+                            if channel_trends:
+                                best_channel = max(channel_trends, key=lambda x: x["trend"])
+                                worst_channel = min(channel_trends, key=lambda x: x["trend"])
+                                
+                                if best_channel["name"] != worst_channel["name"]:
+                                    key_points.append(f"- 최근 4주간 <strong>{best_channel['name']}</strong> 채널이 {best_channel['trend']:+.1f}% 성장하여 긍정적 추세를 보이는 반면, <strong>{worst_channel['name']}</strong> 채널의 매출이 {worst_channel['trend']:+.1f}%로 하락 추세입니다.")
+                                else:
+                                    key_points.append(f"- 최근 4주간 <strong>{best_channel['name']}</strong> 채널이 {best_channel['trend']:+.1f}% 성장하여 긍정적 추세를 보이고 있습니다.")
+            
+            # 4. 누적판매매출 높은거 2개, 누적판매매출이 0원인곳 제외 상위 30%중 판매율 차이가 가장 작은곳
+            stock_file = base_dir / "stock_analysis.json"
+            if stock_file.exists():
+                stock_data = load_json_file(stock_file)
+                if stock_data:
+                    clothing_status = stock_data.get("clothingBrandStatus", {})
+                    if brand_code in clothing_status:
+                        brand_clothing = clothing_status[brand_code]
+                        if isinstance(brand_clothing, list):
+                            # 누적판매매출이 0원인곳 제외
+                            valid_items = [item for item in brand_clothing if isinstance(item, dict) and item.get("cumSalesTag", 0) > 0]
+                            
+                            if valid_items:
+                                # 누적판매매출 기준 정렬
+                                sorted_by_sales = sorted(valid_items, key=lambda x: x.get("cumSalesTag", 0), reverse=True)
+                                
+                                # 상위 2개
+                                top2_items = sorted_by_sales[:2]
+                                
+                                # 상위 30% 계산
+                                top30_count = max(1, int(len(sorted_by_sales) * 0.3))
+                                top30_items = sorted_by_sales[:top30_count]
+                                
+                                # 판매율 차이(cumSalesRateDiff)가 가장 작은 것 (절대값 기준)
+                                if top30_items:
+                                    min_diff_item = min(top30_items, key=lambda x: abs(x.get("cumSalesRateDiff", 999)) if x.get("cumSalesRateDiff") is not None else 999)
+                                    
+                                    # 상위 2개 아이템 정보
+                                    if len(top2_items) >= 2:
+                                        item1 = top2_items[0]
+                                        item2 = top2_items[1]
+                                        item1_name = item1.get("itemName", "")
+                                        item1_rate = item1.get("cumSalesRate", 0) * 100 if item1.get("cumSalesRate") else 0
+                                        item1_diff = item1.get("cumSalesRateDiff", 0) * 100 if item1.get("cumSalesRateDiff") is not None else 0
+                                        item2_name = item2.get("itemName", "")
+                                        item2_rate = item2.get("cumSalesRate", 0) * 100 if item2.get("cumSalesRate") else 0
+                                        item2_diff = item2.get("cumSalesRateDiff", 0) * 100 if item2.get("cumSalesRateDiff") is not None else 0
+                                        
+                                        # 판매율 차이가 가장 작은 것 (절대값 기준, 0에 가까운 것)
+                                        min_diff_item = min(top30_items, key=lambda x: abs(x.get("cumSalesRateDiff", 999)) if x.get("cumSalesRateDiff") is not None else 999)
+                                        min_diff_name = min_diff_item.get("itemName", "")
+                                        min_diff_rate = min_diff_item.get("cumSalesRate", 0) * 100 if min_diff_item.get("cumSalesRate") else 0
+                                        min_diff_value = min_diff_item.get("cumSalesRateDiff", 0) * 100 if min_diff_item.get("cumSalesRateDiff") is not None else 0
+                                        
+                                        # 1위, 2위와 min_diff_item이 다른 경우만 추가
+                                        if min_diff_name != item1_name and min_diff_name != item2_name:
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
+                                        else:
+                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p)입니다.")
+                                    elif len(top2_items) >= 1:
+                                        item1 = top2_items[0]
+                                        item1_name = item1.get("itemName", "")
+                                        item1_rate = item1.get("cumSalesRate", 0) * 100 if item1.get("cumSalesRate") else 0
+                                        item1_diff = item1.get("cumSalesRateDiff", 0) * 100 if item1.get("cumSalesRateDiff") is not None else 0
+                                        min_diff_name = min_diff_item.get("itemName", "")
+                                        min_diff_value = min_diff_item.get("cumSalesRateDiff", 0) * 100 if min_diff_item.get("cumSalesRateDiff") is not None else 0
+                                        
+                                        key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
+            
+            # 5. 재고주수 판매매출 높은거 2개, 판매매출이 0원인곳 제외 상위 30%중 재고주수가 가장 높은곳
+            if stock_file.exists():
+                stock_data = load_json_file(stock_file)
+                if stock_data:
+                    acc_stock = stock_data.get("accStockAnalysis", {})
+                    if brand_code in acc_stock:
+                        brand_acc = acc_stock[brand_code]
+                        if isinstance(brand_acc, list):
+                            # 판매매출이 0원인곳 제외
+                            valid_acc_items = [item for item in brand_acc if isinstance(item, dict) and item.get("saleAmt", 0) > 0]
+                            
+                            if valid_acc_items:
+                                # 판매매출 기준 정렬
+                                sorted_by_sales = sorted(valid_acc_items, key=lambda x: x.get("saleAmt", 0), reverse=True)
+                                
+                                # 상위 2개
+                                top2_acc = sorted_by_sales[:2]
+                                
+                                # 상위 30% 계산
+                                top30_count = max(1, int(len(sorted_by_sales) * 0.3))
+                                top30_acc = sorted_by_sales[:top30_count]
+                                
+                                # 재고주수가 가장 높은 것
+                                if top30_acc:
+                                    max_stock_item = max(top30_acc, key=lambda x: x.get("stockWeeks", 0) if x.get("stockWeeks") is not None else 0)
+                                    
+                                    # 상위 2개 아이템 정보
+                                    if len(top2_acc) >= 2:
+                                        acc1 = top2_acc[0]
+                                        acc2 = top2_acc[1]
+                                        acc1_name = acc1.get("itemName", "")
+                                        acc1_weeks = acc1.get("stockWeeks", 0) if acc1.get("stockWeeks") is not None else 0
+                                        acc1_diff = acc1.get("stockWeeksDiff", 0) if acc1.get("stockWeeksDiff") is not None else 0
+                                        acc2_name = acc2.get("itemName", "")
+                                        acc2_weeks = acc2.get("stockWeeks", 0) if acc2.get("stockWeeks") is not None else 0
+                                        acc2_diff = acc2.get("stockWeeksDiff", 0) if acc2.get("stockWeeksDiff") is not None else 0
+                                        
+                                        max_stock_name = max_stock_item.get("itemName", "")
+                                        max_stock_weeks = max_stock_item.get("stockWeeks", 0) if max_stock_item.get("stockWeeks") is not None else 0
+                                        max_stock_diff = max_stock_item.get("stockWeeksDiff", 0) if max_stock_item.get("stockWeeksDiff") is not None else 0
+                                        
+                                        key_points.append(f"- 아이템 누적판매매출 1위: <strong>{acc1_name}</strong> 재고주수 {acc1_weeks:.1f}주(전년대비 {acc1_diff:+.1f}주) 2위: <strong>{acc2_name}</strong> 재고주수 {acc2_weeks:.1f}주(전년대비 {acc2_diff:+.1f}주), 반면 <strong>{max_stock_name}</strong>는 재고주수 {max_stock_weeks:.1f}주(전년대비 {max_stock_diff:+.1f}주)로 관리필요합니다.")
+                                    elif len(top2_acc) >= 1:
+                                        acc1 = top2_acc[0]
+                                        acc1_name = acc1.get("itemName", "")
+                                        acc1_weeks = acc1.get("stockWeeks", 0) if acc1.get("stockWeeks") is not None else 0
+                                        acc1_diff = acc1.get("stockWeeksDiff", 0) if acc1.get("stockWeeksDiff") is not None else 0
+                                        
+                                        max_stock_name = max_stock_item.get("itemName", "")
+                                        max_stock_weeks = max_stock_item.get("stockWeeks", 0) if max_stock_item.get("stockWeeks") is not None else 0
+                                        max_stock_diff = max_stock_item.get("stockWeeksDiff", 0) if max_stock_item.get("stockWeeksDiff") is not None else 0
+                                        
+                                        key_points.append(f"- 아이템 누적판매매출 1위: <strong>{acc1_name}</strong> 재고주수 {acc1_weeks:.1f}주(전년대비 {acc1_diff:+.1f}주), 반면 <strong>{max_stock_name}</strong>는 재고주수 {max_stock_weeks:.1f}주(전년대비 {max_stock_diff:+.1f}주)로 관리필요합니다.")
+            
+            # 6. 직접비율 (인건비, 임차관리비, 물류운송비만)
+            pl_file = base_dir / "brand_pl.json"
+            if pl_file.exists() and revenue_forecast > 0:
+                pl_data = load_json_file(pl_file)
+                if pl_data and brand in pl_data:
+                    brand_pl = pl_data[brand]
+                    direct_cost_detail = brand_pl.get("directCostDetail", {})
+                    
+                    if direct_cost_detail:
+                        # 인건비, 임차관리비, 물류운송비 추출 (이미 억원 단위)
+                        labor_cost = direct_cost_detail.get("인건비", {}).get("forecast", 0)
+                        rent_cost = direct_cost_detail.get("임차관리비", {}).get("forecast", 0)
+                        logistics_cost = direct_cost_detail.get("물류운송비", {}).get("forecast", 0)
+                        
+                        # 직접비율 계산 (직접비/실판매액*1.1*100)
+                        # 데이터는 모두 억원 단위이므로 그대로 사용
+                        direct_cost_items = []
+                        
+                        if labor_cost > 0:
+                            # 직접비율 = (인건비 / 실판매액) * 1.1 * 100
+                            labor_ratio = ((labor_cost / revenue_forecast) * 1.1) * 100
+                            direct_cost_items.append(f"인건비 {labor_ratio:.1f}%")
+                        
+                        if rent_cost > 0:
+                            # 직접비율 = (임차관리비 / 실판매액) * 1.1 * 100
+                            rent_ratio = ((rent_cost / revenue_forecast) * 1.1) * 100
+                            direct_cost_items.append(f"임차관리비 {rent_ratio:.1f}%")
+                        
+                        if logistics_cost > 0:
+                            # 직접비율 = (물류운송비 / 실판매액) * 1.1 * 100
+                            logistics_ratio = ((logistics_cost / revenue_forecast) * 1.1) * 100
+                            direct_cost_items.append(f"물류운송비 {logistics_ratio:.1f}%")
+                        
+                        if direct_cost_items:
+                            direct_cost_text = ", ".join(direct_cost_items)
+                            key_points.append(f"- 직접비는 실판대비 {direct_cost_text}입니다.")
     
     # HTML insightsData 형식에 맞게 변환
     insights_data_format = {
         brand: {
             "content": content,
-            "keyPoints": " ".join(key_points) if key_points else "",
+            "keyPoints": "<br>".join(key_points) if key_points else "",
             "treemapInsight": insights.get("treemap", ""),
             "radarInsight": insights.get("radar", ""),
             "channelPlInsight": insights.get("channelPl", ""),

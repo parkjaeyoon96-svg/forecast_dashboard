@@ -118,11 +118,28 @@ def generate_dashboard_data(date_str: str, skip_preprocess: bool = False):
     )
     
     # Step 7: 재고 분석 다운로드
+    # Snowflake 연결 실패 시 CSV 파일에서 직접 생성하는 fallback 포함
+    date_formatted = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
     results['stock_analysis'] = run_script(
         'download_brand_stock_analysis.py',
-        [date_str],
+        ['--update-date', date_formatted],
         '재고 분석 다운로드'
     )
+    
+    # 재고 분석 다운로드 실패 시 CSV 파일에서 직접 생성 시도
+    # stock_analysis.json 파일이 생성되었는지 확인
+    json_dir = PUBLIC_DIR / "data" / date_str
+    stock_analysis_json = json_dir / "stock_analysis.json"
+    
+    if not results['stock_analysis'] or not stock_analysis_json.exists():
+        print(f"\n{'='*60}")
+        print("[대안] CSV 파일에서 재고 분석 JSON 생성 시도")
+        print(f"{'='*60}")
+        results['stock_analysis_fallback'] = run_script(
+            'generate_brand_stock_analysis.py',
+            [date_str],
+            'CSV 파일에서 재고 분석 JSON 생성'
+        )
     
     # Step 8: 트리맵 데이터 생성
     results['treemap'] = run_script(
@@ -140,6 +157,13 @@ def generate_dashboard_data(date_str: str, skip_preprocess: bool = False):
         'export_to_json.py',
         [date_str],
         'JSON 파일 변환'
+    )
+    
+    # Step 10: AI 인사이트 생성
+    results['ai_insights'] = run_script(
+        'generate_ai_insights.py',
+        ['--date', date_str, '--overview', '--all-brands'],
+        'AI 인사이트 생성 (전체 현황 + 모든 브랜드)'
     )
     
     # 결과 요약
