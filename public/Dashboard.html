@@ -7694,14 +7694,6 @@
                     const sign = diff > 0 ? '+' : '';
                     return `전년비 판매율: ${sign}${diff.toFixed(1)}%p`;
                   }
-                },
-                afterLabel: function(context) {
-                  const index = context.dataIndex;
-                  const item = sorted[index];
-                  
-                  if (context.dataset.label === '누적판매율') {
-                    return `투입금액: ${((item.poNow || 0) / 100).toFixed(0)}억원`;
-                  }
                 }
               }
             }
@@ -7713,7 +7705,7 @@
               position: 'left',
               title: {
                 display: true,
-                text: '투입 대비 판매율 (%)',
+                text: '판매율 (%)',
                 font: {
                   size: 14,
                   weight: 'bold'
