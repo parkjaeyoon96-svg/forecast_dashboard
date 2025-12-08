@@ -6045,18 +6045,21 @@
         style.id = 'brand-tooltip-style';
         style.textContent = `
           #item-code-tooltip {
-            position: absolute;
-            background: white;
-            border: 2px solid #4f46e5;
-            border-radius: 8px;
-            padding: 12px 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            z-index: 10000;
-            pointer-events: none;
-            font-size: 13px;
-            line-height: 1.6;
-            min-width: 200px;
-            white-space: nowrap;
+            position: fixed !important;
+            background: white !important;
+            border: 2px solid #4f46e5 !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+            z-index: 99999 !important;
+            pointer-events: none !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            min-width: 220px !important;
+            white-space: nowrap !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
           }
         `;
         document.head.appendChild(style);
@@ -6091,11 +6094,19 @@
         }
       }
       
-      if (!itemCode) return;
+      if (!itemCode) {
+        console.log('[툴팁] 아이템 코드가 없어서 종료');
+        return;
+      }
+      
+      console.log('[툴팁] 생성 시작 - 코드:', itemCode, '이름:', itemName);
       
       // 기존 툴팁 제거
       const existingTooltip = document.getElementById('item-code-tooltip');
-      if (existingTooltip) existingTooltip.remove();
+      if (existingTooltip) {
+        console.log('[툴팁] 기존 툴팁 제거');
+        existingTooltip.remove();
+      }
       
       // 툴팁 생성
       const tooltip = document.createElement('div');
@@ -6112,11 +6123,17 @@
       `;
       
       document.body.appendChild(tooltip);
+      console.log('[툴팁] DOM에 추가됨');
       
-      // 툴팁 위치 설정
+      // 툴팁 위치 설정 (fixed 포지션 사용)
       const rect = cell.getBoundingClientRect();
-      tooltip.style.left = (rect.left + rect.width / 2 - 120) + 'px';
-      tooltip.style.top = (rect.bottom + 10) + 'px';
+      const tooltipLeft = rect.left + rect.width / 2 - 110;
+      const tooltipTop = rect.bottom + 10;
+      
+      tooltip.style.left = tooltipLeft + 'px';
+      tooltip.style.top = tooltipTop + 'px';
+      
+      console.log('[툴팁] 위치 설정:', { left: tooltipLeft, top: tooltipTop, rect });
       
       // 화면 밖으로 나가지 않도록 조정
       setTimeout(() => {
