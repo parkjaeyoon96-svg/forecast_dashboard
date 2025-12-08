@@ -59,7 +59,7 @@ import aggregate_direct_costs_by_master as aggregate_direct
 KE30_INPUT_DIR = r"C:\ke30"
 CSV_OUTPUT_DIR = project_root / "raw"
 MASTER_DIR = project_root / "Master"
-PLAN_DIR = CSV_OUTPUT_DIR / "202511" / "plan"
+# PLAN_DIR은 main 함수 내에서 analysis_month에 따라 동적으로 생성됨
 
 # 직접비 항목 목록
 DIRECT_COST_ITEMS = [
@@ -609,6 +609,10 @@ def main(analysis_month=None, update_date=None):
     print(f"   업데이트일자: {date_str}")
     print(f"   사용할 분석월: {analysis_month}")
     
+    # 계획 파일 디렉토리 동적 생성 (analysis_month 기반)
+    plan_dir = CSV_OUTPUT_DIR / analysis_month / "plan"
+    print(f"   계획 파일 디렉토리: {plan_dir}")
+    
     # 출력 디렉토리 생성
     date_output_dir = CSV_OUTPUT_DIR / analysis_month / "current_year" / date_str
     date_output_dir.mkdir(parents=True, exist_ok=True)
@@ -647,7 +651,7 @@ def main(analysis_month=None, update_date=None):
     # Step 5: [채널별 전처리] 집계 (매출총이익까지)
     # ==========================================
     print("\n[5단계] [채널별 전처리] 집계 (매출총이익까지)...")
-    df_shop = aggregate_by_channel(df_with_cost, str(PLAN_DIR), channel_master_for_direct_cost)
+    df_shop = aggregate_by_channel(df_with_cost, str(plan_dir), channel_master_for_direct_cost)
     
     shop_output_path = date_output_dir / f"{base_filename}_Shop.csv"
     df_shop.to_csv(shop_output_path, index=False, encoding='utf-8-sig')
@@ -660,7 +664,7 @@ def main(analysis_month=None, update_date=None):
     print("\n[6단계] [직접비 계산] 집계된 데이터에 직접비 계산 및 직접이익 계산...")
     
     # 직접비율 파일 경로 (분석월 포함)
-    rates_output_path = PLAN_DIR / f"{analysis_month}R_직접비율_추출결과.csv"
+    rates_output_path = plan_dir / f"{analysis_month}R_직접비율_추출결과.csv"
     
     # 직접비율 및 계획 금액 추출
     if rates_output_path.exists():
@@ -671,8 +675,8 @@ def main(analysis_month=None, update_date=None):
         
         # 직접비율 파일이 있으면 rates_df와 plan_amounts_df도 별도 파일에서 로드 시도
         # rates_df 파일 경로
-        rates_df_path = PLAN_DIR / f"{analysis_month}R_직접비율_상세.csv"
-        plan_amounts_path = PLAN_DIR / f"{analysis_month}R_직접비금액_상세.csv"
+        rates_df_path = plan_dir / f"{analysis_month}R_직접비율_상세.csv"
+        plan_amounts_path = plan_dir / f"{analysis_month}R_직접비금액_상세.csv"
         
         if rates_df_path.exists() and plan_amounts_path.exists():
             print(f"  [INFO] 기존 상세 데이터 파일 발견, 재사용 중...")
@@ -682,13 +686,13 @@ def main(analysis_month=None, update_date=None):
         else:
             # 상세 파일이 없으면 계획 파일에서 추출 (하위 호환성)
             print(f"  [INFO] 상세 데이터 파일이 없어 계획 파일에서 추출합니다...")
-            plan_amounts_df = extract_direct.extract_plan_amounts(str(PLAN_DIR), channel_master_for_direct_cost)
-            rates_df = extract_direct.extract_direct_cost_rates(str(PLAN_DIR), channel_master_for_direct_cost)
+            plan_amounts_df = extract_direct.extract_plan_amounts(str(plan_dir), channel_master_for_direct_cost)
+            rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
     else:
         # 기존 파일이 없으면 추출 및 저장
         print(f"  [INFO] 직접비율 파일이 없어 계획 파일에서 새로 추출합니다...")
-        plan_amounts_df = extract_direct.extract_plan_amounts(str(PLAN_DIR), channel_master_for_direct_cost)
-        rates_df = extract_direct.extract_direct_cost_rates(str(PLAN_DIR), channel_master_for_direct_cost)
+        plan_amounts_df = extract_direct.extract_plan_amounts(str(plan_dir), channel_master_for_direct_cost)
+        rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
         rates_pivoted_df = extract_direct.pivot_and_format_rates(rates_df, channel_master_for_direct_cost)
         
         # 직접비율 파일 저장
@@ -697,8 +701,8 @@ def main(analysis_month=None, update_date=None):
         print(f"  [OK] 직접비율 파일 저장: {rates_output_path}")
         
         # 상세 데이터도 저장 (다음 실행 시 재사용)
-        rates_df_path = PLAN_DIR / f"{analysis_month}R_직접비율_상세.csv"
-        plan_amounts_path = PLAN_DIR / f"{analysis_month}R_직접비금액_상세.csv"
+        rates_df_path = plan_dir / f"{analysis_month}R_직접비율_상세.csv"
+        plan_amounts_path = plan_dir / f"{analysis_month}R_직접비금액_상세.csv"
         rates_df.to_csv(rates_df_path, index=False, encoding='utf-8-sig')
         plan_amounts_df.to_csv(plan_amounts_path, index=False, encoding='utf-8-sig')
         print(f"  [OK] 상세 데이터 파일 저장: {rates_df_path.name}, {plan_amounts_path.name}")

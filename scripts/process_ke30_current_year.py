@@ -429,12 +429,27 @@ def add_master_columns(df, channel_master, item_master):
     # =====================================
     print(f"   1) 채널명 매핑...")
     
+    def normalize_customer(val):
+        """
+        고객 코드를 RF 매핑용으로 정규화
+        - 649.0 -> "649"
+        - "649" -> "649"
+        - 숫자/문자 이외는 그대로 문자열화
+        """
+        try:
+            if pd.isna(val):
+                return ''
+            # float/int 모두 int 변환 후 문자열
+            return str(int(float(val)))
+        except Exception:
+            return str(val).strip()
+
     # RF 고객 리스트 (채널마스터.csv의 E, F, G열)
     rf_customers = []
     for col in ['SAP_CD', 'MAIN_CD']:  # 실제 컬럼명에 따라 조정 필요
         if col in channel_master.columns:
-            rf_customers.extend(channel_master[col].dropna().astype(str).tolist())
-    
+            rf_customers.extend(channel_master[col].dropna().apply(normalize_customer).tolist())
+
     # 채널번호 -> 채널명 매핑 딕셔너리
     channel_mapping = dict(zip(
         channel_master['채널번호'].astype(str),
@@ -443,7 +458,7 @@ def add_master_columns(df, channel_master, item_master):
     
     def map_channel_name(row):
         """채널명 매핑 함수"""
-        customer = str(row.get('고객', ''))
+        customer = normalize_customer(row.get('고객', ''))
         channel_raw = row.get('유통채널', '')
         
         # 유통채널을 정수로 변환 (1.0 -> 1)
@@ -463,6 +478,19 @@ def add_master_columns(df, channel_master, item_master):
         return channel_mapping.get(channel, channel)
     
     df_result['채널명'] = df_result.apply(map_channel_name, axis=1)
+
+    # 디버그: RF 매핑 현황 확인
+    try:
+        rf_flag_count = (df_result['채널명'] == 'RF').sum()
+        print(f"      [DEBUG] RF 매핑 건수: {rf_flag_count}")
+        if rf_flag_count == 0:
+            # RF 후보 고객값 샘플 출력
+            rf_candidates = df_result[df_result['고객'].apply(normalize_customer).isin(rf_customers)]
+            print(f"      [DEBUG] RF 후보 고객 건수(정규화 기준): {len(rf_candidates)}")
+            print(f"      [DEBUG] RF 후보 고객 샘플 3건:")
+            print(rf_candidates[['고객', '유통채널']].head(3))
+    except Exception as e:
+        print(f"      [DEBUG] RF 매핑 점검 중 오류: {e}")
     
     # 채널명을 유통채널 옆에 위치시키기
     cols = list(df_result.columns)

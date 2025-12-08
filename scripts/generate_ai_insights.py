@@ -858,6 +858,7 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
             overview_data["by_brand"] = by_brand_data
     
     # 4. 월중누적매출추이 분석
+    trend_data = None
     trend_file = base_dir / "overview_trend.json"
     if trend_file.exists():
         print("[ANALYZING] 월중누적매출추이 분석 중...")
@@ -1079,6 +1080,14 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
     
     # 4. 주차별 매출추세 분석
     weekly_insight = ""
+    # overview_trend.json이 없으면 weekly_trend.json 사용
+    if not trend_data:
+        weekly_trend_file = base_dir / "weekly_trend.json"
+        if weekly_trend_file.exists():
+            print("[ANALYZING] 주차별 매출추세 분석 중... (weekly_trend.json 사용)")
+            trend_data = load_json_file(weekly_trend_file)
+            if trend_data:
+                overview_data["trend"] = trend_data
     if trend_data:
         weekly_insight = generator.generate_insight(trend_data, "전체 현황", "weekly")
     
@@ -1838,7 +1847,7 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         
                                         # 판매율 차이가 나쁜(음수) 아이템이 있고, 1위와 다른 경우
                                         if worst_diff_value < 0 and worst_diff_name != item1_name:
-                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{worst_diff_name}</strong>는 누적판매율 전년대비 {worst_diff_value:+.1f}%p로 조치 필요합니다.")
+                                            key_points.append("- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{worst_diff_name}</strong>는 누적판매율 전년대비 {worst_diff_value:+.1f}%p로 조치 필요합니다.")
                                         # 1위가 나쁜 경우
                                         elif item1_diff < 0:
                                             key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p)로 조치 필요합니다.")

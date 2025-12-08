@@ -543,39 +543,39 @@ def main():
     update_date_str = args.update_date
     
     if len(update_date_str) != 8 or not update_date_str.isdigit():
-        print("❌ 업데이트일자 형식이 올바르지 않습니다. (YYYYMMDD 형식 필요)")
+        print("[ERROR] 업데이트일자 형식이 올바르지 않습니다. (YYYYMMDD 형식 필요)")
         sys.exit(1)
     
     print("=" * 60)
     print("KE30 → Forecast 변환")
     print("=" * 60)
-    print(f"📅 업데이트일자: {update_date_str}")
+    print(f"[INFO] 업데이트일자: {update_date_str}")
     print()
     
     try:
         # 분석기간 시작일 계산 (전주 월요일)
         week_start_date = calculate_week_start_date(update_date_str)
-        print(f"📅 분석기간 시작일: {week_start_date.strftime('%Y-%m-%d')} (월요일)")
+        print(f"[INFO] 분석기간 시작일: {week_start_date.strftime('%Y-%m-%d')} (월요일)")
         
         # 전년동기간 날짜 계산
         prev_year_date = calculate_previous_year_date(week_start_date)
-        print(f"📅 전년동기간 날짜: {prev_year_date.strftime('%Y-%m-%d')}")
+        print(f"[INFO] 전년동기간 날짜: {prev_year_date.strftime('%Y-%m-%d')}")
         
         # 분석월 계산 (주차 시작일의 월)
         analysis_year = week_start_date.year
         analysis_month_num = week_start_date.month
         analysis_month = f"{analysis_year}{analysis_month_num:02d}"
-        print(f"📅 분석월: {analysis_month}")
+        print(f"[INFO] 분석월: {analysis_month}")
         
         # 월 총 일수 계산
         _, total_days = monthrange(analysis_year, analysis_month_num)
-        print(f"📅 월 총 일수: {total_days}일")
+        print(f"[INFO] 월 총 일수: {total_days}일")
         print()
         
         # 진척일수 파일 읽기
         print("[진척일수 파일 읽기] 시작...")
         progress_days_dict = load_progress_days(analysis_month, prev_year_date)
-        print(f"✅ 진척일수 로드 완료: {len(progress_days_dict)}개 브랜드")
+        print(f"[OK] 진척일수 로드 완료: {len(progress_days_dict)}개 브랜드")
         for brand, days in progress_days_dict.items():
             print(f"   {brand}: {days}일")
         print()
@@ -602,7 +602,7 @@ def main():
                 analysis_month
             )
         else:
-            print(f"⚠️  Shop 파일을 찾을 수 없습니다: {shop_input_path}")
+            print(f"[WARNING] Shop 파일을 찾을 수 없습니다: {shop_input_path}")
         
         # Shop_item 파일 변환
         shop_item_input_path = date_output_dir / f"ke30_{update_date_str}_{analysis_month}_Shop_item.csv"
@@ -620,17 +620,17 @@ def main():
                 analysis_month
             )
         else:
-            print(f"⚠️  Shop_item 파일을 찾을 수 없습니다: {shop_item_input_path}")
+            print(f"[WARNING] Shop_item 파일을 찾을 수 없습니다: {shop_item_input_path}")
         
         print()
         print("=" * 60)
-        print("✅ 변환 완료!")
+        print("[OK] 변환 완료!")
         print("=" * 60)
         
     except Exception as e:
         print()
         print("=" * 60)
-        print(f"❌ 오류 발생: {e}")
+        print(f"[ERROR] 오류 발생: {e}")
         print("=" * 60)
         import traceback
         traceback.print_exc()

@@ -1,6 +1,6 @@
 @echo off
-setlocal enabledelayedexpansion
-chcp 65001 >nul
+setlocal EnableExtensions EnableDelayedExpansion
+chcp 65001 >nul 2>&1
 cd /d "%~dp0"
 
 echo ============================================================
@@ -8,170 +8,188 @@ echo   Dashboard JSON Generation
 echo ============================================================
 echo.
 
-set /p USE_LATEST="Use latest files? (Y/N): "
+REM Python 경로 설정: 가상환경 우선, 없으면 시스템 python
+set "PYTHON_CMD="
+if exist "%~dp0Forcast_venv\Scripts\python.exe" (
+    set "PYTHON_CMD=%~dp0Forcast_venv\Scripts\python.exe"
+) else (
+    where python >nul 2>&1
+    if %errorlevel% equ 0 (
+        set "PYTHON_CMD=python"
+    ) else (
+        echo [ERROR] Python을 찾을 수 없습니다. Forcast_venv를 생성하거나 PATH를 확인하세요.
+        pause
+        exit /b 1
+    )
+)
+set "PYTHONIOENCODING=utf-8"
 
+REM 평가월(YYYYMM)과 업데이트일자(YYYYMMDD)를 직접 입력
 set PIPELINE_ERROR=0
+set ANALYSIS_MONTH=
+set UPDATE_DATE=
 
-if /i "!USE_LATEST!"=="Y" (
+echo Please enter Analysis Month and Update Date.
+set /p ANALYSIS_MONTH="Analysis Month (YYYYMM, e.g., 202512): "
+set /p UPDATE_DATE="Update Date (YYYYMMDD, e.g., 20251208): "
+
+REM 유효성 검사
+if not defined ANALYSIS_MONTH (
+    echo [ERROR] 분석월을 찾을 수 없습니다.
+    echo raw\YYYYMM\current_year\YYYYMMDD 구조를 확인해주세요.
+    pause
+    exit /b 1
+)
+
+if not defined UPDATE_DATE (
+    echo [ERROR] 업데이트일자를 찾을 수 없습니다.
+    echo raw\!ANALYSIS_MONTH!\current_year\YYYYMMDD 구조를 확인해주세요.
+    pause
+    exit /b 1
+)
+
+echo.
+echo ============================================================
+echo   Analysis Month: !ANALYSIS_MONTH!
+echo   Update Date: !UPDATE_DATE!
+echo ============================================================
+echo.
+
+set DATE_STR=!UPDATE_DATE!
+
+REM === 공통 파이프라인 시작 ===
+
+echo [Step 1] Brand KPI Update
+call "%PYTHON_CMD%" scripts\update_brand_kpi.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 1] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 1] Completed
+)
+echo.
+
+echo [Step 2] Overview Data Update
+call "%PYTHON_CMD%" scripts\update_overview_data.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 2] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 2] Completed
+)
+echo.
+
+echo [Step 3] Brand PL Data Creation
+call "%PYTHON_CMD%" scripts\create_brand_pl_data.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 3] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 3] Completed
+)
+echo.
+
+echo [Step 4] Brand Radar Chart Data
+call "%PYTHON_CMD%" scripts\update_brand_radar.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 4] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 4] Completed
+)
+echo.
+
+echo [Step 5] Channel Profit Loss Data
+set YEAR_MONTH=!DATE_STR:~0,6!
+call "%PYTHON_CMD%" scripts\process_channel_profit_loss.py --base-date !DATE_STR! --target-month !YEAR_MONTH! --format dashboard
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 5] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 5] Completed
+)
+echo.
+
+echo [Step 6] Weekly Sales Trend Download
+set DATE_FORMATTED_STEP6=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
+call "%PYTHON_CMD%" scripts\download_weekly_sales_trend.py !DATE_FORMATTED_STEP6!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 6] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 6] Completed
+)
+echo.
+
+echo [Step 7] Stock Analysis Download
+set DATE_FORMATTED=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
+call "%PYTHON_CMD%" scripts\download_brand_stock_analysis.py --update-date !DATE_FORMATTED!
+set STOCK_ERR=!errorlevel!
+
+if !STOCK_ERR! neq 0 (
     echo.
-    echo Running in auto-select latest file mode...
-    echo.
-    echo [Step] Starting Python script...
-    python scripts\generate_dashboard_data.py
-    set PIPELINE_ERROR=!errorlevel!
-    echo.
-    echo [Done] Python script finished (Exit code: !PIPELINE_ERROR!)
-) else if /i "!USE_LATEST!"=="N" (
-    echo.
-    set /p ANALYSIS_MONTH="Enter analysis month (YYYYMM, e.g., 202511): "
-    set /p UPDATE_DATE="Enter update date (YYYYMMDD, e.g., 20251201): "
-    echo.
-    echo ============================================================
-    echo   Analysis Month: !ANALYSIS_MONTH!
-    echo   Update Date: !UPDATE_DATE!
-    echo ============================================================
-    echo.
-    
-    set DATE_STR=!UPDATE_DATE!
-    
-    echo [Step 1] Brand KPI Update
-    python scripts\update_brand_kpi.py !DATE_STR!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 1] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
+    echo [Step 7-Alternative] Generating stock analysis from CSV
+    call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
+    set ALT_ERR=!errorlevel!
+    if !ALT_ERR! neq 0 (
+        echo [Step 7-Alternative] Failed (Error code: !ALT_ERR!)
     ) else (
-        echo [Step 1] Completed
+        echo [Step 7-Alternative] Success
     )
-    echo.
-    
-    echo [Step 2] Overview Data Update
-    python scripts\update_overview_data.py !DATE_STR!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 2] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 2] Completed
-    )
-    echo.
-    
-    echo [Step 3] Brand PL Data Creation
-    python scripts\create_brand_pl_data.py !DATE_STR!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 3] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 3] Completed
-    )
-    echo.
-    
-    echo [Step 4] Brand Radar Chart Data
-    python scripts\update_brand_radar.py !DATE_STR!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 4] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 4] Completed
-    )
-    echo.
-    
-    echo [Step 5] Channel Profit Loss Data
-    set YEAR_MONTH=!DATE_STR:~0,6!
-    python scripts\process_channel_profit_loss.py --base-date !DATE_STR! --target-month !YEAR_MONTH! --format dashboard
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 5] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 5] Completed
-    )
-    echo.
-    
-    echo [Step 6] Weekly Sales Trend Download
-    set DATE_FORMATTED_STEP6=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
-    python scripts\download_weekly_sales_trend.py !DATE_FORMATTED_STEP6!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 6] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 6] Completed
-    )
-    echo.
-    
-    echo [Step 7] Stock Analysis Download
-    set DATE_FORMATTED=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
-    python scripts\download_brand_stock_analysis.py --update-date !DATE_FORMATTED!
-    set STOCK_ERR=!errorlevel!
-    
-    if !STOCK_ERR! neq 0 (
+) else (
+    if not exist "public\data\!DATE_STR!\stock_analysis.json" (
         echo.
-        echo [Step 7-Alternative] Generating stock analysis from CSV
-        python scripts\generate_brand_stock_analysis.py !DATE_STR!
+        echo [Step 7-Alternative] stock_analysis.json not found, generating from CSV
+        call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
         set ALT_ERR=!errorlevel!
         if !ALT_ERR! neq 0 (
             echo [Step 7-Alternative] Failed (Error code: !ALT_ERR!)
         ) else (
             echo [Step 7-Alternative] Success
         )
-    ) else (
-        if not exist "public\data\!DATE_STR!\stock_analysis.json" (
-            echo.
-            echo [Step 7-Alternative] stock_analysis.json not found, generating from CSV
-            python scripts\generate_brand_stock_analysis.py !DATE_STR!
-            set ALT_ERR=!errorlevel!
-            if !ALT_ERR! neq 0 (
-                echo [Step 7-Alternative] Failed (Error code: !ALT_ERR!)
-            ) else (
-                echo [Step 7-Alternative] Success
-            )
-        )
     )
-    echo.
-    
-    echo [Step 8] Treemap Data Creation
-    python scripts\create_treemap_data_v2.py !DATE_STR!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 8] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 8] Completed
-    )
-    echo.
-    
-    echo [Step 9] JSON Export
-    python scripts\export_to_json.py !DATE_STR!
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 9] Failed (Error code: !STEP_ERR!)
-        set PIPELINE_ERROR=!STEP_ERR!
-    ) else (
-        echo [Step 9] Completed
-    )
-    echo.
-    
-    echo [Step 10] AI Insights Generation
-    python scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands
-    set STEP_ERR=!errorlevel!
-    if !STEP_ERR! neq 0 (
-        echo [Step 10] Failed (Error code: !STEP_ERR!)
-        echo [Warning] AI Insights generation failed, but continuing...
-        REM AI 인사이트 생성 실패는 경고만 출력하고 계속 진행
-    ) else (
-        echo [Step 10] Completed
-    )
-    echo.
-) else (
-    echo.
-    echo Invalid input. Please enter Y or N.
-    echo.
-    pause
-    exit /b 1
 )
+echo.
+
+echo [Step 8] Treemap Data Creation
+call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 8] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 8] Completed
+)
+echo.
+
+echo [Step 9] JSON Export
+call "%PYTHON_CMD%" scripts\export_to_json.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 9] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 9] Completed
+)
+echo.
+
+echo [Step 10] AI Insights Generation
+call "%PYTHON_CMD%" scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 10] Failed (Error code: !STEP_ERR!)
+    echo [Warning] AI Insights generation failed, but continuing...
+    REM AI 인사이트 생성 실패는 경고만 출력하고 계속 진행
+) else (
+    echo [Step 10] Completed
+)
+echo.
 
 echo.
 echo ============================================================

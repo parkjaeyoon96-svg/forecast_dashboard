@@ -294,3 +294,6 @@ python scripts/generate_ai_insights.py --date 20251117 --overview --all-brands
 
 **`merge_insights_data.py`는 특별한 경우에만 사용합니다!**
 
+
+
+
