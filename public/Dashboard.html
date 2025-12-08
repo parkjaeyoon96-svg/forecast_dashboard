@@ -408,9 +408,31 @@
           window.accStockAnalysis = stockAnalysis.accStockAnalysis || {};
           window.clothingSummary = stockAnalysis.clothingSummary || {};
           window.accSummary = stockAnalysis.accSummary || {};
+          // 브랜드별 집계 판매율 (당년/전년/차이)
+          window.clothingBrandRates = stockAnalysis.clothingBrandRates || {};
+          window.clothingCategoryRates = stockAnalysis.clothingCategoryRates || {};
+          window.clothingCategoryRatesOverall = stockAnalysis.clothingCategoryRatesOverall || {};
+          window.clothingBrandItemRates = stockAnalysis.clothingBrandItemRates || {};
+          window.clothingItemRatesOverall = stockAnalysis.clothingItemRatesOverall || {};
           console.log('  ✓ stock_analysis.json');
           console.log('  ✓ clothingBrandStatus 브랜드:', Object.keys(window.clothingBrandStatus || {}));
           console.log('  ✓ accStockAnalysis 브랜드:', Object.keys(window.accStockAnalysis || {}));
+          console.log('  ✓ clothingCategoryRates 브랜드:', Object.keys(window.clothingCategoryRates || {}));
+          console.log('  ✓ clothingBrandItemRates 브랜드:', Object.keys(window.clothingBrandItemRates || {}));
+          console.log('  ✓ clothingItemRatesOverall 아이템:', Object.keys(window.clothingItemRatesOverall || {}));
+          console.log('  ✓ clothingBrandRates 브랜드:', Object.keys(window.clothingBrandRates || {}));
+          
+          // 브랜드별 집계 판매율 데이터 확인 및 테이블 렌더링 트리거
+          if (window.clothingBrandRates && Object.keys(window.clothingBrandRates).length > 0) {
+            console.log('  ✓ clothingBrandRates 데이터 상세:', window.clothingBrandRates);
+            // 브랜드별 집계 테이블 렌더링 트리거 (renderItemDiffTable에서 처리)
+            setTimeout(() => {
+              if (typeof renderItemDiffTable === 'function') {
+                console.log('[Dashboard] clothingBrandRates 로드 후 테이블 재렌더링');
+                renderItemDiffTable();
+              }
+            }, 300);
+          }
         }
         
         if (treemap) {
@@ -5835,6 +5857,15 @@
       const brands = ['MLB', 'MLB KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO'];
       const brandKeys = ['MLB', 'MLB_KIDS', 'DISCOVERY', 'DUVETICA', 'SERGIO'];
       
+      // 브랜드 코드 매핑 (먼저 정의)
+      const brandCodeMap = {
+        'MLB': 'M',
+        'MLB KIDS': 'I',
+        'DISCOVERY': 'X',
+        'DUVETICA': 'V',
+        'SERGIO': 'ST'
+      };
+      
       // 카테고리 목록 (itemTableData에서 가져온 모든 아이템 코드)
       const categories = ['DJ', 'DV', 'JP', 'PD', 'SS', 'WJ', 'HD', 'MT', 'OP', 'RL', 'RS', 'TL', 'TR', 'ZT', 'LG', 'PT', 'SK', 'SP', 'TP'];
       const categoryNames = {
@@ -5845,17 +5876,25 @@
         'LG': 'Leggings', 'PT': 'Pants', 'SK': 'Skirt', 'SP': 'SHORTS', 'TP': 'Training Pants'
       };
       
-      // 브랜드별 판매율 데이터 수집
+      // 브랜드별 판매율 데이터 수집 - 재계산된 값 사용
       const heatmapData = {};
       brands.forEach((brandName, idx) => {
         const brandKey = brandKeys[idx];
+        const brandCode = brandCodeMap[brandName];
         const computed = getBrandItemTableData(brandKey);
         const allItems = [...(computed.Outer||[]), ...(computed.Inner||[]), ...(computed.Bottom||[])];
         
         const brandRates = {};
         categories.forEach(cat => {
-          const item = allItems.find(i => i.code === cat);
-          brandRates[cat] = item ? (item.rateNow || 0) : null;
+          // 재계산된 브랜드별 아이템별 판매율 사용
+          if (window.clothingBrandItemRates && window.clothingBrandItemRates[brandCode] && window.clothingBrandItemRates[brandCode][cat]) {
+            const recalculatedRate = window.clothingBrandItemRates[brandCode][cat].cumSalesRate;
+            brandRates[cat] = recalculatedRate != null ? (recalculatedRate * 100) : null; // 퍼센트로 변환
+          } else {
+            // 폴백: 기존 방식 (개별 아이템 판매율)
+            const item = allItems.find(i => i.code === cat);
+            brandRates[cat] = item ? (item.rateNow || 0) : null;
+          }
         });
         heatmapData[brandName] = brandRates;
       });
@@ -5868,15 +5907,6 @@
         if (value >= 10) return 'cell-average';
         return 'cell-poor';
       }
-      
-      // 브랜드 코드 매핑
-      const brandCodeMap = {
-        'MLB': 'M',
-        'MLB KIDS': 'I',
-        'DISCOVERY': 'X',
-        'DUVETICA': 'V',
-        'SERGIO': 'ST'
-      };
       
       // 테이블 생성 - 브랜드를 행, 아이템을 열로
       let html = '<thead><tr><th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;border-radius:8px 0 0 0;">브랜드</th>';
@@ -5918,9 +5948,17 @@
           }
         });
         
-        // 브랜드별 평균 계산
-        const validValues = categories.map(cat => rates[cat]).filter(v => v != null && !isNaN(v));
-        const avg = validValues.length > 0 ? validValues.reduce((a, b) => a + b, 0) / validValues.length : 0;
+        // 브랜드별 평균 계산 - 재계산된 판매율 사용 (clothingSummary에서 가져오기)
+        const brandCode = brandCodeMap[brand];
+        let avg = null;
+        if (brandCode && window.clothingSummary && window.clothingSummary[brandCode] && window.clothingSummary[brandCode].cumSalesRate != null) {
+          // 재계산된 브랜드 전체 판매율 사용 (퍼센트로 변환)
+          avg = window.clothingSummary[brandCode].cumSalesRate * 100;
+        } else {
+          // 폴백: 아이템별 판매율의 산술 평균
+          const validValues = categories.map(cat => rates[cat]).filter(v => v != null && !isNaN(v));
+          avg = validValues.length > 0 ? validValues.reduce((a, b) => a + b, 0) / validValues.length : 0;
+        }
         const avgClass = avg > 0 ? getCellClass(avg) : 'cell-empty';
         if(avg > 0){
           html += `<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
@@ -5930,19 +5968,27 @@
         html += '</tr>';
       });
       
-      // 카테고리별 평균 행
+      // 카테고리별 평균 행 - 재계산된 전체 아이템별 판매율 사용
       html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">카테고리 평균</td>';
       categories.forEach((cat, idx) => {
-        let sum = 0;
-        let count = 0;
-        brands.forEach(brand => {
-          const value = heatmapData[brand][cat];
-          if(value != null && !isNaN(value)){
-            sum += value;
-            count++;
-          }
-        });
-        const avg = count > 0 ? sum / count : 0;
+        // 재계산된 전체 아이템별 판매율 사용
+        let avg = null;
+        if (window.clothingItemRatesOverall && window.clothingItemRatesOverall[cat] && window.clothingItemRatesOverall[cat].cumSalesRate != null) {
+          avg = window.clothingItemRatesOverall[cat].cumSalesRate * 100; // 퍼센트로 변환
+        } else {
+          // 폴백: 브랜드별 판매율의 산술 평균
+          let sum = 0;
+          let count = 0;
+          brands.forEach(brand => {
+            const value = heatmapData[brand][cat];
+            if(value != null && !isNaN(value)){
+              sum += value;
+              count++;
+            }
+          });
+          avg = count > 0 ? sum / count : 0;
+        }
+        
         if(avg > 0){
           const avgClass = getCellClass(avg);
           html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
@@ -5951,19 +5997,19 @@
         }
       });
       
-      // 전체 평균
-      let totalSum = 0;
-      let totalCount = 0;
+      // 전체 평균 - 가중평균 계산 (모든 브랜드의 집계 금액 합산)
+      let totalOrderTagAll = 0;
+      let totalCumSalesAll = 0;
       brands.forEach(brand => {
-        categories.forEach(cat => {
-          const value = heatmapData[brand][cat];
-          if(value != null && !isNaN(value)){
-            totalSum += value;
-            totalCount++;
-          }
-        });
+        const brandCode = brandCodeMap[brand];
+        if (brandCode && window.clothingSummary && window.clothingSummary[brandCode]) {
+          const summary = window.clothingSummary[brandCode];
+          if (summary.totalOrderTag) totalOrderTagAll += summary.totalOrderTag;
+          if (summary.totalCumSales) totalCumSalesAll += summary.totalCumSales;
+        }
       });
-      const totalAvg = totalCount > 0 ? totalSum / totalCount : 0;
+      // 전체 판매율 = 전체 누적판매TAG가 / 전체 누적입고TAG가
+      const totalAvg = totalOrderTagAll > 0 ? (totalCumSalesAll / totalOrderTagAll) * 100 : 0;
       if(totalAvg > 0){
         const totalClass = getCellClass(totalAvg);
         html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${totalClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${totalAvg.toFixed(1)}%</span></td>`;
@@ -7201,6 +7247,17 @@
     function renderItemDiffTable(){
       const tbody = document.getElementById('itemDiffTableBody');
       if(!tbody) return;
+      
+      // 브랜드 코드 매핑 (함수 내에서 정의)
+      const brandCodeMap = {
+        'MLB': 'M',
+        'MLB KIDS': 'I',
+        'MLB_KIDS': 'I',
+        'DISCOVERY': 'X',
+        'DUVETICA': 'V',
+        'SERGIO': 'ST'
+      };
+      
       if(itemTableMode==='inventory'){
         renderInventoryTable();
         // 판매율 차트가 있다면 제거
@@ -7306,7 +7363,36 @@
       const totalWeekly = filtered.reduce((sum, r) => sum + (Number(r.weekly) || 0), 0);
       const totalCum = filtered.reduce((sum, r) => sum + (Number(r.cum) || 0), 0);
       
+      // 브랜드 코드 확인
+      let brandKey = currentBrand || 'MLB';
+      if(brandKey === 'MLB KIDS') brandKey = 'MLB_KIDS';
+      let brandCode = brandCodeMap[brandKey];
+      if(!brandCode && brandKey.includes('_')) {
+        brandCode = brandCodeMap[brandKey.replace('_', ' ')];
+      }
+      if(!brandCode) {
+        brandCode = 'M'; // 기본값
+      }
+      
+      // ★★★ 카테고리 필터링된 아이템들의 원본 데이터에서 입고/판매 금액 재계산 ★★★
+      const clothingItems = (window.clothingBrandStatus && window.clothingBrandStatus[brandCode]) || [];
+      
+      // 필터링된 아이템 코드 목록 생성
+      const filteredItemCodes = new Set(filtered.map(r => r.code));
+      
+      // 필터링된 아이템들만 선택
+      const filteredClothingItems = clothingItems.filter(item => filteredItemCodes.has(item.itemCode));
+      
+      // 카테고리별 재계산된 집계 금액
+      const totalOrderTag = filteredClothingItems.reduce((sum, item) => sum + (item.storageTagAmt || 0), 0);
+      const totalCumSales = filteredClothingItems.reduce((sum, item) => sum + (item.cumSalesTag || 0), 0);
+      const totalOrderTagPy = filteredClothingItems.reduce((sum, item) => sum + (item.storageTagAmtPy || 0), 0);
+      const totalCumSalesPy = filteredClothingItems.reduce((sum, item) => sum + (item.cumSalesTagPy || 0), 0);
+      const totalOrderTagPyEnd = filteredClothingItems.reduce((sum, item) => sum + (item.storageTagAmtPyEnd || 0), 0);
+      const totalCumSalesPyEnd = filteredClothingItems.reduce((sum, item) => sum + (item.cumSalesTagPyEnd || 0), 0);
+      
       // 합계행 계산
+      // 전년 주간판매TAG가 계산 (백만원 단위로 일관성 유지)
       const totalPrevWeekly = filtered.reduce((sum, r) => {
         const weekly = Number(r.weekly) || 0;
         const yoy = Number(r.yoyWeekly) || 0;
@@ -7315,24 +7401,47 @@
         }
         return sum;
       }, 0);
+      // 주간전년비 계산 (백만원 단위로 일관성 유지)
       const totalYoyWeekly = totalPrevWeekly > 0 ? Math.round((totalWeekly / totalPrevWeekly) * 100) : 0;
       
-      const totalPrevCum = filtered.reduce((sum, r) => {
-        const cum = Number(r.cum) || 0;
-        const yoy = Number(r.yoyCum) || 0;
-        if (yoy > 0 && cum > 0) {
-          return sum + (cum / (yoy / 100));
-        }
-        return sum;
-      }, 0);
-      const totalYoyCum = totalPrevCum > 0 ? Math.round((totalCum / totalPrevCum) * 100) : 0;
+      // 전년 누적판매TAG가는 이미 재계산됨 (totalCumSalesPy)
+      const totalPrevCum = totalCumSalesPy > 0 ? totalCumSalesPy : 0;
+      // 누적전년비 계산 (재계산된 금액 사용)
+      const totalYoyCum = totalPrevCum > 0 ? Math.round((totalCumSales / totalPrevCum) * 100) : 0;
       
-      const totalRateNow = filtered.reduce((sum, r) => sum + (Number(r.rateNow) || 0), 0) / (filtered.length || 1);
-      const totalRateLast = filtered.reduce((sum, r) => sum + (Number(r.rateLast) || 0), 0) / (filtered.length || 1);
-      const totalDiff = totalRateNow - totalRateLast;
-      const totalDiffText = totalDiff > 0 ? `+${totalDiff.toFixed(1)}%p` : `△${Math.abs(totalDiff).toFixed(1)}%p`;
+      // 판매율 계산 - 카테고리 필터링된 아이템들로 재계산
+      let totalRateNow = null;
+      let totalRateLast = null;
+      let totalRatePy = null;
+      
+      // 당년 판매율 계산: 누적판매TAG가 / 누적입고TAG가
+      if (totalOrderTag > 0) {
+        totalRateNow = (totalCumSales / totalOrderTag) * 100;
+      } else {
+        totalRateNow = 0;
+      }
+      
+      // 전년 판매율 계산: 전년누적판매TAG가 / 전년누적입고TAG가
+      if (totalOrderTagPy > 0) {
+        totalRatePy = (totalCumSalesPy / totalOrderTagPy) * 100;
+      } else {
+        totalRatePy = 0;
+      }
+      
+      // 전년마감 판매율 계산: 전년마감누적판매TAG가 / 전년마감누적입고TAG가
+      if (totalOrderTagPyEnd > 0) {
+        totalRateLast = (totalCumSalesPyEnd / totalOrderTagPyEnd) * 100;
+      } else {
+        totalRateLast = 0;
+      }
+      
+      // 판매율 차이 = 당년 판매율 - 전년 판매율 (전년마감이 아닌 전년 기준)
+      const totalDiff = (totalRateNow != null && totalRatePy != null) ? totalRateNow - totalRatePy : null;
+      const totalDiffText = totalDiff != null ? (totalDiff > 0 ? `+${totalDiff.toFixed(1)}%p` : `△${Math.abs(totalDiff).toFixed(1)}%p`) : '-';
       
       // 합계행 HTML
+      // 표시용 금액 (백만원 단위)
+      const totalCumDisplay = Math.round(totalCumSales / 1000000);
       const totalRow = `
         <tr style="background:#e2e8f0;font-weight:600;border-top:2px solid #4f46e5;">
           <td>합계</td>
@@ -7341,12 +7450,12 @@
           <td>${totalWeekly.toLocaleString('ko-KR')}</td>
           <td>${totalYoyWeekly}%</td>
           <td style="color:#000;font-weight:600;border-right:none;">100.0%</td>
-          <td>${totalCum.toLocaleString('ko-KR')}</td>
+          <td>${totalCumDisplay.toLocaleString('ko-KR')}</td>
           <td>${totalYoyCum}%</td>
           <td style="color:#000;font-weight:600;">100.0%</td>
-          <td>${totalRateNow.toFixed(1)}%</td>
+          <td>${totalRateNow != null ? totalRateNow.toFixed(1) + '%' : '-'}</td>
           <td style="font-weight:600;">${totalDiffText}</td>
-          <td style="border-right:none;">${totalRateLast.toFixed(1)}%</td>
+          <td style="border-right:none;">${totalRateLast != null ? totalRateLast.toFixed(1) + '%' : '-'}</td>
         </tr>`;
       
       // 강조 로직 제거: threshold/topN 사용 안 함
@@ -12431,8 +12540,12 @@
     }
     
     function updateWeeklyTrendChart(){
+      console.log('[주차별 매출추세] updateWeeklyTrendChart 호출됨');
       const ctxEl = document.getElementById('weeklyTrendChart');
-      if(!ctxEl) return;
+      if(!ctxEl) {
+        console.warn('[주차별 매출추세] weeklyTrendChart 엘리먼트를 찾을 수 없습니다');
+        return;
+      }
       if(charts.weeklyTrend){ charts.weeklyTrend.destroy(); charts.weeklyTrend=null; }
       
       // RF 채널 버튼 표시/숨김 (MLB 브랜드만 표시)
@@ -12446,6 +12559,12 @@
       
       // ★ window.weeklySalesTrend 사용 (안전한 접근) ★
       const weeklySalesTrendData = window.weeklySalesTrend;
+      console.log('[주차별 매출추세] weeklySalesTrendData 확인:', {
+        exists: !!weeklySalesTrendData,
+        hasRawData: !!weeklySalesTrendData?.rawData,
+        rawDataLength: weeklySalesTrendData?.rawData?.length,
+        weeks: weeklySalesTrendData?.weeks
+      });
       
       if (weeklySalesTrendData?.rawData) {
         // 새 JS 파일 데이터 사용
@@ -12521,13 +12640,14 @@
           });
         });
         
-        console.log('[주차별 매출추세] 새 데이터 파일 로드 완료:', { weeks: labels, brands: Object.keys(realData) });
+        console.log('[주차별 매출추세] 새 데이터 파일 로드 완료:', { weeks: labels, brands: Object.keys(realData), realData: realData });
       } else {
         // 데이터 파일이 없으면 차트를 표시하지 않음
-        console.warn('[주차별 매출추세] weekly_sales_trend 데이터 파일이 로드되지 않았습니다.');
+        console.error('[주차별 매출추세] weekly_sales_trend 데이터 파일이 로드되지 않았습니다.');
+        console.error('[주차별 매출추세] window.weeklySalesTrend:', window.weeklySalesTrend);
         const ctxWrapper = ctxEl.closest('.chart-wrapper');
         if (ctxWrapper) {
-          ctxWrapper.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;font-size:14px;">주차별 매출추세 데이터를 로드할 수 없습니다.<br>weekly_sales_trend_*.js 파일을 확인하세요.</div>';
+          ctxWrapper.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff0000;font-size:14px;flex-direction:column;"><p>주차별 매출추세 데이터를 로드할 수 없습니다.</p><p style="font-size:12px;color:#64748b;margin-top:10px;">콘솔에서 에러를 확인하세요.</p></div>';
         }
         return;
       }
