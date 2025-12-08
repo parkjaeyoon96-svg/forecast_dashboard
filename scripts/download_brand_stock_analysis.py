@@ -298,7 +298,14 @@ SELECT
       - (AC_TAG_AMG_PY / NULLIF(AC_STOR_TAG_AMT_KOR_PY, 0)),
       4
     )                                               AS "누적판매율차이",
-    ROUND( TAG_AMT_PY_END / NULLIF(AC_STOR_TAG_AMT_KOR_PY_END, 0), 4 ) AS "전년마감판매율"
+    ROUND( TAG_AMT_PY_END / NULLIF(AC_STOR_TAG_AMT_KOR_PY_END, 0), 4 ) AS "전년마감판매율",
+    -- 판매율 재계산을 위한 원본 데이터
+    AC_TAG_AMG                                     AS "누적판매TAG가",
+    AC_STOR_TAG_AMT_KOR                            AS "누적입고TAG가",
+    AC_TAG_AMG_PY                                  AS "전년누적판매TAG가",
+    AC_STOR_TAG_AMT_KOR_PY                         AS "전년누적입고TAG가",
+    TAG_AMT_PY_END                                 AS "전년마감누적판매TAG가",
+    AC_STOR_TAG_AMT_KOR_PY_END                     AS "전년마감누적입고TAG가"
 FROM RDS
 WHERE PARENT_PRDT_KIND_NM <> 'ACC'
 ORDER BY BRD_CD, PARENT_PRDT_KIND_NM, PRDT_KIND_NM, ITEM
