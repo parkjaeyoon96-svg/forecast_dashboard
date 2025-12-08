@@ -5968,8 +5968,8 @@
         html += '</tr>';
       });
       
-      // 카테고리별 평균 행 - 재계산된 전체 아이템별 판매율 사용
-      html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">카테고리 평균</td>';
+      // 아이템별 평균 행 - 재계산된 전체 아이템별 판매율 사용
+      html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">아이템 평균</td>';
       categories.forEach((cat, idx) => {
         // 재계산된 전체 아이템별 판매율 사용
         let avg = null;
@@ -6022,12 +6022,20 @@
       
       // 아이템 코드 헤더에 이벤트 리스너 추가
       const itemCodeHeaders = table.querySelectorAll('th.item-code-hover');
+      console.log('[히트맵] 툴팁 이벤트 리스너 추가:', itemCodeHeaders.length, '개 헤더');
       itemCodeHeaders.forEach(header => {
         header.addEventListener('mouseenter', function(e) {
-          showItemCodeTooltip(e, this);
+          console.log('[히트맵] 툴팁 표시:', this.getAttribute('data-item-code'), this.getAttribute('data-item-name'));
+          if (typeof window.showItemCodeTooltip === 'function') {
+            window.showItemCodeTooltip(e, this);
+          } else {
+            console.error('[히트맵] showItemCodeTooltip 함수를 찾을 수 없습니다');
+          }
         });
         header.addEventListener('mouseleave', function(e) {
-          hideItemCodeTooltip();
+          if (typeof window.hideItemCodeTooltip === 'function') {
+            window.hideItemCodeTooltip();
+          }
         });
       });
       
