@@ -5911,6 +5911,9 @@
       // 테이블 생성 - 브랜드를 행, 아이템을 열로
       let html = '<thead><tr><th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;border-radius:8px 0 0 0;">브랜드</th>';
       
+      // ★ 25F 열을 맨 앞에 배치 ★
+      html += '<th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;">25F</th>';
+      
       // 헤더 생성 (아이템/카테고리) - 마우스 오버 이벤트 추가
       categories.forEach(cat => {
         // 해당 아이템 코드를 가진 첫 번째 브랜드의 아이템 정보만 가져오기 (브랜드별로 동일하므로)
@@ -5931,24 +5934,14 @@
           data-item-code="${cat}"
           data-item-name="${(itemName || '').replace(/"/g, '&quot;')}">${cat}</th>`;
       });
-      html += '<th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;border-radius:0 8px 0 0;">평균</th></tr></thead><tbody>';
+      html += '</tr></thead><tbody>';
       
       // 각 브랜드별 행 생성
       brands.forEach(brand => {
         html += `<tr><td style="text-align:left;padding-left:15px;font-weight:700;background:#f7fafc;position:sticky;left:0;z-index:5;border-bottom:1px solid #e2e8f0;">${brand}</td>`;
         const rates = heatmapData[brand];
         
-        categories.forEach(cat => {
-          const value = rates[cat];
-          if(value == null || isNaN(value)){
-            html += '<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#f9fafb;">-</td>';
-          } else {
-            const cellClass = getCellClass(value);
-            html += `<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;"><span class="cell ${cellClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${value.toFixed(1)}%</span></td>`;
-          }
-        });
-        
-        // 브랜드별 평균 계산 - 재계산된 판매율 사용 (clothingSummary에서 가져오기)
+        // ★ 브랜드별 25F(평균) 계산을 맨 앞에 배치 ★
         const brandCode = brandCodeMap[brand];
         let avg = null;
         if (brandCode && window.clothingSummary && window.clothingSummary[brandCode] && window.clothingSummary[brandCode].cumSalesRate != null) {
@@ -5965,11 +5958,45 @@
         } else {
           html += '<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#f9fafb;">-</td>';
         }
+        
+        // 개별 아이템 카테고리 출력
+        categories.forEach(cat => {
+          const value = rates[cat];
+          if(value == null || isNaN(value)){
+            html += '<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#f9fafb;">-</td>';
+          } else {
+            const cellClass = getCellClass(value);
+            html += `<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;"><span class="cell ${cellClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${value.toFixed(1)}%</span></td>`;
+          }
+        });
+        
         html += '</tr>';
       });
       
       // 아이템별 평균 행 - 재계산된 전체 아이템별 판매율 사용
       html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">아이템 평균</td>';
+      
+      // ★ 전체 평균(25F)을 맨 앞에 배치 - 가중평균 계산 (모든 브랜드의 집계 금액 합산) ★
+      let totalOrderTagAll = 0;
+      let totalCumSalesAll = 0;
+      brands.forEach(brand => {
+        const brandCode = brandCodeMap[brand];
+        if (brandCode && window.clothingSummary && window.clothingSummary[brandCode]) {
+          const summary = window.clothingSummary[brandCode];
+          if (summary.totalOrderTag) totalOrderTagAll += summary.totalOrderTag;
+          if (summary.totalCumSales) totalCumSalesAll += summary.totalCumSales;
+        }
+      });
+      // 전체 판매율 = 전체 누적판매TAG가 / 전체 누적입고TAG가
+      const totalAvg = totalOrderTagAll > 0 ? (totalCumSalesAll / totalOrderTagAll) * 100 : 0;
+      if(totalAvg > 0){
+        const totalClass = getCellClass(totalAvg);
+        html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${totalClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${totalAvg.toFixed(1)}%</span></td>`;
+      } else {
+        html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;background:#f9fafb;">-</td>';
+      }
+      
+      // ★ 개별 아이템별 평균을 25F 다음에 배치 ★
       categories.forEach((cat, idx) => {
         // 재계산된 전체 아이템별 판매율 사용
         let avg = null;
@@ -5997,25 +6024,6 @@
         }
       });
       
-      // 전체 평균 - 가중평균 계산 (모든 브랜드의 집계 금액 합산)
-      let totalOrderTagAll = 0;
-      let totalCumSalesAll = 0;
-      brands.forEach(brand => {
-        const brandCode = brandCodeMap[brand];
-        if (brandCode && window.clothingSummary && window.clothingSummary[brandCode]) {
-          const summary = window.clothingSummary[brandCode];
-          if (summary.totalOrderTag) totalOrderTagAll += summary.totalOrderTag;
-          if (summary.totalCumSales) totalCumSalesAll += summary.totalCumSales;
-        }
-      });
-      // 전체 판매율 = 전체 누적판매TAG가 / 전체 누적입고TAG가
-      const totalAvg = totalOrderTagAll > 0 ? (totalCumSalesAll / totalOrderTagAll) * 100 : 0;
-      if(totalAvg > 0){
-        const totalClass = getCellClass(totalAvg);
-        html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${totalClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${totalAvg.toFixed(1)}%</span></td>`;
-      } else {
-        html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;background:#f9fafb;">-</td>';
-      }
       html += '</tr></tbody>';
       
       table.innerHTML = html;
@@ -8362,11 +8370,16 @@
       
       console.log('트리맵 데이터 확인 완료:', Object.keys(channelItemSalesData));
       
-      // 채널별 트리맵 업데이트 (동시에 업데이트하여 크기 동기화)
-      setTimeout(() => {
-        updateChannelTreemap();
-        updateItemTreemap();
-      }, 100);
+      // ★★★ 컨테이너가 완전히 렌더링될 때까지 기다린 후 트리맵 업데이트 ★★★
+      // requestAnimationFrame을 두 번 호출하여 레이아웃이 완전히 계산된 후 실행
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            updateChannelTreemap();
+            updateItemTreemap();
+          }, 50);
+        });
+      });
       
       // 드릴백 버튼 이벤트 리스너
       const drillbackChannelBtn = document.getElementById('treemapDrillbackChannel');
@@ -8521,6 +8534,12 @@
           console.warn('차트 정리 실패:', e);
         }
         
+        // ★★★ 컨테이너 크기를 강제로 재계산 (레이아웃 재계산 트리거) ★★★
+        const tempHeight = container.style.height;
+        container.style.height = 'auto';
+        void container.offsetHeight; // 강제 리플로우
+        container.style.height = tempHeight || '300px';
+        
         try{
           if (window.Plotly && typeof window.Plotly.newPlot === 'function'){
             window.Plotly.newPlot(container, data, layout, config).then(() => {
@@ -8616,6 +8635,12 @@
         } catch(e) {
           console.warn('차트 정리 실패:', e);
         }
+        
+        // ★★★ 컨테이너 크기를 강제로 재계산 (레이아웃 재계산 트리거) ★★★
+        const tempHeight = container.style.height;
+        container.style.height = 'auto';
+        void container.offsetHeight; // 강제 리플로우
+        container.style.height = tempHeight || '300px';
         
         try{
           if (window.Plotly && typeof window.Plotly.newPlot === 'function'){
