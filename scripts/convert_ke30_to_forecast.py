@@ -38,24 +38,6 @@ if str(scripts_dir) not in sys.path:
 
 import extract_direct_cost_rates as extract_direct
 
-# 직접비 항목 목록
-DIRECT_COST_ITEMS = [
-    '지급수수료_중간관리수수료',
-    '지급수수료_중간관리수수료(직영)',
-    '지급수수료_판매사원도급비(직영)',
-    '지급수수료_판매사원도급비(면세)',
-    '지급수수료_물류용역비',
-    '지급수수료_물류운송비',
-    '지급수수료_이천보관료',
-    '지급수수료_카드수수료',
-    '지급수수료_온라인위탁판매수수료',
-    '지급수수료_로열티',
-    '지급임차료_매장(변동)',
-    '지급임차료_매장(고정)',
-    '지급임차료_관리비',
-    '감가상각비_임차시설물'
-]
-
 # 진척율 계산 필드
 PROGRESS_RATE_FIELDS = [
     '합계 : 판매금액(TAG가)',
@@ -73,23 +55,14 @@ IDENTICAL_FIELDS = [
     '아이템_중분류',
     '아이템_소분류',
     '아이템코드',
-    '지급수수료_이천보관료',
     '지급임차료_매장(고정)',
     '감가상각비_임차시설물'
 ]
 
-# 직접비 계산 필드
-DIRECT_COST_CALC_FIELDS = [
-    '지급수수료_중간관리수수료',
-    '지급수수료_판매사원도급비(직영)',
-    '지급수수료_판매사원도급비(면세)',
-    '지급수수료_물류용역비',
-    '지급수수료_물류운송비',
-    '지급수수료_카드수수료',
-    '지급수수료_온라인위탁판매수수료',
-    '지급수수료_로열티',
-    '지급임차료_매장(변동)',
-    '지급임차료_관리비'
+# 고정비 항목 (그대로 유지)
+FIXED_COST_ITEMS = [
+    '지급임차료_매장(고정)',
+    '감가상각비_임차시설물'
 ]
 
 
@@ -266,9 +239,18 @@ def calculate_direct_costs_for_forecast(
             shipping_col = col
             break
     
-    # 각 직접비 계산 필드별로 계산
+    # 직접비 마스터에서 항목 로드 (고정비 제외)
+    DIRECT_COST_ITEMS = extract_direct.DIRECT_COST_ITEMS
+    DIRECT_COST_CALC_FIELDS = [item for item in DIRECT_COST_ITEMS if item not in FIXED_COST_ITEMS]
+    
+    print(f"  직접비 재계산 항목 수: {len(DIRECT_COST_CALC_FIELDS)}개")
+    print(f"  고정비(KE30 값 유지) 항목: {', '.join(FIXED_COST_ITEMS)}")
+    
+    # 각 직접비 계산 필드별로 계산 (고정비는 제외)
     for cost_item in DIRECT_COST_CALC_FIELDS:
-        df[cost_item] = 0.0
+        if cost_item not in df.columns:
+            df[cost_item] = 0.0
+        
         print(f"  처리 중: {cost_item}")
         
         # 지급수수료_로열티는 로열티율 마스터 사용
@@ -486,11 +468,13 @@ def convert_ke30_to_forecast(
     if is_shop_item:
         print("  직접비합계 및 직접이익 계산 건너뜀 (Shop_item 파일은 직접비 계산 제외)")
     else:
-        # 직접비합계 = 직접비 항목들의 합계
+        # 직접비합계 = 직접비 항목들의 합계 (직접비 마스터에서 로드)
         print("  직접비합계 계산 중...")
-        direct_cost_cols = [col for col in DIRECT_COST_ITEMS if col in df_forecast.columns]
+        DIRECT_COST_ITEMS_ALL = extract_direct.DIRECT_COST_ITEMS
+        direct_cost_cols = [col for col in DIRECT_COST_ITEMS_ALL if col in df_forecast.columns]
         if direct_cost_cols:
             df_forecast['직접비 합계'] = df_forecast[direct_cost_cols].sum(axis=1).astype(int)
+            print(f"    직접비 항목 수: {len(direct_cost_cols)}개")
         else:
             print("  [WARNING] 직접비 항목 컬럼을 찾을 수 없습니다.")
             df_forecast['직접비 합계'] = 0
