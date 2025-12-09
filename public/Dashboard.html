@@ -5912,7 +5912,7 @@
       let html = '<thead><tr><th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;border-radius:8px 0 0 0;">브랜드</th>';
       
       // ★ 25F 열을 맨 앞에 배치 ★
-      html += '<th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;">25F</th>';
+      html += '<th style="background:#6366f1;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;">25F</th>';
       
       // 헤더 생성 (아이템/카테고리) - 마우스 오버 이벤트 추가
       categories.forEach(cat => {
@@ -5954,9 +5954,9 @@
         }
         const avgClass = avg > 0 ? getCellClass(avg) : 'cell-empty';
         if(avg > 0){
-          html += `<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
+          html += `<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#ddd6fe;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
         } else {
-          html += '<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#f9fafb;">-</td>';
+          html += '<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#ddd6fe;">-</td>';
         }
         
         // 개별 아이템 카테고리 출력
@@ -5991,9 +5991,9 @@
       const totalAvg = totalOrderTagAll > 0 ? (totalCumSalesAll / totalOrderTagAll) * 100 : 0;
       if(totalAvg > 0){
         const totalClass = getCellClass(totalAvg);
-        html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${totalClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${totalAvg.toFixed(1)}%</span></td>`;
+        html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;background:#ddd6fe;"><span class="cell ${totalClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${totalAvg.toFixed(1)}%</span></td>`;
       } else {
-        html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;background:#f9fafb;">-</td>';
+        html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;background:#ddd6fe;">-</td>';
       }
       
       // ★ 개별 아이템별 평균을 25F 다음에 배치 ★
