@@ -1210,8 +1210,8 @@
               </div>
               <!-- 2행 2열: 주요 채널별 손익 (표) -->
               <div class="chart-container">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                  <div class="chart-title" style="margin:0;">주요 채널별 손익 (월말예상)</div>
+                <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
+                  <div class="chart-title" style="margin:0 0 10px 0;text-align:center;">주요 채널별 손익 (월말예상)</div>
                   <div style="display:flex;gap:5px;">
                     <button id="channelPlRevenue" class="channel-pl-toggle-btn active" style="background:#4f46e5;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">매출</button>
                     <button id="channelPlProfit" class="channel-pl-toggle-btn" style="background:#e5e7eb;color:#374151;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">직접이익</button>
@@ -1989,12 +1989,14 @@
                   rawDataCount: window.weeklySalesTrend.rawData?.length
                 });
               }
-              if (typeof updateWeeklyTrendChart === 'function') {
-                console.log('[데이터로드] updateWeeklyTrendChart 함수 호출');
-                updateWeeklyTrendChart();
-              } else {
-                console.warn('[데이터로드] updateWeeklyTrendChart 함수가 아직 정의되지 않았습니다.');
-              }
+              // 주차별 매출 추세 차트는 브랜드 탭으로 전환 시 초기화되므로 여기서는 스킵
+              console.log('[데이터로드] updateWeeklyTrendChart 호출 스킵 (브랜드 탭 전환 시 초기화됨)');
+              // if (typeof updateWeeklyTrendChart === 'function') {
+              //   console.log('[데이터로드] updateWeeklyTrendChart 함수 호출');
+              //   updateWeeklyTrendChart();
+              // } else {
+              //   console.warn('[데이터로드] updateWeeklyTrendChart 함수가 아직 정의되지 않았습니다.');
+              // }
               
               // 채널별 손익 데이터 로드 확인
               const waitForChannelData = (retryCount = 0) => {
@@ -12586,6 +12588,13 @@
       const ctxEl = document.getElementById('weeklyTrendChart');
       if(!ctxEl) {
         console.warn('[주차별 매출추세] weeklyTrendChart 엘리먼트를 찾을 수 없습니다');
+        return;
+      }
+      
+      // 부모 엘리먼트가 숨겨져 있으면 차트 생성 스킵
+      const parentSection = ctxEl.closest('#content-brand');
+      if (parentSection && parentSection.style.display === 'none') {
+        console.log('[주차별 매출추세] 브랜드 섹션이 숨겨져 있어 차트 생성을 스킵합니다');
         return;
       }
       if(charts.weeklyTrend){ charts.weeklyTrend.destroy(); charts.weeklyTrend=null; }
