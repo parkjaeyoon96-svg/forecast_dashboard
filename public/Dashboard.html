@@ -5943,19 +5943,16 @@
         html += `<tr><td style="text-align:left;padding-left:15px;font-weight:700;background:#f7fafc;position:sticky;left:0;z-index:5;border-bottom:1px solid #e2e8f0;">${brand}</td>`;
         const rates = heatmapData[brand];
         
-        // ★ 브랜드별 25F(평균) 계산을 맨 앞에 배치 ★
+        // ★ 브랜드별 25F(평균) 계산을 맨 앞에 배치 - 가중평균만 사용 ★
         const brandCode = brandCodeMap[brand];
         let avg = null;
         if (brandCode && window.clothingSummary && window.clothingSummary[brandCode] && window.clothingSummary[brandCode].cumSalesRate != null) {
-          // 재계산된 브랜드 전체 판매율 사용 (퍼센트로 변환)
+          // 재계산된 브랜드 전체 판매율 사용 (가중평균, 퍼센트로 변환)
           avg = window.clothingSummary[brandCode].cumSalesRate * 100;
-        } else {
-          // 폴백: 아이템별 판매율의 산술 평균
-          const validValues = categories.map(cat => rates[cat]).filter(v => v != null && !isNaN(v));
-          avg = validValues.length > 0 ? validValues.reduce((a, b) => a + b, 0) / validValues.length : 0;
         }
-        const avgClass = avg > 0 ? getCellClass(avg) : 'cell-empty';
-        if(avg > 0){
+        
+        if(avg != null && avg > 0){
+          const avgClass = getCellClass(avg);
           html += `<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#ddd6fe;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
         } else {
           html += '<td style="padding:15px 8px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #e2e8f0;background:#ddd6fe;">-</td>';
@@ -5978,19 +5975,30 @@
       // 아이템별 평균 행 - 재계산된 전체 아이템별 판매율 사용
       html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">아이템 평균</td>';
       
-      // ★ 전체 평균(25F)을 맨 앞에 배치 - 가중평균 계산 (모든 브랜드의 집계 금액 합산) ★
-      let totalOrderTagAll = 0;
-      let totalCumSalesAll = 0;
-      brands.forEach(brand => {
-        const brandCode = brandCodeMap[brand];
-        if (brandCode && window.clothingSummary && window.clothingSummary[brandCode]) {
-          const summary = window.clothingSummary[brandCode];
-          if (summary.totalOrderTag) totalOrderTagAll += summary.totalOrderTag;
-          if (summary.totalCumSales) totalCumSalesAll += summary.totalCumSales;
-        }
-      });
-      // 전체 판매율 = 전체 누적판매TAG가 / 전체 누적입고TAG가
-      const totalAvg = totalOrderTagAll > 0 ? (totalCumSalesAll / totalOrderTagAll) * 100 : 0;
+      // ★ 전체 평균(25F)을 맨 앞에 배치 - 전체 판매율 사용 (모든 브랜드 합산 후 계산한 가중평균) ★
+      let totalAvg = 0;
+      
+      // 방법1: clothingSummary에 overall이 있으면 사용 (가장 정확)
+      if (window.clothingSummary && window.clothingSummary['overall'] && window.clothingSummary['overall'].cumSalesRate != null) {
+        totalAvg = window.clothingSummary['overall'].cumSalesRate * 100;
+      } else {
+        // 방법2: 각 브랜드의 판매율을 금액 가중평균
+        let totalStorageTagAll = 0;
+        let totalCumSalesAll = 0;
+        brands.forEach(brand => {
+          const brandCode = brandCodeMap[brand];
+          if (brandCode && window.clothingSummary && window.clothingSummary[brandCode]) {
+            const summary = window.clothingSummary[brandCode];
+            // cumSalesRate를 역산하여 storageTagAmt를 계산
+            if (summary.cumSalesRate != null && summary.cumSalesRate > 0 && summary.totalCumSales) {
+              const storageAmt = summary.totalCumSales / summary.cumSalesRate;
+              totalStorageTagAll += storageAmt;
+              totalCumSalesAll += summary.totalCumSales;
+            }
+          }
+        });
+        totalAvg = totalStorageTagAll > 0 ? (totalCumSalesAll / totalStorageTagAll) * 100 : 0;
+      }
       if(totalAvg > 0){
         const totalClass = getCellClass(totalAvg);
         html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;background:#ddd6fe;"><span class="cell ${totalClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${totalAvg.toFixed(1)}%</span></td>`;
@@ -6000,25 +6008,13 @@
       
       // ★ 개별 아이템별 평균을 25F 다음에 배치 ★
       categories.forEach((cat, idx) => {
-        // 재계산된 전체 아이템별 판매율 사용
+        // 재계산된 전체 아이템별 판매율 사용 (가중평균)
         let avg = null;
         if (window.clothingItemRatesOverall && window.clothingItemRatesOverall[cat] && window.clothingItemRatesOverall[cat].cumSalesRate != null) {
           avg = window.clothingItemRatesOverall[cat].cumSalesRate * 100; // 퍼센트로 변환
-        } else {
-          // 폴백: 브랜드별 판매율의 산술 평균
-          let sum = 0;
-          let count = 0;
-          brands.forEach(brand => {
-            const value = heatmapData[brand][cat];
-            if(value != null && !isNaN(value)){
-              sum += value;
-              count++;
-            }
-          });
-          avg = count > 0 ? sum / count : 0;
         }
         
-        if(avg > 0){
+        if(avg != null && avg > 0){
           const avgClass = getCellClass(avg);
           html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
         } else {
@@ -6074,6 +6070,9 @@
         `;
         document.head.appendChild(style);
       }
+      
+      // 분석 기간 표시 업데이트
+      updateItemTablePeriodInfo();
     }
     
     // 아이템 코드 툴팁 표시 함수 (전역 함수로 노출)
@@ -7009,6 +7008,9 @@
         }
       }
       
+      // 분석 기간 표시 업데이트
+      updateItemTablePeriodInfo();
+      
       if(saleBtn){
         if(itemTableMode==='sale'){ saleBtn.style.background='#2563eb'; saleBtn.style.color='#fff'; }
         else { saleBtn.style.background='#e5e7eb'; saleBtn.style.color='#374151'; }
@@ -7017,6 +7019,56 @@
         if(itemTableMode==='inventory'){ invBtn.style.background='#2563eb'; invBtn.style.color='#fff'; }
         else { invBtn.style.background='#e5e7eb'; invBtn.style.color='#374151'; }
       }
+    }
+    
+    function updateItemTablePeriodInfo(){
+      const periodInfoEl = document.getElementById('itemTablePeriodInfo');
+      if(!periodInfoEl) return;
+      
+      // brandStockMetadata에서 날짜 정보 가져오기
+      let metadata = null;
+      if(window.stockAnalysis && window.stockAnalysis.brandStockMetadata){
+        metadata = window.stockAnalysis.brandStockMetadata;
+      } else if(window.brandStockMetadata){
+        metadata = window.brandStockMetadata;
+      }
+      
+      if(!metadata){
+        periodInfoEl.innerHTML = '';
+        return;
+      }
+      
+      // 날짜 포맷 변환 함수 (YYYY-MM-DD -> YYYY.MM.DD)
+      const formatDate = (dateStr) => {
+        if(!dateStr) return '';
+        return dateStr.replace(/-/g, '.');
+      };
+      
+      let html = '<div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">분석 기간</div>';
+      
+      if(itemTableMode === 'sale'){
+        // 판매율 모드: 누적 판매 기준
+        const cyEndDate = metadata.cyWeekEnd || metadata.updateDate;
+        const pyEndDate = metadata.pyWeekEnd;
+        
+        html += '<div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">';
+        html += `<div><span style="font-weight:600;color:#2563eb;">당해:</span> ${formatDate(cyEndDate)}까지 누적 판매</div>`;
+        html += `<div><span style="font-weight:600;color:#059669;">전년:</span> ${formatDate(pyEndDate)}까지 누적 판매</div>`;
+        html += '</div>';
+      } else {
+        // 재고주수 모드: 주간 기준
+        const cyStart = metadata.cyWeekStart;
+        const cyEnd = metadata.cyWeekEnd;
+        const pyStart = metadata.pyWeekStart;
+        const pyEnd = metadata.pyWeekEnd;
+        
+        html += '<div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">';
+        html += `<div><span style="font-weight:600;color:#2563eb;">당해 분석 기간:</span> ${formatDate(cyStart)} ~ ${formatDate(cyEnd)}</div>`;
+        html += `<div><span style="font-weight:600;color:#059669;">전년 분석 기간:</span> ${formatDate(pyStart)} ~ ${formatDate(pyEnd)}</div>`;
+        html += '</div>';
+      }
+      
+      periodInfoEl.innerHTML = html;
       
       // YOY 축 최대값 조절 컨트롤 표시/숨김
       const yoyControl = document.getElementById('inventoryYoyMaxControl');
@@ -8780,17 +8832,38 @@
             discountRate = cm.discountRate * 100;
           }
         } catch (e) {}
+        
+        // ★ YOY 가져오기 ★
+        let yoy = null;
+        try {
+          const brandCode = brandCodeMap[currentBrand] || brandCodeMap[currentBrand.replace('_', ' ')] || 'M';
+          const treemapRaw = window.treemapRawData?.[brandCode]?.channel?.channels?.[item.channel];
+          if (treemapRaw && typeof treemapRaw.yoy === 'number') {
+            yoy = treemapRaw.yoy;
+          }
+        } catch (e) {}
+        
         labels.push(item.channel);
         values.push(item.value / 100000000); // 원 단위를 억원으로 변환
         parents.push('');
         ids.push(`channel-${index}`);
-        // 비중과 할인율을 소수점 한 자리로 통일
+        // 비중, 할인율, YOY를 소수점 한 자리로 통일
         const percentageNum = parseFloat(percentage);
         const discountRateNum = parseFloat(discountRate.toFixed(1));
-        customDataArray.push([percentageNum, discountRateNum]);
-        // ★ 항상 할인율 표시 (0%인 경우에도 표시) ★
+        const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : null;
+        customDataArray.push([percentageNum, discountRateNum, yoyPercentage]);
+        
+        // 할인율 표시
         const discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
-        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}`);
+        
+        // ★ YOY 표시 추가 (할인율 아래) ★
+        let yoyText = '';
+        if (yoy !== null) {
+          const yoyPercentage = (100 + yoy).toFixed(1); // -6.7% -> 93.3%, +15.3% -> 115.3%
+          yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyPercentage}%</span>`;
+        }
+        
+        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${yoyText}`);
       });
       
       // 데이터 검증: labels와 values가 일치하는지 확인
@@ -8812,7 +8885,7 @@
         ids: ids,
         text: customText,
         textinfo: 'text',
-        hovertemplate: labels.length > 0 ? '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<extra></extra>' : '<extra></extra>',
+        hovertemplate: labels.length > 0 ? '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<br>YOY : %{customdata[2]:.1f}%<extra></extra>' : '<extra></extra>',
         customdata: customDataArray,
         textfont: { size: 14 },
         marker: {
@@ -8905,8 +8978,8 @@
         const percentage = totalItemValue > 0 ? ((obj.value / totalItemValue) * 100).toFixed(1) : 0;
         labels.push(obj.item);
         values.push(obj.value / 100000000); // 원 단위를 억원으로 변환
-          parents.push('');
-          ids.push(`item-${index}`);
+        parents.push('');
+        ids.push(`item-${index}`);
         // 아이템 전체 트리맵: 브랜드-아이템 개별 할인율 표시 (itemMetrics 사용)
         let discountRate = 0;
         try {
@@ -8933,13 +9006,45 @@
             }
           }
         } catch (e) {}
-        // 비중과 할인율을 소수점 한 자리로 통일
+        
+        // ★ YOY 가져오기 ★
+        let yoy = null;
+        try {
+          const brandCode = brandCodeMap[currentBrand] || brandCodeMap[currentBrand.replace('_', ' ')] || 'M';
+          // 한글 -> 영문 키 매핑
+          const itemKeyMapForTreemap = {
+            '신발': 'Shoes',
+            '가방': 'Bag',
+            '모자': 'Headwear',
+            '기타ACC': 'Acc_etc',
+            '당시즌의류': '당시즌의류',
+            '차시즌의류': '차시즌의류',
+            '과시즌의류': '과시즌의류'
+          };
+          const itemKey = itemKeyMapForTreemap[obj.item] || obj.item;
+          const treemapRaw = window.treemapRawData?.[brandCode]?.item?.items?.[itemKey];
+          if (treemapRaw && typeof treemapRaw.yoy === 'number') {
+            yoy = treemapRaw.yoy;
+          }
+        } catch (e) {}
+        
+        // 비중, 할인율, YOY를 소수점 한 자리로 통일
         const percentageNum = parseFloat(percentage);
         const discountRateNum = parseFloat(discountRate.toFixed(1));
-        customDataArray.push([percentageNum, discountRateNum]);
-        // ★ 항상 할인율 표시 (0%인 경우에도 표시) ★
+        const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : null;
+        customDataArray.push([percentageNum, discountRateNum, yoyPercentage]);
+        
+        // 할인율 표시
         const discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
-        customItemText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}`);
+        
+        // ★ YOY 표시 추가 ★
+        let yoyText = '';
+        if (yoy !== null) {
+          const yoyDisplay = (100 + yoy).toFixed(1); // -6.7% -> 93.3%, +15.3% -> 115.3%
+          yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
+        }
+        
+        customItemText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${yoyText}`);
       });
       
       if (labels.length === 0) {
@@ -8981,7 +9086,7 @@
         ids: ids,
         text: customItemText,
         textinfo: 'text',
-        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<extra></extra>',
+        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<br>YOY : %{customdata[2]:.1f}%<extra></extra>',
         customdata: customDataArray,
         textfont: { size: 14 },
         marker: {
@@ -9071,13 +9176,24 @@
             ids.push(`channel-${selectedChannel}-item-${itemMidKey}-sub-${index}`);
             colors.push(colorPalette[index % colorPalette.length]);
             
-            // 비중과 할인율을 소수점 한 자리로 통일
+            // 비중, 할인율, YOY를 소수점 한 자리로 통일
             const shareFormatted = typeof subData.share === 'number' ? subData.share.toFixed(1) : parseFloat(subData.share || 0).toFixed(1);
             const discountRateFormatted = typeof subData.discountRate === 'number' ? subData.discountRate.toFixed(1) : parseFloat(subData.discountRate || 0).toFixed(1);
-            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted)]);
-            // ★ 항상 할인율 표시 (0%인 경우에도 표시) ★
+            const yoy = subData.yoy;
+            const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : null;
+            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), yoyPercentage]);
+            
+            // 할인율 표시
             const discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%</span>`;
-            customText.push(`<b style="font-size:15px;color:white;">${subItem}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}`);
+            
+            // YOY 표시 추가
+            let yoyText = '';
+            if (yoy !== null && yoy !== undefined) {
+              const yoyDisplay = (100 + yoy).toFixed(1);
+              yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
+            }
+            
+            customText.push(`<b style="font-size:15px;color:white;">${subItem}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}${yoyText}`);
           });
           
           return [{
@@ -9088,7 +9204,7 @@
             ids: ids,
             text: customText,
             textinfo: 'text',
-            hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<extra></extra>',
+            hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<br>YOY : %{customdata[2]:.1f}%<extra></extra>',
             customdata: customDataArray,
             textfont: { size: 14 },
             marker: { colors: colors }
@@ -9136,13 +9252,24 @@
             ids.push(`channel-${selectedChannel}-item-${index}`);
             colors.push(colorPalette[index % colorPalette.length]);
             
-            // 비중과 할인율을 소수점 한 자리로 통일
+            // 비중, 할인율, YOY를 소수점 한 자리로 통일
             const shareFormatted = typeof itemData.share === 'number' ? itemData.share.toFixed(1) : parseFloat(itemData.share || 0).toFixed(1);
             const discountRateFormatted = typeof itemData.discountRate === 'number' ? itemData.discountRate.toFixed(1) : parseFloat(itemData.discountRate || 0).toFixed(1);
-            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted)]);
-            // ★ 항상 할인율 표시 (0%인 경우에도 표시) ★
+            const yoy = itemData.yoy;
+            const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : null;
+            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), yoyPercentage]);
+            
+            // 할인율 표시
             const discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%</span>`;
-            customText.push(`<b style="font-size:15px;color:white;">${itemDisplayName}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}`);
+            
+            // YOY 표시 추가
+            let yoyText = '';
+            if (yoy !== null && yoy !== undefined) {
+              const yoyDisplay = (100 + yoy).toFixed(1);
+              yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
+            }
+            
+            customText.push(`<b style="font-size:15px;color:white;">${itemDisplayName}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}${yoyText}`);
           });
           
           console.log(`[channelTreemapData] 최종 values:`, values);
@@ -9155,7 +9282,7 @@
             ids: ids,
             text: customText,
             textinfo: 'text',
-            hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<extra></extra>',
+            hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<br>YOY : %{customdata[2]:.1f}%<extra></extra>',
             customdata: customDataArray,
             textfont: { size: 14 },
             marker: { colors: colors }
@@ -9384,6 +9511,28 @@
       const customItemDrilldownText = [];
       const discountRates = [];
       
+      // YOY 데이터 가져오기 (itemTreemapData에서)
+      let channelYoyData = {};
+      try {
+        const brandCode = brandCodeMap[currentBrand] || brandCodeMap[currentBrand.replace('_', ' ')] || 'M';
+        const itemKeyMapForTreemap = {
+          '신발': 'Shoes',
+          '가방': 'Bag',
+          '모자': 'Headwear',
+          '기타ACC': 'Acc_etc',
+          '당시즌의류': '당시즌의류',
+          '차시즌의류': '차시즌의류',
+          '과시즌의류': '과시즌의류'
+        };
+        const itemKey = itemKeyMapForTreemap[selectedItem] || selectedItem;
+        
+        if (window.treemapRawData?.[brandCode]?.item?.items?.[itemKey]?.channels) {
+          channelYoyData = window.treemapRawData[brandCode].item.items[itemKey].channels;
+        }
+      } catch (e) {
+        console.warn('YOY 데이터 가져오기 실패:', e);
+      }
+      
       sortedChannels.forEach((item, index) => {
         const percentage = itemDrilldownTotalValue > 0 ? ((item.value / itemDrilldownTotalValue) * 100).toFixed(1) : 0;
         labels.push(item.channel);
@@ -9410,12 +9559,25 @@
             }
           }
         } catch (e) {}
-        // 비중과 할인율을 소수점 한 자리로 통일
+        
+        // YOY 가져오기
+        const yoy = channelYoyData[item.channel]?.yoy;
+        
+        // 비중, 할인율, YOY를 소수점 한 자리로 통일
         const discountRateNum = parseFloat(discountRate.toFixed(1));
-        discountRates.push(discountRateNum);
-        // ★ 항상 할인율 표시 (0%인 경우에도 표시) ★
+        discountRates.push({discountRate: discountRateNum, yoy: yoy});
+        
+        // 할인율 표시
         const discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
-        customItemDrilldownText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}`);
+        
+        // YOY 표시 추가
+        let yoyText = '';
+        if (yoy !== null && yoy !== undefined) {
+          const yoyDisplay = (100 + yoy).toFixed(1);
+          yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
+        }
+        
+        customItemDrilldownText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${yoyText}`);
       });
       
       console.log('아이템 드릴다운 데이터 생성:', {labels, values, parents, ids, totalChannelValue, channelCount: labels.length});
@@ -9426,11 +9588,12 @@
         return [];
       }
       
-      // customdata 배열 생성: [비중, 할인율] 형식 (소수점 한 자리로 통일)
+      // customdata 배열 생성: [비중, 할인율, YOY] 형식 (소수점 한 자리로 통일)
       const customDataArray = sortedChannels.map((item, index) => {
         const share = itemDrilldownTotalValue > 0 ? ((item.value / itemDrilldownTotalValue) * 100) : 0;
-        const discountRate = discountRates[index] || 0;
-        return [parseFloat(share.toFixed(1)), parseFloat(discountRate.toFixed(1))];
+        const rateData = discountRates[index] || {discountRate: 0, yoy: null};
+        const yoyPercentage = rateData.yoy !== null && rateData.yoy !== undefined ? parseFloat((100 + rateData.yoy).toFixed(1)) : null;
+        return [parseFloat(share.toFixed(1)), parseFloat(rateData.discountRate.toFixed(1)), yoyPercentage];
       });
       
       return [{
@@ -9441,7 +9604,7 @@
         ids: ids,
         text: customItemDrilldownText,
         textinfo: 'text',
-        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<extra></extra>',
+        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[0]:.1f}%<br>할인율 : %{customdata[1]:.1f}%<br>YOY : %{customdata[2]:.1f}%<extra></extra>',
         customdata: customDataArray,
         textfont: { size: 14 },
         marker: {
