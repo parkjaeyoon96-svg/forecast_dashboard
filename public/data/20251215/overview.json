@@ -1,0 +1,191 @@
+{
+  "by_brand": [
+    {
+      "BRAND": "MLB",
+      "SALES": 352.0,
+      "DIRECT_PROFIT": 102.3,
+      "OPERATING_PROFIT": 68.9,
+      "ACHIEVEMENT": 112,
+      "YOY_SALES": 116
+    },
+    {
+      "BRAND": "MLB KIDS",
+      "SALES": 88.2,
+      "DIRECT_PROFIT": 15.9,
+      "OPERATING_PROFIT": 6.5,
+      "ACHIEVEMENT": 105,
+      "YOY_SALES": 124
+    },
+    {
+      "BRAND": "DISCOVERY",
+      "SALES": 715.6,
+      "DIRECT_PROFIT": 196.5,
+      "OPERATING_PROFIT": 133.9,
+      "ACHIEVEMENT": 94,
+      "YOY_SALES": 95
+    },
+    {
+      "BRAND": "DUVETICA",
+      "SALES": 81.2,
+      "DIRECT_PROFIT": 31.1,
+      "OPERATING_PROFIT": 17.6,
+      "ACHIEVEMENT": 119,
+      "YOY_SALES": 201
+    },
+    {
+      "BRAND": "SERGIO",
+      "SALES": 5.7,
+      "DIRECT_PROFIT": -0.6,
+      "OPERATING_PROFIT": -6.9,
+      "ACHIEVEMENT": 72,
+      "YOY_SALES": 70
+    },
+    {
+      "BRAND": "SUPRA",
+      "SALES": 1.3,
+      "DIRECT_PROFIT": -0.3,
+      "OPERATING_PROFIT": -0.7,
+      "ACHIEVEMENT": 43,
+      "YOY_SALES": 34
+    }
+  ],
+  "overviewPL": {
+    "tagRevenue": {
+      "prev": 1505.47,
+      "target": 1542.54,
+      "forecast": 1558.97,
+      "yoy": 104,
+      "achievement": 101
+    },
+    "revenue": {
+      "prev": 1180.83,
+      "target": 1242.64,
+      "forecast": 1244.09,
+      "yoy": 105,
+      "achievement": 100
+    },
+    "cog": {
+      "prev": 300.28,
+      "target": 329.42,
+      "forecast": 331.11,
+      "yoy": 110,
+      "achievement": 101
+    },
+    "grossProfit": {
+      "prev": 528.02,
+      "target": 560.74,
+      "forecast": 552.04,
+      "yoy": 105,
+      "achievement": 98
+    },
+    "directCost": {
+      "prev": 197.66,
+      "target": 206.84,
+      "forecast": 207.01,
+      "yoy": 105,
+      "achievement": 100
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 55.56,
+        "target": 56.09,
+        "forecast": 54.18,
+        "yoy": 98,
+        "achievement": 97
+      },
+      "임차관리비": {
+        "prev": 42.01,
+        "target": 47.36,
+        "forecast": 41.78,
+        "yoy": 99,
+        "achievement": 88
+      },
+      "물류운송비": {
+        "prev": 30.89,
+        "target": 33.5,
+        "forecast": 33.85,
+        "yoy": 110,
+        "achievement": 101
+      },
+      "로열티": {
+        "prev": 30.44,
+        "target": 32.34,
+        "forecast": 33.33,
+        "yoy": 109,
+        "achievement": 103
+      },
+      "감가상각비": {
+        "prev": 6.82,
+        "target": 4.97,
+        "forecast": 4.85,
+        "yoy": 71,
+        "achievement": 98
+      },
+      "기타": {
+        "prev": 31.95,
+        "target": 32.58,
+        "forecast": 39.02,
+        "yoy": 122,
+        "achievement": 120
+      }
+    },
+    "directProfit": {
+      "prev": 330.36,
+      "target": 353.9,
+      "forecast": 345.02,
+      "yoy": 104,
+      "achievement": 97
+    },
+    "operatingExpense": {
+      "prev": 130.06,
+      "target": 125.64,
+      "forecast": 125.64,
+      "yoy": 97,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": 200.3,
+      "target": 228.26,
+      "forecast": 219.38,
+      "yoy": 110,
+      "achievement": 96
+    }
+  },
+  "waterfallData": [
+    {
+      "label": "실판매출",
+      "value": 1244.09,
+      "type": "total"
+    },
+    {
+      "label": "매출원가(-)",
+      "value": 331.11,
+      "type": "decrease"
+    },
+    {
+      "label": "매출총이익",
+      "value": 552.04,
+      "type": "subtotal"
+    },
+    {
+      "label": "직접비(-)",
+      "value": 207.01,
+      "type": "decrease"
+    },
+    {
+      "label": "직접이익",
+      "value": 345.02,
+      "type": "subtotal"
+    },
+    {
+      "label": "영업비(-)",
+      "value": 125.64,
+      "type": "decrease"
+    },
+    {
+      "label": "영업이익",
+      "value": 219.38,
+      "type": "result"
+    }
+  ]
+}

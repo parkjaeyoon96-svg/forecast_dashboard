@@ -1,0 +1,17 @@
+{
+  "brandStockMetadata": {
+    "updateDate": "2025-12-15",
+    "cyWeekStart": "2025-12-15",
+    "cyWeekEnd": "2025-12-21",
+    "pyWeekStart": "2024-12-15",
+    "pyWeekEnd": "2024-12-21",
+    "cySeason": "25F",
+    "pySeason": "24F",
+    "pySeasonEnd": "2026-02-28",
+    "generatedAt": "2025-12-15 09:52:52"
+  },
+  "clothingBrandStatus": {},
+  "accStockAnalysis": {},
+  "clothingSummary": {},
+  "accSummary": {}
+}
