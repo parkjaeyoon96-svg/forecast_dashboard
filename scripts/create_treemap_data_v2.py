@@ -150,6 +150,10 @@ def load_previous_year_treemap_data(date_str: str) -> pd.DataFrame:
     if '실판매출' in df.columns:
         df = df.rename(columns={'실판매출': '실판매액'})
     
+    # 아이템소분류 컬럼명 통일 (전년 데이터는 언더스코어 없음)
+    if '아이템소분류' in df.columns:
+        df = df.rename(columns={'아이템소분류': '아이템_소분류'})
+    
     # 브랜드 컬럼 통일 (전년 데이터는 '브랜드'가 브랜드코드)
     if '브랜드' in df.columns and '브랜드코드' not in df.columns:
         df['브랜드코드'] = df['브랜드']
@@ -304,17 +308,42 @@ def create_channel_treemap(df: pd.DataFrame, prev_df: pd.DataFrame = None, brand
             item_mid_total_sales = item_mid_df['실판매액'].sum()
             item_mid_total_tag = item_mid_df['TAG매출'].sum()
             
+            # 전년 채널-아이템중분류-소분류 데이터
+            prev_sub_sales = {}
+            prev_sub_tags = {}
+            if prev_df is not None:
+                prev_channel_df = prev_df[prev_df['채널명'] == channel]
+                if not prev_channel_df.empty:
+                    prev_item_mid_df = prev_channel_df[prev_channel_df['아이템_중분류'] == item_mid]
+                    if not prev_item_mid_df.empty:
+                        prev_sub_sum = prev_item_mid_df.groupby('아이템_소분류', as_index=False).agg({
+                            'TAG매출': 'sum',
+                            '실판매액': 'sum'
+                        })
+                        for _, psub_row in prev_sub_sum.iterrows():
+                            psub = str(psub_row['아이템_소분류']).strip()
+                            prev_sub_tags[psub] = float(psub_row['TAG매출'])
+                            prev_sub_sales[psub] = float(psub_row['실판매액'])
+            
             for _, sub_row in item_sub_sum.iterrows():
                 item_sub = str(sub_row['아이템_소분류']).strip()
                 sub_tag = float(sub_row['TAG매출'])
                 sub_sales = float(sub_row['실판매액'])
+                
+                # YOY 및 전년할인율 계산
+                prev_sub_sale = prev_sub_sales.get(item_sub, 0)
+                prev_sub_tag = prev_sub_tags.get(item_sub, 0)
+                sub_yoy = calculate_yoy(sub_sales, prev_sub_sale) if prev_df is not None else None
+                prev_sub_discount = round(calculate_discount_rate(prev_sub_tag, prev_sub_sale), 1) if prev_df is not None and prev_sub_tag > 0 else None
                 
                 # 아이템_소분류별 정보 저장
                 result['channels'][channel]['itemCategories'][item_mid]['subCategories'][item_sub] = {
                     'tag': int(sub_tag),
                     'sales': int(sub_sales),
                     'share': calculate_share(sub_sales, item_mid_total_sales),  # 중분류 내 비중
-                    'discountRate': round(calculate_discount_rate(sub_tag, sub_sales), 1)
+                    'discountRate': round(calculate_discount_rate(sub_tag, sub_sales), 1),
+                    'prevDiscountRate': prev_sub_discount,  # ★ 전년할인율 추가 ★
+                    'yoy': sub_yoy  # ★ YOY 추가 ★
                 }
     
     print(f"  채널 수: {len(result['channels'])}")
