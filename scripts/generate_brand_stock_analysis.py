@@ -196,6 +196,11 @@ def process_clothing_csv(file_path):
             item_code_col_name = col
             break
     
+    if not item_code_col_name:
+        print(f"[경고] 아이템 코드 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼: {list(df.columns)}")
+    else:
+        print(f"[당시즌의류] 아이템 코드 컬럼: {item_code_col_name}")
+    
     # 브랜드별/카테고리별/아이템별 집계 및 판매율 재계산
     brand_totals = {}
     category_totals = {}  # brand -> subcategory -> rates
@@ -377,14 +382,21 @@ def process_clothing_csv(file_path):
     # 아이템 전체 합산을 최종 비율로 변환 (전체현황 아이템별 판매율)
     item_totals_overall_rates = {}
     for item_code, vals in overall_item_totals.items():
+        cum_rate = calculate_sales_rate(vals['cumSales'], vals['stor'])
         item_totals_overall_rates[item_code] = {
-            'cumSalesRate': calculate_sales_rate(vals['cumSales'], vals['stor']),
+            'cumSalesRate': cum_rate,
             'cumSalesRatePy': calculate_sales_rate(vals['cumSalesPy'], vals['storPy']),
             'pyClosingSalesRate': calculate_sales_rate(vals['tagPyEnd'], vals['storPyEnd'])
         }
+        # 디버깅: 각 아이템별 판매율 출력
+        if cum_rate is not None:
+            print(f"  [아이템별 평균] {item_code}: {cum_rate:.4f} (판매: {vals['cumSales']:.0f}, 입고: {vals['stor']:.0f})")
+        else:
+            print(f"  [아이템별 평균] {item_code}: None (판매: {vals['cumSales']:.0f}, 입고: {vals['stor']:.0f})")
     
     print(f"[당시즌의류] 브랜드별 아이템별 판매율 집계 완료: {len(brand_item_totals)}개 브랜드")
     print(f"[당시즌의류] 전체 아이템별 판매율 집계 완료: {len(item_totals_overall_rates)}개 아이템")
+    print(f"[당시즌의류] 전체 아이템별 판매율 아이템 코드 목록: {list(item_totals_overall_rates.keys())}")
     
     # 브랜드별 집계 결과도 함께 반환 (전체현황/브랜드별 분석에서 사용)
     # brand_totals가 없으면 빈 딕셔너리 반환

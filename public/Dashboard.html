@@ -5995,11 +5995,25 @@
       }
       
       // ★ 개별 아이템별 평균을 25F 다음에 배치 ★
+      // 디버깅: clothingItemRatesOverall 데이터 확인
+      if (!window.clothingItemRatesOverall || Object.keys(window.clothingItemRatesOverall).length === 0) {
+        console.warn('[히트맵] clothingItemRatesOverall 데이터가 없습니다:', window.clothingItemRatesOverall);
+      } else {
+        console.log('[히트맵] clothingItemRatesOverall 아이템 코드:', Object.keys(window.clothingItemRatesOverall));
+      }
+      
       categories.forEach((cat, idx) => {
         // 재계산된 전체 아이템별 판매율 사용 (가중평균)
         let avg = null;
-        if (window.clothingItemRatesOverall && window.clothingItemRatesOverall[cat] && window.clothingItemRatesOverall[cat].cumSalesRate != null) {
-          avg = window.clothingItemRatesOverall[cat].cumSalesRate * 100; // 퍼센트로 변환
+        if (window.clothingItemRatesOverall && window.clothingItemRatesOverall[cat]) {
+          const itemData = window.clothingItemRatesOverall[cat];
+          if (itemData.cumSalesRate != null) {
+            avg = itemData.cumSalesRate * 100; // 퍼센트로 변환
+          } else {
+            console.warn(`[히트맵] 아이템 ${cat}의 cumSalesRate가 null입니다:`, itemData);
+          }
+        } else {
+          console.warn(`[히트맵] 아이템 ${cat}의 데이터가 없습니다. clothingItemRatesOverall:`, window.clothingItemRatesOverall);
         }
         
         if(avg != null && avg > 0){
@@ -8863,7 +8877,7 @@
           yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
         }
         
-        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${prevDiscountText}${yoyText}`);
+        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage}%)</span>${discountText}${prevDiscountText}${yoyText}`);
       });
       
       // 데이터 검증: labels와 values가 일치하는지 확인
@@ -9056,7 +9070,7 @@
           yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
         }
         
-        customItemText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${prevDiscountText}${yoyText}`);
+        customItemText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage}%)</span>${discountText}${prevDiscountText}${yoyText}`);
       });
       
       if (labels.length === 0) {
@@ -9428,7 +9442,7 @@
         customDataArray.push([percentageNum, discountRateNum]);
         // ★ 항상 할인율 표시 (0%인 경우에도 표시) ★
         const discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
-        customDrilldownText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}`);
+        customDrilldownText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage}%)</span>${discountText}`);
       });
       
       if (labels.length === 0) {
@@ -9613,7 +9627,7 @@
           yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
         }
         
-        customItemDrilldownText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${prevDiscountText}${yoyText}`);
+        customItemDrilldownText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage}%)</span>${discountText}${prevDiscountText}${yoyText}`);
       });
       
       console.log('아이템 드릴다운 데이터 생성:', {labels, values, parents, ids, totalChannelValue, channelCount: labels.length});
