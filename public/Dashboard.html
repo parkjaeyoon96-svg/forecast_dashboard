@@ -8847,21 +8847,23 @@
         const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : null;
         customDataArray.push([percentageNum, discountRateNum, prevDiscountRateNum, yoyPercentage]);
         
-        // 할인율 표시 (전년할인율 추가)
-        let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%`;
-        if (prevDiscountRate !== null) {
-          discountText += ` (전년 : ${prevDiscountRateNum.toFixed(1)}%)`;
-        }
-        discountText += `</span>`;
+        // 할인율 표시
+        let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
         
-        // ★ YOY 표시 추가 (할인율 아래) ★
+        // 전년할인율 표시 (별도 줄)
+        let prevDiscountText = '';
+        if (prevDiscountRate !== null) {
+          prevDiscountText = `<br><span style="font-size:12px;color:#fde68a;">전년할인율 : ${prevDiscountRateNum.toFixed(1)}%</span>`;
+        }
+        
+        // ★ YOY 표시 추가 ★
         let yoyText = '';
         if (yoy !== null) {
           const yoyDisplay = (100 + yoy).toFixed(1); // -6.7% -> 93.3%, +15.3% -> 115.3%
           yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
         }
         
-        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${yoyText}`);
+        customText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${prevDiscountText}${yoyText}`);
       });
       
       // 데이터 검증: labels와 values가 일치하는지 확인
@@ -9038,12 +9040,14 @@
         const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : null;
         customDataArray.push([percentageNum, discountRateNum, prevDiscountRateNum, yoyPercentage]);
         
-        // 할인율 표시 (전년할인율 추가)
-        let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%`;
+        // 할인율 표시
+        let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
+        
+        // 전년할인율 표시 (별도 줄)
+        let prevDiscountText = '';
         if (prevDiscountRate !== null) {
-          discountText += ` (전년 : ${prevDiscountRateNum.toFixed(1)}%)`;
+          prevDiscountText = `<br><span style="font-size:12px;color:#fde68a;">전년할인율 : ${prevDiscountRateNum.toFixed(1)}%</span>`;
         }
-        discountText += `</span>`;
         
         // ★ YOY 표시 추가 ★
         let yoyText = '';
@@ -9052,7 +9056,7 @@
           yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
         }
         
-        customItemText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${yoyText}`);
+        customItemText.push(`<b style="font-size:15px;color:white;">${obj.item}</b><br><span style="font-size:13px;color:white;">${(obj.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${prevDiscountText}${yoyText}`);
       });
       
       if (labels.length === 0) {
@@ -9193,12 +9197,14 @@
             const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : null;
             customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), prevDiscountRateFormatted !== null ? parseFloat(prevDiscountRateFormatted) : null, yoyPercentage]);
             
-            // 할인율 표시 (전년할인율 추가)
-            let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%`;
+            // 할인율 표시
+            let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%</span>`;
+            
+            // 전년할인율 표시 (별도 줄)
+            let prevDiscountText = '';
             if (prevDiscountRateFormatted !== null) {
-              discountText += ` (전년 : ${prevDiscountRateFormatted}%)`;
+              prevDiscountText = `<br><span style="font-size:12px;color:#fde68a;">전년할인율 : ${prevDiscountRateFormatted}%</span>`;
             }
-            discountText += `</span>`;
             
             // YOY 표시 추가
             let yoyText = '';
@@ -9207,7 +9213,7 @@
               yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
             }
             
-            customText.push(`<b style="font-size:15px;color:white;">${subItem}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}${yoyText}`);
+            customText.push(`<b style="font-size:15px;color:white;">${subItem}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}${prevDiscountText}${yoyText}`);
           });
           
           return [{
@@ -9275,12 +9281,14 @@
             const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : null;
             customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), prevDiscountRateFormatted !== null ? parseFloat(prevDiscountRateFormatted) : null, yoyPercentage]);
             
-            // 할인율 표시 (전년할인율 추가)
-            let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%`;
+            // 할인율 표시
+            let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%</span>`;
+            
+            // 전년할인율 표시 (별도 줄)
+            let prevDiscountText = '';
             if (prevDiscountRateFormatted !== null) {
-              discountText += ` (전년 : ${prevDiscountRateFormatted}%)`;
+              prevDiscountText = `<br><span style="font-size:12px;color:#fde68a;">전년할인율 : ${prevDiscountRateFormatted}%</span>`;
             }
-            discountText += `</span>`;
             
             // YOY 표시 추가
             let yoyText = '';
@@ -9289,7 +9297,7 @@
               yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
             }
             
-            customText.push(`<b style="font-size:15px;color:white;">${itemDisplayName}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}${yoyText}`);
+            customText.push(`<b style="font-size:15px;color:white;">${itemDisplayName}</b><br><span style="font-size:13px;color:white;">${salesInHundredMillion.toFixed(1)}억원 (${shareFormatted}%)</span>${discountText}${prevDiscountText}${yoyText}`);
           });
           
           console.log(`[channelTreemapData] 최종 values:`, values);
@@ -9589,12 +9597,14 @@
         const prevDiscountRateNum = prevDiscountRate !== null && prevDiscountRate !== undefined ? parseFloat(prevDiscountRate).toFixed(1) : null;
         discountRates.push({discountRate: discountRateNum, prevDiscountRate: prevDiscountRateNum, yoy: yoy});
         
-        // 할인율 표시 (전년할인율 추가)
-        let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%`;
+        // 할인율 표시
+        let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
+        
+        // 전년할인율 표시 (별도 줄)
+        let prevDiscountText = '';
         if (prevDiscountRateNum !== null) {
-          discountText += ` (전년 : ${prevDiscountRateNum}%)`;
+          prevDiscountText = `<br><span style="font-size:12px;color:#fde68a;">전년할인율 : ${prevDiscountRateNum}%</span>`;
         }
-        discountText += `</span>`;
         
         // YOY 표시 추가
         let yoyText = '';
@@ -9603,7 +9613,7 @@
           yoyText = `<br><span style="font-size:12px;color:#fde68a;">YOY : ${yoyDisplay}%</span>`;
         }
         
-        customItemDrilldownText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${yoyText}`);
+        customItemDrilldownText.push(`<b style="font-size:15px;color:white;">${item.channel}</b><br><span style="font-size:13px;color:white;">${(item.value / 100000000).toFixed(1)}억원 (${percentage})</span>${discountText}${prevDiscountText}${yoyText}`);
       });
       
       console.log('아이템 드릴다운 데이터 생성:', {labels, values, parents, ids, totalChannelValue, channelCount: labels.length});
