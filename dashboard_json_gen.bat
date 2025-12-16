@@ -8,7 +8,7 @@ echo   Dashboard JSON Generation
 echo ============================================================
 echo.
 
-REM Python 경로 설정: 가상환경 우선, 없으면 시스템 python
+REM Set Python path: prioritize virtual environment, fallback to system python
 set "PYTHON_CMD="
 if exist "%~dp0Forcast_venv\Scripts\python.exe" (
     set "PYTHON_CMD=%~dp0Forcast_venv\Scripts\python.exe"
@@ -17,14 +17,14 @@ if exist "%~dp0Forcast_venv\Scripts\python.exe" (
     if %errorlevel% equ 0 (
         set "PYTHON_CMD=python"
     ) else (
-        echo [ERROR] Python을 찾을 수 없습니다. Forcast_venv를 생성하거나 PATH를 확인하세요.
+        echo [ERROR] Python not found. Please create Forcast_venv or check PATH.
         pause
         exit /b 1
     )
 )
 set "PYTHONIOENCODING=utf-8"
 
-REM 최신 자동선택(Y/N) 후 필요 시 수동 입력
+REM Auto-select latest or manual input
 set PIPELINE_ERROR=0
 set ANALYSIS_MONTH=
 set UPDATE_DATE=
@@ -57,17 +57,17 @@ if /i "!USE_LATEST!"=="Y" (
     exit /b 1
 )
 
-REM 유효성 검사
+REM Validation
 if not defined ANALYSIS_MONTH (
-    echo [ERROR] 분석월을 찾을 수 없습니다.
-    echo raw\YYYYMM\current_year\YYYYMMDD 구조를 확인해주세요.
+    echo [ERROR] Analysis month not found.
+    echo Please check raw\YYYYMM\current_year\YYYYMMDD structure.
     pause
     exit /b 1
 )
 
 if not defined UPDATE_DATE (
-    echo [ERROR] 업데이트일자를 찾을 수 없습니다.
-    echo raw\!ANALYSIS_MONTH!\current_year\YYYYMMDD 구조를 확인해주세요.
+    echo [ERROR] Update date not found.
+    echo Please check raw\!ANALYSIS_MONTH!\current_year\YYYYMMDD structure.
     pause
     exit /b 1
 )
@@ -81,7 +81,7 @@ echo.
 
 set DATE_STR=!UPDATE_DATE!
 
-REM === 공통 파이프라인 시작 ===
+REM === Common Pipeline Start ===
 
 call "%PYTHON_CMD%" scripts\update_brand_kpi.py !DATE_STR!
 set STEP_ERR=!errorlevel!
@@ -90,6 +90,18 @@ if !STEP_ERR! neq 0 (
     set PIPELINE_ERROR=!STEP_ERR!
 ) else (
     echo [Step 1] Completed
+)
+echo.
+
+echo [Step 1.5] Weekly Sales Trend Download ^(required for Step 2^)
+set DATE_FORMATTED_STEP1_5=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
+call "%PYTHON_CMD%" scripts\download_weekly_sales_trend.py !DATE_FORMATTED_STEP1_5!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 1.5] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 1.5] Completed
 )
 echo.
 
@@ -134,47 +146,37 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-set DATE_FORMATTED_STEP6=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
-call "%PYTHON_CMD%" scripts\download_weekly_sales_trend.py !DATE_FORMATTED_STEP6!
-set STEP_ERR=!errorlevel!
-if !STEP_ERR! neq 0 (
-    echo [Step 6] Failed (Error code: !STEP_ERR!)
-    set PIPELINE_ERROR=!STEP_ERR!
-) else (
-    echo [Step 6] Completed
-)
-echo.
-
+echo [Step 6] Stock Analysis Download
 set DATE_FORMATTED=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
 call "%PYTHON_CMD%" scripts\download_brand_stock_analysis.py --update-date !DATE_FORMATTED!
 set STOCK_ERR=!errorlevel!
 
-if !STOCK_ERR! neq 0 (
-    echo.
-    echo [Step 7-Alternative] Generating stock analysis from CSV
-    call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
-    set ALT_ERR=!errorlevel!
-    if !ALT_ERR! neq 0 (
-        echo [Step 7-Alternative] Failed (Error code: !ALT_ERR!)
-    ) else (
-        echo [Step 7-Alternative] Success
-    )
+REM Always generate stock analysis from CSV to include aggregated data (clothingItemRatesOverall, etc.)
+echo.
+echo [Step 7-Post] Generating aggregated stock analysis from CSV
+call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
+set GEN_ERR=!errorlevel!
+if !GEN_ERR! neq 0 (
+    echo [Step 7-Post] Failed (Error code: !GEN_ERR!)
+    set PIPELINE_ERROR=!GEN_ERR!
 ) else (
-    if not exist "public\data\!DATE_STR!\stock_analysis.json" (
-        echo.
-        echo [Step 7-Alternative] stock_analysis.json not found, generating from CSV
-        call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
-        set ALT_ERR=!errorlevel!
-        if !ALT_ERR! neq 0 (
-            echo [Step 7-Alternative] Failed (Error code: !ALT_ERR!)
-        ) else (
-            echo [Step 7-Alternative] Success
-        )
-    )
+    echo [Step 7-Post] Success - Aggregated data generated
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
+echo [Step 7.5] Downloading previous year treemap data for YOY calculation
+call "%PYTHON_CMD%" scripts\download_previous_year_treemap_data.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 7.5] Failed (Error code: !STEP_ERR!)
+    echo [Warning] Previous year data download failed. YOY calculation will be skipped.
+) else (
+    echo [Step 7.5] Completed
+)
+echo.
+
+echo [Step 8] Running treemap data pipeline (download, preprocess, generate JSON)
+call "%PYTHON_CMD%" scripts\run_treemap_pipeline.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 8] Failed (Error code: !STEP_ERR!)

@@ -20,29 +20,42 @@ from path_utils import get_current_year_file_path, extract_year_month_from_date
 ROOT = os.path.dirname(os.path.dirname(__file__))
 OUTPUT_DIR = os.path.join(ROOT, "public")
 
-def find_ke30_shop_item_file(date_str: str) -> str:
+def find_treemap_preprocessed_file(date_str: str) -> str:
     """
-    ke30 Shop_item 파일 찾기
+    트리맵 데이터 파일 찾기 (ke30_Shop_item.csv 우선)
     
     Args:
-        date_str: YYYYMMDD 형식의 날짜 (예: "20251124")
+        date_str: YYYYMMDD 형식의 날짜 (예: "20251215")
     
     Returns:
         str: 파일 경로
     """
     year_month = extract_year_month_from_date(date_str)
+    
+    # 1순위: ke30_YYYYMMDD_YYYYMM_Shop_item.csv
     filename = f"ke30_{date_str}_{year_month}_Shop_item.csv"
     filepath = get_current_year_file_path(date_str, filename)
     
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"[ERROR] ke30 Shop_item 파일을 찾을 수 없습니다: {filepath}")
+    if os.path.exists(filepath):
+        print(f"[읽기] {filepath} (ke30_Shop_item)")
+        return filepath
     
-    print(f"[읽기] {filepath}")
-    return filepath
+    # 2순위: treemap_preprocessed_{date}.csv (하위 호환)
+    filename = f"treemap_preprocessed_{date_str}.csv"
+    filepath = get_current_year_file_path(date_str, filename)
+    
+    if os.path.exists(filepath):
+        print(f"[읽기] {filepath} (전처리 파일)")
+        return filepath
+    
+    raise FileNotFoundError(f"[ERROR] 트리맵 데이터 파일을 찾을 수 없습니다.\n"
+                          f"  - ke30_{date_str}_{year_month}_Shop_item.csv\n"
+                          f"  - treemap_preprocessed_{date_str}.csv")
 
-def load_ke30_data(filepath: str) -> pd.DataFrame:
+
+def load_treemap_data(filepath: str) -> pd.DataFrame:
     """
-    ke30 Shop_item 데이터 로드
+    트리맵 데이터 로드 (ke30_Shop_item.csv 또는 전처리 파일)
     
     Args:
         filepath: 파일 경로
@@ -53,45 +66,32 @@ def load_ke30_data(filepath: str) -> pd.DataFrame:
     df = pd.read_csv(filepath, encoding="utf-8-sig")
     print(f"  데이터: {len(df)}행 × {len(df.columns)}열")
     
+    # ke30_Shop_item.csv 파일의 컬럼명 통일
+    column_mapping = {
+        '합계 : 판매금액(TAG가)': 'TAG매출',
+        '합계 : 실판매액': '실판매출',
+        'PRDT_HRRC3_NM': '아이템_소분류'
+    }
+    df = df.rename(columns=column_mapping)
+    
     # 필요한 컬럼 확인
-    required_cols = ['채널명', '아이템_중분류', '아이템_소분류']
-    tag_col = None
-    sales_col = None
+    required_cols = ['브랜드', '채널명', '아이템_중분류', '아이템_소분류', 'TAG매출', '실판매출']
+    missing_cols = [col for col in required_cols if col not in df.columns]
     
-    # TAG 컬럼 찾기
-    for col in df.columns:
-        if '판매금액' in str(col) and 'TAG' in str(col):
-            tag_col = col
-    
-    # 실판매액 컬럼 찾기 (우선순위: 실판매액(V+) > 합계 : 실판매액 > 실판매액(V-))
-    # 부가세 포함 실판매액을 사용해야 함
-    for col in df.columns:
-        col_str = str(col)
-        if '실판매액' in col_str or '실판매' in col_str:
-            if sales_col is None:
-                sales_col = col
-            # 부가세 포함 (V+) 우선
-            if '(V+)' in col_str or 'v+' in col_str.lower():
-                sales_col = col
-                break
-            # "합계 : 실판매액" (부가세 포함일 가능성)
-            if '합계' in col_str and '(V-)' not in col_str:
-                sales_col = col
-    
-    if not tag_col:
-        raise ValueError(f"[ERROR] 판매금액(TAG가) 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼: {list(df.columns)}")
-    if not sales_col:
-        raise ValueError(f"[ERROR] 실판매액 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼: {list(df.columns)}")
-    
-    print(f"  TAG 컬럼: {tag_col}")
-    print(f"  실판매액 컬럼: {sales_col}")
+    if missing_cols:
+        print(f"  사용 가능한 컬럼: {list(df.columns)}")
+        raise ValueError(f"[ERROR] 필수 컬럼 누락: {missing_cols}")
     
     # 숫자 변환
-    df[tag_col] = pd.to_numeric(df[tag_col], errors="coerce").fillna(0)
-    df[sales_col] = pd.to_numeric(df[sales_col], errors="coerce").fillna(0)
+    df['TAG매출'] = pd.to_numeric(df['TAG매출'], errors="coerce").fillna(0)
+    df['실판매출'] = pd.to_numeric(df['실판매출'], errors="coerce").fillna(0)
     
-    # 컬럼명 정규화
-    df = df.rename(columns={tag_col: 'TAG매출', sales_col: '실판매액'})
+    # 실판매액으로 컬럼명 통일 (기존 로직 호환성)
+    df = df.rename(columns={'실판매출': '실판매액'})
+    
+    print(f"  브랜드: {df['브랜드'].nunique()}개")
+    print(f"  채널: {df['채널명'].nunique()}개")
+    print(f"  아이템_중분류: {df['아이템_중분류'].nunique()}개")
     
     return df
 
@@ -107,18 +107,77 @@ def calculate_share(value: float, total: float) -> int:
         return 0
     return int(round((value / total) * 100))
 
-def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
+def calculate_yoy(current_value: float, previous_value: float) -> float:
     """
-    채널별 매출구성 트리맵 생성
+    YOY (전년대비 증감률) 계산
+    
+    Args:
+        current_value: 당년 값
+        previous_value: 전년 값
+    
+    Returns:
+        float: YOY (%) - 소수점 1자리
+    """
+    if previous_value == 0:
+        return 0.0 if current_value == 0 else 100.0
+    return round(((current_value - previous_value) / previous_value) * 100, 1)
+
+def load_previous_year_treemap_data(date_str: str) -> pd.DataFrame:
+    """
+    전년 트리맵 데이터 로드 (전처리 완료된 데이터)
+    
+    Args:
+        date_str: YYYYMMDD 형식의 날짜 (예: "20251215")
+    
+    Returns:
+        pd.DataFrame: 전년 데이터프레임 (None if not exists)
+    """
+    year_month = extract_year_month_from_date(date_str)
+    prev_filepath = os.path.join(ROOT, "raw", year_month, "previous_year", f"treemap_preprocessed_prev_{date_str}.csv")
+    
+    if not os.path.exists(prev_filepath):
+        print(f"[경고] 전년 트리맵 데이터를 찾을 수 없습니다: {prev_filepath}")
+        print("  YOY 계산 없이 진행합니다.")
+        return None
+    
+    print(f"[읽기] {prev_filepath}")
+    df = pd.read_csv(prev_filepath, encoding="utf-8-sig")
+    print(f"  전년 데이터: {len(df)}행 × {len(df.columns)}열")
+    
+    # 컬럼명 통일 (전년 데이터는 판매금액(TAG가), 실판매액으로 저장됨)
+    if '판매금액(TAG가)' in df.columns:
+        df = df.rename(columns={'판매금액(TAG가)': 'TAG매출'})
+    if '실판매출' in df.columns:
+        df = df.rename(columns={'실판매출': '실판매액'})
+    
+    # 브랜드 컬럼 통일 (전년 데이터는 '브랜드'가 브랜드코드)
+    if '브랜드' in df.columns and '브랜드코드' not in df.columns:
+        df['브랜드코드'] = df['브랜드']
+    
+    # 숫자 변환
+    df['TAG매출'] = pd.to_numeric(df['TAG매출'], errors="coerce").fillna(0)
+    df['실판매액'] = pd.to_numeric(df['실판매액'], errors="coerce").fillna(0)
+    
+    return df
+
+def create_channel_treemap(df: pd.DataFrame, prev_df: pd.DataFrame = None, brand: str = None) -> dict:
+    """
+    채널별 매출구성 트리맵 생성 (YOY 포함)
     드릴다운: 채널 → 아이템_중분류 → 아이템_소분류
     
     Args:
-        df: 데이터프레임
+        df: 당년 데이터프레임
+        prev_df: 전년 데이터프레임 (YOY 계산용, None 가능)
         brand: 브랜드 필터 (None이면 전체)
     """
     if brand:
         print(f"\n[계산] 채널별 매출구성 트리맵 생성 (브랜드: {brand})...")
         df = df[df['브랜드'] == brand].copy()
+        if prev_df is not None:
+            # 전년 데이터에서 브랜드 코드 매핑
+            brand_code_map = {'MLB': 'M', 'DISCOVERY': 'V', 'SUPRA': 'X', 'MLB_KIDS': 'I', 'SERGIO': 'ST', 'DUVETICA': 'W'}
+            brand_code = brand_code_map.get(brand, brand)
+            prev_df = prev_df[prev_df['브랜드코드'] == brand_code].copy()
     else:
         print("\n[계산] 채널별 매출구성 트리맵 생성 (전체)...")
     
@@ -126,11 +185,21 @@ def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
     total_tag = df['TAG매출'].sum()
     total_sales = df['실판매액'].sum()
     
+    # 전년 전체 합계
+    prev_total_sales = 0
+    prev_total_tag = 0
+    if prev_df is not None:
+        # load_previous_year_treemap_data에서 이미 컬럼명 통일됨
+        prev_total_tag = prev_df['TAG매출'].sum()
+        prev_total_sales = prev_df['실판매액'].sum()
+    
     result = {
         'total': {
             'tag': int(total_tag),
             'sales': int(total_sales),
-            'discountRate': round(calculate_discount_rate(total_tag, total_sales), 1)
+            'discountRate': round(calculate_discount_rate(total_tag, total_sales), 1),
+            'prevDiscountRate': round(calculate_discount_rate(prev_total_tag, prev_total_sales), 1) if prev_df is not None and prev_total_tag > 0 else None,
+            'yoy': calculate_yoy(total_sales, prev_total_sales) if prev_df is not None else None
         },
         'channels': {}
     }
@@ -141,10 +210,30 @@ def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
         '실판매액': 'sum'
     })
     
+    # 전년 채널별 집계
+    prev_channel_sales = {}
+    prev_channel_tags = {}
+    if prev_df is not None:
+        # load_previous_year_treemap_data에서 이미 컬럼명 통일됨
+        prev_channel_sum = prev_df.groupby('채널명', as_index=False).agg({
+            'TAG매출': 'sum',
+            '실판매액': 'sum'
+        })
+        for _, prow in prev_channel_sum.iterrows():
+            pchannel = str(prow['채널명']).strip()
+            prev_channel_tags[pchannel] = float(prow['TAG매출'])
+            prev_channel_sales[pchannel] = float(prow['실판매액'])
+    
     for _, row in channel_sum.iterrows():
         channel = str(row['채널명']).strip()
         tag = float(row['TAG매출'])
         sales = float(row['실판매액'])
+        
+        # YOY 및 전년할인율 계산
+        prev_sales = prev_channel_sales.get(channel, 0)
+        prev_tag = prev_channel_tags.get(channel, 0)
+        yoy = calculate_yoy(sales, prev_sales) if prev_df is not None else None
+        prev_discount = round(calculate_discount_rate(prev_tag, prev_sales), 1) if prev_df is not None and prev_tag > 0 else None
         
         # 채널별 정보 저장
         result['channels'][channel] = {
@@ -152,6 +241,8 @@ def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
             'sales': int(sales),
             'share': calculate_share(sales, total_sales),
             'discountRate': round(calculate_discount_rate(tag, sales), 1),
+            'prevDiscountRate': prev_discount,  # ★ 전년할인율 추가 ★
+            'yoy': yoy,
             'itemCategories': {}  # 아이템_중분류별 데이터
         }
         
@@ -165,10 +256,32 @@ def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
         channel_total_sales = channel_df['실판매액'].sum()
         channel_total_tag = channel_df['TAG매출'].sum()
         
+        # 전년 채널-아이템 데이터
+        prev_channel_item_sales = {}
+        prev_channel_item_tags = {}
+        if prev_df is not None:
+            prev_channel_df = prev_df[prev_df['채널명'] == channel]
+            if not prev_channel_df.empty:
+                # load_previous_year_treemap_data에서 이미 컬럼명 통일됨
+                prev_item_sum = prev_channel_df.groupby('아이템_중분류', as_index=False).agg({
+                    'TAG매출': 'sum',
+                    '실판매액': 'sum'
+                })
+                for _, pitem_row in prev_item_sum.iterrows():
+                    pitem = str(pitem_row['아이템_중분류']).strip()
+                    prev_channel_item_tags[pitem] = float(pitem_row['TAG매출'])
+                    prev_channel_item_sales[pitem] = float(pitem_row['실판매액'])
+        
         for _, item_row in item_mid_sum.iterrows():
             item_mid = str(item_row['아이템_중분류']).strip()
             item_tag = float(item_row['TAG매출'])
             item_sales = float(item_row['실판매액'])
+            
+            # YOY 및 전년할인율 계산
+            prev_item_sales = prev_channel_item_sales.get(item_mid, 0)
+            prev_item_tag = prev_channel_item_tags.get(item_mid, 0)
+            item_yoy = calculate_yoy(item_sales, prev_item_sales) if prev_df is not None else None
+            prev_item_discount = round(calculate_discount_rate(prev_item_tag, prev_item_sales), 1) if prev_df is not None and prev_item_tag > 0 else None
             
             # 아이템_중분류별 정보 저장
             result['channels'][channel]['itemCategories'][item_mid] = {
@@ -176,6 +289,8 @@ def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
                 'sales': int(item_sales),
                 'share': calculate_share(item_sales, channel_total_sales),  # 채널 내 비중
                 'discountRate': round(calculate_discount_rate(item_tag, item_sales), 1),
+                'prevDiscountRate': prev_item_discount,  # ★ 전년할인율 추가 ★
+                'yoy': item_yoy,
                 'subCategories': {}  # 아이템_소분류별 데이터
             }
             
@@ -205,18 +320,23 @@ def create_channel_treemap(df: pd.DataFrame, brand: str = None) -> dict:
     print(f"  채널 수: {len(result['channels'])}")
     return result
 
-def create_item_treemap(df: pd.DataFrame, brand: str = None) -> dict:
+def create_item_treemap(df: pd.DataFrame, prev_df: pd.DataFrame = None, brand: str = None) -> dict:
     """
-    아이템별 매출구성 트리맵 생성
+    아이템별 매출구성 트리맵 생성 (YOY 포함)
     드릴다운: 아이템_중분류 → 채널
     
     Args:
-        df: 데이터프레임
+        df: 당년 데이터프레임
+        prev_df: 전년 데이터프레임 (YOY 계산용, None 가능)
         brand: 브랜드 필터 (None이면 전체)
     """
     if brand:
         print(f"\n[계산] 아이템별 매출구성 트리맵 생성 (브랜드: {brand})...")
         df = df[df['브랜드'] == brand].copy()
+        if prev_df is not None:
+            brand_code_map = {'MLB': 'M', 'DISCOVERY': 'V', 'SUPRA': 'X', 'MLB_KIDS': 'I', 'SERGIO': 'ST', 'DUVETICA': 'W'}
+            brand_code = brand_code_map.get(brand, brand)
+            prev_df = prev_df[prev_df['브랜드코드'] == brand_code].copy()
     else:
         print("\n[계산] 아이템별 매출구성 트리맵 생성 (전체)...")
     
@@ -224,11 +344,21 @@ def create_item_treemap(df: pd.DataFrame, brand: str = None) -> dict:
     total_tag = df['TAG매출'].sum()
     total_sales = df['실판매액'].sum()
     
+    # 전년 전체 합계
+    prev_total_sales = 0
+    prev_total_tag = 0
+    if prev_df is not None:
+        # load_previous_year_treemap_data에서 이미 컬럼명 통일됨
+        prev_total_tag = prev_df['TAG매출'].sum()
+        prev_total_sales = prev_df['실판매액'].sum()
+    
     result = {
         'total': {
             'tag': int(total_tag),
             'sales': int(total_sales),
-            'discountRate': round(calculate_discount_rate(total_tag, total_sales), 1)
+            'discountRate': round(calculate_discount_rate(total_tag, total_sales), 1),
+            'prevDiscountRate': round(calculate_discount_rate(prev_total_tag, prev_total_sales), 1) if prev_df is not None and prev_total_tag > 0 else None,
+            'yoy': calculate_yoy(total_sales, prev_total_sales) if prev_df is not None else None
         },
         'items': {}
     }
@@ -239,16 +369,38 @@ def create_item_treemap(df: pd.DataFrame, brand: str = None) -> dict:
         '실판매액': 'sum'
     })
     
+    # 전년 아이템별 집계
+    prev_item_sales = {}
+    prev_item_tags = {}
+    if prev_df is not None:
+        # load_previous_year_treemap_data에서 이미 컬럼명 통일됨
+        prev_item_sum = prev_df.groupby('아이템_중분류', as_index=False).agg({
+            'TAG매출': 'sum',
+            '실판매액': 'sum'
+        })
+        for _, prow in prev_item_sum.iterrows():
+            pitem = str(prow['아이템_중분류']).strip()
+            prev_item_tags[pitem] = float(prow['TAG매출'])
+            prev_item_sales[pitem] = float(prow['실판매액'])
+    
     for _, row in item_mid_sum.iterrows():
         item_mid = str(row['아이템_중분류']).strip()
         tag = float(row['TAG매출'])
         sales = float(row['실판매액'])
+        
+        # YOY 및 전년할인율 계산
+        prev_sales = prev_item_sales.get(item_mid, 0)
+        prev_tag = prev_item_tags.get(item_mid, 0)
+        yoy = calculate_yoy(sales, prev_sales) if prev_df is not None else None
+        prev_discount = round(calculate_discount_rate(prev_tag, prev_sales), 1) if prev_df is not None and prev_tag > 0 else None
         
         result['items'][item_mid] = {
             'tag': int(tag),
             'sales': int(sales),
             'share': calculate_share(sales, total_sales),
             'discountRate': round(calculate_discount_rate(tag, sales), 1),
+            'prevDiscountRate': prev_discount,  # ★ 전년할인율 추가 ★
+            'yoy': yoy,
             'channels': {}
         }
         
@@ -261,16 +413,40 @@ def create_item_treemap(df: pd.DataFrame, brand: str = None) -> dict:
         
         item_mid_total_sales = item_mid_df['실판매액'].sum()
         
+        # 전년 아이템-채널 데이터
+        prev_item_channel_sales = {}
+        prev_item_channel_tags = {}
+        if prev_df is not None:
+            prev_item_df = prev_df[prev_df['아이템_중분류'] == item_mid]
+            if not prev_item_df.empty:
+                # load_previous_year_treemap_data에서 이미 컬럼명 통일됨
+                prev_ch_sum = prev_item_df.groupby('채널명', as_index=False).agg({
+                    'TAG매출': 'sum',
+                    '실판매액': 'sum'
+                })
+                for _, pch_row in prev_ch_sum.iterrows():
+                    pch = str(pch_row['채널명']).strip()
+                    prev_item_channel_tags[pch] = float(pch_row['TAG매출'])
+                    prev_item_channel_sales[pch] = float(pch_row['실판매액'])
+        
         for _, ch_row in channel_sum.iterrows():
             channel = str(ch_row['채널명']).strip()
             ch_tag = float(ch_row['TAG매출'])
             ch_sales = float(ch_row['실판매액'])
             
+            # YOY 및 전년할인율 계산
+            prev_ch_sales = prev_item_channel_sales.get(channel, 0)
+            prev_ch_tag = prev_item_channel_tags.get(channel, 0)
+            ch_yoy = calculate_yoy(ch_sales, prev_ch_sales) if prev_df is not None else None
+            prev_ch_discount = round(calculate_discount_rate(prev_ch_tag, prev_ch_sales), 1) if prev_df is not None and prev_ch_tag > 0 else None
+            
             result['items'][item_mid]['channels'][channel] = {
                 'tag': int(ch_tag),
                 'sales': int(ch_sales),
                 'share': calculate_share(ch_sales, item_mid_total_sales),
-                'discountRate': round(calculate_discount_rate(ch_tag, ch_sales), 1)
+                'discountRate': round(calculate_discount_rate(ch_tag, ch_sales), 1),
+                'prevDiscountRate': prev_ch_discount,  # ★ 전년할인율 추가 ★
+                'yoy': ch_yoy
             }
     
     print(f"  아이템_중분류 수: {len(result['items'])}")
@@ -308,6 +484,91 @@ def save_treemap_js(channel_treemap: dict, item_treemap: dict, output_path: str)
     print(f"\n[저장] {output_path}")
     print(f"  파일 크기: {file_size:.2f} KB")
 
+def export_item_treemap_to_csv(item_treemap: dict, date_str: str, prev_df: pd.DataFrame = None):
+    """
+    아이템별 트리맵 전년 데이터를 CSV로 저장
+    
+    Args:
+        item_treemap: 아이템별 트리맵 데이터
+        date_str: YYYYMMDD 형식의 날짜
+        prev_df: 전년 데이터프레임 (있을 경우)
+    """
+    if prev_df is None:
+        print("\n[경고] 전년 데이터가 없어 CSV 내보내기를 건너뜁니다.")
+        return
+    
+    print("\n[CSV 내보내기] 아이템별 트리맵 전년 데이터...")
+    
+    # CSV 데이터 생성
+    csv_rows = []
+    
+    # 브랜드별 데이터 추출
+    if 'byBrand' in item_treemap:
+        for brand, brand_data in item_treemap['byBrand'].items():
+            if 'item' not in brand_data:
+                continue
+            
+            item_data = brand_data['item']
+            
+            # 아이템별 데이터
+            if 'items' in item_data:
+                for item_name, item_info in item_data['items'].items():
+                    # 아이템 전체 정보
+                    csv_rows.append({
+                        '브랜드': brand,
+                        '구분': '아이템',
+                        '아이템명': item_name,
+                        '채널명': '전체',
+                        'TAG매출': item_info.get('tag', 0),
+                        '실판매출': item_info.get('sales', 0),
+                        '비중': item_info.get('share', 0),
+                        '할인율': item_info.get('discountRate', 0),
+                        'YOY': item_info.get('yoy', 0) if item_info.get('yoy') is not None else 0
+                    })
+                    
+                    # 아이템 내 채널별 데이터
+                    if 'channels' in item_info:
+                        for channel_name, channel_info in item_info['channels'].items():
+                            csv_rows.append({
+                                '브랜드': brand,
+                                '구분': '아이템-채널',
+                                '아이템명': item_name,
+                                '채널명': channel_name,
+                                'TAG매출': channel_info.get('tag', 0),
+                                '실판매출': channel_info.get('sales', 0),
+                                '비중': channel_info.get('share', 0),
+                                '할인율': channel_info.get('discountRate', 0),
+                                'YOY': channel_info.get('yoy', 0) if channel_info.get('yoy') is not None else 0
+                            })
+    
+    if not csv_rows:
+        print("  [경고] CSV로 저장할 데이터가 없습니다.")
+        return
+    
+    # DataFrame 생성
+    df_csv = pd.DataFrame(csv_rows)
+    
+    # CSV 저장 경로 설정
+    year_month = extract_year_month_from_date(date_str)
+    csv_dir = os.path.join(ROOT, "raw", year_month, "previous_year")
+    os.makedirs(csv_dir, exist_ok=True)
+    
+    csv_path = os.path.join(csv_dir, f"item_treemap_prev_{date_str}.csv")
+    
+    # CSV 저장
+    df_csv.to_csv(csv_path, index=False, encoding='utf-8-sig')
+    
+    file_size = os.path.getsize(csv_path) / 1024  # KB
+    print(f"  ✅ CSV 저장 완료: {csv_path}")
+    print(f"  파일 크기: {file_size:.2f} KB")
+    print(f"  데이터 행 수: {len(df_csv):,}건")
+    
+    # 요약 통계
+    print("\n  📊 CSV 데이터 요약:")
+    print(f"    브랜드 수: {df_csv['브랜드'].nunique()}개")
+    print(f"    아이템 수: {df_csv[df_csv['구분']=='아이템']['아이템명'].nunique()}개")
+    print(f"    총 실판매출: {df_csv[df_csv['구분']=='아이템']['실판매출'].sum() / 100000000:.1f}억원")
+
 def main():
     """메인 함수"""
     import argparse
@@ -326,35 +587,38 @@ def main():
     
     try:
         print("=" * 60)
-        print("트리맵 데이터 생성 (v2)")
+        print("트리맵 데이터 생성 (v2 - YOY 포함)")
         print("=" * 60)
         print(f"날짜: {date_str}")
         
-        # 1. 데이터 로드
-        filepath = find_ke30_shop_item_file(date_str)
-        df = load_ke30_data(filepath)
+        # 1. 당년 데이터 로드
+        filepath = find_treemap_preprocessed_file(date_str)
+        df = load_treemap_data(filepath)
         
-        # 2. 채널별 트리맵 생성 (전체)
-        channel_treemap = create_channel_treemap(df)
+        # 2. 전년 데이터 로드 (전처리 완료된 데이터)
+        prev_df = load_previous_year_treemap_data(date_str)
         
-        # 3. 아이템별 트리맵 생성 (전체)
-        item_treemap = create_item_treemap(df)
+        # 3. 채널별 트리맵 생성 (YOY 포함)
+        channel_treemap = create_channel_treemap(df, prev_df)
         
-        # 4. 브랜드별 트리맵 생성 (선택적)
+        # 4. 아이템별 트리맵 생성 (YOY 포함)
+        item_treemap = create_item_treemap(df, prev_df)
+        
+        # 5. 브랜드별 트리맵 생성 (YOY 포함)
         if '브랜드' in df.columns:
             brands = df['브랜드'].unique()
             brand_treemaps = {}
             for brand in brands:
                 brand_str = str(brand).strip()
                 brand_treemaps[brand_str] = {
-                    'channel': create_channel_treemap(df, brand_str),
-                    'item': create_item_treemap(df, brand_str)
+                    'channel': create_channel_treemap(df, prev_df, brand_str),
+                    'item': create_item_treemap(df, prev_df, brand_str)
                 }
             # 브랜드별 데이터도 포함
             channel_treemap['byBrand'] = brand_treemaps
             item_treemap['byBrand'] = brand_treemaps
         
-        # 4. JSON 파일 저장 (JS 파일 제거, JSON만 사용)
+        # 6. JSON 파일 저장 (JS 파일 제거, JSON만 사용)
         json_dir = os.path.join(OUTPUT_DIR, "data", date_str)
         os.makedirs(json_dir, exist_ok=True)
         
@@ -368,6 +632,9 @@ def main():
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(treemap_json, f, ensure_ascii=False, indent=2)
         print(f"  ✅ JSON 저장: {json_path}")
+        
+        # 7. ★ 아이템별 트리맵 전년 데이터를 CSV로 내보내기 ★
+        export_item_treemap_to_csv(item_treemap, date_str, prev_df)
         
         return 0
         

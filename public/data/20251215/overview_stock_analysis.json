@@ -8,7 +8,7 @@
     "cySeason": "25F",
     "pySeason": "24F",
     "pySeasonEnd": "2026-02-28",
-    "generatedAt": "2025-12-15 16:04:47"
+    "generatedAt": "2025-12-16 11:22:34"
   },
   "clothingBrandStatus": {
     "I": [
@@ -581,12 +581,12 @@
         "itemName": "팬츠",
         "orderTag": 40895898000.0,
         "orderYoY": 0.9721,
-        "weeklySalesTag": 174656000.0,
-        "weeklyYoY": 1.0248,
-        "cumSalesTag": 2655458000.0,
+        "weeklySalesTag": 174775000.0,
+        "weeklyYoY": 1.0255,
+        "cumSalesTag": 2655577000.0,
         "cumYoY": 0.9167,
-        "cumSalesRate": 0.4143,
-        "cumSalesRateDiff": -0.0684,
+        "cumSalesRate": 0.4144,
+        "cumSalesRateDiff": -0.0683,
         "pyClosingSalesRate": 0.5986,
         "storageTagAmt": 6409017000.0,
         "cumSalesTagPy": 2896912758.0,
@@ -2249,12 +2249,12 @@
         "itemName": "스커트",
         "orderTag": 1696183000.0,
         "orderYoY": 3.4309,
-        "weeklySalesTag": 7626000.0,
-        "weeklyYoY": 2.1278,
-        "cumSalesTag": 147900000.0,
-        "cumYoY": 1.2144,
-        "cumSalesRate": 0.1581,
-        "cumSalesRateDiff": -0.1358,
+        "weeklySalesTag": 7795000.0,
+        "weeklyYoY": 2.1749,
+        "cumSalesTag": 148069000.0,
+        "cumYoY": 1.2158,
+        "cumSalesRate": 0.1583,
+        "cumSalesRateDiff": -0.1357,
         "pyClosingSalesRate": 0.3467,
         "storageTagAmt": 935508000.0,
         "cumSalesTagPy": 121785000.0,
@@ -2429,10 +2429,10 @@
         "itemName": "트레이닝(상의)",
         "orderTag": 15013860000.0,
         "orderYoY": 1.0147,
-        "weeklySalesTag": 147105000.0,
-        "weeklyYoY": 0.8073,
-        "cumSalesTag": 4011484000.0,
-        "cumYoY": 0.8098,
+        "weeklySalesTag": 147194000.0,
+        "weeklyYoY": 0.8078,
+        "cumSalesTag": 4011573000.0,
+        "cumYoY": 0.8099,
         "cumSalesRate": 0.301,
         "cumSalesRateDiff": -0.0357,
         "pyClosingSalesRate": 0.4168,
@@ -2469,12 +2469,12 @@
         "itemName": "다운점퍼",
         "orderTag": 261063321000.0,
         "orderYoY": 1.1672,
-        "weeklySalesTag": 8709389000.0,
-        "weeklyYoY": 0.8837,
-        "cumSalesTag": 60827743000.0,
-        "cumYoY": 0.8679,
-        "cumSalesRate": 0.2745,
-        "cumSalesRateDiff": -0.0487,
+        "weeklySalesTag": 8724355000.0,
+        "weeklyYoY": 0.8852,
+        "cumSalesTag": 60842709000.0,
+        "cumYoY": 0.8681,
+        "cumSalesRate": 0.2746,
+        "cumSalesRateDiff": -0.0486,
         "pyClosingSalesRate": 0.5542,
         "storageTagAmt": 221555569000.0,
         "cumSalesTagPy": 70087576000.0,
@@ -2608,78 +2608,8 @@
     "A": [
       {
         "category": "Bag",
-        "itemCode": "MR",
-        "itemName": "메신저백",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -3,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Headwear",
-        "itemCode": "CP",
-        "itemName": "운동모",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -1,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Bag",
         "itemCode": "SG",
         "itemName": "슬링백",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -1,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Bag",
-        "itemCode": "BK",
-        "itemName": "백팩",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -3,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "FN",
-        "itemName": "패니팩",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -10,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Bag",
-        "itemCode": "CR",
-        "itemName": "크로스백",
         "saleQty": 0,
         "saleAmt": 0,
         "yoyRate": null,
@@ -2703,6 +2633,76 @@
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
+      },
+      {
+        "category": "Bag",
+        "itemCode": "BK",
+        "itemName": "백팩",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -3,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Bag",
+        "itemCode": "MR",
+        "itemName": "메신저백",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -3,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Bag",
+        "itemCode": "CR",
+        "itemName": "크로스백",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -1,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "FN",
+        "itemName": "패니팩",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -10,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Headwear",
+        "itemCode": "CP",
+        "itemName": "운동모",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -1,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
       }
     ],
     "I": [
@@ -2715,7 +2715,7 @@
         "yoyRate": "174%",
         "shareRate": "30%",
         "avg4wSaleQty": 2977.0,
-        "stockQty": 22824,
+        "stockQty": 22787,
         "stockWeeks": 7.7,
         "pyStockWeeks": 7.9,
         "stockWeeksDiff": -0.2
@@ -2729,7 +2729,7 @@
         "yoyRate": "164%",
         "shareRate": "24%",
         "avg4wSaleQty": 892.0,
-        "stockQty": 73479,
+        "stockQty": 73464,
         "stockWeeks": 82.4,
         "pyStockWeeks": 97.0,
         "stockWeeksDiff": -14.6
@@ -2743,7 +2743,7 @@
         "yoyRate": "48%",
         "shareRate": "13%",
         "avg4wSaleQty": 3473.0,
-        "stockQty": 51799,
+        "stockQty": 51771,
         "stockWeeks": 14.9,
         "pyStockWeeks": 28.9,
         "stockWeeksDiff": -14.0
@@ -2757,8 +2757,8 @@
         "yoyRate": "85%",
         "shareRate": "9%",
         "avg4wSaleQty": 1621.0,
-        "stockQty": 21368,
-        "stockWeeks": 13.2,
+        "stockQty": 21293,
+        "stockWeeks": 13.1,
         "pyStockWeeks": 17.0,
         "stockWeeksDiff": -3.9
       },
@@ -2771,8 +2771,8 @@
         "yoyRate": "111%",
         "shareRate": "6%",
         "avg4wSaleQty": 1291.0,
-        "stockQty": 145323,
-        "stockWeeks": 112.6,
+        "stockQty": 145252,
+        "stockWeeks": 112.5,
         "pyStockWeeks": 111.6,
         "stockWeeksDiff": 1.0
       },
@@ -2785,7 +2785,7 @@
         "yoyRate": "69%",
         "shareRate": "5%",
         "avg4wSaleQty": 736.0,
-        "stockQty": 13440,
+        "stockQty": 13435,
         "stockWeeks": 18.3,
         "pyStockWeeks": 12.6,
         "stockWeeksDiff": 5.7
@@ -2794,15 +2794,15 @@
         "category": "Shoes",
         "itemCode": "SH",
         "itemName": "신발",
-        "saleQty": 388,
-        "saleAmt": 33851060,
+        "saleQty": 389,
+        "saleAmt": 33936770,
         "yoyRate": "96%",
         "shareRate": "5%",
         "avg4wSaleQty": 435.0,
-        "stockQty": 47986,
-        "stockWeeks": 110.3,
+        "stockQty": 47934,
+        "stockWeeks": 110.2,
         "pyStockWeeks": 95.3,
-        "stockWeeksDiff": 15.0
+        "stockWeeksDiff": 14.9
       },
       {
         "category": "Shoes",
@@ -2813,10 +2813,10 @@
         "yoyRate": "69%",
         "shareRate": "3%",
         "avg4wSaleQty": 290.0,
-        "stockQty": 27261,
-        "stockWeeks": 94.0,
+        "stockQty": 27204,
+        "stockWeeks": 93.8,
         "pyStockWeeks": 81.3,
-        "stockWeeksDiff": 12.7
+        "stockWeeksDiff": 12.5
       },
       {
         "category": "Shoes",
@@ -2827,7 +2827,7 @@
         "yoyRate": "36%",
         "shareRate": "1%",
         "avg4wSaleQty": 119.0,
-        "stockQty": 23413,
+        "stockQty": 23412,
         "stockWeeks": 196.7,
         "pyStockWeeks": 94.5,
         "stockWeeksDiff": 102.3
@@ -2869,7 +2869,7 @@
         "yoyRate": "70%",
         "shareRate": "1%",
         "avg4wSaleQty": 115.0,
-        "stockQty": 6345,
+        "stockQty": 6343,
         "stockWeeks": 55.2,
         "pyStockWeeks": 37.2,
         "stockWeeksDiff": 18.0
@@ -2883,7 +2883,7 @@
         "yoyRate": "128%",
         "shareRate": "1%",
         "avg4wSaleQty": 81.0,
-        "stockQty": 9629,
+        "stockQty": 9628,
         "stockWeeks": 118.9,
         "pyStockWeeks": 120.4,
         "stockWeeksDiff": -1.5
@@ -2981,7 +2981,7 @@
         "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 24216,
+        "stockQty": 24205,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3001,48 +3001,6 @@
         "stockWeeksDiff": null
       },
       {
-        "category": "Headwear",
-        "itemCode": "SC",
-        "itemName": "선캡",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": "0%",
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 8095,
-        "stockWeeks": null,
-        "pyStockWeeks": 10656.0,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "GG",
-        "itemName": "고글",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 7,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Bag",
-        "itemCode": "BM",
-        "itemName": "버킷백",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 1,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
         "category": "Shoes",
         "itemCode": "CV",
         "itemName": "캔버스화",
@@ -3057,15 +3015,15 @@
         "stockWeeksDiff": null
       },
       {
-        "category": "Acc_etc",
-        "itemCode": "ML",
-        "itemName": "토시",
+        "category": "Bag",
+        "itemCode": "BM",
+        "itemName": "버킷백",
         "saleQty": 0,
         "saleAmt": 0,
         "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 884,
+        "stockQty": 1,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3097,6 +3055,48 @@
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "ML",
+        "itemName": "토시",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 884,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "GG",
+        "itemName": "고글",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 7,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Headwear",
+        "itemCode": "SC",
+        "itemName": "선캡",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": "0%",
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 8092,
+        "stockWeeks": null,
+        "pyStockWeeks": 10656.0,
+        "stockWeeksDiff": null
       }
     ],
     "M": [
@@ -3104,13 +3104,13 @@
         "category": "Headwear",
         "itemCode": "CP",
         "itemName": "운동모",
-        "saleQty": 54248,
-        "saleAmt": 2041443677,
+        "saleQty": 54251,
+        "saleAmt": 2041554677,
         "yoyRate": "144%",
         "shareRate": "41%",
         "avg4wSaleQty": 53430.0,
-        "stockQty": 1307431,
-        "stockWeeks": 24.5,
+        "stockQty": 1306032,
+        "stockWeeks": 24.4,
         "pyStockWeeks": 22.1,
         "stockWeeksDiff": 2.3
       },
@@ -3118,12 +3118,12 @@
         "category": "Headwear",
         "itemCode": "BN",
         "itemName": "비니",
-        "saleQty": 21494,
-        "saleAmt": 913127261,
+        "saleQty": 21498,
+        "saleAmt": 913276119,
         "yoyRate": "218%",
         "shareRate": "18%",
-        "avg4wSaleQty": 23386.0,
-        "stockQty": 103412,
+        "avg4wSaleQty": 23387.0,
+        "stockQty": 103249,
         "stockWeeks": 4.4,
         "pyStockWeeks": 10.5,
         "stockWeeksDiff": -6.0
@@ -3137,7 +3137,7 @@
         "yoyRate": "147%",
         "shareRate": "15%",
         "avg4wSaleQty": 5104.0,
-        "stockQty": 257583,
+        "stockQty": 257551,
         "stockWeeks": 50.5,
         "pyStockWeeks": 53.3,
         "stockWeeksDiff": -2.9
@@ -3151,7 +3151,7 @@
         "yoyRate": "165%",
         "shareRate": "8%",
         "avg4wSaleQty": 3098.0,
-        "stockQty": 302908,
+        "stockQty": 302894,
         "stockWeeks": 97.8,
         "pyStockWeeks": 112.1,
         "stockWeeksDiff": -14.3
@@ -3165,7 +3165,7 @@
         "yoyRate": "159%",
         "shareRate": "4%",
         "avg4wSaleQty": 2126.0,
-        "stockQty": 101684,
+        "stockQty": 101674,
         "stockWeeks": 47.8,
         "pyStockWeeks": 53.6,
         "stockWeeksDiff": -5.8
@@ -3179,7 +3179,7 @@
         "yoyRate": "139%",
         "shareRate": "3%",
         "avg4wSaleQty": 1291.0,
-        "stockQty": 10318,
+        "stockQty": 10308,
         "stockWeeks": 8.0,
         "pyStockWeeks": 32.0,
         "stockWeeksDiff": -24.0
@@ -3188,15 +3188,15 @@
         "category": "Shoes",
         "itemCode": "WB",
         "itemName": "방한화",
-        "saleQty": 1404,
-        "saleAmt": 148491227,
+        "saleQty": 1405,
+        "saleAmt": 148611517,
         "yoyRate": "107%",
         "shareRate": "3%",
         "avg4wSaleQty": 1232.0,
-        "stockQty": 28284,
-        "stockWeeks": 23.0,
+        "stockQty": 28205,
+        "stockWeeks": 22.9,
         "pyStockWeeks": 15.7,
-        "stockWeeksDiff": 7.3
+        "stockWeeksDiff": 7.2
       },
       {
         "category": "Shoes",
@@ -3207,10 +3207,10 @@
         "yoyRate": "76%",
         "shareRate": "2%",
         "avg4wSaleQty": 842.0,
-        "stockQty": 110573,
-        "stockWeeks": 131.3,
+        "stockQty": 110508,
+        "stockWeeks": 131.2,
         "pyStockWeeks": 49.9,
-        "stockWeeksDiff": 81.5
+        "stockWeeksDiff": 81.4
       },
       {
         "category": "Headwear",
@@ -3221,7 +3221,7 @@
         "yoyRate": "91%",
         "shareRate": "2%",
         "avg4wSaleQty": 1283.0,
-        "stockQty": 41497,
+        "stockQty": 41486,
         "stockWeeks": 32.3,
         "pyStockWeeks": 63.2,
         "stockWeeksDiff": -30.9
@@ -3235,7 +3235,7 @@
         "yoyRate": "260%",
         "shareRate": "1%",
         "avg4wSaleQty": 916.0,
-        "stockQty": 9439,
+        "stockQty": 9432,
         "stockWeeks": 10.3,
         "pyStockWeeks": 34.8,
         "stockWeeksDiff": -24.5
@@ -3249,7 +3249,7 @@
         "yoyRate": "8%",
         "shareRate": "1%",
         "avg4wSaleQty": 656.0,
-        "stockQty": 19796,
+        "stockQty": 19795,
         "stockWeeks": 30.2,
         "pyStockWeeks": 10.7,
         "stockWeeksDiff": 19.5
@@ -3258,15 +3258,15 @@
         "category": "Bag",
         "itemCode": "CR",
         "itemName": "크로스백",
-        "saleQty": 416,
-        "saleAmt": 41682747,
+        "saleQty": 417,
+        "saleAmt": 41798658,
         "yoyRate": "98%",
         "shareRate": "1%",
-        "avg4wSaleQty": 370.0,
-        "stockQty": 43277,
-        "stockWeeks": 117.0,
+        "avg4wSaleQty": 371.0,
+        "stockQty": 43262,
+        "stockWeeks": 116.6,
         "pyStockWeeks": 147.2,
-        "stockWeeksDiff": -30.2
+        "stockWeeksDiff": -30.6
       },
       {
         "category": "Acc_etc",
@@ -3291,10 +3291,10 @@
         "yoyRate": "119%",
         "shareRate": "0%",
         "avg4wSaleQty": 904.0,
-        "stockQty": 62811,
-        "stockWeeks": 69.5,
+        "stockQty": 62760,
+        "stockWeeks": 69.4,
         "pyStockWeeks": 144.8,
-        "stockWeeksDiff": -75.3
+        "stockWeeksDiff": -75.4
       },
       {
         "category": "Acc_etc",
@@ -3305,7 +3305,7 @@
         "yoyRate": "224%",
         "shareRate": "0%",
         "avg4wSaleQty": 431.0,
-        "stockQty": 8457,
+        "stockQty": 8427,
         "stockWeeks": 19.6,
         "pyStockWeeks": 64.1,
         "stockWeeksDiff": -44.5
@@ -3333,10 +3333,10 @@
         "yoyRate": "97%",
         "shareRate": "0%",
         "avg4wSaleQty": 143.0,
-        "stockQty": 17958,
-        "stockWeeks": 125.6,
+        "stockQty": 17714,
+        "stockWeeks": 123.9,
         "pyStockWeeks": 34.3,
-        "stockWeeksDiff": 91.3
+        "stockWeeksDiff": 89.6
       },
       {
         "category": "Bag",
@@ -3347,10 +3347,10 @@
         "yoyRate": "71%",
         "shareRate": "0%",
         "avg4wSaleQty": 49.0,
-        "stockQty": 15969,
-        "stockWeeks": 325.9,
+        "stockQty": 15957,
+        "stockWeeks": 325.7,
         "pyStockWeeks": 222.3,
-        "stockWeeksDiff": 103.6
+        "stockWeeksDiff": 103.3
       },
       {
         "category": "Shoes",
@@ -3375,7 +3375,7 @@
         "yoyRate": "258%",
         "shareRate": "0%",
         "avg4wSaleQty": 33.0,
-        "stockQty": 46785,
+        "stockQty": 46784,
         "stockWeeks": 1417.7,
         "pyStockWeeks": 2481.6,
         "stockWeeksDiff": -1063.9
@@ -3431,8 +3431,8 @@
         "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 4.0,
-        "stockQty": 6301,
-        "stockWeeks": 1575.3,
+        "stockQty": 6219,
+        "stockWeeks": 1554.8,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
       },
@@ -3445,52 +3445,10 @@
         "yoyRate": "-446%",
         "shareRate": "0%",
         "avg4wSaleQty": 8.0,
-        "stockQty": 54138,
-        "stockWeeks": 6767.3,
+        "stockQty": 54117,
+        "stockWeeks": 6764.6,
         "pyStockWeeks": 56851.0,
-        "stockWeeksDiff": -50083.8
-      },
-      {
-        "category": "Shoes",
-        "itemCode": "CV",
-        "itemName": "캔버스화",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 12,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "ML",
-        "itemName": "토시",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": -3.0,
-        "stockQty": 897,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "MK",
-        "itemName": "마스크(패션용)",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 8,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
+        "stockWeeksDiff": -50086.4
       },
       {
         "category": "Headwear",
@@ -3544,6 +3502,48 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 9226,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Shoes",
+        "itemCode": "CV",
+        "itemName": "캔버스화",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 12,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "ML",
+        "itemName": "토시",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": -3.0,
+        "stockQty": 897,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "MK",
+        "itemName": "마스크(패션용)",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 8,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3719,20 +3719,6 @@
         "stockWeeksDiff": 109.7
       },
       {
-        "category": "Shoes",
-        "itemCode": "LP",
-        "itemName": "슬리퍼",
-        "saleQty": 1,
-        "saleAmt": 99000,
-        "yoyRate": null,
-        "shareRate": "1%",
-        "avg4wSaleQty": 1.0,
-        "stockQty": 588,
-        "stockWeeks": 588.0,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
         "category": "Acc_etc",
         "itemCode": "AM",
         "itemName": "머플러",
@@ -3745,6 +3731,20 @@
         "stockWeeks": 201.5,
         "pyStockWeeks": 88.0,
         "stockWeeksDiff": 113.5
+      },
+      {
+        "category": "Shoes",
+        "itemCode": "LP",
+        "itemName": "슬리퍼",
+        "saleQty": 1,
+        "saleAmt": 99000,
+        "yoyRate": null,
+        "shareRate": "1%",
+        "avg4wSaleQty": 1.0,
+        "stockQty": 588,
+        "stockWeeks": 588.0,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
       },
       {
         "category": "Acc_etc",
@@ -3775,6 +3775,48 @@
         "stockWeeksDiff": 4.2
       },
       {
+        "category": "Acc_etc",
+        "itemCode": "TW",
+        "itemName": "타올",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 3008,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "LL",
+        "itemName": "볼",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 34,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "AC",
+        "itemName": "기타소품류",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": "0%",
+        "shareRate": "0%",
+        "avg4wSaleQty": 1.0,
+        "stockQty": 1303,
+        "stockWeeks": 1303.0,
+        "pyStockWeeks": 90.0,
+        "stockWeeksDiff": 1213.0
+      },
+      {
         "category": "Headwear",
         "itemCode": "HT",
         "itemName": "햇",
@@ -3801,48 +3843,6 @@
         "stockWeeks": null,
         "pyStockWeeks": 177.0,
         "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "TW",
-        "itemName": "타올",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 3008,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "AC",
-        "itemName": "기타소품류",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": "0%",
-        "shareRate": "0%",
-        "avg4wSaleQty": 1.0,
-        "stockQty": 1303,
-        "stockWeeks": 1303.0,
-        "pyStockWeeks": 90.0,
-        "stockWeeksDiff": 1213.0
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "LL",
-        "itemName": "볼",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 34,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
       }
     ],
     "V": [
@@ -3855,10 +3855,10 @@
         "yoyRate": "197%",
         "shareRate": "71%",
         "avg4wSaleQty": 294.0,
-        "stockQty": 4376,
-        "stockWeeks": 14.9,
+        "stockQty": 4361,
+        "stockWeeks": 14.8,
         "pyStockWeeks": 9.3,
-        "stockWeeksDiff": 5.6
+        "stockWeeksDiff": 5.5
       },
       {
         "category": "Bag",
@@ -3869,10 +3869,10 @@
         "yoyRate": "181%",
         "shareRate": "5%",
         "avg4wSaleQty": 28.0,
-        "stockQty": 3016,
-        "stockWeeks": 107.7,
+        "stockQty": 3013,
+        "stockWeeks": 107.6,
         "pyStockWeeks": 62.4,
-        "stockWeeksDiff": 45.3
+        "stockWeeksDiff": 45.2
       },
       {
         "category": "Bag",
@@ -3883,10 +3883,10 @@
         "yoyRate": "60%",
         "shareRate": "4%",
         "avg4wSaleQty": 15.0,
-        "stockQty": 439,
-        "stockWeeks": 29.3,
+        "stockQty": 435,
+        "stockWeeks": 29.0,
         "pyStockWeeks": 19.0,
-        "stockWeeksDiff": 10.2
+        "stockWeeksDiff": 10.0
       },
       {
         "category": "Headwear",
@@ -3925,10 +3925,10 @@
         "yoyRate": "255%",
         "shareRate": "3%",
         "avg4wSaleQty": 24.0,
-        "stockQty": 960,
-        "stockWeeks": 40.0,
+        "stockQty": 950,
+        "stockWeeks": 39.6,
         "pyStockWeeks": 39.6,
-        "stockWeeksDiff": 0.4
+        "stockWeeksDiff": 0.0
       },
       {
         "category": "Headwear",
@@ -3967,8 +3967,8 @@
         "yoyRate": null,
         "shareRate": "2%",
         "avg4wSaleQty": 7.0,
-        "stockQty": 741,
-        "stockWeeks": 105.9,
+        "stockQty": 730,
+        "stockWeeks": 104.3,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
       },
@@ -4099,6 +4099,20 @@
         "stockWeeksDiff": -309.0
       },
       {
+        "category": "Bag",
+        "itemCode": "EB",
+        "itemName": "기타가방",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 16,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
         "category": "Shoes",
         "itemCode": "LP",
         "itemName": "슬리퍼",
@@ -4114,14 +4128,14 @@
       },
       {
         "category": "Acc_etc",
-        "itemCode": "PO",
-        "itemName": "파우치",
+        "itemCode": "GL",
+        "itemName": "장갑",
         "saleQty": 0,
         "saleAmt": 0,
         "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 10,
+        "stockQty": 21,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4141,29 +4155,15 @@
         "stockWeeksDiff": 9.0
       },
       {
-        "category": "Bag",
-        "itemCode": "EB",
-        "itemName": "기타가방",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 16,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
         "category": "Acc_etc",
-        "itemCode": "GL",
-        "itemName": "장갑",
+        "itemCode": "PO",
+        "itemName": "파우치",
         "saleQty": 0,
         "saleAmt": 0,
         "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 21,
+        "stockQty": 10,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4386,12 +4386,12 @@
         "category": "Shoes",
         "itemCode": "SH",
         "itemName": "신발",
-        "saleQty": 11730,
-        "saleAmt": 1157887677,
+        "saleQty": 11737,
+        "saleAmt": 1158607877,
         "yoyRate": "110%",
         "shareRate": "58%",
-        "avg4wSaleQty": 10777.0,
-        "stockQty": 343354,
+        "avg4wSaleQty": 10779.0,
+        "stockQty": 343345,
         "stockWeeks": 31.9,
         "pyStockWeeks": 37.5,
         "stockWeeksDiff": -5.7
@@ -4400,12 +4400,12 @@
         "category": "Bag",
         "itemCode": "BK",
         "itemName": "백팩",
-        "saleQty": 2731,
-        "saleAmt": 354697204,
+        "saleQty": 2733,
+        "saleAmt": 354919804,
         "yoyRate": "146%",
         "shareRate": "18%",
         "avg4wSaleQty": 2133.0,
-        "stockQty": 171333,
+        "stockQty": 171331,
         "stockWeeks": 80.3,
         "pyStockWeeks": 121.5,
         "stockWeeksDiff": -41.2
@@ -4442,12 +4442,12 @@
         "category": "Bag",
         "itemCode": "CR",
         "itemName": "크로스백",
-        "saleQty": 861,
-        "saleAmt": 47195432,
-        "yoyRate": "134%",
+        "saleQty": 862,
+        "saleAmt": 47284432,
+        "yoyRate": "135%",
         "shareRate": "2%",
         "avg4wSaleQty": 850.0,
-        "stockQty": 51280,
+        "stockQty": 51279,
         "stockWeeks": 60.3,
         "pyStockWeeks": 66.3,
         "stockWeeksDiff": -5.9
@@ -4512,12 +4512,12 @@
         "category": "Headwear",
         "itemCode": "WM",
         "itemName": "방한모",
-        "saleQty": 324,
-        "saleAmt": 21166664,
+        "saleQty": 325,
+        "saleAmt": 21251664,
         "yoyRate": null,
         "shareRate": "1%",
-        "avg4wSaleQty": 314.0,
-        "stockQty": 7046,
+        "avg4wSaleQty": 315.0,
+        "stockQty": 7045,
         "stockWeeks": 22.4,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4540,12 +4540,12 @@
         "category": "Bag",
         "itemCode": "TG",
         "itemName": "토드백",
-        "saleQty": 506,
-        "saleAmt": 20441554,
+        "saleQty": 507,
+        "saleAmt": 20486054,
         "yoyRate": "130%",
         "shareRate": "1%",
         "avg4wSaleQty": 500.0,
-        "stockQty": 27230,
+        "stockQty": 27229,
         "stockWeeks": 54.5,
         "pyStockWeeks": 143.9,
         "stockWeeksDiff": -89.5
@@ -4582,12 +4582,12 @@
         "category": "Acc_etc",
         "itemCode": "SO",
         "itemName": "양말",
-        "saleQty": 1016,
-        "saleAmt": 9840457,
+        "saleQty": 1018,
+        "saleAmt": 9865457,
         "yoyRate": "117%",
         "shareRate": "0%",
-        "avg4wSaleQty": 1252.0,
-        "stockQty": 61632,
+        "avg4wSaleQty": 1253.0,
+        "stockQty": 61630,
         "stockWeeks": 49.2,
         "pyStockWeeks": 51.0,
         "stockWeeksDiff": -1.8
@@ -4720,9 +4720,9 @@
     "M": {
       "itemCount": 27,
       "totalOrderTag": 683273892000.0,
-      "totalWeeklySales": 2548994000.0,
-      "totalCumSales": 33507059000.0,
-      "cumSalesRate": 0.3780968466054079,
+      "totalWeeklySales": 2549113000.0,
+      "totalCumSales": 33507178000.0,
+      "cumSalesRate": 0.37809818941274725,
       "cumSalesRatePy": 0.4466177078372941,
       "cumSalesRateDiff": -0.0685,
       "pyClosingSalesRate": 0.5595528238399857
@@ -4760,9 +4760,9 @@
     "X": {
       "itemCount": 20,
       "totalOrderTag": 390940375000.0,
-      "totalWeeklySales": 10214507000.0,
-      "totalCumSales": 88489791000.0,
-      "cumSalesRate": 0.282184973519322,
+      "totalWeeklySales": 10229731000.0,
+      "totalCumSales": 88505015000.0,
+      "cumSalesRate": 0.2822335213121047,
       "cumSalesRatePy": 0.33752212098462786,
       "cumSalesRateDiff": -0.0553,
       "pyClosingSalesRate": 0.5351992330535711
@@ -4770,11 +4770,11 @@
     "overall": {
       "itemCount": 129,
       "totalOrderTag": 1182767374000.0,
-      "totalWeeklySales": 14815602000.0,
-      "totalCumSales": 147590699000.0,
-      "cumSalesRate": 0.3078908175141311,
+      "totalWeeklySales": 14830945000.0,
+      "totalCumSales": 147606042000.0,
+      "cumSalesRate": 0.30792282473982435,
       "cumSalesRatePy": 0.3507543778537667,
-      "cumSalesRateDiff": -0.0429,
+      "cumSalesRateDiff": -0.0428,
       "pyClosingSalesRate": 0.5191835475162375
     }
   },
@@ -4787,15 +4787,15 @@
     },
     "I": {
       "itemCount": 28,
-      "totalSaleQty": 9626,
-      "totalSaleAmt": 713475120,
-      "totalStockQty": 596157
+      "totalSaleQty": 9627,
+      "totalSaleAmt": 713560830,
+      "totalStockQty": 595799
     },
     "M": {
       "itemCount": 33,
-      "totalSaleQty": 94731,
-      "totalSaleAmt": 4990735963,
-      "totalStockQty": 2644506
+      "totalSaleQty": 94740,
+      "totalSaleAmt": 4991232022,
+      "totalStockQty": 2642259
     },
     "ST": {
       "itemCount": 20,
@@ -4807,7 +4807,7 @@
       "itemCount": 23,
       "totalSaleQty": 676,
       "totalSaleAmt": 131707790,
-      "totalStockQty": 17384
+      "totalStockQty": 17341
     },
     "W": {
       "itemCount": 15,
@@ -4817,9 +4817,9 @@
     },
     "X": {
       "itemCount": 23,
-      "totalSaleQty": 27403,
-      "totalSaleAmt": 2009049230,
-      "totalStockQty": 1001050
+      "totalSaleQty": 27417,
+      "totalSaleAmt": 2010235530,
+      "totalStockQty": 1001034
     }
   },
   "clothingItemRatesOverall": {
@@ -4834,12 +4834,12 @@
       "pyClosingSalesRate": 0.21433881071839
     },
     "PT": {
-      "cumSalesRate": 0.34003010315983334,
+      "cumSalesRate": 0.3400370110159407,
       "cumSalesRatePy": 0.3509831990308748,
       "pyClosingSalesRate": 0.44639405823839934
     },
     "SK": {
-      "cumSalesRate": 0.29642719035685366,
+      "cumSalesRate": 0.29649940285816223,
       "cumSalesRatePy": 0.28250144514827863,
       "pyClosingSalesRate": 0.3288416653252787
     },
@@ -4884,7 +4884,7 @@
       "pyClosingSalesRate": 0.32009540024176775
     },
     "TR": {
-      "cumSalesRate": 0.3514361918052023,
+      "cumSalesRate": 0.35144180442979867,
       "cumSalesRatePy": 0.3403432713881245,
       "pyClosingSalesRate": 0.4136809272117664
     },
@@ -4899,7 +4899,7 @@
       "pyClosingSalesRate": 0.35424125690573205
     },
     "DJ": {
-      "cumSalesRate": 0.29077877148319564,
+      "cumSalesRate": 0.29082745731274057,
       "cumSalesRatePy": 0.3423416393671471,
       "pyClosingSalesRate": 0.5602413421682333
     },
