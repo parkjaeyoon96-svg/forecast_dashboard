@@ -291,10 +291,10 @@ export default function Home() {
       <main className="flex flex-col items-center gap-8 bg-white rounded-2xl p-12 shadow-2xl max-w-xl w-full">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-slate-800 mb-4">
-            월중 손익예측 시스템
+            월손익 예상 대시보드
           </h1>
           <p className="text-lg text-slate-600 mb-8">
-            실시간 재무 데이터 분석 및 예측 대시보드
+            브랜드별 월말 손익 예상 시스템
           </p>
         </div>
         
