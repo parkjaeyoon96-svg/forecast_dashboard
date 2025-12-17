@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>clothingItemRatesOverall 데이터 테스트</title>
+</head>
+<body>
+    <h1>clothingItemRatesOverall 데이터 로드 테스트</h1>
+    <div id="result"></div>
+    
+    <script>
+        // JSON 파일 로드
+        fetch('./public/data/20251215/stock_analysis.json')
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                
+                // clothingItemRatesOverall 확인
+                if (data.clothingItemRatesOverall) {
+                    const itemCodes = Object.keys(data.clothingItemRatesOverall);
+                    
+                    let html = '<h2>✅ clothingItemRatesOverall 데이터 로드 성공</h2>';
+                    html += `<p><strong>총 아이템 수:</strong> ${itemCodes.length}개</p>`;
+                    html += '<h3>아이템 코드 목록:</h3>';
+                    html += '<ul>';
+                    itemCodes.forEach(code => {
+                        const rate = data.clothingItemRatesOverall[code];
+                        const cumRate = rate.cumSalesRate;
+                        if (cumRate !== null) {
+                            html += `<li><strong>${code}</strong>: ${(cumRate * 100).toFixed(1)}%</li>`;
+                        } else {
+                            html += `<li><strong>${code}</strong>: null</li>`;
+                        }
+                    });
+                    html += '</ul>';
+                    
+                    // Dashboard.html의 categories와 매칭 확인
+                    const dashboardCategories = ['DJ', 'DV', 'JP', 'PD', 'SS', 'WJ', 'HD', 'MT', 'OP', 'RL', 'RS', 'TL', 'TR', 'ZT', 'LG', 'PT', 'SK', 'SP', 'TP'];
+                    html += '<h3>Dashboard.html categories 매칭 확인:</h3>';
+                    html += '<ul>';
+                    dashboardCategories.forEach(cat => {
+                        if (data.clothingItemRatesOverall[cat]) {
+                            const rate = data.clothingItemRatesOverall[cat].cumSalesRate;
+                            if (rate !== null) {
+                                html += `<li>✅ <strong>${cat}</strong>: ${(rate * 100).toFixed(1)}%</li>`;
+                            } else {
+                                html += `<li>⚠️ <strong>${cat}</strong>: null (데이터 없음)</li>`;
+                            }
+                        } else {
+                            html += `<li>❌ <strong>${cat}</strong>: 없음</li>`;
+                        }
+                    });
+                    html += '</ul>';
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = '<h2>❌ clothingItemRatesOverall 데이터가 없습니다</h2>';
+                }
+                
+                console.log('clothingItemRatesOverall:', data.clothingItemRatesOverall);
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 
+                    `<h2>❌ 데이터 로드 실패</h2><p>${error.message}</p>`;
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>
+
+

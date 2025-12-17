@@ -14,7 +14,7 @@
 import os
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from path_utils import get_current_year_file_path, extract_year_month_from_date
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
@@ -598,6 +598,66 @@ def export_item_treemap_to_csv(item_treemap: dict, date_str: str, prev_df: pd.Da
     print(f"    아이템 수: {df_csv[df_csv['구분']=='아이템']['아이템명'].nunique()}개")
     print(f"    총 실판매출: {df_csv[df_csv['구분']=='아이템']['실판매출'].sum() / 100000000:.1f}억원")
 
+def calculate_date_periods(update_date_str: str):
+    """
+    트리맵 날짜 기간 계산
+    
+    당년: 분석월의 1일 ~ 업데이트일자 -1일 (단, 말일 초과 시 말일로 제한)
+    전년: snowflake에서 다운받은 기간
+    
+    Args:
+        update_date_str: YYYYMMDD 형식 (예: 20251215)
+    
+    Returns:
+        dict: 날짜 정보
+    """
+    from calendar import monthrange
+    
+    update_date = datetime.strptime(update_date_str, '%Y%m%d')
+    
+    # 당년 시작일: 분석월의 1일
+    cy_start = update_date.replace(day=1)
+    
+    # 당년 종료일: 업데이트일자 -1일
+    cy_end_calc = update_date - timedelta(days=1)
+    
+    # 분석월의 말일
+    last_day = monthrange(update_date.year, update_date.month)[1]
+    cy_month_end = update_date.replace(day=last_day)
+    
+    # cy_end가 말일을 넘어가면 말일로 제한
+    if cy_end_calc > cy_month_end:
+        cy_end = cy_month_end
+    else:
+        cy_end = cy_end_calc
+    
+    # 전년 기간은 download_previous_year_treemap_data.py에서 계산됨
+    # 여기서는 metadata에서 읽거나 기본값 사용
+    year_month = extract_year_month_from_date(update_date_str)
+    prev_metadata_path = os.path.join(ROOT, "raw", year_month, "previous_year", f"treemap_preprocessed_prev_{update_date_str}.csv")
+    
+    # 전년 기간 기본값 (동일 로직)
+    prev_year = update_date.year - 1
+    prev_month_start = cy_start.replace(year=prev_year)
+    prev_month_start_weekday = prev_month_start.weekday()
+    cy_start_weekday = cy_start.weekday()
+    
+    weekday_diff = cy_start_weekday - prev_month_start_weekday
+    if weekday_diff < 0:
+        weekday_diff += 7
+    py_start = prev_month_start + timedelta(days=weekday_diff)
+    
+    cy_days = (cy_end - cy_start).days + 1
+    py_end = py_start + timedelta(days=cy_days - 1)
+    
+    return {
+        'cy_start': cy_start.strftime('%Y-%m-%d'),
+        'cy_end': cy_end.strftime('%Y-%m-%d'),
+        'py_start': py_start.strftime('%Y-%m-%d'),
+        'py_end': py_end.strftime('%Y-%m-%d'),
+        'update_date': update_date.strftime('%Y-%m-%d')
+    }
+
 def main():
     """메인 함수"""
     import argparse
@@ -647,11 +707,28 @@ def main():
             channel_treemap['byBrand'] = brand_treemaps
             item_treemap['byBrand'] = brand_treemaps
         
-        # 6. JSON 파일 저장 (JS 파일 제거, JSON만 사용)
+        # 6. 날짜 기간 계산
+        date_periods = calculate_date_periods(date_str)
+        print(f"\n[날짜 정보]")
+        print(f"  당년: {date_periods['cy_start']} ~ {date_periods['cy_end']}")
+        print(f"  전년: {date_periods['py_start']} ~ {date_periods['py_end']}")
+        
+        # 7. JSON 파일 저장 (JS 파일 제거, JSON만 사용)
         json_dir = os.path.join(OUTPUT_DIR, "data", date_str)
         os.makedirs(json_dir, exist_ok=True)
         
         treemap_json = {
+            'metadata': {
+                'updateDate': date_periods['update_date'],
+                'cyPeriod': {
+                    'start': date_periods['cy_start'],
+                    'end': date_periods['cy_end']
+                },
+                'pyPeriod': {
+                    'start': date_periods['py_start'],
+                    'end': date_periods['py_end']
+                }
+            },
             'channelTreemapData': channel_treemap,
             'itemTreemapData': item_treemap
         }
@@ -662,7 +739,7 @@ def main():
             json.dump(treemap_json, f, ensure_ascii=False, indent=2)
         print(f"  ✅ JSON 저장: {json_path}")
         
-        # 7. ★ 아이템별 트리맵 전년 데이터를 CSV로 내보내기 ★
+        # 8. ★ 아이템별 트리맵 전년 데이터를 CSV로 내보내기 ★
         export_item_treemap_to_csv(item_treemap, date_str, prev_df)
         
         return 0

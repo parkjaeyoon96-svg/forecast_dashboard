@@ -1215,7 +1215,13 @@ def process_overview_clothing_csv(file_path: str) -> Dict[str, List[Dict[str, An
             "cumYoY": safe_float(row['전년비(누적)']),
             "cumSalesRate": safe_float(row['누적판매율당년']),
             "cumSalesRateDiff": safe_float(row['누적판매율차이']),
-            "pyClosingSalesRate": safe_float(row['전년마감판매율'])
+            "pyClosingSalesRate": safe_float(row['전년마감판매율']),
+            # 판매율 계산용 원본 TAG가 데이터 추가 (clothingSummary 집계용)
+            "storageTagAmt": safe_float(row.get('누적입고TAG가', 0)),  # 당년 누적입고TAG가
+            "cumSalesTagPy": safe_float(row.get('전년누적판매TAG가', 0)),  # 전년 누적판매TAG가
+            "storageTagAmtPy": safe_float(row.get('전년누적입고TAG가', 0)),  # 전년 누적입고TAG가
+            "cumSalesTagPyEnd": safe_float(row.get('전년마감누적판매TAG가', 0)),  # 전년마감 누적판매TAG가
+            "storageTagAmtPyEnd": safe_float(row.get('전년마감누적입고TAG가', 0))  # 전년마감 누적입고TAG가
         }
         
         result[brand_code].append(item_data)
@@ -1387,17 +1393,121 @@ def create_overview_stock_analysis_data(date_str: str) -> Dict[str, Any]:
     # 메타데이터 생성
     brand_stock_metadata = create_brand_stock_metadata(date_str)
     
-    # 브랜드별 요약 통계 (당시즌의류)
+    # 브랜드별 요약 통계 (당시즌의류) + 아이템별 집계
     clothing_summary = {}
+    overall_item_totals = {}  # 전체 아이템별 집계 (모든 브랜드 합산)
+    
     for brand_code, items in clothing_data.items():
         if not isinstance(items, list):
             continue
+        
+        # 기본 집계
+        total_order_tag = sum(item.get("orderTag", 0) or 0 for item in items)  # 발주TAG (참고용)
+        total_weekly_sales = sum(item.get("weeklySalesTag", 0) or 0 for item in items)
+        total_cum_sales = sum(item.get("cumSalesTag", 0) or 0 for item in items)
+        
+        # 판매율 계산용 원본 데이터 집계
+        total_storage_tag_amt = sum(item.get("storageTagAmt", 0) or 0 for item in items)
+        total_cum_sales_tag = sum(item.get("cumSalesTag", 0) or 0 for item in items)
+        total_storage_tag_amt_py = sum(item.get("storageTagAmtPy", 0) or 0 for item in items)
+        total_cum_sales_tag_py = sum(item.get("cumSalesTagPy", 0) or 0 for item in items)
+        total_storage_tag_amt_py_end = sum(item.get("storageTagAmtPyEnd", 0) or 0 for item in items)
+        total_cum_sales_tag_py_end = sum(item.get("cumSalesTagPyEnd", 0) or 0 for item in items)
+        
+        # 판매율 계산
+        cum_sales_rate = None
+        cum_sales_rate_py = None
+        py_closing_sales_rate = None
+        cum_sales_rate_diff = None
+        
+        if total_storage_tag_amt > 0:
+            cum_sales_rate = total_cum_sales_tag / total_storage_tag_amt
+        if total_storage_tag_amt_py > 0:
+            cum_sales_rate_py = total_cum_sales_tag_py / total_storage_tag_amt_py
+        if total_storage_tag_amt_py_end > 0:
+            py_closing_sales_rate = total_cum_sales_tag_py_end / total_storage_tag_amt_py_end
+        if cum_sales_rate is not None and cum_sales_rate_py is not None:
+            cum_sales_rate_diff = round(cum_sales_rate - cum_sales_rate_py, 4)
+        
         clothing_summary[brand_code] = {
             "itemCount": len(items),
-            "totalOrderTag": sum(item.get("orderTag", 0) or 0 for item in items),
-            "totalWeeklySales": sum(item.get("weeklySalesTag", 0) or 0 for item in items),
-            "totalCumSales": sum(item.get("cumSalesTag", 0) or 0 for item in items)
+            "totalOrderTag": total_order_tag,
+            "totalWeeklySales": total_weekly_sales,
+            "totalCumSales": total_cum_sales,
+            # 판매율 데이터 추가
+            "cumSalesRate": cum_sales_rate,
+            "cumSalesRatePy": cum_sales_rate_py,
+            "cumSalesRateDiff": cum_sales_rate_diff,
+            "pyClosingSalesRate": py_closing_sales_rate
         }
+        
+        # 아이템별 집계 (모든 브랜드의 동일 아이템 합산)
+        for item in items:
+            item_code = str(item.get("itemCode", "")).strip()
+            if not item_code:
+                continue
+            
+            if item_code not in overall_item_totals:
+                overall_item_totals[item_code] = {
+                    'cumSales': 0, 'stor': 0, 
+                    'cumSalesPy': 0, 'storPy': 0, 
+                    'tagPyEnd': 0, 'storPyEnd': 0
+                }
+            
+            overall_item_totals[item_code]['cumSales'] += item.get("cumSalesTag", 0) or 0
+            overall_item_totals[item_code]['stor'] += item.get("storageTagAmt", 0) or 0
+            overall_item_totals[item_code]['cumSalesPy'] += item.get("cumSalesTagPy", 0) or 0
+            overall_item_totals[item_code]['storPy'] += item.get("storageTagAmtPy", 0) or 0
+            overall_item_totals[item_code]['tagPyEnd'] += item.get("cumSalesTagPyEnd", 0) or 0
+            overall_item_totals[item_code]['storPyEnd'] += item.get("storageTagAmtPyEnd", 0) or 0
+    
+    # 아이템별 판매율 계산
+    item_totals_overall_rates = {}
+    for item_code, vals in overall_item_totals.items():
+        cum_rate = None
+        cum_rate_py = None
+        py_closing_rate = None
+        
+        if vals['stor'] > 0:
+            cum_rate = vals['cumSales'] / vals['stor']
+        if vals['storPy'] > 0:
+            cum_rate_py = vals['cumSalesPy'] / vals['storPy']
+        if vals['storPyEnd'] > 0:
+            py_closing_rate = vals['tagPyEnd'] / vals['storPyEnd']
+        
+        item_totals_overall_rates[item_code] = {
+            'cumSalesRate': cum_rate,
+            'cumSalesRatePy': cum_rate_py,
+            'pyClosingSalesRate': py_closing_rate
+        }
+    
+    # 전체 판매율 계산 (모든 브랜드 합산)
+    total_storage_all = sum(vals['stor'] for vals in overall_item_totals.values())
+    total_cum_sales_all = sum(vals['cumSales'] for vals in overall_item_totals.values())
+    total_storage_py_all = sum(vals['storPy'] for vals in overall_item_totals.values())
+    total_cum_sales_py_all = sum(vals['cumSalesPy'] for vals in overall_item_totals.values())
+    total_storage_py_end_all = sum(vals['storPyEnd'] for vals in overall_item_totals.values())
+    total_cum_sales_py_end_all = sum(vals['tagPyEnd'] for vals in overall_item_totals.values())
+    
+    overall_cum_rate = total_cum_sales_all / total_storage_all if total_storage_all > 0 else None
+    overall_cum_rate_py = total_cum_sales_py_all / total_storage_py_all if total_storage_py_all > 0 else None
+    overall_py_closing_rate = total_cum_sales_py_end_all / total_storage_py_end_all if total_storage_py_end_all > 0 else None
+    overall_rate_diff = round(overall_cum_rate - overall_cum_rate_py, 4) if (overall_cum_rate and overall_cum_rate_py) else None
+    
+    # clothingSummary에 전체 판매율 추가
+    clothing_summary['overall'] = {
+        "itemCount": sum(s.get('itemCount', 0) for s in clothing_summary.values()),
+        "totalOrderTag": sum(s.get('totalOrderTag', 0) for s in clothing_summary.values()),
+        "totalWeeklySales": sum(s.get('totalWeeklySales', 0) for s in clothing_summary.values()),
+        "totalCumSales": total_cum_sales_all,
+        "cumSalesRate": overall_cum_rate,
+        "cumSalesRatePy": overall_cum_rate_py,
+        "cumSalesRateDiff": overall_rate_diff,
+        "pyClosingSalesRate": overall_py_closing_rate
+    }
+    
+    print(f"  [집계] 전체 아이템별 판매율: {len(item_totals_overall_rates)}개 아이템")
+    print(f"  [집계] 전체 판매율: {overall_cum_rate * 100:.1f}%" if overall_cum_rate else "  [집계] 전체 판매율: N/A")
     
     # 브랜드별 요약 통계 (ACC)
     acc_summary = {}
@@ -1416,12 +1526,14 @@ def create_overview_stock_analysis_data(date_str: str) -> Dict[str, Any]:
         "clothingBrandStatus": clothing_data,
         "accStockAnalysis": acc_data,
         "clothingSummary": clothing_summary,
-        "accSummary": acc_summary
+        "accSummary": acc_summary,
+        "clothingItemRatesOverall": item_totals_overall_rates
     }
     
     print(f"  [OK] 전체현황 판매율 분석 데이터 생성 완료")
     print(f"    당시즌의류: {len(clothing_data)}개 브랜드")
     print(f"    ACC 재고주수: {len(acc_data)}개 브랜드")
+    print(f"    아이템별 판매율: {len(item_totals_overall_rates)}개 아이템")
     
     return result
 

@@ -396,14 +396,6 @@ export default function Home() {
                 📅
               </div>
             </div>
-            <p className="mt-2 text-xs text-amber-600 font-medium">
-              ⚠️ JSON 파일이 있는 날짜만 선택 가능합니다. 월요일만 선택 가능하며, 다른 요일을 선택하면 자동으로 다음 월요일로 조정됩니다.
-            </p>
-            {availableDates.length > 0 && (
-              <p className="mt-1 text-xs text-slate-500">
-                사용 가능한 날짜: {availableDates.join(', ')}
-              </p>
-            )}
           </div>
           
           <button

@@ -436,8 +436,15 @@
         }
         
         if (treemap) {
-          // treemap.json 구조: { channelTreemapData: { total, channels, byBrand: { MLB: {channel: {...}, item: {...}} } } }
+          // treemap.json 구조: { metadata: {...}, channelTreemapData: { total, channels, byBrand: { MLB: {channel: {...}, item: {...}} } } }
           window.channelTreemapData = treemap.channelTreemapData || treemap;
+          
+          // 메타데이터 저장
+          if (treemap.metadata) {
+            if (!window.channelTreemapData.metadata) {
+              window.channelTreemapData.metadata = treemap.metadata;
+            }
+          }
           
           // ★ JSON 데이터를 그대로 사용 (재계산 제거) ★
           const byBrand = treemap.channelTreemapData?.byBrand || treemap.byBrand || {};
@@ -631,7 +638,8 @@
     .kpi-positive{color:#059669;}
     .kpi-negative{color:#dc2626;}
     .treemap-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;min-height:600px;margin-bottom:15px;}
-    .charts-grid{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:350px 350px;gap:10px;min-height:580px;}
+    .charts-grid{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:450px 450px;gap:10px;min-height:580px;}
+    .overview-charts-grid{grid-template-rows:350px 350px;}
     .chart-container{background:#fff;border-radius:10px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid #e2e8f0;display:flex;flex-direction:column;}
     .chart-title{color:#1e293b;font-size:16px;font-weight:700;margin-bottom:10px;text-align:center;flex-shrink:0;}
     .chart-wrapper{flex:1;position:relative;min-height:180px;}
@@ -880,7 +888,7 @@
               </div>
             </div>
 
-            <div class="charts-grid">
+            <div class="charts-grid overview-charts-grid">
               <div class="chart-container">
                 <div class="chart-title">브랜드별 매출 현황 & 영업이익</div>
                 <div class="chart-wrapper"><canvas id="brandRevenueChart"></canvas></div>
@@ -1153,7 +1161,11 @@
               <div class="chart-container">
                 <div class="chart-title" id="treemapTitleChannel">채널별 매출구성(현시점)</div>
                 <button id="treemapDrillbackChannel" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
-                <div class="chart-wrapper" id="treemapWrapperChannel" style="height:300px;"></div>
+                <div class="chart-wrapper" id="treemapWrapperChannel" style="min-height:280px;"></div>
+                <!-- 트리맵 날짜 정보 -->
+                <div id="treemapChannelDateInfo" style="margin-top:6px;padding:6px 8px;background:#f8fafc;border-left:3px solid #3b82f6;font-size:10px;color:#64748b;line-height:1.4;">
+                  <div>데이터 로딩 중...</div>
+                </div>
               </div>
               <!-- 1행 2열: 아이템별 매출구성 (히트맵) -->
               <div class="chart-container">
@@ -1162,7 +1174,11 @@
                   <button id="treemapDrillbackItem" class="drillback-btn" style="display:none;">← 뒤로가기</button>
                   <button id="downloadItemTreemapCSV" class="drillback-btn" style="background:#10B981;">📥 전년 데이터 CSV</button>
                 </div>
-                <div class="chart-wrapper" id="treemapWrapperItem" style="height:300px;"></div>
+                <div class="chart-wrapper" id="treemapWrapperItem" style="min-height:280px;"></div>
+                <!-- 트리맵 날짜 정보 -->
+                <div id="treemapItemDateInfo" style="margin-top:6px;padding:6px 8px;background:#f8fafc;border-left:3px solid #10b981;font-size:10px;color:#64748b;line-height:1.4;">
+                  <div>데이터 로딩 중...</div>
+                </div>
               </div>
               <!-- 2행 1열: 매출 계획/전년비 (레이더차트) -->
               <div class="chart-container">
@@ -1198,8 +1214,8 @@
               </div>
               <!-- 2행 2열: 주요 채널별 손익 (표) -->
               <div class="chart-container">
-                <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
-                  <div class="chart-title" style="margin:0 0 10px 0;text-align:center;">주요 채널별 손익 (월말예상)</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <div class="chart-title" style="margin:0;text-align:center;flex:1;">주요 채널별 손익 (월말예상)</div>
                   <div style="display:flex;gap:5px;">
                     <button id="channelPlRevenue" class="channel-pl-toggle-btn active" style="background:#4f46e5;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">매출</button>
                     <button id="channelPlProfit" class="channel-pl-toggle-btn" style="background:#e5e7eb;color:#374151;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">직접이익</button>
@@ -3468,6 +3484,18 @@
     // -------- 브랜드별 차트 업데이트 --------
     function updateBrandCharts() {
       console.log('브랜드별 차트 업데이트:', currentBrand);
+      
+      // 트리맵 컨테이너 크기 동일하게 설정
+      const channelContainer = document.getElementById('treemapWrapperChannel');
+      const itemContainer = document.getElementById('treemapWrapperItem');
+      
+      if (channelContainer && itemContainer) {
+        const targetHeight = '280px';
+        channelContainer.style.minHeight = targetHeight;
+        channelContainer.style.height = targetHeight;
+        itemContainer.style.minHeight = targetHeight;
+        itemContainer.style.height = targetHeight;
+      }
       
       // ★ 채널별 트리맵 업데이트 (에러 방지)
       try { updateChannelTreemap(); } catch(e) { console.error('채널 트리맵 에러:', e); }
@@ -8427,13 +8455,31 @@
       console.log('트리맵 데이터 확인 완료:', Object.keys(channelItemSalesData));
       
       // ★★★ 컨테이너가 완전히 렌더링될 때까지 기다린 후 트리맵 업데이트 ★★★
-      // requestAnimationFrame을 두 번 호출하여 레이아웃이 완전히 계산된 후 실행
+      // 브랜드 섹션이 표시된 후 트리맵 렌더링 (크기가 동일하게 계산되도록)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setTimeout(() => {
+            // 트리맵 컨테이너가 동일한 크기를 갖도록 강제로 높이 설정
+            const channelContainer = document.getElementById('treemapWrapperChannel');
+            const itemContainer = document.getElementById('treemapWrapperItem');
+            
+            if (channelContainer && itemContainer) {
+              // 두 컨테이너의 높이를 명시적으로 동일하게 설정
+              const targetHeight = '280px';
+              channelContainer.style.minHeight = targetHeight;
+              channelContainer.style.height = targetHeight;
+              itemContainer.style.minHeight = targetHeight;
+              itemContainer.style.height = targetHeight;
+              
+              // 강제 리플로우
+              void channelContainer.offsetHeight;
+              void itemContainer.offsetHeight;
+            }
+            
+            // 트리맵 업데이트
             updateChannelTreemap();
             updateItemTreemap();
-          }, 50);
+          }, 100);
         });
       });
       
@@ -8542,12 +8588,57 @@
       container.on('plotly_click', clickHandler);
     }
     
+    // -------- 트리맵 날짜 정보 업데이트 --------
+    function updateTreemapDateInfo() {
+      const channelDateInfo = document.getElementById('treemapChannelDateInfo');
+      const itemDateInfo = document.getElementById('treemapItemDateInfo');
+      
+      if (!channelDateInfo && !itemDateInfo) return;
+      
+      // treemap.json에서 메타데이터 가져오기
+      const metadata = window.channelTreemapData?.metadata || null;
+      
+      let dateHtml = '';
+      if (metadata && metadata.updateDate) {
+        const formatDate = (dateStr) => {
+          if (!dateStr) return '-';
+          const parts = dateStr.split('-');
+          return `${parts[0]}년 ${parts[1]}월 ${parts[2]}일`;
+        };
+        
+        const cyStart = metadata.cyPeriod?.start || metadata.cyWeekStart;
+        const cyEnd = metadata.cyPeriod?.end || metadata.cyWeekEnd;
+        const pyStart = metadata.pyPeriod?.start || metadata.pyWeekStart;
+        const pyEnd = metadata.pyPeriod?.end || metadata.pyWeekEnd;
+        
+        dateHtml = `
+          <div style="line-height:1.5;">
+            <div style="margin-bottom:2px;">당해 기간: ${formatDate(cyStart)} ~ ${formatDate(cyEnd)}</div>
+            <div style="margin-bottom:2px;">전년 기간: ${formatDate(pyStart)} ~ ${formatDate(pyEnd)}</div>
+            <div style="color:#94a3b8;">※ 참고 : 전년 기간은 당해기간의 동주차</div>
+          </div>
+        `;
+      } else {
+        dateHtml = '<div style="font-weight:600;color:#94a3b8;">날짜 정보 없음</div>';
+      }
+      
+      if (channelDateInfo) {
+        channelDateInfo.innerHTML = dateHtml;
+      }
+      if (itemDateInfo) {
+        itemDateInfo.innerHTML = dateHtml;
+      }
+    }
+    
     // -------- 채널별 트리맵 업데이트 --------
     function updateChannelTreemap() {
       const container = document.getElementById('treemapWrapperChannel');
       if (!container) return;
       
       const data = getChannelTreemapData();
+      
+      // 날짜 정보 업데이트
+      updateTreemapDateInfo();
       
       // 데이터가 비어있거나 유효하지 않으면 드릴다운 취소
       if (!data || data.length === 0 || !data[0] || !data[0].labels || data[0].labels.length === 0) {
@@ -8594,7 +8685,7 @@
         const tempHeight = container.style.height;
         container.style.height = 'auto';
         void container.offsetHeight; // 강제 리플로우
-        container.style.height = tempHeight || '300px';
+        container.style.height = tempHeight || '280px';
         
         try{
           if (window.Plotly && typeof window.Plotly.newPlot === 'function'){
@@ -8651,6 +8742,9 @@
       
       const data = getItemTreemapData();
       
+      // 날짜 정보 업데이트
+      updateTreemapDateInfo();
+      
       // 데이터가 비어있거나 유효하지 않으면 드릴다운 취소
       if (!data || data.length === 0 || !data[0] || !data[0].labels || data[0].labels.length === 0) {
         console.error('아이템 트리맵 데이터 없음, 드릴다운 취소');
@@ -8696,7 +8790,7 @@
         const tempHeight = container.style.height;
         container.style.height = 'auto';
         void container.offsetHeight; // 강제 리플로우
-        container.style.height = tempHeight || '300px';
+        container.style.height = tempHeight || '280px';
         
         try{
           if (window.Plotly && typeof window.Plotly.newPlot === 'function'){

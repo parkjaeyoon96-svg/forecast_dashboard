@@ -568,12 +568,14 @@
                 <div class="chart-title" id="treemapTitleChannel">채널별 매출구성</div>
                 <button id="treemapDrillbackChannel" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
                 <div class="chart-wrapper" id="treemapWrapperChannel" style="height:250px;"></div>
+                <div id="treemapDateInfoChannel" style="font-size:11px;color:#6b7280;padding:8px 0 0 0;text-align:center;line-height:1.4;"></div>
               </div>
               <!-- 1행 2열: 아이템별 매출구성 (히트맵) -->
               <div class="chart-container">
                 <div class="chart-title" id="treemapTitleItem">아이템별 매출구성</div>
                 <button id="treemapDrillbackItem" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
                 <div class="chart-wrapper" id="treemapWrapperItem" style="height:250px;"></div>
+                <div id="treemapDateInfoItem" style="font-size:11px;color:#6b7280;padding:8px 0 0 0;text-align:center;line-height:1.4;"></div>
               </div>
               <!-- 2행 1열: 매출 계획/전년비 (레이더차트) -->
               <div class="chart-container">
@@ -1490,6 +1492,94 @@
       }
     }
     
+    // 트리맵 메타데이터 로드 함수
+    async function loadTreemapMetadata() {
+      try {
+        const dateParam = getDateParam();
+        // 여러 경로 시도
+        const possiblePaths = [
+          `/data/${dateParam}/treemap.json`,
+          `/public/data/${dateParam}/treemap.json`,
+          `../public/data/${dateParam}/treemap.json`,
+          `./public/data/${dateParam}/treemap.json`
+        ];
+        
+        let data = null;
+        let successUrl = null;
+        
+        for (const url of possiblePaths) {
+          try {
+            console.log('트리맵 메타데이터 로드 시도:', url);
+            const response = await fetch(url);
+            if (response.ok) {
+              data = await response.json();
+              successUrl = url;
+              console.log('트리맵 데이터 로드 성공:', successUrl);
+              break;
+            }
+          } catch (e) {
+            console.log('경로 시도 실패:', url);
+          }
+        }
+        
+        if (!data) {
+          console.warn('모든 경로에서 트리맵 메타데이터 로드 실패');
+          return;
+        }
+        
+        console.log('트리맵 데이터:', data);
+        
+        // 메타데이터 저장 및 날짜 정보 표시
+        if (data.metadata) {
+          treemapMetadata = data.metadata;
+          console.log('메타데이터 저장 완료:', treemapMetadata);
+          updateTreemapDateInfo();
+        } else {
+          console.warn('데이터에 metadata가 없습니다');
+        }
+      } catch (error) {
+        console.error('트리맵 메타데이터 로드 오류:', error);
+      }
+    }
+    
+    // 트리맵 날짜 정보 표시 함수
+    function updateTreemapDateInfo() {
+      console.log('updateTreemapDateInfo 호출됨', {treemapMetadata});
+      
+      if (!treemapMetadata) {
+        console.warn('treemapMetadata가 없습니다');
+        return;
+      }
+      
+      const channelDateInfo = document.getElementById('treemapDateInfoChannel');
+      const itemDateInfo = document.getElementById('treemapDateInfoItem');
+      
+      console.log('날짜 정보 요소:', {channelDateInfo, itemDateInfo});
+      
+      if (!channelDateInfo || !itemDateInfo) {
+        console.warn('날짜 정보 표시 요소를 찾을 수 없습니다');
+        return;
+      }
+      
+      const cyStart = treemapMetadata.cyPeriod?.start || '';
+      const cyEnd = treemapMetadata.cyPeriod?.end || '';
+      const pyStart = treemapMetadata.pyPeriod?.start || '';
+      const pyEnd = treemapMetadata.pyPeriod?.end || '';
+      
+      const dateText = `당년: ${cyStart} ~ ${cyEnd} | 전년: ${pyStart} ~ ${pyEnd} (당년동주차)`;
+      
+      console.log('날짜 텍스트 설정:', dateText);
+      
+      channelDateInfo.textContent = dateText;
+      itemDateInfo.textContent = dateText;
+      
+      // 강제로 보이게 하기
+      channelDateInfo.style.display = 'block';
+      itemDateInfo.style.display = 'block';
+      
+      console.log('날짜 정보 표시 완료');
+    }
+    
     // 트리맵 JSON 기반 인사이트 생성
     async function generateTreemapInsight() {
       try {
@@ -1504,6 +1594,13 @@
         }
         
         const data = await response.json();
+        
+        // 메타데이터 저장 및 날짜 정보 표시
+        if (data.metadata) {
+          treemapMetadata = data.metadata;
+          updateTreemapDateInfo();
+        }
+        
         const channelTreemap = data.channelTreemapData?.channels || {};
         const itemTreemap = data.itemTreemapData?.items || {};
         
@@ -2411,6 +2508,17 @@
           window.aiPartMode = false;
           clearAIPartNotes();
         }
+        
+        // 브랜드별 분석 탭으로 전환 시 트리맵 메타데이터 로드 및 날짜 정보 표시
+        if (section === 'brand') {
+          setTimeout(() => {
+            if (!treemapMetadata) {
+              loadTreemapMetadata();
+            } else {
+              updateTreemapDateInfo();
+            }
+          }, 300);
+        }
 
         if(section==='overview'){
           document.getElementById('overview-pl').style.display='block';
@@ -2748,7 +2856,7 @@
         rfBtn.style.display = (currentBrand === 'MLB') ? 'block' : 'none';
       }
 
-      setTimeout(()=>{ initBrandCharts(); initRadarToggle(); },100);
+      setTimeout(()=>{ initBrandCharts(); initRadarToggle(); updateTreemapDateInfo(); },100);
     }
 
     // 전체 손익계산서 할인율 업데이트
@@ -5617,6 +5725,7 @@
     let treemapChartInstance = null;
     let channelTreemapPath = []; // 채널 트리맵 드릴다운 경로
     let itemTreemapPath = []; // 아이템 트리맵 드릴다운 경로
+    let treemapMetadata = null; // 트리맵 날짜 메타데이터
     
     // 트리맵 크기 저장 키
     const TREEMAP_SIZE_STORAGE_KEY = 'treemap_sizes';
@@ -8021,6 +8130,8 @@
         // 초기 로드 후 편집 내용 적용 및 원본 데이터 저장
         loadEdits();
         saveOriginalData();
+        // 트리맵 메타데이터 로드
+        loadTreemapMetadata();
       },100);
     });
 
