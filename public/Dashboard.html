@@ -1160,8 +1160,11 @@
               <!-- 1행 1열: 채널별 매출구성 (히트맵) -->
               <div class="chart-container">
                 <div class="chart-title" id="treemapTitleChannel">채널별 매출구성(현시점)</div>
-                <button id="treemapDrillbackChannel" class="drillback-btn" style="margin-bottom:8px;display:none;">← 뒤로가기</button>
-                <div class="chart-wrapper" id="treemapWrapperChannel" style="min-height:280px;"></div>
+                <div style="display:flex;gap:6px;margin-bottom:8px;">
+                  <button id="treemapDrillbackChannel" class="drillback-btn" style="display:none;">← 뒤로가기</button>
+                  <div style="flex:1;"></div>
+                </div>
+                <div class="chart-wrapper" id="treemapWrapperChannel"></div>
                 <!-- 트리맵 날짜 정보 -->
                 <div id="treemapChannelDateInfo" style="margin-top:6px;padding:6px 8px;background:#f8fafc;border-left:3px solid #3b82f6;font-size:10px;color:#64748b;line-height:1.4;">
                   <div>데이터 로딩 중...</div>
@@ -1174,7 +1177,7 @@
                   <button id="treemapDrillbackItem" class="drillback-btn" style="display:none;">← 뒤로가기</button>
                   <button id="downloadItemTreemapCSV" class="drillback-btn" style="background:#10B981;">📥 전년 데이터 CSV</button>
                 </div>
-                <div class="chart-wrapper" id="treemapWrapperItem" style="min-height:280px;"></div>
+                <div class="chart-wrapper" id="treemapWrapperItem"></div>
                 <!-- 트리맵 날짜 정보 -->
                 <div id="treemapItemDateInfo" style="margin-top:6px;padding:6px 8px;background:#f8fafc;border-left:3px solid #10b981;font-size:10px;color:#64748b;line-height:1.4;">
                   <div>데이터 로딩 중...</div>
@@ -3027,65 +3030,78 @@
           document.getElementById('brand-pl').style.display='block';
         }
 
-        setTimeout(()=>{ 
-          if(section==='overview'){
+        // ★★★ 레이아웃 깜빡임 방지: 섹션 표시 후 차트 초기화 ★★★
+        if(section==='overview'){
+          // 전체 현황: 즉시 차트 초기화
+          requestAnimationFrame(()=>{ 
             initOverviewCharts();
-          } else {
-            // 브랜드 섹션으로 전환 시: 뷰 업데이트 + 차트 초기화/업데이트
-            updateBrandView();
-            
-            // 차트 초기화 및 업데이트 (기본 브랜드의 그래프 표시)
-            if (typeof initBrandCharts === 'function') {
-              initBrandCharts();
-            }
-            if (typeof updateBrandCharts === 'function') {
-              updateBrandCharts();
-            }
-            if (typeof updateBrandPL === 'function') {
-              updateBrandPL();
-            }
-            if (typeof renderItemDiffTable === 'function') {
-              renderItemDiffTable();
-            }
-            if (typeof updateWeeklyTrendChart === 'function') {
-              updateWeeklyTrendChart();
-            }
-            if (typeof updateBrandChannels === 'function') {
-              updateBrandChannels();
-            }
-          }
+            renderInsights();
+            requestAnimationFrame(() => {
+              loadEdits();
+              if(isEditMode) applyEditMode();
+            });
+          });
+        } else {
+          // 브랜드별 분석: 뷰 업데이트 먼저, 그 다음 차트 초기화
+          updateBrandView();
           renderInsights();
-          // 편집 내용 항상 다시 적용
-          setTimeout(() => {
-            loadEdits();
-            if(isEditMode) applyEditMode();
-            if (window.aiPartMode) { renderAIPartNotes(); }
-            // 섹션 전환 후 Plotly 트리맵이 숨김→표시로 바뀌면서 영역 계산이 0이 되는 경우 보정
-            if(section==='brand'){
-              try{
-                const t = document.getElementById('treemapWrapper');
-                if(t){
-                  if(window.Plotly && window.Plotly.Plots && typeof window.Plotly.Plots.resize==='function'){
-                    window.Plotly.Plots.resize(t);
-                  } else if(typeof initTreemap==='function'){
-                    initTreemap();
+          
+          // ★★★ 레이아웃이 완전히 렌더링된 후 차트 초기화 (2단계 지연) ★★★
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              // 차트 초기화 및 업데이트
+              if (typeof initBrandCharts === 'function') {
+                initBrandCharts();
+              }
+              if (typeof updateBrandCharts === 'function') {
+                updateBrandCharts();
+              }
+              if (typeof updateBrandPL === 'function') {
+                updateBrandPL();
+              }
+              if (typeof renderItemDiffTable === 'function') {
+                renderItemDiffTable();
+              }
+              if (typeof updateWeeklyTrendChart === 'function') {
+                updateWeeklyTrendChart();
+              }
+              if (typeof updateBrandChannels === 'function') {
+                updateBrandChannels();
+              }
+              
+              // 편집 내용 적용
+              loadEdits();
+              if(isEditMode) applyEditMode();
+              if (window.aiPartMode) { renderAIPartNotes(); }
+              
+              // ★★★ 차트 리사이즈 (레이아웃 안정화) ★★★
+              setTimeout(() => {
+                try{
+                  const treemapWrapperChannel = document.getElementById('treemapWrapperChannel');
+                  const treemapWrapperItem = document.getElementById('treemapWrapperItem');
+                  
+                  if(treemapWrapperChannel && window.Plotly && window.Plotly.Plots){
+                    window.Plotly.Plots.resize(treemapWrapperChannel);
                   }
-                }
-                // Chart.js 레이더 차트 resize (탭 전환 시 크기가 0이 되는 문제 해결)
-                if(charts.radar){
-                  charts.radar.resize();
-                  // 레이더 차트 데이터도 다시 업데이트
-                  const radarType = window.radarChartType || 'channel';
-                  const radarData = (radarType === 'channel') ? getChannelRadarData(currentBrand) : getItemRadarData(currentBrand);
-                  charts.radar.data.labels = radarData.labels;
-                  charts.radar.data.datasets[0].data = radarData.plan;
-                  charts.radar.data.datasets[1].data = radarData.yoy;
-                  charts.radar.update();
-                }
-              }catch(e){ console.warn('treemap resize on section switch failed', e); }
-            }
-          }, 200);
-        },100);
+                  if(treemapWrapperItem && window.Plotly && window.Plotly.Plots){
+                    window.Plotly.Plots.resize(treemapWrapperItem);
+                  }
+                  
+                  // Chart.js 레이더 차트 resize
+                  if(charts.radar){
+                    charts.radar.resize();
+                    const radarType = window.radarChartType || 'channel';
+                    const radarData = (radarType === 'channel') ? getChannelRadarData(currentBrand) : getItemRadarData(currentBrand);
+                    charts.radar.data.labels = radarData.labels;
+                    charts.radar.data.datasets[0].data = radarData.plan;
+                    charts.radar.data.datasets[1].data = radarData.yoy;
+                    charts.radar.update();
+                  }
+                }catch(e){ console.warn('차트 리사이즈 실패:', e); }
+              }, 100);
+            });
+          });
+        }
       });
     });
 
@@ -3313,13 +3329,32 @@
           
           // ★★★ 주요 채널별 손익 테이블도 JSON 데이터로 강제 업데이트 (loadEdits 이후에 다시 설정) ★★★
           // loadEdits가 localStorage에서 값을 불러와 덮어쓸 수 있으므로, 확실하게 JSON 데이터로 다시 설정
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             if (typeof updateBrandChannels === 'function') {
               console.log('[브랜드 버튼] loadEdits 이후 updateBrandChannels 재호출 (JSON 데이터로 덮어쓰기)');
               updateBrandChannels();
             }
-          }, 100);
-        }, 300);
+            
+            // ★★★ 차트 리사이즈 추가 (브랜드 전환 시 레이아웃 깜빡임 방지) ★★★
+            try {
+              const treemapWrapperChannel = document.getElementById('treemapWrapperChannel');
+              const treemapWrapperItem = document.getElementById('treemapWrapperItem');
+              
+              if(treemapWrapperChannel && window.Plotly && window.Plotly.Plots){
+                window.Plotly.Plots.resize(treemapWrapperChannel);
+              }
+              if(treemapWrapperItem && window.Plotly && window.Plotly.Plots){
+                window.Plotly.Plots.resize(treemapWrapperItem);
+              }
+              
+              // Chart.js 레이더 차트 resize
+              if(charts.radar){
+                charts.radar.resize();
+                charts.radar.update();
+              }
+            } catch(e) { console.warn('브랜드 전환 시 차트 리사이즈 실패:', e); }
+          });
+        }, 100);
       });
     });
     }, 100); // ★ setTimeout 끝 - DOM 준비 대기
@@ -8454,34 +8489,24 @@
       
       console.log('트리맵 데이터 확인 완료:', Object.keys(channelItemSalesData));
       
-      // ★★★ 컨테이너가 완전히 렌더링될 때까지 기다린 후 트리맵 업데이트 ★★★
-      // 브랜드 섹션이 표시된 후 트리맵 렌더링 (크기가 동일하게 계산되도록)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            // 트리맵 컨테이너가 동일한 크기를 갖도록 강제로 높이 설정
-            const channelContainer = document.getElementById('treemapWrapperChannel');
-            const itemContainer = document.getElementById('treemapWrapperItem');
-            
-            if (channelContainer && itemContainer) {
-              // 두 컨테이너의 높이를 명시적으로 동일하게 설정
-              const targetHeight = '280px';
-              channelContainer.style.minHeight = targetHeight;
-              channelContainer.style.height = targetHeight;
-              itemContainer.style.minHeight = targetHeight;
-              itemContainer.style.height = targetHeight;
-              
-              // 강제 리플로우
-              void channelContainer.offsetHeight;
-              void itemContainer.offsetHeight;
-            }
-            
-            // 트리맵 업데이트
-            updateChannelTreemap();
-            updateItemTreemap();
-          }, 100);
-        });
-      });
+      // ★★★ 트리맵 컨테이너 크기를 먼저 고정한 후 렌더링 ★★★
+      const channelContainer = document.getElementById('treemapWrapperChannel');
+      const itemContainer = document.getElementById('treemapWrapperItem');
+      
+      if (channelContainer && itemContainer) {
+        // 두 컨테이너의 높이를 명시적으로 동일하게 설정 (렌더링 전)
+        const targetHeight = '280px';
+        channelContainer.style.height = targetHeight;
+        itemContainer.style.height = targetHeight;
+        
+        // 강제 리플로우
+        void channelContainer.offsetHeight;
+        void itemContainer.offsetHeight;
+      }
+      
+      // 즉시 트리맵 업데이트 (컨테이너 크기가 이미 고정됨)
+      updateChannelTreemap();
+      updateItemTreemap();
       
       // 드릴백 버튼 이벤트 리스너
       const drillbackChannelBtn = document.getElementById('treemapDrillbackChannel');
@@ -8656,11 +8681,17 @@
         ids: data[0].ids
       });
       
+      // 컨테이너의 실제 너비를 가져와서 사용 (padding 28px 제외)
+      const containerWidth = container.parentElement?.offsetWidth || 500;
+      
       const layout = { 
         margin:{ l:0, r:0, t:0, b:0 }, 
         paper_bgcolor:'rgba(0,0,0,0)', 
         plot_bgcolor:'rgba(0,0,0,0)', 
-        font:{ size:14, weight:600 }
+        font:{ size:14, weight:600 },
+        width: containerWidth - 28,
+        height: 280,
+        autosize: false
       };
       const config = { responsive:true, displayModeBar:false };
       
@@ -8761,11 +8792,17 @@
         ids: data[0].ids
       });
       
+      // 컨테이너의 실제 너비를 가져와서 사용 (padding 28px 제외)
+      const containerWidth = container.parentElement?.offsetWidth || 500;
+      
       const layout = { 
         margin:{ l:0, r:0, t:0, b:0 }, 
         paper_bgcolor:'rgba(0,0,0,0)', 
         plot_bgcolor:'rgba(0,0,0,0)', 
-        font:{ size:14, weight:600 }
+        font:{ size:14, weight:600 },
+        width: containerWidth - 28,
+        height: 280,
+        autosize: false
       };
       const config = { responsive:true, displayModeBar:false };
       
