@@ -1995,15 +1995,17 @@
                   brands: window.weeklySalesTrend.brands,
                   rawDataCount: window.weeklySalesTrend.rawData?.length
                 });
+                
+                // ★ 브랜드 탭이 활성화된 경우 차트 업데이트 ★
+                if (typeof updateWeeklyTrendChart === 'function' && currentTab === 'brand') {
+                  console.log('[데이터로드] updateWeeklyTrendChart 함수 호출 (브랜드 탭 활성화됨)');
+                  setTimeout(() => {
+                    updateWeeklyTrendChart();
+                  }, 100);
+                } else {
+                  console.log('[데이터로드] updateWeeklyTrendChart 호출 대기 (현재 탭:', currentTab, ')');
+                }
               }
-              // 주차별 매출 추세 차트는 브랜드 탭으로 전환 시 초기화되므로 여기서는 스킵
-              console.log('[데이터로드] updateWeeklyTrendChart 호출 스킵 (브랜드 탭 전환 시 초기화됨)');
-              // if (typeof updateWeeklyTrendChart === 'function') {
-              //   console.log('[데이터로드] updateWeeklyTrendChart 함수 호출');
-              //   updateWeeklyTrendChart();
-              // } else {
-              //   console.warn('[데이터로드] updateWeeklyTrendChart 함수가 아직 정의되지 않았습니다.');
-              // }
               
               // 채널별 손익 데이터 로드 확인
               const waitForChannelData = (retryCount = 0) => {
