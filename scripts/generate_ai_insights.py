@@ -927,20 +927,22 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
                             })
                             total_op_profit += op_profit if op_profit > 0 else 0
             
-            if brand_op_profit and total_op_profit > 0:
-                # 영업이익이 양수인 것만 필터링
+            if brand_op_profit:
+                # 영업이익이 양수인 것만 필터링 (비중 계산용)
                 positive_brands = [b for b in brand_op_profit if b["op_profit"] > 0]
                 if positive_brands:
                     highest_op = max(positive_brands, key=lambda x: x["op_profit"])
                     highest_share = (highest_op["op_profit"] / total_op_profit * 100) if total_op_profit > 0 else 0
                     
-                    # 영업이익이 가장 낮은 브랜드 (양수 중)
-                    if len(positive_brands) > 1:
-                        lowest_op = min(positive_brands, key=lambda x: x["op_profit"])
+                    # 영업이익이 가장 낮은 브랜드 (전체 브랜드 중, 음수 포함)
+                    lowest_op = min(brand_op_profit, key=lambda x: x["op_profit"])
+                    
+                    # 가장 낮은 브랜드가 음수인 경우 적자로 표시, 양수인 경우 비중 표시
+                    if lowest_op["op_profit"] < 0:
+                        key_points.append(f"영업이익 비중이 가장 높은 브랜드는 <strong>{highest_op['brand']}</strong>({highest_op['op_profit']:.0f}억원) 전체비중 <strong>{highest_share:.1f}%</strong>이며, 영업이익이 가장 낮은 브랜드는 <strong>{lowest_op['brand']}</strong>({lowest_op['op_profit']:.0f}억원, 적자)입니다.")
+                    else:
                         lowest_share = (lowest_op["op_profit"] / total_op_profit * 100) if total_op_profit > 0 else 0
                         key_points.append(f"영업이익 비중이 가장 높은 브랜드는 <strong>{highest_op['brand']}</strong>({highest_op['op_profit']:.0f}억원) 전체비중 <strong>{highest_share:.1f}%</strong>이며, 영업이익이 가장 낮은 브랜드는 <strong>{lowest_op['brand']}</strong>({lowest_op['op_profit']:.0f}억원) 전체비중 <strong>{lowest_share:.1f}%</strong>입니다.")
-                    else:
-                        key_points.append(f"영업이익 비중이 가장 높은 브랜드는 <strong>{highest_op['brand']}</strong>({highest_op['op_profit']:.0f}억원) 전체비중 <strong>{highest_share:.1f}%</strong>입니다.")
         
         # 3. 판매율이 가장 높은 것, 낮은 것
         if stock_data:
