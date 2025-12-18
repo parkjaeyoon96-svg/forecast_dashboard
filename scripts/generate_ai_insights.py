@@ -1030,14 +1030,14 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
                 if active_order_items:
                     shortest_active = min(active_order_items, key=lambda x: x["weeks"])
                     sales_millions = shortest_active['sales'] / 1000000
-                    inventory_text = f"<strong>{shortest_active['brand']}</strong> <strong>{shortest_active['name']}</strong>(매출: {sales_millions:.0f}백만원) {shortest_active['weeks']:.1f}주로 적극 발주가 필요하며"
+                    inventory_text = f"<strong>{shortest_active['brand']}</strong> <strong>{shortest_active['name']}</strong>(매출: {sales_millions:.0f}백만원) {shortest_active['weeks']:.1f}주로 적극 발주가 필요합니다"
                 
                 # 긴급조치 중 재고주수가 가장 긴 것 중에 매출 1억 이상인 것
                 if urgent_action_items:
                     longest_urgent = max(urgent_action_items, key=lambda x: x["weeks"])
                     sales_millions = longest_urgent['sales'] / 1000000
                     if inventory_text:
-                        inventory_text += f", <strong>{longest_urgent['brand']}</strong> <strong>{longest_urgent['name']}</strong>(매출: {sales_millions:.0f}백만원) {longest_urgent['weeks']:.1f}주로 긴급 조치가 필요합니다"
+                        inventory_text += f". <strong>{longest_urgent['brand']}</strong> <strong>{longest_urgent['name']}</strong>(매출: {sales_millions:.0f}백만원) {longest_urgent['weeks']:.1f}주로 긴급 조치가 필요합니다"
                     else:
                         inventory_text = f"<strong>{longest_urgent['brand']}</strong> <strong>{longest_urgent['name']}</strong>(매출: {sales_millions:.0f}백만원) {longest_urgent['weeks']:.1f}주로 긴급 조치가 필요합니다"
                 
@@ -1784,11 +1784,11 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                         brand_clothing = clothing_status[brand_code]
                         if isinstance(brand_clothing, list):
                             # 누적판매매출이 0원인곳 제외
-                            valid_items = [item for item in brand_clothing if isinstance(item, dict) and item.get("cumSalesTag", 0) > 0]
+                            valid_items = [item for item in brand_clothing if isinstance(item, dict) and (item.get("cumSalesTag") or 0) > 0]
                             
                             if valid_items:
                                 # 누적판매매출 기준 정렬
-                                sorted_by_sales = sorted(valid_items, key=lambda x: x.get("cumSalesTag", 0), reverse=True)
+                                sorted_by_sales = sorted(valid_items, key=lambda x: (x.get("cumSalesTag") or 0), reverse=True)
                                 
                                 # 상위 2개
                                 top2_items = sorted_by_sales[:2]
