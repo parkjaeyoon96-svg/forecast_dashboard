@@ -1,0 +1,74 @@
+# Python virtual environment
+forcast_venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Raw data files (대용량)
+raw/
+
+# Old data files (과거 날짜 데이터는 제외, 최신 데이터만 유지)
+public/data/20251117/
+public/data/20251124/
+public/data/20251201/
+public/data/20251208/
+public/data/20251209/
+public/data/20251215/
+public/data/20251222/
+
+# Old JS data files (최신 파일만 유지)
+public/data_20251117.js
+public/data_20251124.js
+public/data_20251201.js
+public/data_20251208.js
+public/data_20251209.js
+public/data_20251215.js
+public/data_20251222.js
+public/brand_kpi_20251117.js
+public/brand_stock_analysis_20251117.js
+public/weekly_sales_trend_20251117.js
+
+# Documentation files
+*.md
+!README.md
+
+# Batch files
+*.bat
+
+# Test files
+test_*.py
+test_*.js
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Scripts (서버에서 실행 불필요)
+scripts/
+
+# CSV files
+*.csv
+
