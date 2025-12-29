@@ -302,3 +302,5 @@ console.log(itemTableDataByBrand['M'].Outer.find(i => i.code === 'DJ'));
 
 이제 배치를 실행하면 실시간 판매율 데이터가 정확히 표시됩니다! 🎉
 
+
+

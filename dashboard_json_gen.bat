@@ -23,6 +23,7 @@ if exist "%~dp0Forcast_venv\Scripts\python.exe" (
     )
 )
 set "PYTHONIOENCODING=utf-8"
+set "PYTHONUNBUFFERED=1"
 
 REM Auto-select latest or manual input
 set PIPELINE_ERROR=0
@@ -175,8 +176,8 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-echo [Step 8] Running treemap data pipeline (download, preprocess, generate JSON)
-call "%PYTHON_CMD%" scripts\run_treemap_pipeline.py !DATE_STR!
+echo [Step 8] Generating treemap JSON with YOY data
+call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 8] Failed (Error code: !STEP_ERR!)

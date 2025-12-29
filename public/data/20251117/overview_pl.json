@@ -30,17 +30,17 @@
   "directCost": {
     "prev": 193.26,
     "target": 216.19,
-    "forecast": 190.37,
-    "yoy": 99,
-    "achievement": 88
+    "forecast": 205.76,
+    "yoy": 106,
+    "achievement": 95
   },
   "directCostDetail": {
     "인건비": {
       "prev": 54.79,
       "target": 55.56,
-      "forecast": 45.35,
-      "yoy": 83,
-      "achievement": 82
+      "forecast": 53.35,
+      "yoy": 97,
+      "achievement": 96
     },
     "임차관리비": {
       "prev": 44.17,
@@ -52,9 +52,9 @@
     "물류운송비": {
       "prev": 29.2,
       "target": 34.48,
-      "forecast": 25.54,
-      "yoy": 87,
-      "achievement": 74
+      "forecast": 32.94,
+      "yoy": 113,
+      "achievement": 96
     },
     "로열티": {
       "prev": 32.73,
@@ -81,9 +81,9 @@
   "directProfit": {
     "prev": 330.3,
     "target": 360.67,
-    "forecast": 350.89,
-    "yoy": 106,
-    "achievement": 97
+    "forecast": 335.5,
+    "yoy": 102,
+    "achievement": 93
   },
   "operatingExpense": {
     "prev": 135.72,
@@ -95,8 +95,8 @@
   "opProfit": {
     "prev": 194.58,
     "target": 215.0,
-    "forecast": 205.22,
-    "yoy": 105,
-    "achievement": 95
+    "forecast": 189.83,
+    "yoy": 98,
+    "achievement": 88
   }
 }

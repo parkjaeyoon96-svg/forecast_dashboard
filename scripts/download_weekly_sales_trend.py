@@ -63,7 +63,13 @@ def get_snowflake_connection():
             user=os.getenv('SNOWFLAKE_USERNAME'),
             password=os.getenv('SNOWFLAKE_PASSWORD'),
             warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
-            database=os.getenv('SNOWFLAKE_DATABASE')
+            database=os.getenv('SNOWFLAKE_DATABASE'),
+            network_timeout=None,  # 타임아웃 없음
+            login_timeout=60,      # 로그인 1분 타임아웃
+            session_parameters={
+                'QUERY_TAG': 'weekly_sales_trend',
+                'STATEMENT_TIMEOUT_IN_SECONDS': 3600  # 쿼리 1시간 타임아웃
+            }
         )
         print("✅ Snowflake 연결 성공!")
         return conn
@@ -288,26 +294,62 @@ def execute_query_to_dataframe(conn, query: str):
     Returns:
         pd.DataFrame: 쿼리 결과
     """
+    import time
+    import sys
     try:
-        print("📊 쿼리 실행 중...")
+        print("📊 쿼리 실행 중...", flush=True)
+        print("   (대용량 데이터 조회 시 수 분이 소요될 수 있습니다)", flush=True)
+        
         cursor = conn.cursor()
+        
+        # 쿼리 실행 시작 시간
+        start_time = time.time()
+        print("   쿼리 전송 중...", flush=True)
+        sys.stdout.flush()  # 강제로 출력 버퍼 비우기
+        
         cursor.execute(query)
+        
+        exec_time = time.time() - start_time
+        print(f"   쿼리 실행 완료 ({exec_time:.1f}초)", flush=True)
         
         # 컬럼명 가져오기
         columns = [desc[0] for desc in cursor.description]
         
         # 데이터 가져오기
-        print("📥 데이터 가져오는 중...")
-        data = cursor.fetchall()
+        print("📥 데이터 가져오는 중...", flush=True)
+        sys.stdout.flush()
+        fetch_start = time.time()
+        
+        # 배치로 데이터 가져오기 (메모리 효율성)
+        batch_size = 10000
+        all_data = []
+        batch_count = 0
+        
+        while True:
+            batch = cursor.fetchmany(batch_size)
+            if not batch:
+                break
+            all_data.extend(batch)
+            batch_count += 1
+            if batch_count % 10 == 0:  # 10만 건마다 진행 상황 표시
+                print(f"   진행 중... {len(all_data):,}건 조회됨", flush=True)
+                sys.stdout.flush()
+        
+        fetch_time = time.time() - fetch_start
+        print(f"   데이터 가져오기 완료 ({fetch_time:.1f}초)", flush=True)
         
         # DataFrame 생성
-        df = pd.DataFrame(data, columns=columns)
+        df = pd.DataFrame(all_data, columns=columns)
         
         cursor.close()
-        print(f"✅ {len(df):,}건의 데이터를 조회했습니다.")
+        print(f"✅ 총 {len(df):,}건의 데이터를 조회했습니다.", flush=True)
+        print(f"   전체 소요 시간: {time.time() - start_time:.1f}초", flush=True)
         return df
     except Exception as e:
         print(f"❌ 쿼리 실행 실패: {e}")
+        print(f"   오류 타입: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
         raise
 
 
@@ -575,6 +617,18 @@ def main():
         
         # Snowflake 연결
         conn = get_snowflake_connection()
+        
+        # 웨어하우스 상태 확인
+        print("\n🏭 웨어하우스 상태 확인 중...")
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT CURRENT_WAREHOUSE(), CURRENT_DATABASE()")
+            wh_info = cursor.fetchone()
+            print(f"   웨어하우스: {wh_info[0]}")
+            print(f"   데이터베이스: {wh_info[1]}")
+            cursor.close()
+        except Exception as e:
+            print(f"   ⚠️ 상태 확인 실패: {e}")
         
         # 쿼리 생성 및 실행
         query = get_weekly_sales_query(start_date, end_date)

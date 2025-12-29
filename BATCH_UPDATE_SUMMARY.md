@@ -208,3 +208,5 @@ type public\data\{DATE}\treemap.json | findstr "updateDate weekStart"
 
 모든 문제가 해결되었습니다. 배치를 실행하면 한 번에 모든 데이터가 생성됩니다.
 
+
+

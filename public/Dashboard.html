@@ -551,6 +551,11 @@
           window.insightsData = insightsData;
           console.log('  ✓ insights_data.json 로드 완료');
           console.log('  ✓ 브랜드:', Object.keys(insightsData).filter(k => k !== 'overview'));
+          console.log('  ✓ overview 데이터:', insightsData.overview ? '있음' : '없음');
+          if (insightsData.overview) {
+            console.log('  ✓ overview.content:', insightsData.overview.content ? `있음 (${insightsData.overview.content.substring(0, 50)}...)` : '없음');
+            console.log('  ✓ overview.keyPoints:', insightsData.overview.keyPoints ? `있음 (${insightsData.overview.keyPoints.substring(0, 50)}...)` : '없음');
+          }
           console.log('  ✓ MLB 데이터:', insightsData.MLB ? '있음' : '없음');
           if (insightsData.MLB) {
             console.log('  ✓ MLB treemapInsight:', insightsData.MLB.treemapInsight ? '있음 (' + insightsData.MLB.treemapInsight.substring(0, 50) + '...)' : '없음');
@@ -2427,7 +2432,7 @@
       });
       
       // 이미 로드된 경우 즉시 실행
-      setTimeout(initRadarChartOnLoad, 300);
+        setTimeout(initRadarChartOnLoad, 300);
 
       // 편집 모드 버튼 이벤트
       document.getElementById('edit-mode-btn').addEventListener('click', toggleEditMode);
@@ -3215,7 +3220,7 @@
             const kpi = window.brandKPI[brandCode] || window.brandKPI[currentBrand];
             if (kpi) {
               // 영업이익 값
-              const opProfitForecastKPI1 = (kpi.operatingProfitForecast || 0) / 100000000;
+              const opProfitForecast = (kpi.operatingProfitForecast || 0) / 100000000;
               const opProfitCurrent = (kpi.operatingProfit || 0) / 100000000;
               const opProfitRateForecast = kpi.operatingProfitRateForecast || 0;
               const opProfitRateCurrent = kpi.operatingProfitRate || 0;
@@ -3430,8 +3435,16 @@
         let content = (currentInsightsData.overview?.content)||'';
         let keyPoints = (currentInsightsData.overview?.keyPoints)||'';
         
+        console.log('[renderInsights] overview 섹션 데이터:', {
+          hasContent: !!content,
+          hasKeyPoints: !!keyPoints,
+          contentLength: content.length,
+          keyPointsLength: keyPoints.length
+        });
+        
         // overview 데이터가 없으면 전체 현황 KPI 데이터를 기반으로 요약 생성
         if (!content && !keyPoints) {
+          console.log('[renderInsights] overview 데이터 없음, KPI 기반 생성 시작');
           const overviewKPI = window.overviewKPI?.OVERVIEW || {};
           const overviewPL = window.overviewPL || {};
           
@@ -12130,6 +12143,10 @@
         renderItemDiffTable();
       }
       
+      console.log('[Dashboard] renderInsights 호출 전 데이터 확인:');
+      console.log('  - window.insightsData:', !!window.insightsData);
+      console.log('  - window.insightsData.overview:', window.insightsData?.overview);
+      console.log('  - window.overviewKPI:', !!window.overviewKPI);
       renderInsights();
       // realData를 먼저 초기화하기 위해 initWeeklyTrendChart를 먼저 호출
       initWeeklyTrendChart();

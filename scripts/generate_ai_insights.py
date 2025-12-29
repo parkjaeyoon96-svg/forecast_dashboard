@@ -1098,8 +1098,22 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
     sale_rate_insight = ""
     if stock_data:
         if "clothingBrandStatus" in stock_data:
-            inventory_insight = generator.generate_insight(stock_data, "전체 현황", "inventory")
-            sale_rate_insight = generator.generate_insight(stock_data, "전체 현황", "sale_rate")
+            # overview의 경우 clothingBrandStatus가 딕셔너리 형태 {브랜드코드: [아이템들]}
+            # 모든 브랜드의 아이템을 하나의 리스트로 합침
+            clothing_status = stock_data.get("clothingBrandStatus", {})
+            if isinstance(clothing_status, dict):
+                all_items = []
+                for brand_code, items in clothing_status.items():
+                    if isinstance(items, list):
+                        all_items.extend(items)
+                # 합쳐진 데이터로 분석
+                merged_stock_data = {"clothingBrandStatus": all_items}
+                inventory_insight = generator.generate_insight(merged_stock_data, "전체 현황", "inventory")
+                sale_rate_insight = generator.generate_insight(merged_stock_data, "전체 현황", "sale_rate")
+            else:
+                # 이미 리스트 형태인 경우 (하위 호환성)
+                inventory_insight = generator.generate_insight(stock_data, "전체 현황", "inventory")
+                sale_rate_insight = generator.generate_insight(stock_data, "전체 현황", "sale_rate")
     
     # HTML insightsData 형식에 맞게 변환
     # keyPoints는 줄바꿈을 <br>로 변환하여 HTML에서 표시되도록 함

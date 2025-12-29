@@ -1,0 +1,390 @@
+{
+  "I": {
+    "기타": {
+      "revenue": 8000110,
+      "tag": 289937000,
+      "cogs": 60446232,
+      "grossProfit": -52446122,
+      "grossProfitRate": -655.5675109467245,
+      "discountRate": 0.9724074195428662
+    },
+    "대리점": {
+      "revenue": 794208520,
+      "tag": 844982900,
+      "cogs": 191491872,
+      "grossProfit": 602716648,
+      "grossProfitRate": 75.88896779903595,
+      "discountRate": 0.06008923967573787
+    },
+    "면세점": {
+      "revenue": 885378810,
+      "tag": 886355700,
+      "cogs": 186796024,
+      "grossProfit": 698582786,
+      "grossProfitRate": 78.90213523407003,
+      "discountRate": 0.0011021421761038264
+    },
+    "백화점": {
+      "revenue": 3314169320,
+      "tag": 3564769600,
+      "cogs": 801384657,
+      "grossProfit": 2512784663,
+      "grossProfitRate": 75.81944132534544,
+      "discountRate": 0.07029915201251713
+    },
+    "사입": {
+      "revenue": 312278890,
+      "tag": 1202946200,
+      "cogs": 266543695,
+      "grossProfit": 45735195,
+      "grossProfitRate": 14.64562494121841,
+      "discountRate": 0.7404049408028389
+    },
+    "자사몰": {
+      "revenue": 290354456,
+      "tag": 336266200,
+      "cogs": 76183335,
+      "grossProfit": 214171121,
+      "grossProfitRate": 73.7619542508416,
+      "discountRate": 0.1365339246109184
+    },
+    "제휴몰": {
+      "revenue": 927029110,
+      "tag": 940148900,
+      "cogs": 213204473,
+      "grossProfit": 713824637,
+      "grossProfitRate": 77.00131843756233,
+      "discountRate": 0.01395501287083356
+    },
+    "직영몰": {
+      "revenue": 342978580,
+      "tag": 367785400,
+      "cogs": 81767245,
+      "grossProfit": 261211335,
+      "grossProfitRate": 76.1596642565842,
+      "discountRate": 0.06744917008668638
+    },
+    "직영점(가두)": {
+      "revenue": 137122070,
+      "tag": 137532700,
+      "cogs": 30882192,
+      "grossProfit": 106239878,
+      "grossProfitRate": 77.47832132347477,
+      "discountRate": 0.0029856899486448985
+    }
+  },
+  "M": {
+    "RF": {
+      "revenue": 2397899470,
+      "tag": 2892767400,
+      "cogs": 470505987,
+      "grossProfit": 1927393483,
+      "grossProfitRate": 80.37841065121883,
+      "discountRate": 0.17107076427921586
+    },
+    "기타": {
+      "revenue": 14038200,
+      "tag": 2848986000,
+      "cogs": 523730970,
+      "grossProfit": -509692770,
+      "grossProfitRate": -3630.755866136684,
+      "discountRate": 0.9950725626591356
+    },
+    "대리점": {
+      "revenue": 4740233400,
+      "tag": 5120713400,
+      "cogs": 879173733,
+      "grossProfit": 3861059667,
+      "grossProfitRate": 81.45294421578481,
+      "discountRate": 0.07430214704068383
+    },
+    "면세점": {
+      "revenue": 10148863380,
+      "tag": 10823943700,
+      "cogs": 1738282965,
+      "grossProfit": 8410580415,
+      "grossProfitRate": 82.87214144171483,
+      "discountRate": 0.06236916402290604
+    },
+    "백화점": {
+      "revenue": 6295101160,
+      "tag": 6948638300,
+      "cogs": 1148765402,
+      "grossProfit": 5146335758,
+      "grossProfitRate": 81.7514385741817,
+      "discountRate": 0.09405254839642463
+    },
+    "사입": {
+      "revenue": 116916150,
+      "tag": 467665000,
+      "cogs": 75407126,
+      "grossProfit": 41509024,
+      "grossProfitRate": 35.5032422808996,
+      "discountRate": 0.7500002138282745
+    },
+    "자사몰": {
+      "revenue": 962342200,
+      "tag": 1119367900,
+      "cogs": 180280535,
+      "grossProfit": 782061665,
+      "grossProfitRate": 81.26648348165548,
+      "discountRate": 0.14028068877086797
+    },
+    "제휴몰": {
+      "revenue": 2539303210,
+      "tag": 2576443100,
+      "cogs": 416063277,
+      "grossProfit": 2123239933,
+      "grossProfitRate": 83.61506119625628,
+      "discountRate": 0.014415179593913807
+    },
+    "직영몰": {
+      "revenue": 623553890,
+      "tag": 668978500,
+      "cogs": 109456437,
+      "grossProfit": 514097453,
+      "grossProfitRate": 82.44635487720235,
+      "discountRate": 0.06790144974763768
+    },
+    "직영점(가두)": {
+      "revenue": 2517404130,
+      "tag": 2578893400,
+      "cogs": 408700660,
+      "grossProfit": 2108703470,
+      "grossProfitRate": 83.7649960477343,
+      "discountRate": 0.02384327712033385
+    }
+  },
+  "ST": {
+    "기타": {
+      "revenue": 363350,
+      "tag": 71103800,
+      "cogs": 15806429,
+      "grossProfit": -15443079,
+      "grossProfitRate": -4250.193752580157,
+      "discountRate": 0.9948898652392699
+    },
+    "면세점": {
+      "revenue": 73137320,
+      "tag": 90574500,
+      "cogs": 20188190,
+      "grossProfit": 52949130,
+      "grossProfitRate": 72.39686934112434,
+      "discountRate": 0.19251754080894734
+    },
+    "백화점": {
+      "revenue": 8369450,
+      "tag": 10859000,
+      "cogs": 2725080,
+      "grossProfit": 5644370,
+      "grossProfitRate": 67.44015437095628,
+      "discountRate": 0.22926144212174238
+    },
+    "아울렛": {
+      "revenue": 72556400,
+      "tag": 157505400,
+      "cogs": 37829134,
+      "grossProfit": 34727266,
+      "grossProfitRate": 47.86244356114692,
+      "discountRate": 0.5393402384934104
+    },
+    "자사몰": {
+      "revenue": 56411820,
+      "tag": 66193600,
+      "cogs": 17212608,
+      "grossProfit": 39199212,
+      "grossProfitRate": 69.48758611227221,
+      "discountRate": 0.14777531362548646
+    },
+    "제휴몰": {
+      "revenue": 149746000,
+      "tag": 321121800,
+      "cogs": 72572723,
+      "grossProfit": 77173277,
+      "grossProfitRate": 51.53611916178061,
+      "discountRate": 0.5336784983143468
+    },
+    "직영몰": {
+      "revenue": 94854260,
+      "tag": 168503800,
+      "cogs": 41268380,
+      "grossProfit": 53585880,
+      "grossProfitRate": 56.4928554605771,
+      "discountRate": 0.4370794011767094
+    },
+    "직영점(가두)": {
+      "revenue": 48823400,
+      "tag": 59016800,
+      "cogs": 15928040,
+      "grossProfit": 32895360,
+      "grossProfitRate": 67.37621714178039,
+      "discountRate": 0.1727203101489745
+    }
+  },
+  "V": {
+    "기타": {
+      "revenue": 1267320,
+      "tag": 219469000,
+      "cogs": 43220506,
+      "grossProfit": -41953186,
+      "grossProfitRate": -3310.3861692390237,
+      "discountRate": 0.9942255170434093
+    },
+    "백화점": {
+      "revenue": 3455539850,
+      "tag": 4079643000,
+      "cogs": 638709470,
+      "grossProfit": 2816830380,
+      "grossProfitRate": 81.51636219735681,
+      "discountRate": 0.15297984406968945
+    },
+    "아울렛": {
+      "revenue": 953028960,
+      "tag": 1696679000,
+      "cogs": 303424745,
+      "grossProfit": 649604215,
+      "grossProfitRate": 68.1620645609762,
+      "discountRate": 0.4382974269145784
+    },
+    "자사몰": {
+      "revenue": 499777560,
+      "tag": 589207000,
+      "cogs": 97870196,
+      "grossProfit": 401907364,
+      "grossProfitRate": 80.41724882565757,
+      "discountRate": 0.15177932373512193
+    },
+    "제휴몰": {
+      "revenue": 1122489000,
+      "tag": 1342179000,
+      "cogs": 238875554,
+      "grossProfit": 883613446,
+      "grossProfitRate": 78.7191184947024,
+      "discountRate": 0.16368159537587756
+    },
+    "직영몰": {
+      "revenue": 444164000,
+      "tag": 509589000,
+      "cogs": 79019355,
+      "grossProfit": 365144645,
+      "grossProfitRate": 82.20941926855846,
+      "discountRate": 0.12838777917105748
+    },
+    "직영점(가두)": {
+      "revenue": 60086000,
+      "tag": 60225000,
+      "cogs": 10065871,
+      "grossProfit": 50020129,
+      "grossProfitRate": 83.24756016376527,
+      "discountRate": 0.0023080116230801417
+    }
+  },
+  "W": {
+    "기타": {
+      "revenue": 0,
+      "tag": 26799000,
+      "cogs": 8595724,
+      "grossProfit": -8595724,
+      "grossProfitRate": 0.0,
+      "discountRate": 1.0
+    },
+    "자사몰": {
+      "revenue": 51543200,
+      "tag": 211501000,
+      "cogs": 58455645,
+      "grossProfit": -6912445,
+      "grossProfitRate": -13.41097370749197,
+      "discountRate": 0.7562980789688938
+    },
+    "제휴몰": {
+      "revenue": 45484000,
+      "tag": 157600000,
+      "cogs": 43371581,
+      "grossProfit": 2112419,
+      "grossProfitRate": 4.644312285638906,
+      "discountRate": 0.7113959390862944
+    }
+  },
+  "X": {
+    "기타": {
+      "revenue": 28701300,
+      "tag": 1421763000,
+      "cogs": 275991574,
+      "grossProfit": -247290274,
+      "grossProfitRate": -861.5995582081648,
+      "discountRate": 0.9798128802057727
+    },
+    "대리점": {
+      "revenue": 16848453360,
+      "tag": 20196013000,
+      "cogs": 4536238879,
+      "grossProfit": 12312214481,
+      "grossProfitRate": 73.07622971631623,
+      "discountRate": 0.16575349005766638
+    },
+    "면세점": {
+      "revenue": 2769697340,
+      "tag": 3046491000,
+      "cogs": 822709621,
+      "grossProfit": 1946987719,
+      "grossProfitRate": 70.29604610155708,
+      "discountRate": 0.09085654938747567
+    },
+    "백화점": {
+      "revenue": 15561343390,
+      "tag": 20663126000,
+      "cogs": 4638137154,
+      "grossProfit": 10923206236,
+      "grossProfitRate": 70.19449389581268,
+      "discountRate": 0.24690274888707542
+    },
+    "사입": {
+      "revenue": 262073220,
+      "tag": 2015948000,
+      "cogs": 382632040,
+      "grossProfit": -120558820,
+      "grossProfitRate": -46.00196082606227,
+      "discountRate": 0.8700000099208909
+    },
+    "아울렛": {
+      "revenue": 11468632110,
+      "tag": 17543217000,
+      "cogs": 3615757202,
+      "grossProfit": 7852874908,
+      "grossProfitRate": 68.47263764919911,
+      "discountRate": 0.3462640227274165
+    },
+    "자사몰": {
+      "revenue": 2519638883,
+      "tag": 2944852000,
+      "cogs": 669615056,
+      "grossProfit": 1850023827,
+      "grossProfitRate": 73.4241656406443,
+      "discountRate": 0.14439201596548823
+    },
+    "제휴몰": {
+      "revenue": 7023155310,
+      "tag": 8659543000,
+      "cogs": 1835349818,
+      "grossProfit": 5187805492,
+      "grossProfitRate": 73.86716173873135,
+      "discountRate": 0.1889692897188685
+    },
+    "직영몰": {
+      "revenue": 1393547350,
+      "tag": 1532394000,
+      "cogs": 355272286,
+      "grossProfit": 1038275064,
+      "grossProfitRate": 74.50590494826028,
+      "discountRate": 0.0906076700900682
+    },
+    "직영점(가두)": {
+      "revenue": 606032730,
+      "tag": 638961000,
+      "cogs": 148129560,
+      "grossProfit": 457903170,
+      "grossProfitRate": 75.55749835491558,
+      "discountRate": 0.05153408423988315
+    }
+  }
+}

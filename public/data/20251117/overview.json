@@ -3,48 +3,48 @@
     {
       "BRAND": "MLB",
       "SALES": 344.3,
-      "DIRECT_PROFIT": 97.2,
-      "OPERATING_PROFIT": 58.2,
+      "DIRECT_PROFIT": 94.4,
+      "OPERATING_PROFIT": 55.3,
       "ACHIEVEMENT": 99,
       "YOY_SALES": 101
     },
     {
       "BRAND": "MLB KIDS",
       "SALES": 106.1,
-      "DIRECT_PROFIT": 20.5,
-      "OPERATING_PROFIT": 9.5,
+      "DIRECT_PROFIT": 19.4,
+      "OPERATING_PROFIT": 8.3,
       "ACHIEVEMENT": 101,
       "YOY_SALES": 123
     },
     {
       "BRAND": "DISCOVERY",
       "SALES": 732.0,
-      "DIRECT_PROFIT": 208.2,
-      "OPERATING_PROFIT": 131.2,
+      "DIRECT_PROFIT": 198.4,
+      "OPERATING_PROFIT": 121.4,
       "ACHIEVEMENT": 95,
       "YOY_SALES": 104
     },
     {
       "BRAND": "DUVETICA",
       "SALES": 66.9,
-      "DIRECT_PROFIT": 24.8,
-      "OPERATING_PROFIT": 13.5,
+      "DIRECT_PROFIT": 23.6,
+      "OPERATING_PROFIT": 12.4,
       "ACHIEVEMENT": 108,
       "YOY_SALES": 200
     },
     {
       "BRAND": "SERGIO",
       "SALES": 9.1,
-      "DIRECT_PROFIT": 0.8,
-      "OPERATING_PROFIT": -6.1,
+      "DIRECT_PROFIT": 0.4,
+      "OPERATING_PROFIT": -6.5,
       "ACHIEVEMENT": 71,
       "YOY_SALES": 110
     },
     {
       "BRAND": "SUPRA",
       "SALES": 2.5,
-      "DIRECT_PROFIT": -0.5,
-      "OPERATING_PROFIT": -1.0,
+      "DIRECT_PROFIT": -0.6,
+      "OPERATING_PROFIT": -1.1,
       "ACHIEVEMENT": 68,
       "YOY_SALES": 60
     }
@@ -81,17 +81,17 @@
     "directCost": {
       "prev": 193.26,
       "target": 216.19,
-      "forecast": 190.37,
-      "yoy": 99,
-      "achievement": 88
+      "forecast": 205.76,
+      "yoy": 106,
+      "achievement": 95
     },
     "directCostDetail": {
       "인건비": {
         "prev": 54.79,
         "target": 55.56,
-        "forecast": 45.35,
-        "yoy": 83,
-        "achievement": 82
+        "forecast": 53.35,
+        "yoy": 97,
+        "achievement": 96
       },
       "임차관리비": {
         "prev": 44.17,
@@ -103,9 +103,9 @@
       "물류운송비": {
         "prev": 29.2,
         "target": 34.48,
-        "forecast": 25.54,
-        "yoy": 87,
-        "achievement": 74
+        "forecast": 32.94,
+        "yoy": 113,
+        "achievement": 96
       },
       "로열티": {
         "prev": 32.73,
@@ -132,9 +132,9 @@
     "directProfit": {
       "prev": 330.3,
       "target": 360.67,
-      "forecast": 350.89,
-      "yoy": 106,
-      "achievement": 97
+      "forecast": 335.5,
+      "yoy": 102,
+      "achievement": 93
     },
     "operatingExpense": {
       "prev": 135.72,
@@ -146,9 +146,9 @@
     "opProfit": {
       "prev": 194.58,
       "target": 215.0,
-      "forecast": 205.22,
-      "yoy": 105,
-      "achievement": 95
+      "forecast": 189.83,
+      "yoy": 98,
+      "achievement": 88
     }
   },
   "overviewKPI": {
@@ -158,15 +158,15 @@
       "directProfitRate": 26.4,
       "discountRate": 30.52,
       "progressRate": 41.4,
-      "progressRateForecast": 97.3,
+      "progressRateForecast": 93.0,
       "revenueForecast": 126088265673.0,
-      "directProfitForecast": 35089271342.0,
-      "directProfitRateForecast": 30.61,
+      "directProfitForecast": 33550114809.0,
+      "directProfitRateForecast": 29.27,
       "discountRateForecast": 30.93,
       "operatingProfit": 372787676.0,
-      "operatingProfitForecast": 20522307342.0,
+      "operatingProfitForecast": 18983150809.0,
       "operatingProfitRate": 0.66,
-      "operatingProfitRateForecast": 17.9,
+      "operatingProfitRateForecast": 16.56,
       "revenuePrevious": 118074005629.0,
       "directProfitPrevious": 33030145110.0,
       "operatingProfitPrevious": 19458096111.0,
@@ -175,8 +175,8 @@
       "directProfitRatePlan": 30.52,
       "revenueVsPlan": -3.0,
       "revenueVsPrevious": 6.8,
-      "profitVsPlan": -2.7,
-      "profitVsPrevious": 6.2
+      "profitVsPlan": -7.0,
+      "profitVsPrevious": 1.6
     }
   },
   "waterfallData": [
@@ -197,12 +197,12 @@
     },
     {
       "label": "직접비(-)",
-      "value": 190.37,
+      "value": 205.76,
       "type": "decrease"
     },
     {
       "label": "직접이익",
-      "value": 350.89,
+      "value": 335.5,
       "type": "subtotal"
     },
     {
@@ -212,7 +212,7 @@
     },
     {
       "label": "영업이익",
-      "value": 205.22,
+      "value": 189.83,
       "type": "result"
     }
   ],
@@ -258,7 +258,7 @@
       "cySeason": "25F",
       "pySeason": "24F",
       "pySeasonEnd": "2026-02-28",
-      "generatedAt": "2025-12-03 12:24:15"
+      "generatedAt": "2025-12-23 15:27:28"
     },
     "clothingBrandStatus": {
       "I": [
@@ -275,7 +275,12 @@
           "cumYoY": 1.2857,
           "cumSalesRate": 0.3757,
           "cumSalesRateDiff": -0.0678,
-          "pyClosingSalesRate": 0.5954
+          "pyClosingSalesRate": 0.5954,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -290,7 +295,12 @@
           "cumYoY": 0.3701,
           "cumSalesRate": 0.1938,
           "cumSalesRateDiff": 0.0655,
-          "pyClosingSalesRate": 0.2714
+          "pyClosingSalesRate": 0.2714,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -305,7 +315,12 @@
           "cumYoY": 0.8467,
           "cumSalesRate": 0.3294,
           "cumSalesRateDiff": 0.0731,
-          "pyClosingSalesRate": 0.3812
+          "pyClosingSalesRate": 0.3812,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -320,7 +335,12 @@
           "cumYoY": 0.4055,
           "cumSalesRate": 0.1877,
           "cumSalesRateDiff": 0.0394,
-          "pyClosingSalesRate": 0.1619
+          "pyClosingSalesRate": 0.1619,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -335,7 +355,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.1101,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -350,7 +375,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -365,7 +395,12 @@
           "cumYoY": 1.4254,
           "cumSalesRate": 0.2868,
           "cumSalesRateDiff": 0.0606,
-          "pyClosingSalesRate": 0.3512
+          "pyClosingSalesRate": 0.3512,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -380,7 +415,12 @@
           "cumYoY": 1.2006,
           "cumSalesRate": 0.3393,
           "cumSalesRateDiff": 0.0005,
-          "pyClosingSalesRate": 0.4337
+          "pyClosingSalesRate": 0.4337,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -395,7 +435,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3716
+          "pyClosingSalesRate": 0.3716,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -410,7 +455,12 @@
           "cumYoY": 0.901,
           "cumSalesRate": 0.2483,
           "cumSalesRateDiff": -0.0247,
-          "pyClosingSalesRate": 0.4078
+          "pyClosingSalesRate": 0.4078,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -425,7 +475,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.2226
+          "pyClosingSalesRate": 0.2226,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -440,7 +495,12 @@
           "cumYoY": 1.7736,
           "cumSalesRate": 0.5017,
           "cumSalesRateDiff": -0.104,
-          "pyClosingSalesRate": 0.6215
+          "pyClosingSalesRate": 0.6215,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -455,7 +515,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -470,7 +535,12 @@
           "cumYoY": 2.4136,
           "cumSalesRate": 0.546,
           "cumSalesRateDiff": 0.2355,
-          "pyClosingSalesRate": 0.3335
+          "pyClosingSalesRate": 0.3335,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -485,7 +555,12 @@
           "cumYoY": 0.8828,
           "cumSalesRate": 0.3616,
           "cumSalesRateDiff": -0.0466,
-          "pyClosingSalesRate": 0.4157
+          "pyClosingSalesRate": 0.4157,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -500,7 +575,12 @@
           "cumYoY": 1.0551,
           "cumSalesRate": 0.1579,
           "cumSalesRateDiff": -0.0315,
-          "pyClosingSalesRate": 0.5247
+          "pyClosingSalesRate": 0.5247,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -515,7 +595,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.3796,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -530,7 +615,12 @@
           "cumYoY": 1.0002,
           "cumSalesRate": 0.284,
           "cumSalesRateDiff": -0.0046,
-          "pyClosingSalesRate": 0.4637
+          "pyClosingSalesRate": 0.4637,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -545,7 +635,12 @@
           "cumYoY": 0.2172,
           "cumSalesRate": 0.1575,
           "cumSalesRateDiff": -0.0448,
-          "pyClosingSalesRate": 0.3528
+          "pyClosingSalesRate": 0.3528,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -560,7 +655,12 @@
           "cumYoY": 0.6059,
           "cumSalesRate": 0.3521,
           "cumSalesRateDiff": 0.0845,
-          "pyClosingSalesRate": 0.2833
+          "pyClosingSalesRate": 0.2833,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -575,7 +675,12 @@
           "cumYoY": 0.3448,
           "cumSalesRate": 0.1392,
           "cumSalesRateDiff": -0.0719,
-          "pyClosingSalesRate": 0.2376
+          "pyClosingSalesRate": 0.2376,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -590,7 +695,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.2275,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -605,7 +715,12 @@
           "cumYoY": 0.6552,
           "cumSalesRate": 0.3295,
           "cumSalesRateDiff": 0.0663,
-          "pyClosingSalesRate": 0.276
+          "pyClosingSalesRate": 0.276,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -620,7 +735,12 @@
           "cumYoY": 1.067,
           "cumSalesRate": 0.3717,
           "cumSalesRateDiff": 0.0812,
-          "pyClosingSalesRate": 0.3929
+          "pyClosingSalesRate": 0.3929,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -635,7 +755,12 @@
           "cumYoY": 1.262,
           "cumSalesRate": 0.3253,
           "cumSalesRateDiff": 0.0067,
-          "pyClosingSalesRate": 0.4665
+          "pyClosingSalesRate": 0.4665,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         }
       ],
       "M": [
@@ -652,7 +777,12 @@
           "cumYoY": 0.7157,
           "cumSalesRate": 0.2799,
           "cumSalesRateDiff": 0.0044,
-          "pyClosingSalesRate": 0.3929
+          "pyClosingSalesRate": 0.3929,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -667,7 +797,12 @@
           "cumYoY": 0.7007,
           "cumSalesRate": 0.2268,
           "cumSalesRateDiff": -0.2891,
-          "pyClosingSalesRate": 0.541
+          "pyClosingSalesRate": 0.541,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -682,7 +817,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.2577
+          "pyClosingSalesRate": 0.2577,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -697,7 +837,12 @@
           "cumYoY": 0.8769,
           "cumSalesRate": 0.2929,
           "cumSalesRateDiff": -0.0638,
-          "pyClosingSalesRate": 0.5986
+          "pyClosingSalesRate": 0.5986,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -712,7 +857,12 @@
           "cumYoY": 0.8902,
           "cumSalesRate": 0.3503,
           "cumSalesRateDiff": 0.0232,
-          "pyClosingSalesRate": 0.3906
+          "pyClosingSalesRate": 0.3906,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -727,7 +877,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -742,7 +897,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -757,7 +917,12 @@
           "cumYoY": 1.3045,
           "cumSalesRate": 0.343,
           "cumSalesRateDiff": -0.0561,
-          "pyClosingSalesRate": 0.4908
+          "pyClosingSalesRate": 0.4908,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -772,7 +937,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.2023
+          "pyClosingSalesRate": 0.2023,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -787,7 +957,12 @@
           "cumYoY": 0.2562,
           "cumSalesRate": 0.1373,
           "cumSalesRateDiff": -0.2096,
-          "pyClosingSalesRate": 0.4045
+          "pyClosingSalesRate": 0.4045,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -802,7 +977,12 @@
           "cumYoY": 0.6423,
           "cumSalesRate": 0.2772,
           "cumSalesRateDiff": -0.0826,
-          "pyClosingSalesRate": 0.5233
+          "pyClosingSalesRate": 0.5233,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -817,7 +997,12 @@
           "cumYoY": 0.6348,
           "cumSalesRate": 0.299,
           "cumSalesRateDiff": -0.1647,
-          "pyClosingSalesRate": 0.561
+          "pyClosingSalesRate": 0.561,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -832,7 +1017,12 @@
           "cumYoY": 0.6859,
           "cumSalesRate": 0.3814,
           "cumSalesRateDiff": 0.0126,
-          "pyClosingSalesRate": 0.514
+          "pyClosingSalesRate": 0.514,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -847,7 +1037,12 @@
           "cumYoY": 0.8734,
           "cumSalesRate": 0.2352,
           "cumSalesRateDiff": 0.1679,
-          "pyClosingSalesRate": 0.0812
+          "pyClosingSalesRate": 0.0812,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -862,7 +1057,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -877,7 +1077,12 @@
           "cumYoY": 1.0228,
           "cumSalesRate": 0.5559,
           "cumSalesRateDiff": 0.2277,
-          "pyClosingSalesRate": 0.4365
+          "pyClosingSalesRate": 0.4365,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -892,7 +1097,12 @@
           "cumYoY": 2.1894,
           "cumSalesRate": 0.5237,
           "cumSalesRateDiff": -0.0974,
-          "pyClosingSalesRate": 0.6715
+          "pyClosingSalesRate": 0.6715,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -907,7 +1117,12 @@
           "cumYoY": 2.0608,
           "cumSalesRate": 0.5909,
           "cumSalesRateDiff": 0.3302,
-          "pyClosingSalesRate": 0.3709
+          "pyClosingSalesRate": 0.3709,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -922,7 +1137,12 @@
           "cumYoY": 0.8267,
           "cumSalesRate": 0.163,
           "cumSalesRateDiff": -0.0819,
-          "pyClosingSalesRate": 0.652
+          "pyClosingSalesRate": 0.652,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -937,7 +1157,12 @@
           "cumYoY": 1.2257,
           "cumSalesRate": 0.273,
           "cumSalesRateDiff": 0.1626,
-          "pyClosingSalesRate": 0.1564
+          "pyClosingSalesRate": 0.1564,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -952,7 +1177,12 @@
           "cumYoY": 0.5585,
           "cumSalesRate": 0.1869,
           "cumSalesRateDiff": -0.0984,
-          "pyClosingSalesRate": 0.5059
+          "pyClosingSalesRate": 0.5059,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -967,7 +1197,12 @@
           "cumYoY": 1.9583,
           "cumSalesRate": 0.3316,
           "cumSalesRateDiff": 0.2255,
-          "pyClosingSalesRate": 0.2343
+          "pyClosingSalesRate": 0.2343,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -982,7 +1217,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -997,7 +1237,12 @@
           "cumYoY": 0.7395,
           "cumSalesRate": 0.4021,
           "cumSalesRateDiff": 0.0742,
-          "pyClosingSalesRate": 0.4143
+          "pyClosingSalesRate": 0.4143,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1012,7 +1257,12 @@
           "cumYoY": 0.6785,
           "cumSalesRate": 0.5362,
           "cumSalesRateDiff": 0.1153,
-          "pyClosingSalesRate": 0.506
+          "pyClosingSalesRate": 0.506,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1027,7 +1277,12 @@
           "cumYoY": 2.4023,
           "cumSalesRate": 0.2751,
           "cumSalesRateDiff": -0.042,
-          "pyClosingSalesRate": 0.4528
+          "pyClosingSalesRate": 0.4528,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1042,7 +1297,12 @@
           "cumYoY": 1.0729,
           "cumSalesRate": 0.4477,
           "cumSalesRateDiff": 0.0135,
-          "pyClosingSalesRate": 0.4573
+          "pyClosingSalesRate": 0.4573,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         }
       ],
       "ST": [
@@ -1059,7 +1319,12 @@
           "cumYoY": 0.0372,
           "cumSalesRate": 0.0429,
           "cumSalesRateDiff": -0.0527,
-          "pyClosingSalesRate": 0.1473
+          "pyClosingSalesRate": 0.1473,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1074,7 +1339,12 @@
           "cumYoY": 0.3023,
           "cumSalesRate": 0.1735,
           "cumSalesRateDiff": 0.0741,
-          "pyClosingSalesRate": 0.2033
+          "pyClosingSalesRate": 0.2033,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1089,7 +1359,12 @@
           "cumYoY": 1.179,
           "cumSalesRate": 0.4476,
           "cumSalesRateDiff": 0.157,
-          "pyClosingSalesRate": 0.4458
+          "pyClosingSalesRate": 0.4458,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1104,7 +1379,12 @@
           "cumYoY": 5.9081,
           "cumSalesRate": 0.5749,
           "cumSalesRateDiff": 0.0018,
-          "pyClosingSalesRate": 0.7247
+          "pyClosingSalesRate": 0.7247,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1119,7 +1399,12 @@
           "cumYoY": 0.2534,
           "cumSalesRate": 0.1035,
           "cumSalesRateDiff": -0.0327,
-          "pyClosingSalesRate": 0.2501
+          "pyClosingSalesRate": 0.2501,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1134,7 +1419,12 @@
           "cumYoY": 2.5915,
           "cumSalesRate": 0.2094,
           "cumSalesRateDiff": 0.1305,
-          "pyClosingSalesRate": 0.2043
+          "pyClosingSalesRate": 0.2043,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1149,7 +1439,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.1116,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1164,7 +1459,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.2724,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1179,7 +1479,12 @@
           "cumYoY": 0.6586,
           "cumSalesRate": 0.1384,
           "cumSalesRateDiff": -0.0128,
-          "pyClosingSalesRate": 0.2866
+          "pyClosingSalesRate": 0.2866,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1194,7 +1499,12 @@
           "cumYoY": 1.1383,
           "cumSalesRate": 0.0905,
           "cumSalesRateDiff": -0.0121,
-          "pyClosingSalesRate": 0.2129
+          "pyClosingSalesRate": 0.2129,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1209,7 +1519,12 @@
           "cumYoY": 3.0618,
           "cumSalesRate": 0.2505,
           "cumSalesRateDiff": 0.0661,
-          "pyClosingSalesRate": 0.2568
+          "pyClosingSalesRate": 0.2568,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1224,7 +1539,12 @@
           "cumYoY": 0.2603,
           "cumSalesRate": 0.1192,
           "cumSalesRateDiff": -0.0565,
-          "pyClosingSalesRate": 0.275
+          "pyClosingSalesRate": 0.275,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1239,7 +1559,12 @@
           "cumYoY": 3.5577,
           "cumSalesRate": 0.7058,
           "cumSalesRateDiff": 0.3683,
-          "pyClosingSalesRate": 0.4012
+          "pyClosingSalesRate": 0.4012,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1254,7 +1579,12 @@
           "cumYoY": 0.3249,
           "cumSalesRate": 0.1872,
           "cumSalesRateDiff": 0.0691,
-          "pyClosingSalesRate": 0.2105
+          "pyClosingSalesRate": 0.2105,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1269,7 +1599,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.1614,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1284,7 +1619,12 @@
           "cumYoY": 0.5074,
           "cumSalesRate": 0.0999,
           "cumSalesRateDiff": 0.0701,
-          "pyClosingSalesRate": 0.1536
+          "pyClosingSalesRate": 0.1536,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1299,7 +1639,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.1538
+          "pyClosingSalesRate": 0.1538,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1314,7 +1659,12 @@
           "cumYoY": 0.8875,
           "cumSalesRate": 0.1616,
           "cumSalesRateDiff": 0.041,
-          "pyClosingSalesRate": 0.2803
+          "pyClosingSalesRate": 0.2803,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1329,7 +1679,12 @@
           "cumYoY": 0.2225,
           "cumSalesRate": 0.0679,
           "cumSalesRateDiff": -0.0075,
-          "pyClosingSalesRate": 0.2016
+          "pyClosingSalesRate": 0.2016,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1344,7 +1699,12 @@
           "cumYoY": 0.4178,
           "cumSalesRate": 0.0738,
           "cumSalesRateDiff": -0.086,
-          "pyClosingSalesRate": 0.2044
+          "pyClosingSalesRate": 0.2044,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1359,7 +1719,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.0989
+          "pyClosingSalesRate": 0.0989,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         }
       ],
       "V": [
@@ -1376,7 +1741,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.1019
+          "pyClosingSalesRate": 0.1019,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1391,7 +1761,12 @@
           "cumYoY": 3.0777,
           "cumSalesRate": 0.144,
           "cumSalesRateDiff": 0.0569,
-          "pyClosingSalesRate": 0.2087
+          "pyClosingSalesRate": 0.2087,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1406,7 +1781,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.2435,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1421,7 +1801,12 @@
           "cumYoY": 2.0533,
           "cumSalesRate": 0.2114,
           "cumSalesRateDiff": 0.1341,
-          "pyClosingSalesRate": 0.1909
+          "pyClosingSalesRate": 0.1909,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1436,7 +1821,12 @@
           "cumYoY": 2.9117,
           "cumSalesRate": 0.1029,
           "cumSalesRateDiff": 0.0151,
-          "pyClosingSalesRate": 0.2209
+          "pyClosingSalesRate": 0.2209,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1451,7 +1841,12 @@
           "cumYoY": 2.4198,
           "cumSalesRate": 0.096,
           "cumSalesRateDiff": -0.02,
-          "pyClosingSalesRate": 0.3005
+          "pyClosingSalesRate": 0.3005,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1466,7 +1861,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.115,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1481,7 +1881,12 @@
           "cumYoY": 1.343,
           "cumSalesRate": 0.0792,
           "cumSalesRateDiff": 0.0286,
-          "pyClosingSalesRate": 0.1436
+          "pyClosingSalesRate": 0.1436,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1496,7 +1901,12 @@
           "cumYoY": 0.2694,
           "cumSalesRate": 0.2095,
           "cumSalesRateDiff": -0.4509,
-          "pyClosingSalesRate": 0.6918
+          "pyClosingSalesRate": 0.6918,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1511,7 +1921,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.0788,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1526,7 +1941,12 @@
           "cumYoY": 0.2474,
           "cumSalesRate": 0.2447,
           "cumSalesRateDiff": 0.1128,
-          "pyClosingSalesRate": 0.1536
+          "pyClosingSalesRate": 0.1536,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1541,7 +1961,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1556,7 +1981,12 @@
           "cumYoY": 13.3636,
           "cumSalesRate": 0.0556,
           "cumSalesRateDiff": 0.0484,
-          "pyClosingSalesRate": 0.0286
+          "pyClosingSalesRate": 0.0286,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1571,7 +2001,12 @@
           "cumYoY": 1.1323,
           "cumSalesRate": 0.1446,
           "cumSalesRateDiff": 0.1085,
-          "pyClosingSalesRate": 0.1365
+          "pyClosingSalesRate": 0.1365,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1586,7 +2021,12 @@
           "cumYoY": 2.1651,
           "cumSalesRate": 0.3331,
           "cumSalesRateDiff": -0.3029,
-          "pyClosingSalesRate": 0.84
+          "pyClosingSalesRate": 0.84,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1601,7 +2041,12 @@
           "cumYoY": 2.785,
           "cumSalesRate": 0.1649,
           "cumSalesRateDiff": 0.0648,
-          "pyClosingSalesRate": 0.5199
+          "pyClosingSalesRate": 0.5199,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1616,7 +2061,12 @@
           "cumYoY": 0.6704,
           "cumSalesRate": 0.1045,
           "cumSalesRateDiff": 0.0369,
-          "pyClosingSalesRate": 0.1919
+          "pyClosingSalesRate": 0.1919,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1631,7 +2081,12 @@
           "cumYoY": 0.0432,
           "cumSalesRate": 0.01,
           "cumSalesRateDiff": -0.0249,
-          "pyClosingSalesRate": 0.0574
+          "pyClosingSalesRate": 0.0574,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1646,7 +2101,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.0812,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1661,7 +2121,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1676,7 +2141,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3135
+          "pyClosingSalesRate": 0.3135,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1691,7 +2161,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.2144,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1706,7 +2181,12 @@
           "cumYoY": 1.2651,
           "cumSalesRate": 0.1342,
           "cumSalesRateDiff": -0.1882,
-          "pyClosingSalesRate": 0.4431
+          "pyClosingSalesRate": 0.4431,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         }
       ],
       "W": [
@@ -1723,7 +2203,12 @@
           "cumYoY": null,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1738,7 +2223,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3191
+          "pyClosingSalesRate": 0.3191,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1753,7 +2243,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.2325
+          "pyClosingSalesRate": 0.2325,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1768,7 +2263,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.1644
+          "pyClosingSalesRate": 0.1644,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1783,7 +2283,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3269
+          "pyClosingSalesRate": 0.3269,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1798,7 +2303,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3589
+          "pyClosingSalesRate": 0.3589,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1813,7 +2323,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3731
+          "pyClosingSalesRate": 0.3731,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1828,7 +2343,12 @@
           "cumYoY": 0.1147,
           "cumSalesRate": 0.8259,
           "cumSalesRateDiff": 0.4038,
-          "pyClosingSalesRate": 0.5664
+          "pyClosingSalesRate": 0.5664,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1843,7 +2363,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.2839
+          "pyClosingSalesRate": 0.2839,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1858,7 +2383,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.4878
+          "pyClosingSalesRate": 0.4878,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1873,7 +2403,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.1957
+          "pyClosingSalesRate": 0.1957,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1888,7 +2423,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.3168
+          "pyClosingSalesRate": 0.3168,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1903,7 +2443,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.1645
+          "pyClosingSalesRate": 0.1645,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         }
       ],
       "X": [
@@ -1920,7 +2465,12 @@
           "cumYoY": 0.3068,
           "cumSalesRate": 0.0369,
           "cumSalesRateDiff": -0.0049,
-          "pyClosingSalesRate": 0.1906
+          "pyClosingSalesRate": 0.1906,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1935,7 +2485,12 @@
           "cumYoY": 0.8427,
           "cumSalesRate": 0.1913,
           "cumSalesRateDiff": -0.0308,
-          "pyClosingSalesRate": 0.4167
+          "pyClosingSalesRate": 0.4167,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1950,7 +2505,12 @@
           "cumYoY": 1.1926,
           "cumSalesRate": 0.1145,
           "cumSalesRateDiff": -0.1023,
-          "pyClosingSalesRate": 0.3467
+          "pyClosingSalesRate": 0.3467,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1965,7 +2525,12 @@
           "cumYoY": 0.0,
           "cumSalesRate": null,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": 0.1869
+          "pyClosingSalesRate": 0.1869,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1980,7 +2545,12 @@
           "cumYoY": 0.804,
           "cumSalesRate": 0.2187,
           "cumSalesRateDiff": -0.0217,
-          "pyClosingSalesRate": 0.4323
+          "pyClosingSalesRate": 0.4323,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -1995,7 +2565,12 @@
           "cumYoY": 0.7676,
           "cumSalesRate": 0.1804,
           "cumSalesRateDiff": -0.1121,
-          "pyClosingSalesRate": 0.5458
+          "pyClosingSalesRate": 0.5458,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2010,7 +2585,12 @@
           "cumYoY": 0.5822,
           "cumSalesRate": 0.217,
           "cumSalesRateDiff": -0.0999,
-          "pyClosingSalesRate": 0.6198
+          "pyClosingSalesRate": 0.6198,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2025,7 +2605,12 @@
           "cumYoY": 0.4642,
           "cumSalesRate": 0.1536,
           "cumSalesRateDiff": -0.1198,
-          "pyClosingSalesRate": 0.2958
+          "pyClosingSalesRate": 0.2958,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2040,7 +2625,12 @@
           "cumYoY": 1.7512,
           "cumSalesRate": 0.2711,
           "cumSalesRateDiff": -0.2693,
-          "pyClosingSalesRate": 0.6729
+          "pyClosingSalesRate": 0.6729,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2055,7 +2645,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.3636,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2070,7 +2665,12 @@
           "cumYoY": 0.8293,
           "cumSalesRate": 0.3996,
           "cumSalesRateDiff": -0.0667,
-          "pyClosingSalesRate": 0.5704
+          "pyClosingSalesRate": 0.5704,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2085,7 +2685,12 @@
           "cumYoY": 0.7906,
           "cumSalesRate": 0.2434,
           "cumSalesRateDiff": -0.0354,
-          "pyClosingSalesRate": 0.4168
+          "pyClosingSalesRate": 0.4168,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2100,7 +2705,12 @@
           "cumYoY": 28.5115,
           "cumSalesRate": 0.1004,
           "cumSalesRateDiff": -0.0796,
-          "pyClosingSalesRate": 0.279
+          "pyClosingSalesRate": 0.279,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2115,7 +2725,12 @@
           "cumYoY": 0.903,
           "cumSalesRate": 0.1055,
           "cumSalesRateDiff": -0.0196,
-          "pyClosingSalesRate": 0.5542
+          "pyClosingSalesRate": 0.5542,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2130,7 +2745,12 @@
           "cumYoY": 0.7883,
           "cumSalesRate": 0.1777,
           "cumSalesRateDiff": -0.0923,
-          "pyClosingSalesRate": 0.7869
+          "pyClosingSalesRate": 0.7869,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2145,7 +2765,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.0157,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2160,7 +2785,12 @@
           "cumYoY": null,
           "cumSalesRate": 0.1892,
           "cumSalesRateDiff": null,
-          "pyClosingSalesRate": null
+          "pyClosingSalesRate": null,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2175,7 +2805,12 @@
           "cumYoY": 1.3562,
           "cumSalesRate": 0.3252,
           "cumSalesRateDiff": 0.0887,
-          "pyClosingSalesRate": 0.4333
+          "pyClosingSalesRate": 0.4333,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2190,7 +2825,12 @@
           "cumYoY": 0.7393,
           "cumSalesRate": 0.2707,
           "cumSalesRateDiff": -0.0828,
-          "pyClosingSalesRate": 0.4047
+          "pyClosingSalesRate": 0.4047,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         },
         {
           "category": "의류",
@@ -2205,7 +2845,12 @@
           "cumYoY": 1.8673,
           "cumSalesRate": 0.1949,
           "cumSalesRateDiff": -0.1116,
-          "pyClosingSalesRate": 0.4891
+          "pyClosingSalesRate": 0.4891,
+          "storageTagAmt": 0.0,
+          "cumSalesTagPy": 0.0,
+          "storageTagAmtPy": 0.0,
+          "cumSalesTagPyEnd": 0.0,
+          "storageTagAmtPyEnd": 0.0
         }
       ]
     },
@@ -4316,37 +4961,71 @@
         "itemCount": 25,
         "totalOrderTag": 69162604000.0,
         "totalWeeklySales": 1005202000.0,
-        "totalCumSales": 10021456000.0
+        "totalCumSales": 10021456000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
       },
       "M": {
         "itemCount": 27,
         "totalOrderTag": 683273892000.0,
         "totalWeeklySales": 2685020000.0,
-        "totalCumSales": 22704340000.0
+        "totalCumSales": 22704340000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
       },
       "ST": {
         "itemCount": 21,
         "totalOrderTag": 5341861000.0,
         "totalWeeklySales": 51867000.0,
-        "totalCumSales": 1114221000.0
+        "totalCumSales": 1114221000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
       },
       "V": {
         "itemCount": 23,
         "totalOrderTag": 32203170000.0,
         "totalWeeklySales": 923950000.0,
-        "totalCumSales": 4964570000.0
+        "totalCumSales": 4964570000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
       },
       "W": {
         "itemCount": 13,
         "totalOrderTag": 1845472000.0,
         "totalWeeklySales": 98000.0,
-        "totalCumSales": 23511000.0
+        "totalCumSales": 23511000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
       },
       "X": {
         "itemCount": 20,
         "totalOrderTag": 390940375000.0,
         "totalWeeklySales": 8332003000.0,
-        "totalCumSales": 42980278000.0
+        "totalCumSales": 42980278000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
+      },
+      "overall": {
+        "itemCount": 129,
+        "totalOrderTag": 1182767374000.0,
+        "totalWeeklySales": 12998140000.0,
+        "totalCumSales": 81808376000.0,
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "cumSalesRateDiff": null,
+        "pyClosingSalesRate": null
       }
     },
     "accSummary": {
@@ -4391,6 +5070,223 @@
         "totalSaleQty": 19746,
         "totalSaleAmt": 1310753162,
         "totalStockQty": 1022674
+      }
+    },
+    "clothingItemRatesOverall": {
+      "DP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "LG": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "PT": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "SK": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "SM": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "TP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "WP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "HD": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "KP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "MT": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "OP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "PQ": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "TR": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "TS": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "WS": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DJ": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DK": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DV": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "FD": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "JP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "KC": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "PD": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "WJ": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "S1": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "S2": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DS": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "SP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DD": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DR": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "TO": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "JK": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "KU": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "KV": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "RL": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "RS": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "WT": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "BR": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "ZT": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DH": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "SS": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "VT": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "TL": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "AZ": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
       }
     }
   }

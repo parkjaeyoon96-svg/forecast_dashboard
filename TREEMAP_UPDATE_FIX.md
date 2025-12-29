@@ -235,3 +235,5 @@ console.log(window.channelItemSalesData['M']);
 - **메타데이터 포함**: 날짜 정보, YOY 등 모든 정보 포함
 - **브랜드별 분리**: 6개 브랜드 각각의 트리맵 데이터 생성
 
+
+
