@@ -11,8 +11,8 @@
     {
       "BRAND": "MLB KIDS",
       "SALES": 76.2,
-      "DIRECT_PROFIT": 12.6,
-      "OPERATING_PROFIT": 3.2,
+      "DIRECT_PROFIT": 11.8,
+      "OPERATING_PROFIT": 2.4,
       "ACHIEVEMENT": 91,
       "YOY_SALES": 107
     },
@@ -81,17 +81,17 @@
     "directCost": {
       "prev": 197.66,
       "target": 206.84,
-      "forecast": 184.59,
-      "yoy": 93,
-      "achievement": 89
+      "forecast": 185.42,
+      "yoy": 94,
+      "achievement": 90
     },
     "directCostDetail": {
       "인건비": {
         "prev": 55.56,
-        "target": 56.09,
-        "forecast": 48.97,
-        "yoy": 88,
-        "achievement": 87
+        "target": 55.86,
+        "forecast": 49.4,
+        "yoy": 89,
+        "achievement": 88
       },
       "임차관리비": {
         "prev": 42.01,
@@ -102,10 +102,10 @@
       },
       "물류운송비": {
         "prev": 30.89,
-        "target": 33.5,
-        "forecast": 30.57,
-        "yoy": 99,
-        "achievement": 91
+        "target": 35.26,
+        "forecast": 30.97,
+        "yoy": 100,
+        "achievement": 88
       },
       "로열티": {
         "prev": 30.44,
@@ -132,8 +132,8 @@
     "directProfit": {
       "prev": 330.36,
       "target": 353.9,
-      "forecast": 299.0,
-      "yoy": 91,
+      "forecast": 298.17,
+      "yoy": 90,
       "achievement": 84
     },
     "operatingExpense": {
@@ -146,27 +146,27 @@
     "opProfit": {
       "prev": 200.3,
       "target": 228.26,
-      "forecast": 173.36,
-      "yoy": 87,
+      "forecast": 172.53,
+      "yoy": 86,
       "achievement": 76
     }
   },
   "overviewKPI": {
     "OVERVIEW": {
       "revenue": 102986091939.0,
-      "directProfit": 27600526106.0,
-      "directProfitRate": 29.48,
+      "directProfit": 27523502709.0,
+      "directProfitRate": 29.4,
       "discountRate": 22.64,
-      "progressRate": 78.0,
-      "progressRateForecast": 84.5,
+      "progressRate": 77.8,
+      "progressRateForecast": 84.3,
       "revenueForecast": 110849057751.0,
-      "directProfitForecast": 29900406310.0,
-      "directProfitRateForecast": 29.67,
+      "directProfitForecast": 29816714577.0,
+      "directProfitRateForecast": 29.59,
       "discountRateForecast": 22.65,
-      "operatingProfit": 15036442106.0,
-      "operatingProfitForecast": 17336322310.0,
-      "operatingProfitRate": 16.06,
-      "operatingProfitRateForecast": 17.2,
+      "operatingProfit": 14959418709.0,
+      "operatingProfitForecast": 17252630577.0,
+      "operatingProfitRate": 15.98,
+      "operatingProfitRateForecast": 17.12,
       "revenuePrevious": 118083190609.0,
       "directProfitPrevious": 33035994636.0,
       "operatingProfitPrevious": 20029704282.0,
@@ -175,8 +175,8 @@
       "directProfitRatePlan": 31.33,
       "revenueVsPlan": -10.8,
       "revenueVsPrevious": -6.1,
-      "profitVsPlan": -15.5,
-      "profitVsPrevious": -9.5
+      "profitVsPlan": -15.7,
+      "profitVsPrevious": -9.7
     }
   },
   "waterfallData": [
@@ -197,12 +197,12 @@
     },
     {
       "label": "직접비(-)",
-      "value": 184.59,
+      "value": 185.42,
       "type": "decrease"
     },
     {
       "label": "직접이익",
-      "value": 299.0,
+      "value": 298.17,
       "type": "subtotal"
     },
     {
@@ -212,7 +212,7 @@
     },
     {
       "label": "영업이익",
-      "value": 173.36,
+      "value": 172.53,
       "type": "result"
     }
   ],
@@ -258,7 +258,7 @@
       "cySeason": "25F",
       "pySeason": "24F",
       "pySeasonEnd": "2026-02-28",
-      "generatedAt": "2025-12-30 22:49:18"
+      "generatedAt": "2025-12-31 03:16:46"
     },
     "clothingBrandStatus": {
       "I": [

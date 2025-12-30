@@ -916,6 +916,7 @@ def generate_json_file(clothing_data, acc_data, update_date, project_root=None, 
             "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
         }
 
+    brand_totals = brand_totals or {}
     category_totals = category_totals or {}
     category_totals_overall = category_totals_overall or {}
     brand_item_totals = brand_item_totals or {}

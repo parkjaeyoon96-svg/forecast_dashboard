@@ -142,27 +142,28 @@ set DATE_FORMATTED=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
 call "%PYTHON_CMD%" scripts\download_brand_stock_analysis.py --update-date !DATE_FORMATTED!
 set STOCK_ERR=!errorlevel!
 
-REM Always generate stock analysis from CSV to include aggregated data (clothingItemRatesOverall, etc.)
 echo.
-echo [Step 6] Generating aggregated stock analysis from CSV
-call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
-set GEN_ERR=!errorlevel!
-if !GEN_ERR! neq 0 (
-    echo [Step 6] Failed (Error code: !GEN_ERR!)
-    set PIPELINE_ERROR=!GEN_ERR!
-) else (
-    echo [Step 6] Success - Aggregated data generated
-)
-echo.
-
-echo [Step 7] Update Overview Data ^(requires stock analysis CSV^)
+echo [Step 6] Update Overview Data ^(requires stock analysis CSV^)
 call "%PYTHON_CMD%" scripts\update_overview_data.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
-    echo [Step 7] Failed (Error code: !STEP_ERR!)
+    echo [Step 6] Failed (Error code: !STEP_ERR!)
     set PIPELINE_ERROR=!STEP_ERR!
 ) else (
-    echo [Step 7] Completed
+    echo [Step 6] Completed
+)
+echo.
+
+REM Always generate stock analysis from CSV to include aggregated data (clothingItemRatesOverall, etc.)
+REM This must run AFTER update_overview_data.py to ensure final stock_analysis.json has 'overall' key
+echo [Step 7] Generating aggregated stock analysis from CSV ^(FINAL - overwrites stock_analysis.json^)
+call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
+set GEN_ERR=!errorlevel!
+if !GEN_ERR! neq 0 (
+    echo [Step 7] Failed (Error code: !GEN_ERR!)
+    set PIPELINE_ERROR=!GEN_ERR!
+) else (
+    echo [Step 7] Success - Aggregated data generated with overall rates
 )
 echo.
 

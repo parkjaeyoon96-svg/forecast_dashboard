@@ -1973,11 +1973,13 @@ def main():
             print(f"    당시즌의류: {len(stock_analysis.get('clothingBrandStatus', {}))}개 브랜드")
             print(f"    ACC 재고주수: {len(stock_analysis.get('accStockAnalysis', {}))}개 브랜드")
             
-            # stock_analysis.json도 저장 (대시보드가 이 파일을 로드함)
-            stock_analysis_path = os.path.join(json_dir, "stock_analysis.json")
-            with open(stock_analysis_path, "w", encoding="utf-8") as f:
-                json.dump(stock_analysis, f, ensure_ascii=False, indent=2)
-            print(f"  [OK] JSON 저장: stock_analysis.json (대시보드용)")
+            # ★ stock_analysis.json은 generate_brand_stock_analysis.py가 최종 생성 (overall 키 포함)
+            # ★ 여기서는 저장하지 않음 (배치 파일에서 Step 7로 최종 생성됨)
+            # stock_analysis_path = os.path.join(json_dir, "stock_analysis.json")
+            # with open(stock_analysis_path, "w", encoding="utf-8") as f:
+            #     json.dump(stock_analysis, f, ensure_ascii=False, indent=2)
+            # print(f"  [OK] JSON 저장: stock_analysis.json (대시보드용)")
+            print(f"  [INFO] stock_analysis.json은 generate_brand_stock_analysis.py가 최종 생성합니다")
         
         # 2. 통합 overview.json도 저장 (하위 호환성 유지)
         overview_json = {

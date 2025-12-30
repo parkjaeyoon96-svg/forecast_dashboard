@@ -1,19 +1,19 @@
 {
   "OVERVIEW": {
     "revenue": 102986091939.0,
-    "directProfit": 27600526106.0,
-    "directProfitRate": 29.48,
+    "directProfit": 27523502709.0,
+    "directProfitRate": 29.4,
     "discountRate": 22.64,
-    "progressRate": 78.0,
-    "progressRateForecast": 84.5,
+    "progressRate": 77.8,
+    "progressRateForecast": 84.3,
     "revenueForecast": 110849057751.0,
-    "directProfitForecast": 29900406310.0,
-    "directProfitRateForecast": 29.67,
+    "directProfitForecast": 29816714577.0,
+    "directProfitRateForecast": 29.59,
     "discountRateForecast": 22.65,
-    "operatingProfit": 15036442106.0,
-    "operatingProfitForecast": 17336322310.0,
-    "operatingProfitRate": 16.06,
-    "operatingProfitRateForecast": 17.2,
+    "operatingProfit": 14959418709.0,
+    "operatingProfitForecast": 17252630577.0,
+    "operatingProfitRate": 15.98,
+    "operatingProfitRateForecast": 17.12,
     "revenuePrevious": 118083190609.0,
     "directProfitPrevious": 33035994636.0,
     "operatingProfitPrevious": 20029704282.0,
@@ -22,7 +22,7 @@
     "directProfitRatePlan": 31.33,
     "revenueVsPlan": -10.8,
     "revenueVsPrevious": -6.1,
-    "profitVsPlan": -15.5,
-    "profitVsPrevious": -9.5
+    "profitVsPlan": -15.7,
+    "profitVsPrevious": -9.7
   }
 }
