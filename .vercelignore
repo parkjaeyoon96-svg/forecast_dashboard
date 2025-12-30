@@ -11,13 +11,14 @@ __pycache__/
 raw/
 
 # Old data files (과거 날짜 데이터는 제외, 최신 데이터만 유지)
-public/data/20251117/
-public/data/20251124/
-public/data/20251201/
-public/data/20251208/
-public/data/20251209/
-public/data/20251215/
-public/data/20251222/
+# 주석 처리: 이전 데이터들도 배포에 포함하여 날짜별 조회 가능하도록 함
+# public/data/20251117/
+# public/data/20251124/
+# public/data/20251201/
+# public/data/20251208/
+# public/data/20251209/
+# public/data/20251215/
+# public/data/20251222/
 
 # Old JS data files (최신 파일만 유지)
 public/data_20251117.js
