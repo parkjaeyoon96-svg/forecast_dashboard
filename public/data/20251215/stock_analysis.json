@@ -8,7 +8,7 @@
     "cySeason": "25F",
     "pySeason": "24F",
     "pySeasonEnd": "2026-02-28",
-    "generatedAt": "2025-12-16 12:40:06"
+    "generatedAt": "2025-12-30 23:20:00"
   },
   "clothingBrandStatus": {
     "I": [
@@ -2446,7 +2446,7 @@
         "orderYoY": 1.0457,
         "weeklySalesTag": 201351000.0,
         "weeklyYoY": 0.7463,
-        "cumSalesTag": 2596881000.0,
+        "cumSalesTag": 2596960000.0,
         "cumYoY": 0.6222,
         "storageTagAmt": 7713488000.0,
         "storageTagAmtPy": 9072873000.0,
@@ -2488,8 +2488,8 @@
         "orderYoY": 6.671,
         "weeklySalesTag": 49574000.0,
         "weeklyYoY": 3.3807,
-        "cumSalesTag": 1337481000.0,
-        "cumYoY": 1.9237,
+        "cumSalesTag": 1337550000.0,
+        "cumYoY": 1.9238,
         "storageTagAmt": 3976080000.0,
         "storageTagAmtPy": 1138944000.0,
         "cumSalesTagPy": 695282000.0,
@@ -2591,9 +2591,9 @@
         "itemName": "다운점퍼",
         "orderTag": 261063321000.0,
         "orderYoY": 1.1672,
-        "weeklySalesTag": 8724355000.0,
+        "weeklySalesTag": 8724176000.0,
         "weeklyYoY": 0.8852,
-        "cumSalesTag": 60842709000.0,
+        "cumSalesTag": 60843208000.0,
         "cumYoY": 0.8681,
         "storageTagAmt": 221555569000.0,
         "storageTagAmtPy": 216821523000.0,
@@ -2736,6 +2736,20 @@
   "accStockAnalysis": {
     "A": [
       {
+        "category": "Headwear",
+        "itemCode": "CP",
+        "itemName": "운동모",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -1,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
         "category": "Bag",
         "itemCode": "SG",
         "itemName": "슬링백",
@@ -2745,6 +2759,34 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -1,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Bag",
+        "itemCode": "CR",
+        "itemName": "크로스백",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -1,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "FN",
+        "itemName": "패니팩",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -10,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2790,48 +2832,6 @@
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
-      },
-      {
-        "category": "Bag",
-        "itemCode": "CR",
-        "itemName": "크로스백",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -1,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "FN",
-        "itemName": "패니팩",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -10,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Headwear",
-        "itemCode": "CP",
-        "itemName": "운동모",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -1,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
       }
     ],
     "I": [
@@ -2844,7 +2844,7 @@
         "yoyRate": "174%",
         "shareRate": "30%",
         "avg4wSaleQty": 2977.0,
-        "stockQty": 22787,
+        "stockQty": 22778,
         "stockWeeks": 7.7,
         "pyStockWeeks": 7.9,
         "stockWeeksDiff": -0.2
@@ -2872,7 +2872,7 @@
         "yoyRate": "48%",
         "shareRate": "13%",
         "avg4wSaleQty": 3473.0,
-        "stockQty": 51771,
+        "stockQty": 51770,
         "stockWeeks": 14.9,
         "pyStockWeeks": 28.9,
         "stockWeeksDiff": -14.0
@@ -2900,7 +2900,7 @@
         "yoyRate": "111%",
         "shareRate": "6%",
         "avg4wSaleQty": 1291.0,
-        "stockQty": 145252,
+        "stockQty": 145254,
         "stockWeeks": 112.5,
         "pyStockWeeks": 111.6,
         "stockWeeksDiff": 1.0
@@ -3117,6 +3117,20 @@
       },
       {
         "category": "Acc_etc",
+        "itemCode": "GG",
+        "itemName": "고글",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 7,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
         "itemCode": "PE",
         "itemName": "PET",
         "saleQty": 0,
@@ -3124,23 +3138,9 @@
         "yoyRate": "0%",
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 3,
+        "stockQty": 1,
         "stockWeeks": null,
         "pyStockWeeks": 290.9,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Shoes",
-        "itemCode": "CV",
-        "itemName": "캔버스화",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -8,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
         "stockWeeksDiff": null
       },
       {
@@ -3153,34 +3153,6 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Shoes",
-        "itemCode": "LP",
-        "itemName": "슬리퍼",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 645,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Shoes",
-        "itemCode": "MU",
-        "itemName": "뮬",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -2,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3200,20 +3172,6 @@
         "stockWeeksDiff": null
       },
       {
-        "category": "Acc_etc",
-        "itemCode": "GG",
-        "itemName": "고글",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 7,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
         "category": "Headwear",
         "itemCode": "SC",
         "itemName": "선캡",
@@ -3225,6 +3183,48 @@
         "stockQty": 8092,
         "stockWeeks": null,
         "pyStockWeeks": 10656.0,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Shoes",
+        "itemCode": "CV",
+        "itemName": "캔버스화",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -6,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Shoes",
+        "itemCode": "MU",
+        "itemName": "뮬",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -2,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Shoes",
+        "itemCode": "LP",
+        "itemName": "슬리퍼",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 645,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
         "stockWeeksDiff": null
       }
     ],
@@ -3238,7 +3238,7 @@
         "yoyRate": "144%",
         "shareRate": "41%",
         "avg4wSaleQty": 53430.0,
-        "stockQty": 1306032,
+        "stockQty": 1306161,
         "stockWeeks": 24.4,
         "pyStockWeeks": 22.1,
         "stockWeeksDiff": 2.3
@@ -3252,7 +3252,7 @@
         "yoyRate": "218%",
         "shareRate": "18%",
         "avg4wSaleQty": 23387.0,
-        "stockQty": 103249,
+        "stockQty": 103234,
         "stockWeeks": 4.4,
         "pyStockWeeks": 10.5,
         "stockWeeksDiff": -6.0
@@ -3261,15 +3261,15 @@
         "category": "Shoes",
         "itemCode": "SX",
         "itemName": "스니커즈",
-        "saleQty": 5117,
-        "saleAmt": 736084403,
-        "yoyRate": "147%",
+        "saleQty": 5100,
+        "saleAmt": 733241403,
+        "yoyRate": "146%",
         "shareRate": "15%",
-        "avg4wSaleQty": 5104.0,
-        "stockQty": 257551,
+        "avg4wSaleQty": 5099.0,
+        "stockQty": 257580,
         "stockWeeks": 50.5,
         "pyStockWeeks": 53.3,
-        "stockWeeksDiff": -2.9
+        "stockWeeksDiff": -2.8
       },
       {
         "category": "Shoes",
@@ -3280,7 +3280,7 @@
         "yoyRate": "165%",
         "shareRate": "8%",
         "avg4wSaleQty": 3098.0,
-        "stockQty": 302894,
+        "stockQty": 302895,
         "stockWeeks": 97.8,
         "pyStockWeeks": 112.1,
         "stockWeeksDiff": -14.3
@@ -3350,10 +3350,10 @@
         "yoyRate": "91%",
         "shareRate": "2%",
         "avg4wSaleQty": 1283.0,
-        "stockQty": 41486,
+        "stockQty": 41408,
         "stockWeeks": 32.3,
         "pyStockWeeks": 63.2,
-        "stockWeeksDiff": -30.9
+        "stockWeeksDiff": -31.0
       },
       {
         "category": "Headwear",
@@ -3364,7 +3364,7 @@
         "yoyRate": "260%",
         "shareRate": "1%",
         "avg4wSaleQty": 916.0,
-        "stockQty": 9432,
+        "stockQty": 9431,
         "stockWeeks": 10.3,
         "pyStockWeeks": 34.8,
         "stockWeeksDiff": -24.5
@@ -3406,7 +3406,7 @@
         "yoyRate": "100%",
         "shareRate": "1%",
         "avg4wSaleQty": 452.0,
-        "stockQty": 5463,
+        "stockQty": 5461,
         "stockWeeks": 12.1,
         "pyStockWeeks": 30.2,
         "stockWeeksDiff": -18.1
@@ -3434,7 +3434,7 @@
         "yoyRate": "224%",
         "shareRate": "0%",
         "avg4wSaleQty": 431.0,
-        "stockQty": 8427,
+        "stockQty": 8428,
         "stockWeeks": 19.6,
         "pyStockWeeks": 64.1,
         "stockWeeksDiff": -44.5
@@ -3504,10 +3504,10 @@
         "yoyRate": "258%",
         "shareRate": "0%",
         "avg4wSaleQty": 33.0,
-        "stockQty": 46784,
-        "stockWeeks": 1417.7,
+        "stockQty": 46776,
+        "stockWeeks": 1417.5,
         "pyStockWeeks": 2481.6,
-        "stockWeeksDiff": -1063.9
+        "stockWeeksDiff": -1064.2
       },
       {
         "category": "Acc_etc",
@@ -3574,10 +3574,38 @@
         "yoyRate": "-446%",
         "shareRate": "0%",
         "avg4wSaleQty": 8.0,
-        "stockQty": 54117,
-        "stockWeeks": 6764.6,
+        "stockQty": 54112,
+        "stockWeeks": 6764.0,
         "pyStockWeeks": 56851.0,
-        "stockWeeksDiff": -50086.4
+        "stockWeeksDiff": -50087.0
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "MK",
+        "itemName": "마스크(패션용)",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 8,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "ML",
+        "itemName": "토시",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": -3.0,
+        "stockQty": 896,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
       },
       {
         "category": "Headwear",
@@ -3588,7 +3616,7 @@
         "yoyRate": "0%",
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 34,
+        "stockQty": 32,
         "stockWeeks": null,
         "pyStockWeeks": 30.5,
         "stockWeeksDiff": null
@@ -3603,6 +3631,20 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Shoes",
+        "itemCode": "SQ",
+        "itemName": "아쿠아 슈즈",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 9226,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3623,20 +3665,6 @@
       },
       {
         "category": "Shoes",
-        "itemCode": "SQ",
-        "itemName": "아쿠아 슈즈",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 9226,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Shoes",
         "itemCode": "CV",
         "itemName": "캔버스화",
         "saleQty": 0,
@@ -3650,34 +3678,6 @@
         "stockWeeksDiff": null
       },
       {
-        "category": "Acc_etc",
-        "itemCode": "ML",
-        "itemName": "토시",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": -3.0,
-        "stockQty": 897,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "MK",
-        "itemName": "마스크(패션용)",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 8,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
         "category": "Bag",
         "itemCode": "BW",
         "itemName": "보스톤백",
@@ -3686,8 +3686,8 @@
         "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 1.0,
-        "stockQty": 736,
-        "stockWeeks": 736.0,
+        "stockQty": 735,
+        "stockWeeks": 735.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
       }
@@ -3702,10 +3702,10 @@
         "yoyRate": "194%",
         "shareRate": "51%",
         "avg4wSaleQty": 321.0,
-        "stockQty": 9066,
+        "stockQty": 9037,
         "stockWeeks": 28.2,
         "pyStockWeeks": 262.9,
-        "stockWeeksDiff": -234.6
+        "stockWeeksDiff": -234.7
       },
       {
         "category": "Headwear",
@@ -3786,10 +3786,10 @@
         "yoyRate": "63%",
         "shareRate": "4%",
         "avg4wSaleQty": 6.0,
-        "stockQty": 608,
-        "stockWeeks": 101.3,
+        "stockQty": 607,
+        "stockWeeks": 101.2,
         "pyStockWeeks": 107.7,
-        "stockWeeksDiff": -6.4
+        "stockWeeksDiff": -6.5
       },
       {
         "category": "Bag",
@@ -3814,10 +3814,10 @@
         "yoyRate": "55%",
         "shareRate": "2%",
         "avg4wSaleQty": 6.0,
-        "stockQty": 946,
-        "stockWeeks": 157.7,
+        "stockQty": 978,
+        "stockWeeks": 163.0,
         "pyStockWeeks": 104.9,
-        "stockWeeksDiff": 52.8
+        "stockWeeksDiff": 58.1
       },
       {
         "category": "Headwear",
@@ -3918,6 +3918,20 @@
         "stockWeeksDiff": null
       },
       {
+        "category": "Bag",
+        "itemCode": "SG",
+        "itemName": "슬링백",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 131,
+        "stockWeeks": null,
+        "pyStockWeeks": 177.0,
+        "stockWeeksDiff": null
+      },
+      {
         "category": "Acc_etc",
         "itemCode": "LL",
         "itemName": "볼",
@@ -3958,20 +3972,6 @@
         "stockWeeks": 280.7,
         "pyStockWeeks": 1150.0,
         "stockWeeksDiff": -869.3
-      },
-      {
-        "category": "Bag",
-        "itemCode": "SG",
-        "itemName": "슬링백",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 131,
-        "stockWeeks": null,
-        "pyStockWeeks": 177.0,
-        "stockWeeksDiff": null
       }
     ],
     "V": [
@@ -4228,6 +4228,34 @@
         "stockWeeksDiff": -309.0
       },
       {
+        "category": "Acc_etc",
+        "itemCode": "PO",
+        "itemName": "파우치",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 10,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "GL",
+        "itemName": "장갑",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 21,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
         "category": "Bag",
         "itemCode": "EB",
         "itemName": "기타가방",
@@ -4256,20 +4284,6 @@
         "stockWeeksDiff": null
       },
       {
-        "category": "Acc_etc",
-        "itemCode": "GL",
-        "itemName": "장갑",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 21,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
         "category": "Headwear",
         "itemCode": "SC",
         "itemName": "선캡",
@@ -4282,20 +4296,6 @@
         "stockWeeks": 199.0,
         "pyStockWeeks": 190.0,
         "stockWeeksDiff": 9.0
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "PO",
-        "itemName": "파우치",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 10,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
       }
     ],
     "W": [
@@ -4519,8 +4519,8 @@
         "saleAmt": 1158607877,
         "yoyRate": "110%",
         "shareRate": "58%",
-        "avg4wSaleQty": 10779.0,
-        "stockQty": 343345,
+        "avg4wSaleQty": 10780.0,
+        "stockQty": 343369,
         "stockWeeks": 31.9,
         "pyStockWeeks": 37.5,
         "stockWeeksDiff": -5.7
@@ -4534,7 +4534,7 @@
         "yoyRate": "146%",
         "shareRate": "18%",
         "avg4wSaleQty": 2133.0,
-        "stockQty": 171331,
+        "stockQty": 171332,
         "stockWeeks": 80.3,
         "pyStockWeeks": 121.5,
         "stockWeeksDiff": -41.2
@@ -4576,7 +4576,7 @@
         "yoyRate": "135%",
         "shareRate": "2%",
         "avg4wSaleQty": 850.0,
-        "stockQty": 51279,
+        "stockQty": 51281,
         "stockWeeks": 60.3,
         "pyStockWeeks": 66.3,
         "stockWeeksDiff": -5.9
@@ -4590,7 +4590,7 @@
         "yoyRate": "90%",
         "shareRate": "2%",
         "avg4wSaleQty": 1377.0,
-        "stockQty": 87647,
+        "stockQty": 87651,
         "stockWeeks": 63.7,
         "pyStockWeeks": 55.2,
         "stockWeeksDiff": 8.5
@@ -4632,7 +4632,7 @@
         "yoyRate": "90%",
         "shareRate": "1%",
         "avg4wSaleQty": 370.0,
-        "stockQty": 26018,
+        "stockQty": 26020,
         "stockWeeks": 70.3,
         "pyStockWeeks": 54.8,
         "stockWeeksDiff": 15.5
@@ -4660,7 +4660,7 @@
         "yoyRate": "123%",
         "shareRate": "1%",
         "avg4wSaleQty": 486.0,
-        "stockQty": 47120,
+        "stockQty": 47125,
         "stockWeeks": 97.0,
         "pyStockWeeks": 48.8,
         "stockWeeksDiff": 48.2
@@ -4674,7 +4674,7 @@
         "yoyRate": "130%",
         "shareRate": "1%",
         "avg4wSaleQty": 500.0,
-        "stockQty": 27229,
+        "stockQty": 27230,
         "stockWeeks": 54.5,
         "pyStockWeeks": 143.9,
         "stockWeeksDiff": -89.5
@@ -4688,8 +4688,8 @@
         "yoyRate": "76%",
         "shareRate": "1%",
         "avg4wSaleQty": 126.0,
-        "stockQty": 15050,
-        "stockWeeks": 119.4,
+        "stockQty": 15051,
+        "stockWeeks": 119.5,
         "pyStockWeeks": 121.0,
         "stockWeeksDiff": -1.6
       },
@@ -4702,7 +4702,7 @@
         "yoyRate": "76%",
         "shareRate": "1%",
         "avg4wSaleQty": 239.0,
-        "stockQty": 32636,
+        "stockQty": 32637,
         "stockWeeks": 136.6,
         "pyStockWeeks": 144.0,
         "stockWeeksDiff": -7.4
@@ -4716,7 +4716,7 @@
         "yoyRate": "117%",
         "shareRate": "0%",
         "avg4wSaleQty": 1253.0,
-        "stockQty": 61630,
+        "stockQty": 61631,
         "stockWeeks": 49.2,
         "pyStockWeeks": 51.0,
         "stockWeeksDiff": -1.8
@@ -4758,8 +4758,8 @@
         "yoyRate": "182%",
         "shareRate": "0%",
         "avg4wSaleQty": 146.0,
-        "stockQty": 7321,
-        "stockWeeks": 50.1,
+        "stockQty": 7322,
+        "stockWeeks": 50.2,
         "pyStockWeeks": 173.0,
         "stockWeeksDiff": -122.8
       },
@@ -4908,8 +4908,8 @@
     },
     "X": {
       "itemCount": 20,
-      "totalWeeklySales": 10229731000.0,
-      "totalCumSales": 88505015000.0,
+      "totalWeeklySales": 10229552000.0,
+      "totalCumSales": 88505662000.0,
       "totalOrderTag": 313587892000.0,
       "totalOrderTagPy": 298110600000.0,
       "totalCumSalesPy": 100618922000.0,
@@ -4919,6 +4919,18 @@
       "cumSalesRatePy": 0.3375,
       "cumSalesRateDiff": -0.0553,
       "pyClosingSalesRate": 0.5352
+    },
+    "overall": {
+      "totalOrderTag": 479360509000.0,
+      "totalOrderTagPy": 456718316000.0,
+      "totalCumSales": 147606689000.0,
+      "totalCumSalesPy": 160195948783.0,
+      "totalOrderTagPyEnd": 460354358000.0,
+      "totalCumSalesPyEnd": 239008408701.0,
+      "cumSalesRate": 0.3079,
+      "cumSalesRatePy": 0.3508,
+      "cumSalesRateDiff": -0.0429,
+      "pyClosingSalesRate": 0.5192
     }
   },
   "accSummary": {
@@ -4932,19 +4944,19 @@
       "itemCount": 28,
       "totalSaleQty": 9627,
       "totalSaleAmt": 713560830,
-      "totalStockQty": 595799
+      "totalStockQty": 595791
     },
     "M": {
       "itemCount": 33,
-      "totalSaleQty": 94740,
-      "totalSaleAmt": 4991232022,
-      "totalStockQty": 2642259
+      "totalSaleQty": 94723,
+      "totalSaleAmt": 4988389022,
+      "totalStockQty": 2642306
     },
     "ST": {
       "itemCount": 20,
       "totalSaleQty": 334,
       "totalSaleAmt": 18997590,
-      "totalStockQty": 43076
+      "totalStockQty": 43078
     },
     "V": {
       "itemCount": 23,
@@ -4962,7 +4974,7 @@
       "itemCount": 23,
       "totalSaleQty": 27417,
       "totalSaleAmt": 2010235530,
-      "totalStockQty": 1001034
+      "totalStockQty": 1001077
     }
   },
   "clothingBrandRates": {
@@ -5030,13 +5042,25 @@
       "totalOrderTagPy": 298110600000.0,
       "totalCumSalesPy": 100618922000.0,
       "totalOrderTag": 313587892000.0,
-      "totalCumSales": 88505015000.0,
+      "totalCumSales": 88505662000.0,
       "totalOrderTagPyEnd": 300662460000.0,
       "totalCumSalesPyEnd": 160914318000.0,
       "cumSalesRate": 0.2822,
       "cumSalesRatePy": 0.3375,
       "cumSalesRateDiff": -0.0553,
       "pyClosingSalesRate": 0.5352
+    },
+    "overall": {
+      "totalOrderTag": 479360509000.0,
+      "totalOrderTagPy": 456718316000.0,
+      "totalCumSales": 147606689000.0,
+      "totalCumSalesPy": 160195948783.0,
+      "totalOrderTagPyEnd": 460354358000.0,
+      "totalCumSalesPyEnd": 239008408701.0,
+      "cumSalesRate": 0.3079,
+      "cumSalesRatePy": 0.3508,
+      "cumSalesRateDiff": -0.0429,
+      "pyClosingSalesRate": 0.5192
     }
   },
   "clothingCategoryRates": {
@@ -5269,19 +5293,19 @@
       },
       "Inner": {
         "totalOrderTag": 34732957000.0,
-        "totalCumSales": 10553537000.0,
+        "totalCumSales": 10553685000.0,
         "totalOrderTagPy": 30692813000.0,
         "totalCumSalesPy": 12241806000.0,
         "totalOrderTagPyEnd": 30599544000.0,
         "totalCumSalesPyEnd": 15494981000.0,
-        "cumSalesRate": 0.3038,
+        "cumSalesRate": 0.3039,
         "cumSalesRatePy": 0.3988,
-        "cumSalesRateDiff": -0.095,
+        "cumSalesRateDiff": -0.0949,
         "pyClosingSalesRate": 0.5064
       },
       "Outer": {
         "totalOrderTag": 257186464000.0,
-        "totalCumSales": 71743455000.0,
+        "totalCumSales": 71743954000.0,
         "totalOrderTagPy": 244354820000.0,
         "totalCumSalesPy": 81294637000.0,
         "totalOrderTagPyEnd": 247732016000.0,
@@ -5320,7 +5344,7 @@
     },
     "Inner": {
       "totalOrderTag": 64627574000.0,
-      "totalCumSales": 22625235000.0,
+      "totalCumSales": 22625383000.0,
       "totalOrderTagPy": 65792909000.0,
       "totalCumSalesPy": 25349084538.0,
       "totalOrderTagPyEnd": 65699640000.0,
@@ -5332,7 +5356,7 @@
     },
     "Outer": {
       "totalOrderTag": 366213099000.0,
-      "totalCumSales": 108361740000.0,
+      "totalCumSales": 108362239000.0,
       "totalOrderTagPy": 340814217000.0,
       "totalCumSalesPy": 118055196885.0,
       "totalOrderTagPyEnd": 345275724000.0,
@@ -5357,90 +5381,20 @@
   },
   "clothingBrandItemRates": {
     "I": {
-      "DJ": {
-        "cumSalesRate": 0.2898,
-        "cumSalesRatePy": 0.3813,
-        "pyClosingSalesRate": 0.5247
-      },
-      "DK": {
-        "cumSalesRate": 0.3818,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
       "DP": {
         "cumSalesRate": 0.4726,
         "cumSalesRatePy": 0.5197,
         "pyClosingSalesRate": 0.5954
-      },
-      "DV": {
-        "cumSalesRate": 0.3545,
-        "cumSalesRatePy": 0.3767,
-        "pyClosingSalesRate": 0.4637
-      },
-      "FD": {
-        "cumSalesRate": 0.2294,
-        "cumSalesRatePy": 0.2901,
-        "pyClosingSalesRate": 0.3528
-      },
-      "HD": {
-        "cumSalesRate": 0.3938,
-        "cumSalesRatePy": 0.3748,
-        "pyClosingSalesRate": 0.4337
-      },
-      "JP": {
-        "cumSalesRate": 0.3624,
-        "cumSalesRatePy": 0.2763,
-        "pyClosingSalesRate": 0.2833
-      },
-      "KC": {
-        "cumSalesRate": 0.1407,
-        "cumSalesRatePy": 0.2227,
-        "pyClosingSalesRate": 0.2376
-      },
-      "KP": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.2743,
-        "pyClosingSalesRate": 0.3716
       },
       "LG": {
         "cumSalesRate": 0.3075,
         "cumSalesRatePy": 0.2076,
         "pyClosingSalesRate": 0.2714
       },
-      "MT": {
-        "cumSalesRate": 0.3288,
-        "cumSalesRatePy": 0.3474,
-        "pyClosingSalesRate": 0.4078
-      },
-      "OP": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.2035,
-        "pyClosingSalesRate": 0.2226
-      },
-      "PD": {
-        "cumSalesRate": 0.3402,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
-      "PQ": {
-        "cumSalesRate": 0.5043,
-        "cumSalesRatePy": 0.614,
-        "pyClosingSalesRate": 0.6215
-      },
       "PT": {
         "cumSalesRate": 0.3992,
         "cumSalesRatePy": 0.3264,
         "pyClosingSalesRate": 0.3812
-      },
-      "S1": {
-        "cumSalesRate": 0.3819,
-        "cumSalesRatePy": 0.34,
-        "pyClosingSalesRate": 0.3929
-      },
-      "S2": {
-        "cumSalesRate": 0.4087,
-        "cumSalesRatePy": 0.3675,
-        "pyClosingSalesRate": 0.4665
       },
       "SK": {
         "cumSalesRate": 0.192,
@@ -5457,6 +5411,36 @@
         "cumSalesRatePy": null,
         "pyClosingSalesRate": null
       },
+      "WP": {
+        "cumSalesRate": 0.3857,
+        "cumSalesRatePy": 0.2971,
+        "pyClosingSalesRate": 0.3512
+      },
+      "HD": {
+        "cumSalesRate": 0.3938,
+        "cumSalesRatePy": 0.3748,
+        "pyClosingSalesRate": 0.4337
+      },
+      "KP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.2743,
+        "pyClosingSalesRate": 0.3716
+      },
+      "MT": {
+        "cumSalesRate": 0.3288,
+        "cumSalesRatePy": 0.3474,
+        "pyClosingSalesRate": 0.4078
+      },
+      "OP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.2035,
+        "pyClosingSalesRate": 0.2226
+      },
+      "PQ": {
+        "cumSalesRate": 0.5043,
+        "cumSalesRatePy": 0.614,
+        "pyClosingSalesRate": 0.6215
+      },
       "TR": {
         "cumSalesRate": null,
         "cumSalesRatePy": null,
@@ -5467,107 +5451,77 @@
         "cumSalesRatePy": 0.3201,
         "pyClosingSalesRate": 0.3335
       },
+      "WS": {
+        "cumSalesRate": 0.363,
+        "cumSalesRatePy": 0.4115,
+        "pyClosingSalesRate": 0.4157
+      },
+      "DJ": {
+        "cumSalesRate": 0.2898,
+        "cumSalesRatePy": 0.3813,
+        "pyClosingSalesRate": 0.5247
+      },
+      "DK": {
+        "cumSalesRate": 0.3818,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DV": {
+        "cumSalesRate": 0.3545,
+        "cumSalesRatePy": 0.3767,
+        "pyClosingSalesRate": 0.4637
+      },
+      "FD": {
+        "cumSalesRate": 0.2294,
+        "cumSalesRatePy": 0.2901,
+        "pyClosingSalesRate": 0.3528
+      },
+      "JP": {
+        "cumSalesRate": 0.3624,
+        "cumSalesRatePy": 0.2763,
+        "pyClosingSalesRate": 0.2833
+      },
+      "KC": {
+        "cumSalesRate": 0.1407,
+        "cumSalesRatePy": 0.2227,
+        "pyClosingSalesRate": 0.2376
+      },
+      "PD": {
+        "cumSalesRate": 0.3402,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
       "WJ": {
         "cumSalesRate": 0.3324,
         "cumSalesRatePy": 0.2692,
         "pyClosingSalesRate": 0.276
       },
-      "WP": {
-        "cumSalesRate": 0.3857,
-        "cumSalesRatePy": 0.2971,
-        "pyClosingSalesRate": 0.3512
+      "S1": {
+        "cumSalesRate": 0.3819,
+        "cumSalesRatePy": 0.34,
+        "pyClosingSalesRate": 0.3929
       },
-      "WS": {
-        "cumSalesRate": 0.363,
-        "cumSalesRatePy": 0.4115,
-        "pyClosingSalesRate": 0.4157
+      "S2": {
+        "cumSalesRate": 0.4087,
+        "cumSalesRatePy": 0.3675,
+        "pyClosingSalesRate": 0.4665
       }
     },
     "M": {
-      "DD": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.1734,
-        "pyClosingSalesRate": 0.2023
-      },
-      "DJ": {
-        "cumSalesRate": 0.3213,
-        "cumSalesRatePy": 0.4807,
-        "pyClosingSalesRate": 0.652
-      },
-      "DK": {
-        "cumSalesRate": 0.2782,
-        "cumSalesRatePy": 0.1157,
-        "pyClosingSalesRate": 0.1564
-      },
       "DP": {
         "cumSalesRate": 0.3241,
         "cumSalesRatePy": 0.3133,
         "pyClosingSalesRate": 0.3929
-      },
-      "DR": {
-        "cumSalesRate": 0.1632,
-        "cumSalesRatePy": 0.365,
-        "pyClosingSalesRate": 0.4045
       },
       "DS": {
         "cumSalesRate": 0.2429,
         "cumSalesRatePy": 0.5258,
         "pyClosingSalesRate": 0.541
       },
-      "DV": {
-        "cumSalesRate": 0.2831,
-        "cumSalesRatePy": 0.4016,
-        "pyClosingSalesRate": 0.5059
-      },
-      "FD": {
-        "cumSalesRate": 0.4755,
-        "cumSalesRatePy": 0.1694,
-        "pyClosingSalesRate": 0.2343
-      },
-      "HD": {
-        "cumSalesRate": 0.381,
-        "cumSalesRatePy": 0.4462,
-        "pyClosingSalesRate": 0.5233
-      },
-      "JK": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
-      "JP": {
-        "cumSalesRate": 0.4555,
-        "cumSalesRatePy": 0.3747,
-        "pyClosingSalesRate": 0.4143
-      },
-      "KC": {
-        "cumSalesRate": 0.611,
-        "cumSalesRatePy": 0.4567,
-        "pyClosingSalesRate": 0.506
-      },
-      "KP": {
-        "cumSalesRate": 0.3994,
-        "cumSalesRatePy": 0.5087,
-        "pyClosingSalesRate": 0.561
-      },
       "LG": {
         "cumSalesRate": null,
         "cumSalesRatePy": 0.2023,
         "pyClosingSalesRate": 0.2577
-      },
-      "MT": {
-        "cumSalesRate": 0.4803,
-        "cumSalesRatePy": 0.4389,
-        "pyClosingSalesRate": 0.514
-      },
-      "OP": {
-        "cumSalesRate": 0.2881,
-        "cumSalesRatePy": 0.0726,
-        "pyClosingSalesRate": 0.0812
-      },
-      "PD": {
-        "cumSalesRate": 0.3956,
-        "cumSalesRatePy": 0.3583,
-        "pyClosingSalesRate": 0.4528
       },
       "PT": {
         "cumSalesRate": 0.4144,
@@ -5589,6 +5543,41 @@
         "cumSalesRatePy": null,
         "pyClosingSalesRate": null
       },
+      "WP": {
+        "cumSalesRate": 0.4168,
+        "cumSalesRatePy": 0.4392,
+        "pyClosingSalesRate": 0.4908
+      },
+      "DD": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.1734,
+        "pyClosingSalesRate": 0.2023
+      },
+      "DR": {
+        "cumSalesRate": 0.1632,
+        "cumSalesRatePy": 0.365,
+        "pyClosingSalesRate": 0.4045
+      },
+      "HD": {
+        "cumSalesRate": 0.381,
+        "cumSalesRatePy": 0.4462,
+        "pyClosingSalesRate": 0.5233
+      },
+      "KP": {
+        "cumSalesRate": 0.3994,
+        "cumSalesRatePy": 0.5087,
+        "pyClosingSalesRate": 0.561
+      },
+      "MT": {
+        "cumSalesRate": 0.4803,
+        "cumSalesRatePy": 0.4389,
+        "pyClosingSalesRate": 0.514
+      },
+      "OP": {
+        "cumSalesRate": 0.2881,
+        "cumSalesRatePy": 0.0726,
+        "pyClosingSalesRate": 0.0812
+      },
       "TO": {
         "cumSalesRate": null,
         "cumSalesRatePy": null,
@@ -5604,47 +5593,82 @@
         "cumSalesRatePy": 0.6399,
         "pyClosingSalesRate": 0.6715
       },
-      "WJ": {
-        "cumSalesRate": 0.4503,
-        "cumSalesRatePy": 0.4476,
-        "pyClosingSalesRate": 0.4573
-      },
-      "WP": {
-        "cumSalesRate": 0.4168,
-        "cumSalesRatePy": 0.4392,
-        "pyClosingSalesRate": 0.4908
-      },
       "WS": {
         "cumSalesRate": 0.6545,
         "cumSalesRatePy": 0.2938,
         "pyClosingSalesRate": 0.3709
+      },
+      "DJ": {
+        "cumSalesRate": 0.3213,
+        "cumSalesRatePy": 0.4807,
+        "pyClosingSalesRate": 0.652
+      },
+      "DK": {
+        "cumSalesRate": 0.2782,
+        "cumSalesRatePy": 0.1157,
+        "pyClosingSalesRate": 0.1564
+      },
+      "DV": {
+        "cumSalesRate": 0.2831,
+        "cumSalesRatePy": 0.4016,
+        "pyClosingSalesRate": 0.5059
+      },
+      "FD": {
+        "cumSalesRate": 0.4755,
+        "cumSalesRatePy": 0.1694,
+        "pyClosingSalesRate": 0.2343
+      },
+      "JK": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "JP": {
+        "cumSalesRate": 0.4555,
+        "cumSalesRatePy": 0.3747,
+        "pyClosingSalesRate": 0.4143
+      },
+      "KC": {
+        "cumSalesRate": 0.611,
+        "cumSalesRatePy": 0.4567,
+        "pyClosingSalesRate": 0.506
+      },
+      "PD": {
+        "cumSalesRate": 0.3956,
+        "cumSalesRatePy": 0.3583,
+        "pyClosingSalesRate": 0.4528
+      },
+      "WJ": {
+        "cumSalesRate": 0.4503,
+        "cumSalesRatePy": 0.4476,
+        "pyClosingSalesRate": 0.4573
       }
     },
     "ST": {
-      "BR": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.0851,
-        "pyClosingSalesRate": 0.0989
+      "LG": {
+        "cumSalesRate": 0.0714,
+        "cumSalesRatePy": 0.1185,
+        "pyClosingSalesRate": 0.1473
       },
-      "DJ": {
-        "cumSalesRate": 0.2743,
-        "cumSalesRatePy": 0.0907,
-        "pyClosingSalesRate": 0.1536
+      "PT": {
+        "cumSalesRate": 0.2546,
+        "cumSalesRatePy": 0.1433,
+        "pyClosingSalesRate": 0.2033
       },
-      "DV": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.0803,
-        "pyClosingSalesRate": 0.1538
+      "SK": {
+        "cumSalesRate": 0.501,
+        "cumSalesRatePy": 0.3559,
+        "pyClosingSalesRate": 0.4458
+      },
+      "SP": {
+        "cumSalesRate": 0.4153,
+        "cumSalesRatePy": 0.6404,
+        "pyClosingSalesRate": 0.7247
       },
       "HD": {
         "cumSalesRate": 0.1136,
         "cumSalesRatePy": 0.1812,
         "pyClosingSalesRate": 0.2501
-      },
-      "KC": {
-        "cumSalesRate": 0.1991,
-        "cumSalesRatePy": 0.1982,
-        "pyClosingSalesRate": 0.2803
       },
       "KP": {
         "cumSalesRate": 0.2295,
@@ -5661,11 +5685,6 @@
         "cumSalesRatePy": null,
         "pyClosingSalesRate": null
       },
-      "LG": {
-        "cumSalesRate": 0.0714,
-        "cumSalesRatePy": 0.1185,
-        "pyClosingSalesRate": 0.1473
-      },
       "MT": {
         "cumSalesRate": 0.1969,
         "cumSalesRatePy": 0.2153,
@@ -5676,20 +5695,10 @@
         "cumSalesRatePy": 0.1445,
         "pyClosingSalesRate": 0.2129
       },
-      "PD": {
-        "cumSalesRate": 0.0905,
-        "cumSalesRatePy": 0.1322,
-        "pyClosingSalesRate": 0.2016
-      },
       "PQ": {
         "cumSalesRate": 0.2693,
         "cumSalesRatePy": 0.2114,
         "pyClosingSalesRate": 0.2568
-      },
-      "PT": {
-        "cumSalesRate": 0.2546,
-        "cumSalesRatePy": 0.1433,
-        "pyClosingSalesRate": 0.2033
       },
       "RL": {
         "cumSalesRate": 0.159,
@@ -5701,33 +5710,118 @@
         "cumSalesRatePy": 0.3608,
         "pyClosingSalesRate": 0.4012
       },
-      "SK": {
-        "cumSalesRate": 0.501,
-        "cumSalesRatePy": 0.3559,
-        "pyClosingSalesRate": 0.4458
-      },
-      "SP": {
-        "cumSalesRate": 0.4153,
-        "cumSalesRatePy": 0.6404,
-        "pyClosingSalesRate": 0.7247
-      },
       "TR": {
         "cumSalesRate": 0.2501,
         "cumSalesRatePy": 0.158,
         "pyClosingSalesRate": 0.2105
+      },
+      "WT": {
+        "cumSalesRate": 0.1895,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "DJ": {
+        "cumSalesRate": 0.2743,
+        "cumSalesRatePy": 0.0907,
+        "pyClosingSalesRate": 0.1536
+      },
+      "DV": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.0803,
+        "pyClosingSalesRate": 0.1538
+      },
+      "KC": {
+        "cumSalesRate": 0.1991,
+        "cumSalesRatePy": 0.1982,
+        "pyClosingSalesRate": 0.2803
+      },
+      "PD": {
+        "cumSalesRate": 0.0905,
+        "cumSalesRatePy": 0.1322,
+        "pyClosingSalesRate": 0.2016
       },
       "WJ": {
         "cumSalesRate": 0.0622,
         "cumSalesRatePy": 0.1865,
         "pyClosingSalesRate": 0.2044
       },
-      "WT": {
-        "cumSalesRate": 0.1895,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
+      "BR": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.0851,
+        "pyClosingSalesRate": 0.0989
       }
     },
     "V": {
+      "LG": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.0637,
+        "pyClosingSalesRate": 0.1019
+      },
+      "PT": {
+        "cumSalesRate": 0.2106,
+        "cumSalesRatePy": 0.1385,
+        "pyClosingSalesRate": 0.2087
+      },
+      "SK": {
+        "cumSalesRate": 0.2435,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "SP": {
+        "cumSalesRate": 0.2719,
+        "cumSalesRatePy": 0.1212,
+        "pyClosingSalesRate": 0.1909
+      },
+      "HD": {
+        "cumSalesRate": 0.1461,
+        "cumSalesRatePy": 0.122,
+        "pyClosingSalesRate": 0.2209
+      },
+      "KP": {
+        "cumSalesRate": 0.1219,
+        "cumSalesRatePy": 0.1887,
+        "pyClosingSalesRate": 0.3005
+      },
+      "KV": {
+        "cumSalesRate": 0.13,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "MT": {
+        "cumSalesRate": 0.1121,
+        "cumSalesRatePy": 0.0768,
+        "pyClosingSalesRate": 0.1436
+      },
+      "OP": {
+        "cumSalesRate": 0.2095,
+        "cumSalesRatePy": 0.6604,
+        "pyClosingSalesRate": 0.6918
+      },
+      "RL": {
+        "cumSalesRate": 0.0999,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "RS": {
+        "cumSalesRate": 0.2492,
+        "cumSalesRatePy": 0.1342,
+        "pyClosingSalesRate": 0.1536
+      },
+      "TS": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "WS": {
+        "cumSalesRate": 0.0556,
+        "cumSalesRatePy": 0.0071,
+        "pyClosingSalesRate": 0.0286
+      },
+      "ZT": {
+        "cumSalesRate": 0.261,
+        "cumSalesRatePy": 0.0637,
+        "pyClosingSalesRate": 0.1365
+      },
       "DH": {
         "cumSalesRate": 0.4172,
         "cumSalesRatePy": 0.7658,
@@ -5743,11 +5837,6 @@
         "cumSalesRatePy": 0.1033,
         "pyClosingSalesRate": 0.1919
       },
-      "HD": {
-        "cumSalesRate": 0.1461,
-        "cumSalesRatePy": 0.122,
-        "pyClosingSalesRate": 0.2209
-      },
       "JK": {
         "cumSalesRate": 0.01,
         "cumSalesRatePy": 0.0363,
@@ -5758,70 +5847,15 @@
         "cumSalesRatePy": null,
         "pyClosingSalesRate": null
       },
-      "KP": {
-        "cumSalesRate": 0.1219,
-        "cumSalesRatePy": 0.1887,
-        "pyClosingSalesRate": 0.3005
-      },
-      "KV": {
-        "cumSalesRate": 0.13,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
-      "LG": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.0637,
-        "pyClosingSalesRate": 0.1019
-      },
-      "MT": {
-        "cumSalesRate": 0.1121,
-        "cumSalesRatePy": 0.0768,
-        "pyClosingSalesRate": 0.1436
-      },
-      "OP": {
-        "cumSalesRate": 0.2095,
-        "cumSalesRatePy": 0.6604,
-        "pyClosingSalesRate": 0.6918
-      },
       "PD": {
         "cumSalesRate": null,
         "cumSalesRatePy": null,
         "pyClosingSalesRate": null
       },
-      "PT": {
-        "cumSalesRate": 0.2106,
-        "cumSalesRatePy": 0.1385,
-        "pyClosingSalesRate": 0.2087
-      },
-      "RL": {
-        "cumSalesRate": 0.0999,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
-      "RS": {
-        "cumSalesRate": 0.2492,
-        "cumSalesRatePy": 0.1342,
-        "pyClosingSalesRate": 0.1536
-      },
-      "SK": {
-        "cumSalesRate": 0.2435,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
-      "SP": {
-        "cumSalesRate": 0.2719,
-        "cumSalesRatePy": 0.1212,
-        "pyClosingSalesRate": 0.1909
-      },
       "SS": {
         "cumSalesRate": null,
         "cumSalesRatePy": 0.2184,
         "pyClosingSalesRate": 0.3135
-      },
-      "TS": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
       },
       "VT": {
         "cumSalesRate": 0.2453,
@@ -5832,33 +5866,28 @@
         "cumSalesRate": 0.1347,
         "cumSalesRatePy": 0.3284,
         "pyClosingSalesRate": 0.4431
-      },
-      "WS": {
-        "cumSalesRate": 0.0556,
-        "cumSalesRatePy": 0.0071,
-        "pyClosingSalesRate": 0.0286
-      },
-      "ZT": {
-        "cumSalesRate": 0.261,
-        "cumSalesRatePy": 0.0637,
-        "pyClosingSalesRate": 0.1365
       }
     },
     "W": {
-      "DJ": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.1792,
-        "pyClosingSalesRate": 0.2839
-      },
       "DP": {
         "cumSalesRate": null,
         "cumSalesRatePy": null,
         "pyClosingSalesRate": null
       },
-      "DV": {
+      "PT": {
         "cumSalesRate": null,
-        "cumSalesRatePy": 0.3561,
-        "pyClosingSalesRate": 0.4878
+        "cumSalesRatePy": 0.1705,
+        "pyClosingSalesRate": 0.3191
+      },
+      "SK": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.2325,
+        "pyClosingSalesRate": 0.2325
+      },
+      "WP": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.14,
+        "pyClosingSalesRate": 0.1644
       },
       "HD": {
         "cumSalesRate": null,
@@ -5870,16 +5899,6 @@
         "cumSalesRatePy": 0.2449,
         "pyClosingSalesRate": 0.3589
       },
-      "PD": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.1413,
-        "pyClosingSalesRate": 0.1957
-      },
-      "PT": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.1705,
-        "pyClosingSalesRate": 0.3191
-      },
       "RL": {
         "cumSalesRate": null,
         "cumSalesRatePy": 0.3066,
@@ -5890,10 +5909,20 @@
         "cumSalesRatePy": 0.5181,
         "pyClosingSalesRate": 0.5664
       },
-      "SK": {
+      "DJ": {
         "cumSalesRate": null,
-        "cumSalesRatePy": 0.2325,
-        "pyClosingSalesRate": 0.2325
+        "cumSalesRatePy": 0.1792,
+        "pyClosingSalesRate": 0.2839
+      },
+      "DV": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.3561,
+        "pyClosingSalesRate": 0.4878
+      },
+      "PD": {
+        "cumSalesRate": null,
+        "cumSalesRatePy": 0.1413,
+        "pyClosingSalesRate": 0.1957
       },
       "SS": {
         "cumSalesRate": null,
@@ -5904,73 +5933,18 @@
         "cumSalesRate": null,
         "cumSalesRatePy": 0.1493,
         "pyClosingSalesRate": 0.1645
-      },
-      "WP": {
-        "cumSalesRate": null,
-        "cumSalesRatePy": 0.14,
-        "pyClosingSalesRate": 0.1644
       }
     },
     "X": {
-      "AZ": {
-        "cumSalesRate": 0.2708,
-        "cumSalesRatePy": 0.3616,
-        "pyClosingSalesRate": 0.4891
-      },
-      "DJ": {
-        "cumSalesRate": 0.2746,
-        "cumSalesRatePy": 0.3233,
-        "pyClosingSalesRate": 0.5542
-      },
-      "DV": {
-        "cumSalesRate": 0.3264,
-        "cumSalesRatePy": 0.5567,
-        "pyClosingSalesRate": 0.7869
-      },
-      "HD": {
-        "cumSalesRate": 0.2802,
-        "cumSalesRatePy": 0.4175,
-        "pyClosingSalesRate": 0.5458
-      },
-      "JP": {
-        "cumSalesRate": 0.0358,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
       "LG": {
         "cumSalesRate": 0.0638,
         "cumSalesRatePy": 0.0562,
         "pyClosingSalesRate": 0.1906
       },
-      "MT": {
-        "cumSalesRate": 0.3367,
-        "cumSalesRatePy": 0.46,
-        "pyClosingSalesRate": 0.6198
-      },
-      "OP": {
-        "cumSalesRate": 0.1634,
-        "cumSalesRatePy": 0.2799,
-        "pyClosingSalesRate": 0.2958
-      },
-      "PD": {
-        "cumSalesRate": 0.2286,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
-      },
       "PT": {
         "cumSalesRate": 0.2959,
         "cumSalesRatePy": 0.3176,
         "pyClosingSalesRate": 0.4167
-      },
-      "RL": {
-        "cumSalesRate": 0.3364,
-        "cumSalesRatePy": 0.6105,
-        "pyClosingSalesRate": 0.6729
-      },
-      "RS": {
-        "cumSalesRate": 0.4006,
-        "cumSalesRatePy": null,
-        "pyClosingSalesRate": null
       },
       "SK": {
         "cumSalesRate": 0.1583,
@@ -5982,123 +5956,103 @@
         "cumSalesRatePy": 0.1137,
         "pyClosingSalesRate": 0.1869
       },
-      "SS": {
-        "cumSalesRate": 0.4522,
-        "cumSalesRatePy": 0.3345,
-        "pyClosingSalesRate": 0.4333
+      "TP": {
+        "cumSalesRate": 0.3006,
+        "cumSalesRatePy": 0.3253,
+        "pyClosingSalesRate": 0.4323
+      },
+      "HD": {
+        "cumSalesRate": 0.2802,
+        "cumSalesRatePy": 0.4175,
+        "pyClosingSalesRate": 0.5458
+      },
+      "MT": {
+        "cumSalesRate": 0.3367,
+        "cumSalesRatePy": 0.46,
+        "pyClosingSalesRate": 0.6198
+      },
+      "OP": {
+        "cumSalesRate": 0.1634,
+        "cumSalesRatePy": 0.2799,
+        "pyClosingSalesRate": 0.2958
+      },
+      "RL": {
+        "cumSalesRate": 0.3364,
+        "cumSalesRatePy": 0.6105,
+        "pyClosingSalesRate": 0.6729
+      },
+      "RS": {
+        "cumSalesRate": 0.4006,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
       },
       "TL": {
         "cumSalesRate": 0.4677,
         "cumSalesRatePy": 0.5106,
         "pyClosingSalesRate": 0.5704
       },
-      "TP": {
-        "cumSalesRate": 0.3006,
-        "cumSalesRatePy": 0.3253,
-        "pyClosingSalesRate": 0.4323
-      },
       "TR": {
         "cumSalesRate": 0.301,
         "cumSalesRatePy": 0.3367,
         "pyClosingSalesRate": 0.4168
+      },
+      "ZT": {
+        "cumSalesRate": 0.1881,
+        "cumSalesRatePy": 0.237,
+        "pyClosingSalesRate": 0.279
+      },
+      "DJ": {
+        "cumSalesRate": 0.2746,
+        "cumSalesRatePy": 0.3233,
+        "pyClosingSalesRate": 0.5542
+      },
+      "DV": {
+        "cumSalesRate": 0.3264,
+        "cumSalesRatePy": 0.5567,
+        "pyClosingSalesRate": 0.7869
+      },
+      "JP": {
+        "cumSalesRate": 0.0358,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "PD": {
+        "cumSalesRate": 0.2286,
+        "cumSalesRatePy": null,
+        "pyClosingSalesRate": null
+      },
+      "SS": {
+        "cumSalesRate": 0.4522,
+        "cumSalesRatePy": 0.3345,
+        "pyClosingSalesRate": 0.4333
       },
       "WJ": {
         "cumSalesRate": 0.2954,
         "cumSalesRatePy": 0.3752,
         "pyClosingSalesRate": 0.4047
       },
-      "ZT": {
-        "cumSalesRate": 0.1881,
-        "cumSalesRatePy": 0.237,
-        "pyClosingSalesRate": 0.279
+      "AZ": {
+        "cumSalesRate": 0.2708,
+        "cumSalesRatePy": 0.3616,
+        "pyClosingSalesRate": 0.4891
       }
     }
   },
   "clothingItemRatesOverall": {
-    "DJ": {
-      "cumSalesRate": 0.2908,
-      "cumSalesRatePy": 0.3423,
-      "pyClosingSalesRate": 0.5602
-    },
-    "DK": {
-      "cumSalesRate": 0.3532,
-      "cumSalesRatePy": 0.1157,
-      "pyClosingSalesRate": 0.1564
-    },
     "DP": {
       "cumSalesRate": 0.3966,
       "cumSalesRatePy": 0.3765,
       "pyClosingSalesRate": 0.455
-    },
-    "DV": {
-      "cumSalesRate": 0.315,
-      "cumSalesRatePy": 0.4685,
-      "pyClosingSalesRate": 0.6426
-    },
-    "FD": {
-      "cumSalesRate": 0.4027,
-      "cumSalesRatePy": 0.228,
-      "pyClosingSalesRate": 0.2918
-    },
-    "HD": {
-      "cumSalesRate": 0.3215,
-      "cumSalesRatePy": 0.4099,
-      "pyClosingSalesRate": 0.5053
-    },
-    "JP": {
-      "cumSalesRate": 0.2403,
-      "cumSalesRatePy": 0.3333,
-      "pyClosingSalesRate": 0.3592
-    },
-    "KC": {
-      "cumSalesRate": 0.4051,
-      "cumSalesRatePy": 0.3762,
-      "pyClosingSalesRate": 0.4232
-    },
-    "KP": {
-      "cumSalesRate": 0.2773,
-      "cumSalesRatePy": 0.3855,
-      "pyClosingSalesRate": 0.4538
     },
     "LG": {
       "cumSalesRate": 0.0939,
       "cumSalesRatePy": 0.0916,
       "pyClosingSalesRate": 0.2143
     },
-    "MT": {
-      "cumSalesRate": 0.3695,
-      "cumSalesRatePy": 0.4109,
-      "pyClosingSalesRate": 0.5148
-    },
-    "OP": {
-      "cumSalesRate": 0.1972,
-      "cumSalesRatePy": 0.1745,
-      "pyClosingSalesRate": 0.1887
-    },
-    "PD": {
-      "cumSalesRate": 0.2948,
-      "cumSalesRatePy": 0.301,
-      "pyClosingSalesRate": 0.3887
-    },
-    "PQ": {
-      "cumSalesRate": 0.3084,
-      "cumSalesRatePy": 0.2813,
-      "pyClosingSalesRate": 0.3201
-    },
     "PT": {
       "cumSalesRate": 0.34,
       "cumSalesRatePy": 0.351,
       "pyClosingSalesRate": 0.4464
-    },
-    "S1": {
-      "cumSalesRate": 0.3819,
-      "cumSalesRatePy": 0.34,
-      "pyClosingSalesRate": 0.3929
-    },
-    "S2": {
-      "cumSalesRate": 0.4087,
-      "cumSalesRatePy": 0.3675,
-      "pyClosingSalesRate": 0.4665
     },
     "SK": {
       "cumSalesRate": 0.2965,
@@ -6115,6 +6069,36 @@
       "cumSalesRatePy": 0.3253,
       "pyClosingSalesRate": 0.4323
     },
+    "WP": {
+      "cumSalesRate": 0.4062,
+      "cumSalesRatePy": 0.3644,
+      "pyClosingSalesRate": 0.4151
+    },
+    "HD": {
+      "cumSalesRate": 0.3215,
+      "cumSalesRatePy": 0.4099,
+      "pyClosingSalesRate": 0.5053
+    },
+    "KP": {
+      "cumSalesRate": 0.2773,
+      "cumSalesRatePy": 0.3855,
+      "pyClosingSalesRate": 0.4538
+    },
+    "MT": {
+      "cumSalesRate": 0.3695,
+      "cumSalesRatePy": 0.4109,
+      "pyClosingSalesRate": 0.5148
+    },
+    "OP": {
+      "cumSalesRate": 0.1972,
+      "cumSalesRatePy": 0.1745,
+      "pyClosingSalesRate": 0.1887
+    },
+    "PQ": {
+      "cumSalesRate": 0.3084,
+      "cumSalesRatePy": 0.2813,
+      "pyClosingSalesRate": 0.3201
+    },
     "TR": {
       "cumSalesRate": 0.3514,
       "cumSalesRatePy": 0.3403,
@@ -6125,20 +6109,70 @@
       "cumSalesRatePy": 0.5567,
       "pyClosingSalesRate": 0.5835
     },
+    "WS": {
+      "cumSalesRate": 0.4286,
+      "cumSalesRatePy": 0.3144,
+      "pyClosingSalesRate": 0.3542
+    },
+    "DJ": {
+      "cumSalesRate": 0.2908,
+      "cumSalesRatePy": 0.3423,
+      "pyClosingSalesRate": 0.5602
+    },
+    "DK": {
+      "cumSalesRate": 0.3532,
+      "cumSalesRatePy": 0.1157,
+      "pyClosingSalesRate": 0.1564
+    },
+    "DV": {
+      "cumSalesRate": 0.315,
+      "cumSalesRatePy": 0.4685,
+      "pyClosingSalesRate": 0.6426
+    },
+    "FD": {
+      "cumSalesRate": 0.4027,
+      "cumSalesRatePy": 0.228,
+      "pyClosingSalesRate": 0.2918
+    },
+    "JP": {
+      "cumSalesRate": 0.2403,
+      "cumSalesRatePy": 0.3333,
+      "pyClosingSalesRate": 0.3592
+    },
+    "KC": {
+      "cumSalesRate": 0.4051,
+      "cumSalesRatePy": 0.3762,
+      "pyClosingSalesRate": 0.4232
+    },
+    "PD": {
+      "cumSalesRate": 0.2948,
+      "cumSalesRatePy": 0.301,
+      "pyClosingSalesRate": 0.3887
+    },
     "WJ": {
       "cumSalesRate": 0.2886,
       "cumSalesRatePy": 0.3663,
       "pyClosingSalesRate": 0.3952
     },
-    "WP": {
-      "cumSalesRate": 0.4062,
-      "cumSalesRatePy": 0.3644,
-      "pyClosingSalesRate": 0.4151
+    "S1": {
+      "cumSalesRate": 0.3819,
+      "cumSalesRatePy": 0.34,
+      "pyClosingSalesRate": 0.3929
     },
-    "WS": {
-      "cumSalesRate": 0.4286,
-      "cumSalesRatePy": 0.3144,
-      "pyClosingSalesRate": 0.3542
+    "S2": {
+      "cumSalesRate": 0.4087,
+      "cumSalesRatePy": 0.3675,
+      "pyClosingSalesRate": 0.4665
+    },
+    "DS": {
+      "cumSalesRate": 0.2429,
+      "cumSalesRatePy": 0.5258,
+      "pyClosingSalesRate": 0.541
+    },
+    "SP": {
+      "cumSalesRate": 0.3594,
+      "cumSalesRatePy": 0.1536,
+      "pyClosingSalesRate": 0.2258
     },
     "DD": {
       "cumSalesRate": null,
@@ -6150,30 +6184,15 @@
       "cumSalesRatePy": 0.365,
       "pyClosingSalesRate": 0.4045
     },
-    "DS": {
-      "cumSalesRate": 0.2429,
-      "cumSalesRatePy": 0.5258,
-      "pyClosingSalesRate": 0.541
-    },
-    "JK": {
-      "cumSalesRate": 0.01,
-      "cumSalesRatePy": 0.0363,
-      "pyClosingSalesRate": 0.0574
-    },
-    "SP": {
-      "cumSalesRate": 0.3594,
-      "cumSalesRatePy": 0.1536,
-      "pyClosingSalesRate": 0.2258
-    },
     "TO": {
       "cumSalesRate": null,
       "cumSalesRatePy": null,
       "pyClosingSalesRate": null
     },
-    "BR": {
-      "cumSalesRate": null,
-      "cumSalesRatePy": 0.0851,
-      "pyClosingSalesRate": 0.0989
+    "JK": {
+      "cumSalesRate": 0.01,
+      "cumSalesRatePy": 0.0363,
+      "pyClosingSalesRate": 0.0574
     },
     "KU": {
       "cumSalesRate": 0.1143,
@@ -6200,6 +6219,16 @@
       "cumSalesRatePy": null,
       "pyClosingSalesRate": null
     },
+    "BR": {
+      "cumSalesRate": null,
+      "cumSalesRatePy": 0.0851,
+      "pyClosingSalesRate": 0.0989
+    },
+    "ZT": {
+      "cumSalesRate": 0.1898,
+      "cumSalesRatePy": 0.0962,
+      "pyClosingSalesRate": 0.1632
+    },
     "DH": {
       "cumSalesRate": 0.4172,
       "cumSalesRatePy": 0.7658,
@@ -6215,20 +6244,27 @@
       "cumSalesRatePy": null,
       "pyClosingSalesRate": null
     },
-    "ZT": {
-      "cumSalesRate": 0.1898,
-      "cumSalesRatePy": 0.0962,
-      "pyClosingSalesRate": 0.1632
+    "TL": {
+      "cumSalesRate": 0.4677,
+      "cumSalesRatePy": 0.5106,
+      "pyClosingSalesRate": 0.5704
     },
     "AZ": {
       "cumSalesRate": 0.2708,
       "cumSalesRatePy": 0.3616,
       "pyClosingSalesRate": 0.4891
     },
-    "TL": {
-      "cumSalesRate": 0.4677,
-      "cumSalesRatePy": 0.5106,
-      "pyClosingSalesRate": 0.5704
+    "overall": {
+      "cumSalesRate": 0.3079,
+      "cumSalesRatePy": 0.3508,
+      "cumSalesRateDiff": -0.0429,
+      "pyClosingSalesRate": 0.5192,
+      "totalCumSales": 147606689000.0,
+      "totalStorage": 479360509000.0,
+      "totalCumSalesPy": 160195948783.0,
+      "totalStoragePy": 456718316000.0,
+      "totalCumSalesPyEnd": 239008408701.0,
+      "totalStoragePyEnd": 460354358000.0
     }
   }
 }

@@ -94,7 +94,7 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-echo [Step 1.5] Weekly Sales Trend Download ^(required for Step 2^)
+echo [Step 1.5] Weekly Sales Trend Download ^(required for overview data^)
 set DATE_FORMATTED_STEP1_5=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
 call "%PYTHON_CMD%" scripts\download_weekly_sales_trend.py !DATE_FORMATTED_STEP1_5!
 set STEP_ERR=!errorlevel!
@@ -106,7 +106,7 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\update_overview_data.py !DATE_STR!
+call "%PYTHON_CMD%" scripts\create_brand_pl_data.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 2] Failed (Error code: !STEP_ERR!)
@@ -116,7 +116,7 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\create_brand_pl_data.py !DATE_STR!
+call "%PYTHON_CMD%" scripts\update_brand_radar.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 3] Failed (Error code: !STEP_ERR!)
@@ -126,7 +126,8 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\update_brand_radar.py !DATE_STR!
+set YEAR_MONTH=!DATE_STR:~0,6!
+call "%PYTHON_CMD%" scripts\process_channel_profit_loss.py --base-date !DATE_STR! --target-month !YEAR_MONTH! --format dashboard
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 4] Failed (Error code: !STEP_ERR!)
@@ -136,58 +137,48 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-set YEAR_MONTH=!DATE_STR:~0,6!
-call "%PYTHON_CMD%" scripts\process_channel_profit_loss.py --base-date !DATE_STR! --target-month !YEAR_MONTH! --format dashboard
-set STEP_ERR=!errorlevel!
-if !STEP_ERR! neq 0 (
-    echo [Step 5] Failed (Error code: !STEP_ERR!)
-    set PIPELINE_ERROR=!STEP_ERR!
-) else (
-    echo [Step 5] Completed
-)
-echo.
-
-echo [Step 6] Stock Analysis Download
+echo [Step 5] Stock Analysis Download
 set DATE_FORMATTED=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
 call "%PYTHON_CMD%" scripts\download_brand_stock_analysis.py --update-date !DATE_FORMATTED!
 set STOCK_ERR=!errorlevel!
 
 REM Always generate stock analysis from CSV to include aggregated data (clothingItemRatesOverall, etc.)
 echo.
-echo [Step 7-Post] Generating aggregated stock analysis from CSV
+echo [Step 6] Generating aggregated stock analysis from CSV
 call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
 set GEN_ERR=!errorlevel!
 if !GEN_ERR! neq 0 (
-    echo [Step 7-Post] Failed (Error code: !GEN_ERR!)
+    echo [Step 6] Failed (Error code: !GEN_ERR!)
     set PIPELINE_ERROR=!GEN_ERR!
 ) else (
-    echo [Step 7-Post] Success - Aggregated data generated
+    echo [Step 6] Success - Aggregated data generated
 )
 echo.
 
-echo [Step 7.5] Downloading previous year treemap data for YOY calculation
+echo [Step 7] Update Overview Data ^(requires stock analysis CSV^)
+call "%PYTHON_CMD%" scripts\update_overview_data.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 7] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
+) else (
+    echo [Step 7] Completed
+)
+echo.
+
+echo [Step 8] Downloading previous year treemap data for YOY calculation
 call "%PYTHON_CMD%" scripts\download_previous_year_treemap_data.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
-    echo [Step 7.5] Failed (Error code: !STEP_ERR!)
-    echo [Warning] Previous year data download failed. YOY calculation will be skipped.
-) else (
-    echo [Step 7.5] Completed
-)
-echo.
-
-echo [Step 8] Generating treemap JSON with YOY data
-call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
-set STEP_ERR=!errorlevel!
-if !STEP_ERR! neq 0 (
     echo [Step 8] Failed (Error code: !STEP_ERR!)
-    set PIPELINE_ERROR=!STEP_ERR!
+    echo [Warning] Previous year data download failed. YOY calculation will be skipped.
 ) else (
     echo [Step 8] Completed
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\export_to_json.py !DATE_STR!
+echo [Step 9] Generating treemap JSON with YOY data
+call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 9] Failed (Error code: !STEP_ERR!)
@@ -197,13 +188,23 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands
+call "%PYTHON_CMD%" scripts\export_to_json.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 10] Failed (Error code: !STEP_ERR!)
-    echo [Warning] AI Insights generation failed, but continuing...
+    set PIPELINE_ERROR=!STEP_ERR!
 ) else (
     echo [Step 10] Completed
+)
+echo.
+
+call "%PYTHON_CMD%" scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 11] Failed (Error code: !STEP_ERR!)
+    echo [Warning] AI Insights generation failed, but continuing...
+) else (
+    echo [Step 11] Completed
 )
 echo.
 

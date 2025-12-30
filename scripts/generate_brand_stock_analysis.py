@@ -464,6 +464,23 @@ def process_clothing_csv(file_path):
         else:
             print(f"  [아이템별 평균] {item_code}: None (판매: {vals['cumSales']:.0f}, 입고: {vals['stor']:.0f})")
     
+    # ★ 아이템별 판매율에도 전체 평균(overall) 추가 ★
+    # brand_totals['overall']이 있으면 동일한 값을 item_totals_overall_rates['overall']에도 추가
+    if 'overall' in brand_totals:
+        item_totals_overall_rates['overall'] = {
+            'cumSalesRate': brand_totals['overall'].get('cumSalesRate'),
+            'cumSalesRatePy': brand_totals['overall'].get('cumSalesRatePy'),
+            'cumSalesRateDiff': brand_totals['overall'].get('cumSalesRateDiff'),
+            'pyClosingSalesRate': brand_totals['overall'].get('pyClosingSalesRate'),
+            'totalCumSales': brand_totals['overall'].get('totalCumSales', 0),
+            'totalStorage': brand_totals['overall'].get('totalOrderTag', 0),
+            'totalCumSalesPy': brand_totals['overall'].get('totalCumSalesPy', 0),
+            'totalStoragePy': brand_totals['overall'].get('totalOrderTagPy', 0),
+            'totalCumSalesPyEnd': brand_totals['overall'].get('totalCumSalesPyEnd', 0),
+            'totalStoragePyEnd': brand_totals['overall'].get('totalOrderTagPyEnd', 0)
+        }
+        print(f"  [전체 평균] overall: {brand_totals['overall'].get('cumSalesRate'):.4f} (전체 브랜드 합산)")
+    
     print(f"[당시즌의류] 브랜드별 아이템별 판매율 집계 완료: {len(brand_item_totals)}개 브랜드")
     print(f"[당시즌의류] 전체 아이템별 판매율 집계 완료: {len(item_totals_overall_rates)}개 아이템")
     print(f"[당시즌의류] 전체 아이템별 판매율 아이템 코드 목록: {list(item_totals_overall_rates.keys())}")
