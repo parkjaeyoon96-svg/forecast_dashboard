@@ -8,7 +8,7 @@
     "cySeason": "25F",
     "pySeason": "24F",
     "pySeasonEnd": "2026-02-28",
-    "generatedAt": "2025-12-29 23:30:03"
+    "generatedAt": "2025-12-30 22:49:18"
   },
   "clothingBrandStatus": {
     "I": [
@@ -2329,12 +2329,12 @@
         "itemName": "맨투맨",
         "orderTag": 9431513000.0,
         "orderYoY": 1.0457,
-        "weeklySalesTag": 220929000.0,
-        "weeklyYoY": 0.8374,
-        "cumSalesTag": 3031596000.0,
-        "cumYoY": 0.6432,
-        "cumSalesRate": 0.393,
-        "cumSalesRateDiff": -0.1265,
+        "weeklySalesTag": 230646000.0,
+        "weeklyYoY": 0.8743,
+        "cumSalesTag": 3041313000.0,
+        "cumYoY": 0.6453,
+        "cumSalesRate": 0.3943,
+        "cumSalesRateDiff": -0.1252,
         "pyClosingSalesRate": 0.6198,
         "storageTagAmt": 7713488000.0,
         "cumSalesTagPy": 4713204000.0,
@@ -2469,12 +2469,12 @@
         "itemName": "다운점퍼",
         "orderTag": 261063321000.0,
         "orderYoY": 1.1672,
-        "weeklySalesTag": 8798571000.0,
-        "weeklyYoY": 0.9794,
-        "cumSalesTag": 76670211000.0,
-        "cumYoY": 0.8543,
-        "cumSalesRate": 0.3429,
-        "cumSalesRateDiff": -0.067,
+        "weeklySalesTag": 8818006000.0,
+        "weeklyYoY": 0.9816,
+        "cumSalesTag": 76689646000.0,
+        "cumYoY": 0.8545,
+        "cumSalesRate": 0.343,
+        "cumSalesRateDiff": -0.0669,
         "pyClosingSalesRate": 0.5542,
         "storageTagAmt": 223587447000.0,
         "cumSalesTagPy": 89749568000.0,
@@ -3044,6 +3044,20 @@
       },
       {
         "category": "Shoes",
+        "itemCode": "CV",
+        "itemName": "캔버스화",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": -6,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Shoes",
         "itemCode": "MU",
         "itemName": "뮬",
         "saleQty": 0,
@@ -3066,20 +3080,6 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 643,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Shoes",
-        "itemCode": "CV",
-        "itemName": "캔버스화",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": -6,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3109,7 +3109,7 @@
         "yoyRate": "77%",
         "shareRate": "32%",
         "avg4wSaleQty": 51994.0,
-        "stockQty": 1294639,
+        "stockQty": 1294635,
         "stockWeeks": 24.9,
         "pyStockWeeks": 18.4,
         "stockWeeksDiff": 6.5
@@ -3207,7 +3207,7 @@
         "yoyRate": "263%",
         "shareRate": "1%",
         "avg4wSaleQty": 1003.0,
-        "stockQty": 7427,
+        "stockQty": 7426,
         "stockWeeks": 7.4,
         "pyStockWeeks": 34.9,
         "stockWeeksDiff": -27.5
@@ -3451,17 +3451,17 @@
         "stockWeeksDiff": null
       },
       {
-        "category": "Headwear",
-        "itemCode": "CB",
-        "itemName": "여성 베레모",
+        "category": "Shoes",
+        "itemCode": "CV",
+        "itemName": "캔버스화",
         "saleQty": 0,
         "saleAmt": 0,
-        "yoyRate": "0%",
+        "yoyRate": null,
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
-        "stockQty": 7,
+        "stockQty": 12,
         "stockWeeks": null,
-        "pyStockWeeks": 35.6,
+        "pyStockWeeks": null,
         "stockWeeksDiff": null
       },
       {
@@ -3502,20 +3502,6 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 895,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Shoes",
-        "itemCode": "CV",
-        "itemName": "캔버스화",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 12,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3574,6 +3560,20 @@
         "stockQty": 727,
         "stockWeeks": 727.0,
         "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Headwear",
+        "itemCode": "CB",
+        "itemName": "여성 베레모",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": "0%",
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 7,
+        "stockWeeks": null,
+        "pyStockWeeks": 35.6,
         "stockWeeksDiff": null
       }
     ],
@@ -3790,34 +3790,6 @@
       },
       {
         "category": "Acc_etc",
-        "itemCode": "TW",
-        "itemName": "타올",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 1598,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "RK",
-        "itemName": "라켓",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 512,
-        "stockWeeks": null,
-        "pyStockWeeks": 45.0,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
         "itemCode": "LL",
         "itemName": "볼",
         "saleQty": 0,
@@ -3856,6 +3828,34 @@
         "stockQty": 1290,
         "stockWeeks": null,
         "pyStockWeeks": 100.9,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "RK",
+        "itemName": "라켓",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 512,
+        "stockWeeks": null,
+        "pyStockWeeks": 45.0,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "TW",
+        "itemName": "타올",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 1598,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
         "stockWeeksDiff": null
       }
     ],
@@ -4100,17 +4100,31 @@
       },
       {
         "category": "Shoes",
-        "itemCode": "MU",
-        "itemName": "뮬",
+        "itemCode": "LP",
+        "itemName": "슬리퍼",
         "saleQty": 0,
         "saleAmt": 0,
         "yoyRate": null,
         "shareRate": "0%",
-        "avg4wSaleQty": 1.0,
-        "stockQty": 113,
-        "stockWeeks": 113.0,
-        "pyStockWeeks": 423.0,
-        "stockWeeksDiff": -310.0
+        "avg4wSaleQty": 0.0,
+        "stockQty": 405,
+        "stockWeeks": null,
+        "pyStockWeeks": null,
+        "stockWeeksDiff": null
+      },
+      {
+        "category": "Acc_etc",
+        "itemCode": "GL",
+        "itemName": "장갑",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 0.0,
+        "stockQty": 21,
+        "stockWeeks": null,
+        "pyStockWeeks": 55.0,
+        "stockWeeksDiff": null
       },
       {
         "category": "Bag",
@@ -4128,17 +4142,17 @@
       },
       {
         "category": "Shoes",
-        "itemCode": "LP",
-        "itemName": "슬리퍼",
+        "itemCode": "MU",
+        "itemName": "뮬",
         "saleQty": 0,
         "saleAmt": 0,
         "yoyRate": null,
         "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 405,
-        "stockWeeks": null,
-        "pyStockWeeks": null,
-        "stockWeeksDiff": null
+        "avg4wSaleQty": 1.0,
+        "stockQty": 113,
+        "stockWeeks": 113.0,
+        "pyStockWeeks": 423.0,
+        "stockWeeksDiff": -310.0
       },
       {
         "category": "Headwear",
@@ -4166,20 +4180,6 @@
         "stockQty": 10,
         "stockWeeks": null,
         "pyStockWeeks": null,
-        "stockWeeksDiff": null
-      },
-      {
-        "category": "Acc_etc",
-        "itemCode": "GL",
-        "itemName": "장갑",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 0.0,
-        "stockQty": 21,
-        "stockWeeks": null,
-        "pyStockWeeks": 55.0,
         "stockWeeksDiff": null
       }
     ],
@@ -4353,6 +4353,20 @@
         "stockWeeksDiff": -68.8
       },
       {
+        "category": "Bag",
+        "itemCode": "HS",
+        "itemName": "힙색",
+        "saleQty": 0,
+        "saleAmt": 0,
+        "yoyRate": null,
+        "shareRate": "0%",
+        "avg4wSaleQty": 1.0,
+        "stockQty": 291,
+        "stockWeeks": 291.0,
+        "pyStockWeeks": 382.0,
+        "stockWeeksDiff": -91.0
+      },
+      {
         "category": "Headwear",
         "itemCode": "SC",
         "itemName": "선캡",
@@ -4379,20 +4393,6 @@
         "stockWeeks": null,
         "pyStockWeeks": 53.0,
         "stockWeeksDiff": null
-      },
-      {
-        "category": "Bag",
-        "itemCode": "HS",
-        "itemName": "힙색",
-        "saleQty": 0,
-        "saleAmt": 0,
-        "yoyRate": null,
-        "shareRate": "0%",
-        "avg4wSaleQty": 1.0,
-        "stockQty": 291,
-        "stockWeeks": 291.0,
-        "pyStockWeeks": 382.0,
-        "stockWeeksDiff": -91.0
       }
     ],
     "X": [
@@ -4774,21 +4774,21 @@
     "X": {
       "itemCount": 20,
       "totalOrderTag": 390940375000.0,
-      "totalWeeklySales": 10276362000.0,
-      "totalCumSales": 107181358000.0,
-      "cumSalesRate": 0.33898955017067806,
+      "totalWeeklySales": 10305514000.0,
+      "totalCumSales": 107210510000.0,
+      "cumSalesRate": 0.3390817511238193,
       "cumSalesRatePy": 0.40970655803242745,
-      "cumSalesRateDiff": -0.0707,
+      "cumSalesRateDiff": -0.0706,
       "pyClosingSalesRate": 0.5351992330535711
     },
     "overall": {
       "itemCount": 129,
       "totalOrderTag": 1182767374000.0,
-      "totalWeeklySales": 14611224000.0,
-      "totalCumSales": 174254471000.0,
-      "cumSalesRate": 0.3615545188874824,
+      "totalWeeklySales": 14640376000.0,
+      "totalCumSales": 174283623000.0,
+      "cumSalesRate": 0.3616150053546251,
       "cumSalesRatePy": 0.41265598131864145,
-      "cumSalesRateDiff": -0.0511,
+      "cumSalesRateDiff": -0.051,
       "pyClosingSalesRate": 0.5191835475162375
     }
   },
@@ -4809,7 +4809,7 @@
       "itemCount": 34,
       "totalSaleQty": 96209,
       "totalSaleAmt": 5288960614,
-      "totalStockQty": 2592758
+      "totalStockQty": 2592753
     },
     "ST": {
       "itemCount": 20,
@@ -4838,219 +4838,1521 @@
   },
   "clothingItemRatesOverall": {
     "DP": {
+      "name": "진바지",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.5046337835916829,
+          "cumSalesRatePy": 0.549238837835329,
+          "pyClosingSalesRate": 0.5953564466722362,
+          "cumSalesTag": 330140000.0,
+          "weeklySalesTag": 11112000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.3489108271077209,
+          "cumSalesRatePy": 0.3344133307222004,
+          "pyClosingSalesRate": 0.39293107531853944,
+          "cumSalesTag": 239730000.0,
+          "weeklySalesTag": 8601000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.42486457148225076,
       "cumSalesRatePy": 0.4002436299583781,
-      "pyClosingSalesRate": 0.45496152481349084
+      "cumSalesRateDiff": 0.0246,
+      "pyClosingSalesRate": 0.45496152481349084,
+      "totalCumSales": 569870000.0,
+      "totalStorage": 1341298000.0
     },
     "LG": {
+      "name": "레깅스",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.37125,
+          "cumSalesRatePy": 0.23029898941345667,
+          "pyClosingSalesRate": 0.27141649190406597,
+          "cumSalesTag": 23463000.0,
+          "weeklySalesTag": 1738000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.22096217105263158,
+          "pyClosingSalesRate": 0.25771381578947367,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.07142857142857142,
+          "cumSalesRatePy": 0.13166974147638785,
+          "pyClosingSalesRate": 0.14730335194192204,
+          "cumSalesTag": 495000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.07006369426751592,
+          "pyClosingSalesRate": 0.10191082802547771,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.07564159576701422,
+          "cumSalesRatePy": 0.061651861147539566,
+          "pyClosingSalesRate": 0.19058044028599444,
+          "cumSalesTag": 33509000.0,
+          "weeklySalesTag": 1959000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.1119937169550618,
       "cumSalesRatePy": 0.10087638875443462,
-      "pyClosingSalesRate": 0.21433881071839
+      "cumSalesRateDiff": 0.0111,
+      "pyClosingSalesRate": 0.21433881071839,
+      "totalCumSales": 57467000.0,
+      "totalStorage": 513127000.0
     },
     "PT": {
+      "name": "팬츠",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.4322909790338322,
+          "cumSalesRatePy": 0.3503849948056013,
+          "pyClosingSalesRate": 0.38120493888164153,
+          "cumSalesTag": 667957000.0,
+          "weeklySalesTag": 28709000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.4666843604877316,
+          "cumSalesRatePy": 0.5295957436562826,
+          "pyClosingSalesRate": 0.5985776246528153,
+          "cumSalesTag": 2990988000.0,
+          "weeklySalesTag": 172434000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.28759284637227905,
+          "cumSalesRatePy": 0.16754548720802012,
+          "pyClosingSalesRate": 0.20329505322975278,
+          "cumSalesTag": 66945000.0,
+          "weeklySalesTag": 1677000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.23274810951909372,
+          "cumSalesRatePy": 0.1567844014703532,
+          "pyClosingSalesRate": 0.20874753609290927,
+          "cumSalesTag": 406590000.0,
+          "weeklySalesTag": 16480000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.20022645002396733,
+          "pyClosingSalesRate": 0.3191372667316815,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.3352718389371146,
+          "cumSalesRatePy": 0.35274843952330137,
+          "pyClosingSalesRate": 0.41670876374662535,
+          "cumSalesTag": 2445105000.0,
+          "weeklySalesTag": 151911000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.38182361944609094,
       "cumSalesRatePy": 0.38701097271840457,
-      "pyClosingSalesRate": 0.44639405823839934
+      "cumSalesRateDiff": -0.0052,
+      "pyClosingSalesRate": 0.44639405823839934,
+      "totalCumSales": 6577585000.0,
+      "totalStorage": 17226763000.0
     },
     "SK": {
+      "name": "스커트",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.19232149264442053,
+          "cumSalesRatePy": 0.15952965181299508,
+          "pyClosingSalesRate": 0.16185417005658911,
+          "cumSalesTag": 47704000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.38427834015516416,
+          "cumSalesRatePy": 0.36513554271922705,
+          "pyClosingSalesRate": 0.39057977511748254,
+          "cumSalesTag": 162514000.0,
+          "weeklySalesTag": 2381000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.527249346347852,
+          "cumSalesRatePy": 0.3918302580358067,
+          "pyClosingSalesRate": 0.4458194609431189,
+          "cumSalesTag": 333336000.0,
+          "weeklySalesTag": 4033000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.2564935064935065,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 26070000.0,
+          "weeklySalesTag": 990000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.23247232472324722,
+          "pyClosingSalesRate": 0.23247232472324722,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.17501614096298482,
+          "cumSalesRatePy": 0.3151912879564977,
+          "pyClosingSalesRate": 0.3467463790327836,
+          "cumSalesTag": 163729000.0,
+          "weeklySalesTag": 9523000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.31335653533819163,
       "cumSalesRatePy": 0.3007778562884268,
-      "pyClosingSalesRate": 0.3288416653252787
+      "cumSalesRateDiff": 0.0126,
+      "pyClosingSalesRate": 0.3288416653252787,
+      "totalCumSales": 733353000.0,
+      "totalStorage": 2340315000.0
     },
     "SM": {
+      "name": "우븐반바지",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.11069182389937107,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 12144000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.11069182389937107,
       "cumSalesRatePy": null,
-      "pyClosingSalesRate": null
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": null,
+      "totalCumSales": 12144000.0,
+      "totalStorage": 109710000.0
     },
     "TP": {
+      "name": "트레이닝(하의)",
+      "brands": {
+        "I": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.3339790042917386,
+          "cumSalesRatePy": 0.36112581614811273,
+          "pyClosingSalesRate": 0.4322593447386021,
+          "cumSalesTag": 3968927000.0,
+          "weeklySalesTag": 206554000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.3339790042917386,
       "cumSalesRatePy": 0.36112581614811273,
-      "pyClosingSalesRate": 0.4322593447386021
+      "cumSalesRateDiff": -0.0271,
+      "pyClosingSalesRate": 0.4322593447386021,
+      "totalCumSales": 3968927000.0,
+      "totalStorage": 11883762000.0
     },
     "WP": {
+      "name": "우븐팬츠",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.39554239594511514,
+          "cumSalesRatePy": 0.32433543041016105,
+          "pyClosingSalesRate": 0.3511689576028233,
+          "cumSalesTag": 811280000.0,
+          "weeklySalesTag": 23801000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.4477079118900201,
+          "cumSalesRatePy": 0.4538404105703548,
+          "pyClosingSalesRate": 0.4907653481299391,
+          "cumSalesTag": 1721402000.0,
+          "weeklySalesTag": 58233000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.15026242352620622,
+          "pyClosingSalesRate": 0.1643928479775434,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.42956089226233674,
       "cumSalesRatePy": 0.3835882505957848,
-      "pyClosingSalesRate": 0.4150977567501357
+      "cumSalesRateDiff": 0.046,
+      "pyClosingSalesRate": 0.4150977567501357,
+      "totalCumSales": 2532682000.0,
+      "totalStorage": 5895979000.0
     },
     "HD": {
+      "name": "후드티",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.41314956441424405,
+          "cumSalesRatePy": 0.39982377538387476,
+          "pyClosingSalesRate": 0.43373931841949825,
+          "cumSalesTag": 553777000.0,
+          "weeklySalesTag": 12886000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.4278937993842491,
+          "cumSalesRatePy": 0.47971737700477635,
+          "pyClosingSalesRate": 0.5232578432604197,
+          "cumSalesTag": 1564390000.0,
+          "weeklySalesTag": 85599000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.11868686868686869,
+          "cumSalesRatePy": 0.20842818810902414,
+          "pyClosingSalesRate": 0.2500720237254625,
+          "cumSalesTag": 7003000.0,
+          "weeklySalesTag": 149000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.17438187561267834,
+          "cumSalesRatePy": 0.1370480569831395,
+          "pyClosingSalesRate": 0.22089982868992877,
+          "cumSalesTag": 96060000.0,
+          "weeklySalesTag": 7460000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.27317922833938574,
+          "pyClosingSalesRate": 0.3268827424043105,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.3257014178508856,
+          "cumSalesRatePy": 0.46372814924669115,
+          "pyClosingSalesRate": 0.5457631624181034,
+          "cumSalesTag": 1622522000.0,
+          "weeklySalesTag": 108110000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.3630328268396416,
       "cumSalesRatePy": 0.44679616835447516,
-      "pyClosingSalesRate": 0.5053045113797061
+      "cumSalesRateDiff": -0.0838,
+      "pyClosingSalesRate": 0.5053045113797061,
+      "totalCumSales": 3843752000.0,
+      "totalStorage": 10587891000.0
     },
     "KP": {
+      "name": "니트풀오버",
+      "brands": {
+        "I": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.30788590604026844,
+          "pyClosingSalesRate": 0.3716442953020134,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.4409127196691,
+          "cumSalesRatePy": 0.5280706379449459,
+          "pyClosingSalesRate": 0.5610147740964183,
+          "cumSalesTag": 597584000.0,
+          "weeklySalesTag": 30034000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.2585063116239677,
+          "cumSalesRatePy": 0.16361695593448763,
+          "pyClosingSalesRate": 0.20434602414524117,
+          "cumSalesTag": 89430000.0,
+          "weeklySalesTag": 3202000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.138052229777648,
+          "cumSalesRatePy": 0.2248849050275923,
+          "pyClosingSalesRate": 0.30052745510533857,
+          "cumSalesTag": 132370000.0,
+          "weeklySalesTag": 9300000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.3080248544898112,
       "cumSalesRatePy": 0.41104586487228933,
-      "pyClosingSalesRate": 0.45383639724714664
+      "cumSalesRateDiff": -0.103,
+      "pyClosingSalesRate": 0.45383639724714664,
+      "totalCumSales": 819384000.0,
+      "totalStorage": 2660123000.0
     },
     "MT": {
-      "cumSalesRate": 0.41252731904901574,
+      "name": "맨투맨",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.3584523972815089,
+          "cumSalesRatePy": 0.37411860668244806,
+          "pyClosingSalesRate": 0.4078448981662147,
+          "cumSalesTag": 1526167000.0,
+          "weeklySalesTag": 62641000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.5204850105511367,
+          "cumSalesRatePy": 0.4680951683465783,
+          "pyClosingSalesRate": 0.5140121256348227,
+          "cumSalesTag": 3167957000.0,
+          "weeklySalesTag": 118390000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.22035109994235616,
+          "cumSalesRatePy": 0.2523303337998069,
+          "pyClosingSalesRate": 0.2866432616265825,
+          "cumSalesTag": 233945000.0,
+          "weeklySalesTag": 7530000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.12595495388512845,
+          "cumSalesRatePy": 0.0855182719739166,
+          "pyClosingSalesRate": 0.1435946202961554,
+          "cumSalesTag": 31820000.0,
+          "weeklySalesTag": 2420000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.27182721156642736,
+          "pyClosingSalesRate": 0.35892366479403615,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.39428504977255424,
+          "cumSalesRatePy": 0.519483078843934,
+          "pyClosingSalesRate": 0.6197958463653134,
+          "cumSalesTag": 3041313000.0,
+          "weeklySalesTag": 230646000.0,
+          "parent": ""
+        }
+      },
+      "cumSalesRate": 0.41302891893429355,
       "cumSalesRatePy": 0.4510141278752891,
-      "pyClosingSalesRate": 0.5147660591510361
+      "cumSalesRateDiff": -0.038,
+      "pyClosingSalesRate": 0.5147660591510361,
+      "totalCumSales": 8001202000.0,
+      "totalStorage": 19372014000.0
     },
     "OP": {
+      "name": "원피스",
+      "brands": {
+        "I": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.20495251634446107,
+          "pyClosingSalesRate": 0.22255742257560604,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.31022085259373394,
+          "cumSalesRatePy": 0.0745021264567448,
+          "pyClosingSalesRate": 0.08121044307734569,
+          "cumSalesTag": 77916000.0,
+          "weeklySalesTag": 2967000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.09259259259259259,
+          "cumSalesRatePy": 0.17110266159695817,
+          "pyClosingSalesRate": 0.21292775665399238,
+          "cumSalesTag": 6255000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.20952380952380953,
+          "cumSalesRatePy": 0.660377358490566,
+          "pyClosingSalesRate": 0.6918238993710691,
+          "cumSalesTag": 13860000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.17001896448598894,
+          "cumSalesRatePy": 0.28174400428969615,
+          "pyClosingSalesRate": 0.29579174739355435,
+          "cumSalesTag": 83286000.0,
+          "weeklySalesTag": 1241000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.2072833903032936,
       "cumSalesRatePy": 0.17692946704395004,
-      "pyClosingSalesRate": 0.18874120609537653
+      "cumSalesRateDiff": 0.0304,
+      "pyClosingSalesRate": 0.18874120609537653,
+      "totalCumSales": 181317000.0,
+      "totalStorage": 874730000.0
     },
     "PQ": {
+      "name": "폴로 티셔츠",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.5047826086956522,
+          "cumSalesRatePy": 0.6148760330578512,
+          "pyClosingSalesRate": 0.6214876033057851,
+          "cumSalesTag": 103329000.0,
+          "weeklySalesTag": 89000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.27849306444791366,
+          "cumSalesRatePy": 0.22839254027653333,
+          "pyClosingSalesRate": 0.25682548885258,
+          "cumSalesTag": 285779000.0,
+          "weeklySalesTag": 3394000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.3161264219709439,
       "cumSalesRatePy": 0.2954485227120096,
-      "pyClosingSalesRate": 0.32009540024176775
+      "cumSalesRateDiff": 0.0207,
+      "pyClosingSalesRate": 0.32009540024176775,
+      "totalCumSales": 389108000.0,
+      "totalStorage": 1230862000.0
     },
     "TR": {
+      "name": "트레이닝(상의)",
+      "brands": {
+        "I": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.6699269396199455,
+          "cumSalesRatePy": 0.4041236054546258,
+          "pyClosingSalesRate": 0.4364921776224041,
+          "cumSalesTag": 1602553000.0,
+          "weeklySalesTag": 36382000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.26963594563920495,
+          "cumSalesRatePy": 0.17688590271782323,
+          "pyClosingSalesRate": 0.2105116402518762,
+          "cumSalesTag": 37062000.0,
+          "weeklySalesTag": 845000.0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.32168566018929545,
+          "cumSalesRatePy": 0.3593474997040297,
+          "pyClosingSalesRate": 0.4168193101619835,
+          "cumSalesTag": 4287274000.0,
+          "weeklySalesTag": 145150000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.37376857282118703,
       "cumSalesRatePy": 0.362178082382043,
-      "pyClosingSalesRate": 0.4136809272117664
+      "cumSalesRateDiff": 0.0116,
+      "pyClosingSalesRate": 0.4136809272117664,
+      "totalCumSales": 5926889000.0,
+      "totalStorage": 15857109000.0
     },
     "TS": {
+      "name": "반팔카라티셔츠",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.5619627023190292,
+          "cumSalesRatePy": 0.3229775794695563,
+          "pyClosingSalesRate": 0.33351098642232974,
+          "cumSalesTag": 361818000.0,
+          "weeklySalesTag": 1733000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.5650123187924406,
+          "cumSalesRatePy": 0.6484330076756804,
+          "pyClosingSalesRate": 0.671478049234157,
+          "cumSalesTag": 1956180000.0,
+          "weeklySalesTag": 26516000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.5645341237792061,
       "cumSalesRatePy": 0.5637315451061679,
-      "pyClosingSalesRate": 0.5835203688898185
+      "cumSalesRateDiff": 0.0008,
+      "pyClosingSalesRate": 0.5835203688898185,
+      "totalCumSales": 2317998000.0,
+      "totalStorage": 4106037000.0
     },
     "WS": {
+      "name": "우븐셔츠",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.3630338733431517,
+          "cumSalesRatePy": 0.4117499010036906,
+          "pyClosingSalesRate": 0.4157361523962387,
+          "cumSalesTag": 68527000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.6745454545454546,
+          "cumSalesRatePy": 0.3102058386162636,
+          "pyClosingSalesRate": 0.3708665962275965,
+          "cumSalesTag": 125398000.0,
+          "weeklySalesTag": 1859000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.05555555555555555,
+          "cumSalesRatePy": 0.007142857142857143,
+          "pyClosingSalesRate": 0.02857142857142857,
+          "cumSalesTag": 4410000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.43682082274327044,
       "cumSalesRatePy": 0.3220936679749019,
-      "pyClosingSalesRate": 0.35424125690573205
+      "cumSalesRateDiff": 0.1147,
+      "pyClosingSalesRate": 0.35424125690573205,
+      "totalCumSales": 198335000.0,
+      "totalStorage": 454042000.0
     },
     "DJ": {
-      "cumSalesRate": 0.3591808108609579,
+      "name": "다운점퍼",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.3265223309459997,
+          "cumSalesRatePy": 0.43156451224015613,
+          "pyClosingSalesRate": 0.524719148997822,
+          "cumSalesTag": 5884559000.0,
+          "weeklySalesTag": 325757000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.3939724700067917,
+          "cumSalesRatePy": 0.5576612128822448,
+          "pyClosingSalesRate": 0.6519841362352822,
+          "cumSalesTag": 18454631000.0,
+          "weeklySalesTag": 2011018000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.3180007346085384,
+          "cumSalesRatePy": 0.12332965472401876,
+          "pyClosingSalesRate": 0.153598514012935,
+          "cumSalesTag": 90040000.0,
+          "weeklySalesTag": 6401000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.48572208874148604,
+          "cumSalesRatePy": 0.34048825178211833,
+          "pyClosingSalesRate": 0.5199161888261884,
+          "cumSalesTag": 10013020000.0,
+          "weeklySalesTag": 948560000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.21862356320799756,
+          "pyClosingSalesRate": 0.2839406900580142,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.34299620586481316,
+          "cumSalesRatePy": 0.4098760930614562,
+          "pyClosingSalesRate": 0.55424058219278,
+          "cumSalesTag": 76689646000.0,
+          "weeklySalesTag": 8818006000.0,
+          "parent": ""
+        }
+      },
+      "cumSalesRate": 0.35924363620922445,
       "cumSalesRatePy": 0.4244065830370384,
-      "pyClosingSalesRate": 0.5602413421682333
+      "cumSalesRateDiff": -0.0652,
+      "pyClosingSalesRate": 0.5602413421682333,
+      "totalCumSales": 111131896000.0,
+      "totalStorage": 309349658000.0
     },
     "DK": {
+      "name": "진자켓",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.38218486408204005,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 156228000.0,
+          "weeklySalesTag": 139000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.2781585677749361,
+          "cumSalesRatePy": 0.11831365401378872,
+          "pyClosingSalesRate": 0.15635302321895556,
+          "cumSalesTag": 43504000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.3533978795985675,
       "cumSalesRatePy": 0.11831365401378872,
-      "pyClosingSalesRate": 0.15635302321895556
+      "cumSalesRateDiff": 0.2351,
+      "pyClosingSalesRate": 0.15635302321895556,
+      "totalCumSales": 199732000.0,
+      "totalStorage": 565176000.0
     },
     "DV": {
+      "name": "다운베스트",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.3734286764826939,
+          "cumSalesRatePy": 0.4052634866945857,
+          "pyClosingSalesRate": 0.4637171715368774,
+          "cumSalesTag": 340229000.0,
+          "weeklySalesTag": 10534000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.3197395143074664,
+          "cumSalesRatePy": 0.43463874286160903,
+          "pyClosingSalesRate": 0.5059235719673273,
+          "cumSalesTag": 785780000.0,
+          "weeklySalesTag": 44958000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.13043478260869565,
+          "pyClosingSalesRate": 0.15384615384615385,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.20123379897381144,
+          "cumSalesRatePy": 0.1095786069185338,
+          "pyClosingSalesRate": 0.19190025311709008,
+          "cumSalesTag": 67850000.0,
+          "weeklySalesTag": 5320000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.43902439024390244,
+          "pyClosingSalesRate": 0.4878048780487805,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.3744713033973856,
+          "cumSalesRatePy": 0.6346465414676166,
+          "pyClosingSalesRate": 0.7869186597091224,
+          "cumSalesTag": 3036180000.0,
+          "weeklySalesTag": 198946000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.35806098306387163,
       "cumSalesRatePy": 0.5241732911129631,
-      "pyClosingSalesRate": 0.642557580784869
+      "cumSalesRateDiff": -0.1661,
+      "pyClosingSalesRate": 0.642557580784869,
+      "totalCumSales": 4230039000.0,
+      "totalStorage": 11813739000.0
     },
     "FD": {
+      "name": "폴라폴리스점퍼",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.2627450980392157,
+          "cumSalesRatePy": 0.31193432390479703,
+          "pyClosingSalesRate": 0.35279933317500284,
+          "cumSalesTag": 55878000.0,
+          "weeklySalesTag": 5143000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.5208128747987077,
+          "cumSalesRatePy": 0.1900936783507859,
+          "pyClosingSalesRate": 0.23432084742344322,
+          "cumSalesTag": 263586000.0,
+          "weeklySalesTag": 8840000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.4444561928280755,
       "cumSalesRatePy": 0.24922663359464056,
-      "pyClosingSalesRate": 0.29182204469181244
+      "cumSalesRateDiff": 0.1952,
+      "pyClosingSalesRate": 0.29182204469181244,
+      "totalCumSales": 319464000.0,
+      "totalStorage": 718775000.0
     },
     "JP": {
+      "name": "점퍼",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.36616385957281056,
+          "cumSalesRatePy": 0.27739853831456596,
+          "pyClosingSalesRate": 0.2832542985214235,
+          "cumSalesTag": 595991000.0,
+          "weeklySalesTag": 4631000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.48069589863920126,
+          "cumSalesRatePy": 0.3925951141926599,
+          "pyClosingSalesRate": 0.4142972783375062,
+          "cumSalesTag": 1394083000.0,
+          "weeklySalesTag": 26145000.0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.04627018085678741,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 188085000.0,
+          "weeklySalesTag": 26705000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.25348870661068446,
       "cumSalesRatePy": 0.34417990806929466,
-      "pyClosingSalesRate": 0.3592220920270239
+      "cumSalesRateDiff": -0.0907,
+      "pyClosingSalesRate": 0.3592220920270239,
+      "totalCumSales": 2178159000.0,
+      "totalStorage": 8592726000.0
     },
     "KC": {
+      "name": "니트가디건",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.13987345224458628,
+          "cumSalesRatePy": 0.2298830085789906,
+          "pyClosingSalesRate": 0.2375807132426759,
+          "cumSalesTag": 51286000.0,
+          "weeklySalesTag": -298000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.6402357326191621,
+          "cumSalesRatePy": 0.47215262216672577,
+          "pyClosingSalesRate": 0.5060493631696972,
+          "cumSalesTag": 821409000.0,
+          "weeklySalesTag": 18933000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.224127351952732,
+          "cumSalesRatePy": 0.22463135699003267,
+          "pyClosingSalesRate": 0.2803234278899817,
+          "cumSalesTag": 71959000.0,
+          "weeklySalesTag": 1811000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.11176470588235295,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 37050000.0,
+          "weeklySalesTag": 1950000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.42641957569318417,
       "cumSalesRatePy": 0.3915214514034215,
-      "pyClosingSalesRate": 0.42324616782752644
+      "cumSalesRateDiff": 0.0349,
+      "pyClosingSalesRate": 0.42324616782752644,
+      "totalCumSales": 981704000.0,
+      "totalStorage": 2302202000.0
     },
     "PD": {
+      "name": "패딩",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.3559883961873187,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 136581000.0,
+          "weeklySalesTag": 1749000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.42019479228781553,
+          "cumSalesRatePy": 0.37280436099333736,
+          "pyClosingSalesRate": 0.452755905511811,
+          "cumSalesTag": 841372000.0,
+          "weeklySalesTag": 24278000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.09954751131221719,
+          "cumSalesRatePy": 0.1595321133449138,
+          "pyClosingSalesRate": 0.20163024206760657,
+          "cumSalesTag": 5478000.0,
+          "weeklySalesTag": 498000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.16304347826086957,
+          "pyClosingSalesRate": 0.1956521739130435,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.2413711891239558,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 759424000.0,
+          "weeklySalesTag": 18482000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.3119301275655166,
       "cumSalesRatePy": 0.31865368056880344,
-      "pyClosingSalesRate": 0.38874561100484145
+      "cumSalesRateDiff": -0.0067,
+      "pyClosingSalesRate": 0.38874561100484145,
+      "totalCumSales": 1742855000.0,
+      "totalStorage": 5587325000.0
     },
     "WJ": {
+      "name": "방풍자켓",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.3327363896848137,
+          "cumSalesRatePy": 0.27059853360884367,
+          "pyClosingSalesRate": 0.27595587878264716,
+          "cumSalesTag": 129131000.0,
+          "weeklySalesTag": 139000.0,
+          "parent": ""
+        },
+        "M": {
+          "cumSalesRate": 0.4517233415551183,
+          "cumSalesRatePy": 0.45249490874712106,
+          "pyClosingSalesRate": 0.4572860444556948,
+          "cumSalesTag": 1222465000.0,
+          "weeklySalesTag": 169000.0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.06575120641121387,
+          "cumSalesRatePy": 0.1900930472024934,
+          "pyClosingSalesRate": 0.2043871374301821,
+          "cumSalesTag": 36625000.0,
+          "weeklySalesTag": 1474000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.13439014348898431,
+          "cumSalesRatePy": 0.331003294193267,
+          "pyClosingSalesRate": 0.4431091674988235,
+          "cumSalesTag": 355810000.0,
+          "weeklySalesTag": -890000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.15447489306403037,
+          "pyClosingSalesRate": 0.16448803650532617,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.3000621987792616,
+          "cumSalesRatePy": 0.3837315464453484,
+          "pyClosingSalesRate": 0.4046502067921547,
+          "cumSalesTag": 3434863000.0,
+          "weeklySalesTag": 24511000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.29183284639997176,
       "cumSalesRatePy": 0.37335720782422754,
-      "pyClosingSalesRate": 0.39524452377246
+      "cumSalesRateDiff": -0.0815,
+      "pyClosingSalesRate": 0.39524452377246,
+      "totalCumSales": 5178894000.0,
+      "totalStorage": 17746097000.0
     },
     "S1": {
+      "name": "반팔티 & 스웨트팬츠",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.38262513702380874,
+          "cumSalesRatePy": 0.3567163122241367,
+          "pyClosingSalesRate": 0.3928968789143795,
+          "cumSalesTag": 391983000.0,
+          "weeklySalesTag": 914000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.38262513702380874,
       "cumSalesRatePy": 0.3567163122241367,
-      "pyClosingSalesRate": 0.3928968789143795
+      "cumSalesRateDiff": 0.0259,
+      "pyClosingSalesRate": 0.3928968789143795,
+      "totalCumSales": 391983000.0,
+      "totalStorage": 1024457000.0
     },
     "S2": {
+      "name": "맨투맨셋트",
+      "brands": {
+        "I": {
+          "cumSalesRate": 0.4331130921824263,
+          "cumSalesRatePy": 0.405331763331558,
+          "pyClosingSalesRate": 0.46654477541870126,
+          "cumSalesTag": 2859284000.0,
+          "weeklySalesTag": 102700000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.4331130921824263,
       "cumSalesRatePy": 0.405331763331558,
-      "pyClosingSalesRate": 0.46654477541870126
+      "cumSalesRateDiff": 0.0278,
+      "pyClosingSalesRate": 0.46654477541870126,
+      "totalCumSales": 2859284000.0,
+      "totalStorage": 6601703000.0
     },
     "DS": {
+      "name": "진스커트",
+      "brands": {
+        "M": {
+          "cumSalesRate": 0.2539925064727493,
+          "cumSalesRatePy": 0.5304607147754329,
+          "pyClosingSalesRate": 0.5410232025695683,
+          "cumSalesTag": 97414000.0,
+          "weeklySalesTag": 1679000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.2539925064727493,
       "cumSalesRatePy": 0.5304607147754329,
-      "pyClosingSalesRate": 0.5410232025695683
+      "cumSalesRateDiff": -0.2765,
+      "pyClosingSalesRate": 0.5410232025695683,
+      "totalCumSales": 97414000.0,
+      "totalStorage": 383531000.0
     },
     "SP": {
+      "name": "반바지",
+      "brands": {
+        "M": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "ST": {
+          "cumSalesRate": 0.43560919868590203,
+          "cumSalesRatePy": 0.6629213483146067,
+          "pyClosingSalesRate": 0.7247191011235955,
+          "cumSalesTag": 60994000.0,
+          "weeklySalesTag": 1139000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.2970341354224958,
+          "cumSalesRatePy": 0.12845733501471207,
+          "pyClosingSalesRate": 0.19092055485498108,
+          "cumSalesTag": 26540000.0,
+          "weeklySalesTag": 900000.0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.14076576576576577,
+          "pyClosingSalesRate": 0.18693693693693694,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.38162793739373063,
       "cumSalesRatePy": 0.17016287826447424,
-      "pyClosingSalesRate": 0.22577121044631754
+      "cumSalesRateDiff": 0.2115,
+      "pyClosingSalesRate": 0.22577121044631754,
+      "totalCumSales": 87534000.0,
+      "totalStorage": 229370000.0
     },
     "DD": {
+      "name": "데님원피스",
+      "brands": {
+        "M": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.17717072046994684,
+          "pyClosingSalesRate": 0.20229022287919218,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": null,
       "cumSalesRatePy": 0.17717072046994684,
-      "pyClosingSalesRate": 0.20229022287919218
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": 0.20229022287919218,
+      "totalCumSales": 0,
+      "totalStorage": 0
     },
     "DR": {
+      "name": "데님셔츠",
+      "brands": {
+        "M": {
+          "cumSalesRate": 0.17545454545454545,
+          "cumSalesRatePy": 0.3731245476266451,
+          "pyClosingSalesRate": 0.4044891002342613,
+          "cumSalesTag": 72954000.0,
+          "weeklySalesTag": 2646000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.17545454545454545,
       "cumSalesRatePy": 0.3731245476266451,
-      "pyClosingSalesRate": 0.4044891002342613
+      "cumSalesRateDiff": -0.1977,
+      "pyClosingSalesRate": 0.4044891002342613,
+      "totalCumSales": 72954000.0,
+      "totalStorage": 415800000.0
     },
     "TO": {
+      "name": "TOP",
+      "brands": {
+        "M": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": null,
       "cumSalesRatePy": null,
-      "pyClosingSalesRate": null
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": null,
+      "totalCumSales": 0,
+      "totalStorage": 0
     },
     "JK": {
+      "name": "방수자켓",
+      "brands": {
+        "M": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.014925373134328358,
+          "cumSalesRatePy": 0.03697536561462268,
+          "pyClosingSalesRate": 0.057432657449784486,
+          "cumSalesTag": 2370000.0,
+          "weeklySalesTag": 790000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.014925373134328358,
       "cumSalesRatePy": 0.03697536561462268,
-      "pyClosingSalesRate": 0.057432657449784486
+      "cumSalesRateDiff": -0.022,
+      "pyClosingSalesRate": 0.057432657449784486,
+      "totalCumSales": 2370000.0,
+      "totalStorage": 158790000.0
     },
     "KU": {
+      "name": "니트반팔티셔츠",
+      "brands": {
+        "ST": {
+          "cumSalesRate": 0.11431143114311432,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 20193000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.11431143114311432,
       "cumSalesRatePy": null,
-      "pyClosingSalesRate": null
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": null,
+      "totalCumSales": 20193000.0,
+      "totalStorage": 176649000.0
     },
     "KV": {
+      "name": "니트베스트",
+      "brands": {
+        "ST": {
+          "cumSalesRate": 0.3022847100175747,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 23908000.0,
+          "weeklySalesTag": 278000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.135,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 13230000.0,
+          "weeklySalesTag": 490000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.20971139131858763,
       "cumSalesRatePy": null,
-      "pyClosingSalesRate": null
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": null,
+      "totalCumSales": 37138000.0,
+      "totalStorage": 177091000.0
     },
     "RL": {
+      "name": "긴팔티셔츠",
+      "brands": {
+        "ST": {
+          "cumSalesRate": 0.17435897435897435,
+          "cumSalesRatePy": 0.2348390750916661,
+          "pyClosingSalesRate": 0.2750181344833411,
+          "cumSalesTag": 13464000.0,
+          "weeklySalesTag": 495000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.10576476057647606,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 13650000.0,
+          "weeklySalesTag": 190000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.3276966108882148,
+          "pyClosingSalesRate": 0.3730835884603377,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.35827083941495624,
+          "cumSalesRatePy": 0.6302153573836817,
+          "pyClosingSalesRate": 0.6729452896718364,
+          "cumSalesTag": 1423668000.0,
+          "weeklySalesTag": 42610000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.347077033492823,
       "cumSalesRatePy": 0.5372788984169842,
-      "pyClosingSalesRate": 0.5800453461725721
+      "cumSalesRateDiff": -0.1902,
+      "pyClosingSalesRate": 0.5800453461725721,
+      "totalCumSales": 1450782000.0,
+      "totalStorage": 4180000000.0
     },
     "RS": {
+      "name": "반팔티셔츠",
+      "brands": {
+        "ST": {
+          "cumSalesRate": 0.7253070471799357,
+          "cumSalesRatePy": 0.3654743390357698,
+          "pyClosingSalesRate": 0.401244167962675,
+          "cumSalesTag": 54744000.0,
+          "weeklySalesTag": 117000.0,
+          "parent": ""
+        },
+        "V": {
+          "cumSalesRate": 0.25425246195165624,
+          "cumSalesRatePy": 0.13761741760866103,
+          "pyClosingSalesRate": 0.15363795573953193,
+          "cumSalesTag": 17040000.0,
+          "weeklySalesTag": 340000.0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": 0.8344808205704651,
+          "cumSalesRatePy": 0.5256895750113248,
+          "pyClosingSalesRate": 0.5663600028826751,
+          "cumSalesTag": 23756000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.4220576773187841,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 63897000.0,
+          "weeklySalesTag": 1888000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.49459453590562075,
       "cumSalesRatePy": 0.3299458492775352,
-      "pyClosingSalesRate": 0.3584095788212574
+      "cumSalesRateDiff": 0.1646,
+      "pyClosingSalesRate": 0.3584095788212574,
+      "totalCumSales": 159437000.0,
+      "totalStorage": 322359000.0
     },
     "WT": {
+      "name": "윈드티셔츠",
+      "brands": {
+        "ST": {
+          "cumSalesRate": 0.18947368421052632,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 8586000.0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.18947368421052632,
       "cumSalesRatePy": null,
-      "pyClosingSalesRate": null
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": null,
+      "totalCumSales": 8586000.0,
+      "totalStorage": 45315000.0
     },
     "BR": {
+      "name": "브라",
+      "brands": {
+        "ST": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.09195402298850575,
+          "pyClosingSalesRate": 0.09885057471264368,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": null,
       "cumSalesRatePy": 0.09195402298850575,
-      "pyClosingSalesRate": 0.09885057471264368
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": 0.09885057471264368,
+      "totalCumSales": 0,
+      "totalStorage": 0
     },
     "ZT": {
+      "name": "집업티",
+      "brands": {
+        "V": {
+          "cumSalesRate": 0.2971887550200803,
+          "cumSalesRatePy": 0.07266611912863233,
+          "pyClosingSalesRate": 0.13645430012906254,
+          "cumSalesTag": 21460000.0,
+          "weeklySalesTag": 1450000.0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.23316306853359925,
+          "cumSalesRatePy": 0.257,
+          "pyClosingSalesRate": 0.279,
+          "cumSalesTag": 703103000.0,
+          "weeklySalesTag": 75391000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.23466039060028002,
       "cumSalesRatePy": 0.10722615907718708,
-      "pyClosingSalesRate": 0.1631796371031809
+      "cumSalesRateDiff": 0.1274,
+      "pyClosingSalesRate": 0.1631796371031809,
+      "totalCumSales": 724563000.0,
+      "totalStorage": 3087709000.0
     },
     "DH": {
+      "name": "반팔다운",
+      "brands": {
+        "V": {
+          "cumSalesRate": 0.4396302232132488,
+          "cumSalesRatePy": 0.7781767902751906,
+          "pyClosingSalesRate": 0.8400130585908244,
+          "cumSalesTag": 946370000.0,
+          "weeklySalesTag": 28830000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.4396302232132488,
       "cumSalesRatePy": 0.7781767902751906,
-      "pyClosingSalesRate": 0.8400130585908244
+      "cumSalesRateDiff": -0.3385,
+      "pyClosingSalesRate": 0.8400130585908244,
+      "totalCumSales": 946370000.0,
+      "totalStorage": 2152650000.0
     },
     "SS": {
+      "name": "소프트쉘",
+      "brands": {
+        "V": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.24718034978758274,
+          "pyClosingSalesRate": 0.3134933471350629,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "W": {
+          "cumSalesRate": null,
+          "cumSalesRatePy": 0.2836347944126495,
+          "pyClosingSalesRate": 0.3168170201355779,
+          "cumSalesTag": 0,
+          "weeklySalesTag": 0,
+          "parent": ""
+        },
+        "X": {
+          "cumSalesRate": 0.4675594263095091,
+          "cumSalesRatePy": 0.36155477287013205,
+          "pyClosingSalesRate": 0.43330248735220733,
+          "cumSalesTag": 4407275000.0,
+          "weeklySalesTag": 213509000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.4675594263095091,
       "cumSalesRatePy": 0.35495441738762323,
-      "pyClosingSalesRate": 0.42594796364064136
+      "cumSalesRateDiff": 0.1126,
+      "pyClosingSalesRate": 0.42594796364064136,
+      "totalCumSales": 4407275000.0,
+      "totalStorage": 9426128000.0
     },
     "VT": {
+      "name": "베스트",
+      "brands": {
+        "V": {
+          "cumSalesRate": 0.25764820213799805,
+          "cumSalesRatePy": null,
+          "pyClosingSalesRate": null,
+          "cumSalesTag": 66280000.0,
+          "weeklySalesTag": 1060000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.25764820213799805,
       "cumSalesRatePy": null,
-      "pyClosingSalesRate": null
+      "cumSalesRateDiff": null,
+      "pyClosingSalesRate": null,
+      "totalCumSales": 66280000.0,
+      "totalStorage": 257250000.0
     },
     "TL": {
+      "name": "긴팔카라티셔츠",
+      "brands": {
+        "X": {
+          "cumSalesRate": 0.49317901071293,
+          "cumSalesRatePy": 0.5244550257612756,
+          "pyClosingSalesRate": 0.5703915516307692,
+          "cumSalesTag": 531392000.0,
+          "weeklySalesTag": 16513000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.49317901071293,
       "cumSalesRatePy": 0.5244550257612756,
-      "pyClosingSalesRate": 0.5703915516307692
+      "cumSalesRateDiff": -0.0313,
+      "pyClosingSalesRate": 0.5703915516307692,
+      "totalCumSales": 531392000.0,
+      "totalStorage": 1077483000.0
     },
     "AZ": {
+      "name": "상하의 세트",
+      "brands": {
+        "X": {
+          "cumSalesRate": 0.29400135273389677,
+          "cumSalesRatePy": 0.3836734693877551,
+          "pyClosingSalesRate": 0.4891156462585034,
+          "cumSalesTag": 327312000.0,
+          "weeklySalesTag": 13859000.0,
+          "parent": ""
+        }
+      },
       "cumSalesRate": 0.29400135273389677,
       "cumSalesRatePy": 0.3836734693877551,
-      "pyClosingSalesRate": 0.4891156462585034
+      "cumSalesRateDiff": -0.0897,
+      "pyClosingSalesRate": 0.4891156462585034,
+      "totalCumSales": 327312000.0,
+      "totalStorage": 1113301000.0
+    },
+    "overall": {
+      "cumSalesRate": 0.3616150053546251,
+      "cumSalesRatePy": 0.41265598131864145,
+      "cumSalesRateDiff": -0.051,
+      "pyClosingSalesRate": 0.5191835475162375,
+      "totalCumSales": 174283623000.0,
+      "totalStorage": 481959046000.0,
+      "totalCumSalesPy": 189850712016.0,
+      "totalStoragePy": 460070181000.0,
+      "totalCumSalesPyEnd": 239008408701.0,
+      "totalStoragePyEnd": 460354358000.0
     }
   }
 }
