@@ -602,8 +602,13 @@ def calculate_date_periods(update_date_str: str):
     """
     트리맵 날짜 기간 계산
     
-    당년: 분석월의 1일 ~ 말일 (전체 월 데이터)
-    전년: 전년도 동일 월의 1일 ~ 말일
+    당년: 분석월의 1일 ~ 업데이트일의 D-1일 (단, 분석월 말일 초과 시 말일로 제한)
+    전년: 당년과 동일 기간 (전년도 동일 월)
+    
+    예:
+    - 업데이트일: 20260105, 분석월: 202512
+    - 당년: 2025-12-01 ~ 2025-12-31 (업데이트일 전날이 말일 초과하므로 말일로 제한)
+    - 전년: 2024-12-01 ~ 2024-12-31
     
     Args:
         update_date_str: YYYYMMDD 형식 (예: 20251215)
@@ -636,22 +641,47 @@ def calculate_date_periods(update_date_str: str):
     analysis_year = int(analysis_month_str[:4])
     analysis_month = int(analysis_month_str[4:6])
     
-    # 당년 기간: 분석월의 1일 ~ 말일
+    # 당년 시작일: 분석월의 1일
     cy_start = datetime(analysis_year, analysis_month, 1)
-    last_day = monthrange(analysis_year, analysis_month)[1]
-    cy_end = datetime(analysis_year, analysis_month, last_day)
     
-    # 전년 기간: 전년도 동일 월의 1일 ~ 말일
+    # 당년 종료일: 업데이트일의 D-1일
+    cy_end_calc = update_date - timedelta(days=1)
+    
+    # 분석월의 말일
+    last_day = monthrange(analysis_year, analysis_month)[1]
+    cy_month_end = datetime(analysis_year, analysis_month, last_day)
+    
+    # 업데이트일 전날이 분석월 말일을 초과하면 말일로 제한
+    if cy_end_calc > cy_month_end:
+        cy_end = cy_month_end
+    else:
+        cy_end = cy_end_calc
+    
+    # 당년 일수 계산
+    cy_days = (cy_end - cy_start).days + 1
+    
+    # 전년 기간: 전년도 동일 월에서 동주차 계산
     prev_year = analysis_year - 1
     prev_month_start = datetime(prev_year, analysis_month, 1)
-    prev_last_day = monthrange(prev_year, analysis_month)[1]
-    prev_month_end = datetime(prev_year, analysis_month, prev_last_day)
+    
+    # 당년 시작일과 전년 월초의 요일 차이 계산
+    current_start_weekday = cy_start.weekday()  # 0=월요일, 6=일요일
+    prev_month_start_weekday = prev_month_start.weekday()
+    
+    # 전년 시작일: 전년도 해당 월에서 당년 시작일과 동일한 요일 찾기
+    weekday_diff = current_start_weekday - prev_month_start_weekday
+    if weekday_diff < 0:
+        weekday_diff += 7
+    prev_start = prev_month_start + timedelta(days=weekday_diff)
+    
+    # 전년 종료일: 전년 시작일로부터 당년과 동일한 일수
+    prev_end = prev_start + timedelta(days=cy_days - 1)
     
     return {
         'cy_start': cy_start.strftime('%Y-%m-%d'),
         'cy_end': cy_end.strftime('%Y-%m-%d'),
-        'py_start': prev_month_start.strftime('%Y-%m-%d'),
-        'py_end': prev_month_end.strftime('%Y-%m-%d'),
+        'py_start': prev_start.strftime('%Y-%m-%d'),
+        'py_end': prev_end.strftime('%Y-%m-%d'),
         'update_date': update_date.strftime('%Y-%m-%d')
     }
 

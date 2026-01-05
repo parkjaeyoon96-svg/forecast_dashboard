@@ -60,15 +60,15 @@ def get_snowflake_connection():
 
 def calculate_previous_year_period(update_date_str: str):
     """
-    업데이트일자로부터 전년 동주차 기간 계산
+    업데이트일자로부터 전년 동기간 계산
     
-    당년 누적 주차와 동일한 주차를 전년에서 가져오기
-    - 월요일을 주 시작으로 계산
-    - 당년 종료일 요일과 전년 종료일 요일을 일치시킴
+    당년: 분석월의 1일 ~ 업데이트일의 D-1일 (단, 분석월 말일 초과 시 말일로 제한)
+    전년: 당년과 동일 기간 (전년도 동일 월)
     
     예: 
-    - 당년: 2025-12-01(월) ~ 2025-12-14(일) = 2주
-    - 전년: 2024-12-02(월) ~ 2024-12-15(일) = 2주
+    - 업데이트일: 20260105, 분석월: 202512
+    - 당년: 2025-12-01 ~ 2025-12-31 (업데이트일 전날이 말일 초과하므로 말일로 제한)
+    - 전년: 2024-12-01 ~ 2024-12-31 (당년과 동일 일수)
     
     Args:
         update_date_str: YYYYMMDD 형식 (예: 20251215)
@@ -76,14 +76,15 @@ def calculate_previous_year_period(update_date_str: str):
     Returns:
         tuple: (전년_시작일, 전년_종료일) YYYY-MM-DD 형식
     """
+    from calendar import monthrange
+    
     # 업데이트일자 파싱
     update_date = datetime.strptime(update_date_str, '%Y%m%d')
     
-    # ★ 분석월 계산: 업데이트일자의 년월 추출 ★
-    # 업데이트일자가 다음달 초인 경우를 고려하여 metadata.json에서 분석월 가져오기
-    analysis_month_str = update_date_str[:6]  # YYYYMM
+    # ★ 분석월 계산: metadata.json에서 가져오기 ★
+    analysis_month_str = update_date_str[:6]  # YYYYMM (기본값)
     
-    # metadata.json에서 실제 분석월 확인 (더 정확함)
+    # metadata.json에서 실제 분석월 확인
     try:
         from path_utils import get_current_year_file_path
         metadata_path = get_current_year_file_path(update_date_str, 'metadata.json')
@@ -101,36 +102,48 @@ def calculate_previous_year_period(update_date_str: str):
     analysis_year = int(analysis_month_str[:4])
     analysis_month = int(analysis_month_str[4:6])
     
-    # 당년 기간: 분석월의 1일 ~ 말일
+    # 당년 시작일: 분석월의 1일
     current_start = datetime(analysis_year, analysis_month, 1)
-    # 말일 계산
-    if analysis_month == 12:
-        next_month = datetime(analysis_year + 1, 1, 1)
-    else:
-        next_month = datetime(analysis_year, analysis_month + 1, 1)
-    current_end = next_month - timedelta(days=1)
     
-    # ★ 전년 기간: 전년도 동일 월의 1일 ~ 말일 ★
-    prev_year = analysis_year - 1
-    prev_start = datetime(prev_year, analysis_month, 1)
-    # 전년 말일 계산
-    if analysis_month == 12:
-        prev_next_month = datetime(prev_year + 1, 1, 1)
+    # 당년 종료일: 업데이트일의 D-1일
+    current_end_calc = update_date - timedelta(days=1)
+    
+    # 분석월의 말일
+    last_day = monthrange(analysis_year, analysis_month)[1]
+    current_month_end = datetime(analysis_year, analysis_month, last_day)
+    
+    # 업데이트일 전날이 분석월 말일을 초과하면 말일로 제한
+    if current_end_calc > current_month_end:
+        current_end = current_month_end
     else:
-        prev_next_month = datetime(prev_year, analysis_month + 1, 1)
-    prev_end = prev_next_month - timedelta(days=1)
+        current_end = current_end_calc
     
     # 당년의 일수 계산
     current_days = (current_end - current_start).days + 1
+    
+    # 전년 기간: 전년도 동일 월에서 동주차 계산
+    prev_year = analysis_year - 1
+    prev_month_start = datetime(prev_year, analysis_month, 1)
+    
+    # 당년 시작일과 전년 월초의 요일 차이 계산
+    current_start_weekday = current_start.weekday()  # 0=월요일, 6=일요일
+    prev_month_start_weekday = prev_month_start.weekday()
+    
+    # 전년 시작일: 전년도 해당 월에서 당년 시작일과 동일한 요일 찾기
+    weekday_diff = current_start_weekday - prev_month_start_weekday
+    if weekday_diff < 0:
+        weekday_diff += 7
+    prev_start = prev_month_start + timedelta(days=weekday_diff)
+    
+    # 전년 종료일: 전년 시작일로부터 당년과 동일한 일수
+    prev_end = prev_start + timedelta(days=current_days - 1)
+    
     prev_days = (prev_end - prev_start).days + 1
     
     prev_start_str = prev_start.strftime('%Y-%m-%d')
     prev_end_str = prev_end.strftime('%Y-%m-%d')
     
-    # 주차 및 요일 정보
-    current_weeks = current_days // 7
-    prev_weeks = prev_days // 7
-    
+    # 요일 정보
     weekday_names = ['월', '화', '수', '목', '금', '토', '일']
     current_start_name = weekday_names[current_start.weekday()]
     current_end_name = weekday_names[current_end.weekday()]
