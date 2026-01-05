@@ -602,8 +602,8 @@ def calculate_date_periods(update_date_str: str):
     """
     트리맵 날짜 기간 계산
     
-    당년: 분석월의 1일 ~ 업데이트일자 -1일 (단, 말일 초과 시 말일로 제한)
-    전년: snowflake에서 다운받은 기간
+    당년: 분석월의 1일 ~ 말일 (전체 월 데이터)
+    전년: 전년도 동일 월의 1일 ~ 말일
     
     Args:
         update_date_str: YYYYMMDD 형식 (예: 20251215)
@@ -615,46 +615,43 @@ def calculate_date_periods(update_date_str: str):
     
     update_date = datetime.strptime(update_date_str, '%Y%m%d')
     
-    # 당년 시작일: 분석월의 1일
-    cy_start = update_date.replace(day=1)
+    # ★ 분석월 계산: metadata.json에서 가져오기 ★
+    analysis_month_str = update_date_str[:6]  # YYYYMM (기본값)
     
-    # 당년 종료일: 업데이트일자 -1일
-    cy_end_calc = update_date - timedelta(days=1)
+    # metadata.json에서 실제 분석월 확인
+    try:
+        year_month = extract_year_month_from_date(update_date_str)
+        metadata_path = get_current_year_file_path(update_date_str, 'metadata.json')
+        if os.path.exists(metadata_path):
+            import json
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+                if 'analysis_month' in metadata:
+                    analysis_month_str = metadata['analysis_month']
+                    print(f"  [메타데이터] 분석월: {analysis_month_str}")
+    except:
+        pass
     
-    # 분석월의 말일
-    last_day = monthrange(update_date.year, update_date.month)[1]
-    cy_month_end = update_date.replace(day=last_day)
+    # 분석월의 년월로 당년 기간 설정
+    analysis_year = int(analysis_month_str[:4])
+    analysis_month = int(analysis_month_str[4:6])
     
-    # cy_end가 말일을 넘어가면 말일로 제한
-    if cy_end_calc > cy_month_end:
-        cy_end = cy_month_end
-    else:
-        cy_end = cy_end_calc
+    # 당년 기간: 분석월의 1일 ~ 말일
+    cy_start = datetime(analysis_year, analysis_month, 1)
+    last_day = monthrange(analysis_year, analysis_month)[1]
+    cy_end = datetime(analysis_year, analysis_month, last_day)
     
-    # 전년 기간은 download_previous_year_treemap_data.py에서 계산됨
-    # 여기서는 metadata에서 읽거나 기본값 사용
-    year_month = extract_year_month_from_date(update_date_str)
-    prev_metadata_path = os.path.join(ROOT, "raw", year_month, "previous_year", f"treemap_preprocessed_prev_{update_date_str}.csv")
-    
-    # 전년 기간 기본값 (동일 로직)
-    prev_year = update_date.year - 1
-    prev_month_start = cy_start.replace(year=prev_year)
-    prev_month_start_weekday = prev_month_start.weekday()
-    cy_start_weekday = cy_start.weekday()
-    
-    weekday_diff = cy_start_weekday - prev_month_start_weekday
-    if weekday_diff < 0:
-        weekday_diff += 7
-    py_start = prev_month_start + timedelta(days=weekday_diff)
-    
-    cy_days = (cy_end - cy_start).days + 1
-    py_end = py_start + timedelta(days=cy_days - 1)
+    # 전년 기간: 전년도 동일 월의 1일 ~ 말일
+    prev_year = analysis_year - 1
+    prev_month_start = datetime(prev_year, analysis_month, 1)
+    prev_last_day = monthrange(prev_year, analysis_month)[1]
+    prev_month_end = datetime(prev_year, analysis_month, prev_last_day)
     
     return {
         'cy_start': cy_start.strftime('%Y-%m-%d'),
         'cy_end': cy_end.strftime('%Y-%m-%d'),
-        'py_start': py_start.strftime('%Y-%m-%d'),
-        'py_end': py_end.strftime('%Y-%m-%d'),
+        'py_start': prev_month_start.strftime('%Y-%m-%d'),
+        'py_end': prev_month_end.strftime('%Y-%m-%d'),
         'update_date': update_date.strftime('%Y-%m-%d')
     }
 

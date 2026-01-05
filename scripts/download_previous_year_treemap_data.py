@@ -79,48 +79,66 @@ def calculate_previous_year_period(update_date_str: str):
     # 업데이트일자 파싱
     update_date = datetime.strptime(update_date_str, '%Y%m%d')
     
-    # 당년 기간: 분석월의 1일 ~ 업데이트일자 전날
-    current_start = update_date.replace(day=1)
-    current_end = update_date - timedelta(days=1)
+    # ★ 분석월 계산: 업데이트일자의 년월 추출 ★
+    # 업데이트일자가 다음달 초인 경우를 고려하여 metadata.json에서 분석월 가져오기
+    analysis_month_str = update_date_str[:6]  # YYYYMM
     
-    # 당년 시작일과 종료일의 요일 (0=월요일, 6=일요일)
-    current_start_weekday = current_start.weekday()
-    current_end_weekday = current_end.weekday()
+    # metadata.json에서 실제 분석월 확인 (더 정확함)
+    try:
+        from path_utils import get_current_year_file_path
+        metadata_path = get_current_year_file_path(update_date_str, 'metadata.json')
+        if os.path.exists(metadata_path):
+            import json
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+                if 'analysis_month' in metadata:
+                    analysis_month_str = metadata['analysis_month']
+                    print(f"📋 metadata.json에서 분석월 확인: {analysis_month_str}")
+    except:
+        pass
     
-    # 전년도 해당 월의 1일
-    prev_year = update_date.year - 1
-    prev_month_start = current_start.replace(year=prev_year)
-    prev_month_start_weekday = prev_month_start.weekday()
+    # 분석월의 년월로 당년 기간 설정
+    analysis_year = int(analysis_month_str[:4])
+    analysis_month = int(analysis_month_str[4:6])
     
-    # 전년 시작일: 전년도 해당 월에서 당년 시작일과 동일한 요일 찾기
-    # 당년이 월요일에 시작했다면 전년도 첫 월요일부터 시작
-    weekday_diff_start = current_start_weekday - prev_month_start_weekday
-    if weekday_diff_start < 0:
-        weekday_diff_start += 7
-    prev_start = prev_month_start + timedelta(days=weekday_diff_start)
+    # 당년 기간: 분석월의 1일 ~ 말일
+    current_start = datetime(analysis_year, analysis_month, 1)
+    # 말일 계산
+    if analysis_month == 12:
+        next_month = datetime(analysis_year + 1, 1, 1)
+    else:
+        next_month = datetime(analysis_year, analysis_month + 1, 1)
+    current_end = next_month - timedelta(days=1)
+    
+    # ★ 전년 기간: 전년도 동일 월의 1일 ~ 말일 ★
+    prev_year = analysis_year - 1
+    prev_start = datetime(prev_year, analysis_month, 1)
+    # 전년 말일 계산
+    if analysis_month == 12:
+        prev_next_month = datetime(prev_year + 1, 1, 1)
+    else:
+        prev_next_month = datetime(prev_year, analysis_month + 1, 1)
+    prev_end = prev_next_month - timedelta(days=1)
     
     # 당년의 일수 계산
     current_days = (current_end - current_start).days + 1
-    
-    # 전년 종료일: 전년 시작일로부터 당년과 동일한 일수만큼 더하기 (동일 주차)
-    prev_end = prev_start + timedelta(days=current_days - 1)
+    prev_days = (prev_end - prev_start).days + 1
     
     prev_start_str = prev_start.strftime('%Y-%m-%d')
     prev_end_str = prev_end.strftime('%Y-%m-%d')
     
     # 주차 및 요일 정보
-    prev_days = (prev_end - prev_start).days + 1
     current_weeks = current_days // 7
     prev_weeks = prev_days // 7
     
     weekday_names = ['월', '화', '수', '목', '금', '토', '일']
-    current_start_name = weekday_names[current_start_weekday]
-    current_end_name = weekday_names[current_end_weekday]
+    current_start_name = weekday_names[current_start.weekday()]
+    current_end_name = weekday_names[current_end.weekday()]
     prev_start_name = weekday_names[prev_start.weekday()]
     prev_end_name = weekday_names[prev_end.weekday()]
     
-    print(f"📅 당년 기간: {current_start.strftime('%Y-%m-%d')}({current_start_name}) ~ {current_end.strftime('%Y-%m-%d')}({current_end_name}) - {current_days}일 ({current_weeks}주 완료)")
-    print(f"📅 전년 기간: {prev_start_str}({prev_start_name}) ~ {prev_end_str}({prev_end_name}) - {prev_days}일 ({prev_weeks}주 완료)")
+    print(f"📅 당년 기간 ({analysis_month_str}월): {current_start.strftime('%Y-%m-%d')}({current_start_name}) ~ {current_end.strftime('%Y-%m-%d')}({current_end_name}) - {current_days}일")
+    print(f"📅 전년 기간 ({prev_year}-{analysis_month:02d}월): {prev_start_str}({prev_start_name}) ~ {prev_end_str}({prev_end_name}) - {prev_days}일")
     
     return prev_start_str, prev_end_str
 
