@@ -10,7 +10,14 @@ echo   전년/계획 데이터 업데이트
 echo ============================================================
 echo.
 
-REM 전년/계획 데이터 업데이트 스크립트 실행
+REM 전년/계획 데이터 업데이트 스크립트 실행 (Step 1-5 포함)
+REM Step 1: 전년 데이터 다운로드
+REM Step 2: 전년 데이터 전처리
+REM Step 3: 계획 데이터 전처리
+REM Step 4: 전년 누적 매출 다운로드
+REM Step 5: 진척일수 계산
+REM 
+REM Note: 직접비율 추출은 당년데이터_처리실행.bat에서 수행됩니다
 python scripts\run_previous_year_plan_update.py
 
 if errorlevel 1 (
@@ -32,6 +39,9 @@ echo.
 
 pause
 exit /b 0
+
+
+
 
 
 

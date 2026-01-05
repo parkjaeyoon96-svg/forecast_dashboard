@@ -1,5 +1,5 @@
 // 모든 대시보드 데이터 (window 전역 할당 전용)
-// 자동 생성 일시: 2025-12-30 22:52:55
+// 자동 생성 일시: 2025-12-31 03:26:52
 
 (function(){
   var brandNames = {
@@ -4721,17 +4721,17 @@
     "directCost": {
       "prev": 14.69,
       "target": 17.53,
-      "forecast": 15.69,
-      "yoy": 107,
-      "achievement": 90
+      "forecast": 16.53,
+      "yoy": 113,
+      "achievement": 94
     },
     "directCostDetail": {
       "인건비": {
         "prev": 5.57,
-        "target": 6.25,
-        "forecast": 5.51,
-        "yoy": 99,
-        "achievement": 88
+        "target": 6.02,
+        "forecast": 5.94,
+        "yoy": 107,
+        "achievement": 99
       },
       "임차관리비": {
         "prev": 0.56,
@@ -4742,10 +4742,10 @@
       },
       "물류운송비": {
         "prev": 3.62,
-        "target": 3.55,
-        "forecast": 3.22,
-        "yoy": 89,
-        "achievement": 91
+        "target": 5.3,
+        "forecast": 3.63,
+        "yoy": 100,
+        "achievement": 68
       },
       "로열티": {
         "prev": 2.49,
@@ -4772,9 +4772,9 @@
     "directProfit": {
       "prev": 10.91,
       "target": 15.18,
-      "forecast": 12.62,
-      "yoy": 116,
-      "achievement": 83
+      "forecast": 11.78,
+      "yoy": 108,
+      "achievement": 78
     },
     "operatingExpense": {
       "prev": 10.04,
@@ -4786,9 +4786,9 @@
     "opProfit": {
       "prev": 0.87,
       "target": 5.8,
-      "forecast": 3.24,
-      "yoy": 372,
-      "achievement": 56
+      "forecast": 2.4,
+      "yoy": 276,
+      "achievement": 41
     }
   },
   "DISCOVERY": {

@@ -158,14 +158,25 @@ def get_brand_progress_days(brand: str, channel_code: str, progress_days_dict: d
     Returns:
         float: 진척일수
     """
-    # M(면세) = 브랜드코드가 M이며 유통코드가 2인건
-    if brand == 'M' and str(channel_code) == '2':
+    # 브랜드 정규화 (공백 제거, 대문자 변환)
+    brand_clean = str(brand).strip().upper()
+    
+    # 유통채널 숫자 변환
+    try:
+        channel_num = float(channel_code) if pd.notna(channel_code) else -1
+    except (ValueError, TypeError):
+        channel_num = -1
+    
+    # M(면세) = 브랜드코드가 M이며 유통코드가 2인 경우
+    # 부동소수점 비교를 위해 int로 변환하여 비교
+    if brand_clean == 'M' and int(channel_num) == 2:
         return progress_days_dict.get('M(면세)', 0.0)
-    # M(면세제외) = 브랜드코드가 M이며 유통코드가 2가 아닌건
-    elif brand == 'M' and str(channel_code) != '2':
-        return progress_days_dict.get('M(면세제외)', 0.0)
+    # M(면세제외) = 브랜드코드가 M이며 유통코드가 2가 아닌 경우
+    elif brand_clean == 'M' and int(channel_num) != 2:
+        result = progress_days_dict.get('M(면세제외)', 0.0)
+        return result
     else:
-        return progress_days_dict.get(brand, 0.0)
+        return progress_days_dict.get(brand_clean, progress_days_dict.get(brand, 0.0))
 
 
 def calculate_forecast_value(current_value: float, progress_days: float, total_days: int) -> float:

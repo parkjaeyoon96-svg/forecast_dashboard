@@ -1,5 +1,5 @@
 // 모든 대시보드 데이터 (window 전역 할당 전용)
-// 자동 생성 일시: 2025-12-22 10:49:05
+// 자동 생성 일시: 2025-12-30 23:21:24
 
 (function(){
   var brandNames = {
@@ -4140,16 +4140,16 @@
     "tagRevenue": {
       "prev": 341.93,
       "target": 329.73,
-      "forecast": 381.31,
-      "yoy": 112,
-      "achievement": 116
+      "forecast": 331.57,
+      "yoy": 97,
+      "achievement": 101
     },
     "revenue": {
       "prev": 302.26,
       "target": 314.79,
-      "forecast": 352.03,
-      "yoy": 116,
-      "achievement": 112
+      "forecast": 306.16,
+      "yoy": 101,
+      "achievement": 97
     },
     "discountRate": {
       "prev": 11.6,
@@ -4161,52 +4161,52 @@
     "cog": {
       "prev": 60.46,
       "target": 55.18,
-      "forecast": 65.4,
-      "yoy": 108,
-      "achievement": 119
+      "forecast": 57.08,
+      "yoy": 94,
+      "achievement": 103
     },
     "grossProfit": {
       "prev": 135.21,
       "target": 149.14,
-      "forecast": 166.97,
-      "yoy": 123,
-      "achievement": 112
+      "forecast": 144.86,
+      "yoy": 107,
+      "achievement": 97
     },
     "directCost": {
       "prev": 55.63,
       "target": 57.58,
-      "forecast": 64.65,
-      "yoy": 116,
-      "achievement": 112
+      "forecast": 57.18,
+      "yoy": 103,
+      "achievement": 99
     },
     "directCostDetail": {
       "인건비": {
         "prev": 14.75,
         "target": 15.09,
-        "forecast": 16.33,
-        "yoy": 111,
-        "achievement": 108
+        "forecast": 14.2,
+        "yoy": 96,
+        "achievement": 94
       },
       "임차관리비": {
         "prev": 7.09,
         "target": 8.25,
-        "forecast": 8.7,
-        "yoy": 123,
-        "achievement": 105
+        "forecast": 8.32,
+        "yoy": 117,
+        "achievement": 101
       },
       "물류운송비": {
         "prev": 12.25,
         "target": 13.28,
-        "forecast": 14.85,
-        "yoy": 121,
-        "achievement": 112
+        "forecast": 12.91,
+        "yoy": 105,
+        "achievement": 97
       },
       "로열티": {
         "prev": 12.41,
         "target": 12.89,
-        "forecast": 14.38,
-        "yoy": 116,
-        "achievement": 112
+        "forecast": 12.5,
+        "yoy": 101,
+        "achievement": 97
       },
       "감가상각비": {
         "prev": 2.36,
@@ -4218,17 +4218,17 @@
       "기타": {
         "prev": 6.78,
         "target": 6.13,
-        "forecast": 8.57,
-        "yoy": 126,
-        "achievement": 140
+        "forecast": 7.41,
+        "yoy": 109,
+        "achievement": 121
       }
     },
     "directProfit": {
       "prev": 79.58,
       "target": 91.56,
-      "forecast": 102.32,
-      "yoy": 129,
-      "achievement": 112
+      "forecast": 87.68,
+      "yoy": 110,
+      "achievement": 96
     },
     "operatingExpense": {
       "prev": 33.64,
@@ -4240,25 +4240,25 @@
     "opProfit": {
       "prev": 45.94,
       "target": 58.11,
-      "forecast": 68.87,
-      "yoy": 150,
-      "achievement": 119
+      "forecast": 54.23,
+      "yoy": 118,
+      "achievement": 93
     }
   },
   "MLB_KIDS": {
     "tagRevenue": {
       "prev": 81.3,
       "target": 89.99,
-      "forecast": 98.62,
-      "yoy": 121,
-      "achievement": 110
+      "forecast": 85.73,
+      "yoy": 105,
+      "achievement": 95
     },
     "revenue": {
       "prev": 70.99,
       "target": 83.85,
-      "forecast": 88.2,
-      "yoy": 124,
-      "achievement": 105
+      "forecast": 76.67,
+      "yoy": 108,
+      "achievement": 91
     },
     "discountRate": {
       "prev": 12.7,
@@ -4270,52 +4270,52 @@
     "cog": {
       "prev": 20.69,
       "target": 22.57,
-      "forecast": 24.51,
-      "yoy": 118,
-      "achievement": 109
+      "forecast": 21.41,
+      "yoy": 103,
+      "achievement": 95
     },
     "grossProfit": {
       "prev": 25.6,
       "target": 32.71,
-      "forecast": 34.03,
-      "yoy": 133,
-      "achievement": 104
+      "forecast": 29.49,
+      "yoy": 115,
+      "achievement": 90
     },
     "directCost": {
       "prev": 14.69,
       "target": 17.53,
-      "forecast": 18.1,
-      "yoy": 123,
-      "achievement": 103
+      "forecast": 15.8,
+      "yoy": 108,
+      "achievement": 90
     },
     "directCostDetail": {
       "인건비": {
         "prev": 5.57,
         "target": 6.25,
-        "forecast": 6.42,
-        "yoy": 115,
-        "achievement": 103
+        "forecast": 5.58,
+        "yoy": 100,
+        "achievement": 89
       },
       "임차관리비": {
         "prev": 0.56,
         "target": 1.18,
-        "forecast": 1.14,
-        "yoy": 204,
-        "achievement": 97
+        "forecast": 0.99,
+        "yoy": 177,
+        "achievement": 84
       },
       "물류운송비": {
         "prev": 3.62,
         "target": 3.55,
-        "forecast": 3.73,
-        "yoy": 103,
-        "achievement": 105
+        "forecast": 3.24,
+        "yoy": 90,
+        "achievement": 91
       },
       "로열티": {
         "prev": 2.49,
         "target": 2.94,
-        "forecast": 3.11,
-        "yoy": 125,
-        "achievement": 106
+        "forecast": 2.7,
+        "yoy": 108,
+        "achievement": 92
       },
       "감가상각비": {
         "prev": 0.69,
@@ -4327,17 +4327,17 @@
       "기타": {
         "prev": 1.77,
         "target": 3.16,
-        "forecast": 3.26,
-        "yoy": 184,
-        "achievement": 103
+        "forecast": 2.83,
+        "yoy": 160,
+        "achievement": 90
       }
     },
     "directProfit": {
       "prev": 10.91,
       "target": 15.18,
-      "forecast": 15.93,
-      "yoy": 146,
-      "achievement": 105
+      "forecast": 13.69,
+      "yoy": 125,
+      "achievement": 90
     },
     "operatingExpense": {
       "prev": 10.04,
@@ -4349,25 +4349,25 @@
     "opProfit": {
       "prev": 0.87,
       "target": 5.8,
-      "forecast": 6.55,
-      "yoy": 753,
-      "achievement": 113
+      "forecast": 4.31,
+      "yoy": 495,
+      "achievement": 74
     }
   },
   "DISCOVERY": {
     "tagRevenue": {
       "prev": 986.04,
       "target": 987.64,
-      "forecast": 961.75,
-      "yoy": 98,
-      "achievement": 97
+      "forecast": 870.21,
+      "yoy": 88,
+      "achievement": 88
     },
     "revenue": {
       "prev": 755.38,
       "target": 765.0,
-      "forecast": 715.65,
-      "yoy": 95,
-      "achievement": 94
+      "forecast": 647.53,
+      "yoy": 86,
+      "achievement": 85
     },
     "discountRate": {
       "prev": 23.4,
@@ -4379,52 +4379,52 @@
     "cog": {
       "prev": 200.08,
       "target": 222.69,
-      "forecast": 217.95,
-      "yoy": 109,
-      "achievement": 98
+      "forecast": 197.97,
+      "yoy": 99,
+      "achievement": 89
     },
     "grossProfit": {
       "prev": 344.4,
       "target": 340.02,
-      "forecast": 304.29,
-      "yoy": 88,
-      "achievement": 89
+      "forecast": 274.56,
+      "yoy": 80,
+      "achievement": 81
     },
     "directCost": {
       "prev": 112.83,
       "target": 115.3,
-      "forecast": 107.74,
-      "yoy": 95,
-      "achievement": 93
+      "forecast": 97.83,
+      "yoy": 87,
+      "achievement": 85
     },
     "directCostDetail": {
       "인건비": {
         "prev": 30.3,
         "target": 29.96,
-        "forecast": 26.46,
-        "yoy": 87,
-        "achievement": 88
+        "forecast": 23.95,
+        "yoy": 79,
+        "achievement": 80
       },
       "임차관리비": {
         "prev": 30.53,
         "target": 34.79,
-        "forecast": 29.09,
-        "yoy": 95,
-        "achievement": 84
+        "forecast": 26.47,
+        "yoy": 87,
+        "achievement": 76
       },
       "물류운송비": {
         "prev": 13.64,
         "target": 14.08,
-        "forecast": 13.07,
-        "yoy": 96,
-        "achievement": 93
+        "forecast": 11.82,
+        "yoy": 87,
+        "achievement": 84
       },
       "로열티": {
         "prev": 14.42,
         "target": 14.6,
-        "forecast": 14.01,
-        "yoy": 97,
-        "achievement": 96
+        "forecast": 12.67,
+        "yoy": 88,
+        "achievement": 87
       },
       "감가상각비": {
         "prev": 2.92,
@@ -4436,17 +4436,17 @@
       "기타": {
         "prev": 21.02,
         "target": 19.86,
-        "forecast": 23.12,
-        "yoy": 110,
-        "achievement": 116
+        "forecast": 20.92,
+        "yoy": 100,
+        "achievement": 105
       }
     },
     "directProfit": {
       "prev": 231.57,
       "target": 224.72,
-      "forecast": 196.55,
-      "yoy": 85,
-      "achievement": 87
+      "forecast": 176.73,
+      "yoy": 76,
+      "achievement": 79
     },
     "operatingExpense": {
       "prev": 65.97,
@@ -4458,25 +4458,25 @@
     "opProfit": {
       "prev": 165.6,
       "target": 162.09,
-      "forecast": 133.92,
-      "yoy": 81,
-      "achievement": 83
+      "forecast": 114.1,
+      "yoy": 69,
+      "achievement": 70
     }
   },
   "DUVETICA": {
     "tagRevenue": {
       "prev": 76.0,
       "target": 106.15,
-      "forecast": 102.39,
-      "yoy": 135,
-      "achievement": 96
+      "forecast": 91.4,
+      "yoy": 120,
+      "achievement": 86
     },
     "revenue": {
       "prev": 40.31,
       "target": 68.0,
-      "forecast": 81.21,
-      "yoy": 201,
-      "achievement": 119
+      "forecast": 72.49,
+      "yoy": 180,
+      "achievement": 107
     },
     "discountRate": {
       "prev": 47.0,
@@ -4488,52 +4488,52 @@
     "cog": {
       "prev": 14.03,
       "target": 21.45,
-      "forecast": 19.41,
-      "yoy": 138,
-      "achievement": 90
+      "forecast": 17.46,
+      "yoy": 124,
+      "achievement": 81
     },
     "grossProfit": {
       "prev": 18.24,
       "target": 36.33,
-      "forecast": 44.49,
-      "yoy": 244,
-      "achievement": 122
+      "forecast": 39.58,
+      "yoy": 217,
+      "achievement": 109
     },
     "directCost": {
       "prev": 8.18,
       "target": 11.59,
-      "forecast": 13.36,
-      "yoy": 163,
-      "achievement": 115
+      "forecast": 11.96,
+      "yoy": 146,
+      "achievement": 103
     },
     "directCostDetail": {
       "인건비": {
         "prev": 3.16,
         "target": 3.89,
-        "forecast": 4.41,
-        "yoy": 140,
-        "achievement": 113
+        "forecast": 3.94,
+        "yoy": 125,
+        "achievement": 101
       },
       "임차관리비": {
         "prev": 1.5,
         "target": 2.25,
-        "forecast": 2.37,
-        "yoy": 158,
-        "achievement": 105
+        "forecast": 2.11,
+        "yoy": 141,
+        "achievement": 94
       },
       "물류운송비": {
         "prev": 0.72,
         "target": 1.13,
-        "forecast": 1.35,
-        "yoy": 188,
-        "achievement": 119
+        "forecast": 1.2,
+        "yoy": 167,
+        "achievement": 106
       },
       "로열티": {
         "prev": 0.72,
         "target": 1.55,
-        "forecast": 1.61,
-        "yoy": 224,
-        "achievement": 104
+        "forecast": 1.44,
+        "yoy": 200,
+        "achievement": 93
       },
       "감가상각비": {
         "prev": 0.32,
@@ -4545,17 +4545,17 @@
       "기타": {
         "prev": 1.76,
         "target": 2.48,
-        "forecast": 3.34,
-        "yoy": 190,
-        "achievement": 135
+        "forecast": 2.98,
+        "yoy": 169,
+        "achievement": 120
       }
     },
     "directProfit": {
       "prev": 10.06,
       "target": 24.74,
-      "forecast": 31.13,
-      "yoy": 309,
-      "achievement": 126
+      "forecast": 27.62,
+      "yoy": 275,
+      "achievement": 112
     },
     "operatingExpense": {
       "prev": 9.08,
@@ -4567,25 +4567,25 @@
     "opProfit": {
       "prev": 0.98,
       "target": 11.24,
-      "forecast": 17.64,
-      "yoy": 1800,
-      "achievement": 157
+      "forecast": 14.13,
+      "yoy": 1442,
+      "achievement": 126
     }
   },
   "SERGIO": {
     "tagRevenue": {
       "prev": 12.42,
       "target": 14.03,
-      "forecast": 10.13,
-      "yoy": 82,
-      "achievement": 72
+      "forecast": 9.46,
+      "yoy": 76,
+      "achievement": 67
     },
     "revenue": {
       "prev": 8.16,
       "target": 8.0,
-      "forecast": 5.73,
-      "yoy": 70,
-      "achievement": 72
+      "forecast": 5.35,
+      "yoy": 66,
+      "achievement": 67
     },
     "discountRate": {
       "prev": 34.2,
@@ -4597,52 +4597,52 @@
     "cog": {
       "prev": 2.91,
       "target": 3.49,
-      "forecast": 2.89,
-      "yoy": 99,
-      "achievement": 83
+      "forecast": 2.78,
+      "yoy": 96,
+      "achievement": 80
     },
     "grossProfit": {
       "prev": 3.64,
       "target": 2.75,
-      "forecast": 2.05,
-      "yoy": 56,
-      "achievement": 75
+      "forecast": 1.82,
+      "yoy": 50,
+      "achievement": 66
     },
     "directCost": {
       "prev": 3.01,
       "target": 3.54,
-      "forecast": 2.66,
-      "yoy": 88,
-      "achievement": 75
+      "forecast": 2.51,
+      "yoy": 83,
+      "achievement": 71
     },
     "directCostDetail": {
       "인건비": {
         "prev": 1.11,
         "target": 0.89,
-        "forecast": 0.56,
-        "yoy": 50,
-        "achievement": 63
+        "forecast": 0.52,
+        "yoy": 47,
+        "achievement": 58
       },
       "임차관리비": {
         "prev": 0.48,
         "target": 0.89,
-        "forecast": 0.48,
-        "yoy": 100,
-        "achievement": 54
+        "forecast": 0.45,
+        "yoy": 94,
+        "achievement": 51
       },
       "물류운송비": {
         "prev": 0.44,
         "target": 0.84,
-        "forecast": 0.6,
-        "yoy": 136,
-        "achievement": 71
+        "forecast": 0.56,
+        "yoy": 127,
+        "achievement": 67
       },
       "로열티": {
         "prev": 0.27,
         "target": 0.26,
-        "forecast": 0.19,
-        "yoy": 70,
-        "achievement": 73
+        "forecast": 0.17,
+        "yoy": 63,
+        "achievement": 65
       },
       "감가상각비": {
         "prev": 0.34,
@@ -4654,16 +4654,16 @@
       "기타": {
         "prev": 0.38,
         "target": 0.38,
-        "forecast": 0.56,
-        "yoy": 147,
-        "achievement": 147
+        "forecast": 0.52,
+        "yoy": 137,
+        "achievement": 137
       }
     },
     "directProfit": {
       "prev": 0.63,
       "target": -0.79,
-      "forecast": -0.61,
-      "yoy": -97,
+      "forecast": -0.69,
+      "yoy": -110,
       "achievement": 0
     },
     "operatingExpense": {
@@ -4676,7 +4676,7 @@
     "opProfit": {
       "prev": -5.92,
       "target": -7.1,
-      "forecast": -6.93,
+      "forecast": -7.01,
       "yoy": 0,
       "achievement": 0
     }
@@ -4685,16 +4685,16 @@
     "tagRevenue": {
       "prev": 7.78,
       "target": 15.0,
-      "forecast": 4.77,
-      "yoy": 61,
-      "achievement": 32
+      "forecast": 4.44,
+      "yoy": 57,
+      "achievement": 30
     },
     "revenue": {
       "prev": 3.73,
       "target": 3.0,
-      "forecast": 1.28,
-      "yoy": 34,
-      "achievement": 43
+      "forecast": 1.19,
+      "yoy": 32,
+      "achievement": 40
     },
     "discountRate": {
       "prev": 52.1,
@@ -4706,23 +4706,23 @@
     "cog": {
       "prev": 2.11,
       "target": 4.05,
-      "forecast": 0.95,
-      "yoy": 45,
-      "achievement": 23
+      "forecast": 0.9,
+      "yoy": 43,
+      "achievement": 22
     },
     "grossProfit": {
       "prev": 0.92,
       "target": -0.22,
-      "forecast": 0.22,
-      "yoy": 24,
+      "forecast": 0.18,
+      "yoy": 20,
       "achievement": 0
     },
     "directCost": {
       "prev": 3.31,
       "target": 1.29,
-      "forecast": 0.49,
-      "yoy": 15,
-      "achievement": 38
+      "forecast": 0.46,
+      "yoy": 14,
+      "achievement": 36
     },
     "directCostDetail": {
       "인건비": {
@@ -4742,9 +4742,9 @@
       "물류운송비": {
         "prev": 0.21,
         "target": 0.63,
-        "forecast": 0.27,
-        "yoy": 129,
-        "achievement": 43
+        "forecast": 0.25,
+        "yoy": 119,
+        "achievement": 40
       },
       "로열티": {
         "prev": 0.13,
@@ -4763,15 +4763,15 @@
       "기타": {
         "prev": 0.26,
         "target": 0.56,
-        "forecast": 0.18,
-        "yoy": 69,
-        "achievement": 32
+        "forecast": 0.17,
+        "yoy": 65,
+        "achievement": 30
       }
     },
     "directProfit": {
       "prev": -2.39,
       "target": -1.52,
-      "forecast": -0.27,
+      "forecast": -0.28,
       "yoy": 0,
       "achievement": 0
     },
@@ -4785,7 +4785,7 @@
     "opProfit": {
       "prev": -7.17,
       "target": -1.89,
-      "forecast": -0.64,
+      "forecast": -0.65,
       "yoy": 0,
       "achievement": 0
     }

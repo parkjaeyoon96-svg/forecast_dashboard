@@ -153,18 +153,12 @@ def get_cumulative_sales_query(prev_year: int, prev_month: int) -> str:
     # 주차 시작일 목록
     week_starts = get_week_start_dates(prev_year, prev_month)
     
-    # 마지막 주차의 일요일 계산 (주차 시작일 + 6일)
-    if week_starts:
-        last_week_start = week_starts[-1]  # 마지막 주차 시작일
-        last_week_sunday = last_week_start + timedelta(days=6)  # 마지막 주차 일요일
-        # WHERE 조건 끝 날짜: 마지막 주차 일요일 + 1일 (쿼리에서 < 연산자 사용)
-        query_end_date = last_week_sunday + timedelta(days=1)
+    # ★ 수정: 마지막 주차는 해당 월의 말일까지만 가져오기 ★
+    # WHERE 조건 끝 날짜: 해당 월의 마지막 날 + 1일 (쿼리에서 < 연산자 사용)
+    if prev_month == 12:
+        query_end_date = datetime(prev_year + 1, 1, 1)
     else:
-        # 주차가 없으면 다음 달 첫 날 사용
-        if prev_month == 12:
-            query_end_date = datetime(prev_year + 1, 1, 1)
-        else:
-            query_end_date = datetime(prev_year, prev_month + 1, 1)
+        query_end_date = datetime(prev_year, prev_month + 1, 1)
     
     # 주차 시작일 문자열 리스트 생성 (쿼리용)
     week_start_strs = [ws.strftime('%Y-%m-%d') for ws in week_starts]
