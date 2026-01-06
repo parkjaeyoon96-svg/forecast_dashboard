@@ -307,11 +307,11 @@ export default function Home() {
             <input
               type="month"
               value={analysisMonth}
-              onChange={(e) => setAnalysisMonth(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 font-medium bg-white"
+              readOnly
+              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg text-slate-800 font-medium bg-slate-100 cursor-not-allowed"
             />
             <p className="mt-1 text-xs text-slate-500">
-              업데이트 일자를 선택하면 자동으로 계산됩니다. 필요시 수동으로 변경할 수 있습니다.
+              업데이트 일자에 따라서 분석월이 자동으로 계산됩니다.
             </p>
           </div>
           
