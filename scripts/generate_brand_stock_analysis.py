@@ -505,7 +505,7 @@ def process_acc_csv(file_path):
     
     CSV 컬럼:
     - 브랜드코드, 카테고리, 아이템, 아이템명, 판매수량, 판매매출, 전년비, 비중, 
-      4주평균판매량, 재고, 재고주수, 전년재고주수, 재고주수차이(당년-전년)
+      4주평균판매량, 재고, 재고금액, 재고주수, 전년재고주수, 재고주수차이(당년-전년)
     """
     print(f"[ACC 재고주수] 파일 읽는 중: {file_path}")
     
@@ -532,6 +532,7 @@ def process_acc_csv(file_path):
             "shareRate": str(row['비중']).strip() if pd.notna(row['비중']) else "0%",
             "avg4wSaleQty": safe_float(row['4주평균판매량']),
             "stockQty": safe_int(row['재고']),
+            "stockAmt": safe_int(row.get('재고금액')),
             "stockWeeks": safe_float(row['재고주수']),
             "pyStockWeeks": safe_float(row['전년재고주수']),
             "stockWeeksDiff": safe_float(row['재고주수차이(당년-전년)'])
@@ -790,7 +791,8 @@ def generate_js_file(clothing_data, acc_data, update_date, output_path=None, pro
             "itemCount": len(items),
             "totalSaleQty": sum(item.get("saleQty", 0) or 0 for item in items),
             "totalSaleAmt": sum(item.get("saleAmt", 0) or 0 for item in items),
-            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
+            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items),
+            "totalStockAmt": sum(item.get("stockAmt", 0) or 0 for item in items)
         }
     
     # 브랜드·카테고리별 판매율 집계 추가
@@ -913,7 +915,8 @@ def generate_json_file(clothing_data, acc_data, update_date, project_root=None, 
             "itemCount": len(items),
             "totalSaleQty": sum(item.get("saleQty", 0) or 0 for item in items),
             "totalSaleAmt": sum(item.get("saleAmt", 0) or 0 for item in items),
-            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
+            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items),
+            "totalStockAmt": sum(item.get("stockAmt", 0) or 0 for item in items)
         }
 
     brand_totals = brand_totals or {}

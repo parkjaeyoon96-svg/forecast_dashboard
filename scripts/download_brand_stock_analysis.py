@@ -336,7 +336,8 @@ base AS (
     b.parent_prdt_kind_nm,
     (a.sale_nml_sale_amt_cns + a.sale_ret_sale_amt_cns) AS sale_amt,
     (a.sale_nml_qty_cns  + a.sale_ret_qty_cns)          AS sale_qty,
-    a.stock_qty
+    a.stock_qty,
+    a.stock_tag_amt AS stock_tag_amt
   FROM prcs.db_scs_w a
   JOIN prcs.db_prdt  b
     ON a.prdt_cd = b.prdt_cd
@@ -392,7 +393,8 @@ avg4w_py AS (
 stk AS (
   SELECT 
     brd_cd, item,
-    SUM(stock_qty) AS stock_qty_asof
+    SUM(stock_qty) AS stock_qty_asof,
+    SUM(stock_tag_amt) AS stock_tag_amt_asof
   FROM base
   WHERE end_dt = '{cy_week_end}'
   GROUP BY brd_cd, item
@@ -402,7 +404,8 @@ stk AS (
 stk_py AS (
   SELECT 
     brd_cd, item,
-    SUM(stock_qty) AS stock_qty_asof_py
+    SUM(stock_qty) AS stock_qty_asof_py,
+    SUM(stock_tag_amt) AS stock_tag_amt_asof_py
   FROM base
   WHERE end_dt = '{py_week_end}'
   GROUP BY brd_cd, item
@@ -420,7 +423,9 @@ merge AS (
     COALESCE(a.sale_qty_4w_avg, 0)::numeric     AS sale_qty_4w_avg,
     COALESCE(ap.sale_qty_4w_avg_py, 0)::numeric AS sale_qty_4w_avg_py,
     COALESCE(s.stock_qty_asof, 0)               AS stock_qty_asof,
-    COALESCE(sp.stock_qty_asof_py, 0)           AS stock_qty_asof_py
+    COALESCE(sp.stock_qty_asof_py, 0)           AS stock_qty_asof_py,
+    COALESCE(s.stock_tag_amt_asof, 0)           AS stock_tag_amt_asof,
+    COALESCE(sp.stock_tag_amt_asof_py, 0)      AS stock_tag_amt_asof_py
   FROM cy c
   LEFT JOIN (
     SELECT brd_cd, item, MAX(item_nm) AS item_nm, MAX(prdt_kind_nm) AS prdt_kind_nm
@@ -464,6 +469,7 @@ SELECT
 
   ROUND(m.sale_qty_4w_avg, 2)            AS "4주평균판매량",
   m.stock_qty_asof::bigint               AS "재고",
+  m.stock_tag_amt_asof::bigint          AS "재고금액",
 
   ROUND(
     CASE WHEN m.sale_qty_4w_avg > 0 
@@ -494,6 +500,7 @@ JOIN tot  t ON m.brd_cd = t.brd_cd
 WHERE m.sale_amt_cy    <> 0
    OR m.sale_qty_cy    <> 0
    OR m.stock_qty_asof <> 0
+   OR m.stock_tag_amt_asof <> 0
 ORDER BY m.brd_cd, m.sale_amt_cy DESC
 """
     return query
@@ -554,6 +561,7 @@ def save_to_js(clothing_df: pd.DataFrame, acc_df: pd.DataFrame,
             'shareRate': row['비중'] if pd.notna(row['비중']) else '0%',
             'avg4wSaleQty': float(row['4주평균판매량']) if pd.notna(row['4주평균판매량']) else 0,
             'stockQty': int(row['재고']) if pd.notna(row['재고']) else 0,
+            'stockAmt': int(float(row['재고금액'])) if pd.notna(row.get('재고금액', 0)) and row.get('재고금액', 0) != 0 else 0,
             'stockWeeks': float(row['재고주수']) if pd.notna(row['재고주수']) else None,
             'pyStockWeeks': float(row['전년재고주수']) if pd.notna(row['전년재고주수']) else None,
             'stockWeeksDiff': float(row['재고주수차이(당년-전년)']) if pd.notna(row['재고주수차이(당년-전년)']) else None
@@ -862,6 +870,7 @@ def main():
                             "shareRate": share_rate_str,
                             "avg4wSaleQty": convert_decimal_to_float(row.get('4주평균판매량', None)) if pd.notna(row.get('4주평균판매량', None)) else None,
                             "stockQty": int(convert_decimal_to_float(row.get('재고', 0))) if pd.notna(row.get('재고', 0)) else None,
+                            "stockAmt": int(convert_decimal_to_float(row.get('재고금액', 0))) if pd.notna(row.get('재고금액', 0)) else 0,
                             "stockWeeks": convert_decimal_to_float(row.get('재고주수', None)) if pd.notna(row.get('재고주수', None)) else None,
                             "pyStockWeeks": convert_decimal_to_float(row.get('전년재고주수', None)) if pd.notna(row.get('전년재고주수', None)) else None,
                             "stockWeeksDiff": convert_decimal_to_float(row.get('재고주수차이(당년-전년)', None)) if pd.notna(row.get('재고주수차이(당년-전년)', None)) else None
@@ -891,7 +900,8 @@ def main():
                 "itemCount": len(items),
                 "totalSaleQty": sum(item.get("saleQty", 0) or 0 for item in items),
                 "totalSaleAmt": sum(item.get("saleAmt", 0) or 0 for item in items),
-                "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
+                "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items),
+                "totalStockAmt": sum(item.get("stockAmt", 0) or 0 for item in items)
             }
         
         stock_data = {

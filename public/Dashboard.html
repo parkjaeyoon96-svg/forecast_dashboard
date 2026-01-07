@@ -980,7 +980,7 @@
               <div id="bubbleControlsContainer" style="margin-bottom:15px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                   <div style="font-size:11px;color:#6b7280;">
-                    X축: 재고주수 | Y축: 매출전년대비 | 크기: 매출비중
+                    X축: 재고주수 | Y축: 매출전년대비 | 크기: 재고금액
                   </div>
                   <div style="display:flex;gap:0;background:#f3f4f6;padding:4px;border-radius:8px;">
                     <button id="bubbleViewBtn4" class="view-btn-4quad active" onclick="switchBubbleView('4quadrant')" style="padding:8px 16px;border:none;background:white;color:#1e293b;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.1);transition:all 0.2s;">4분면</button>
@@ -10822,6 +10822,7 @@
               share: item.weight || 0,
               avgSales: item.avg4w || 0,
               inventory: item.stockQty || 0,
+              stockAmt: item.stockAmt != null ? item.stockAmt : null, // 이미 백만원 단위로 변환됨 (convertAccDataToInventoryFormat에서)
               weeks: item.stockWeeks,
               yoyDiff: item.diff || 0
             });
@@ -11081,6 +11082,12 @@
         q9: processedData.filter(d => d.quadrant9 === 'q9')
       };
       
+      // 재고금액 최대값 계산 (정규화용)
+      const stockAmtValues = processedData
+        .map(d => d.stockAmt)
+        .filter(val => val != null && val > 0);
+      const maxStockAmt = stockAmtValues.length > 0 ? Math.max(...stockAmtValues) : 1000; // 기본값 1000백만원
+      
       // 차트 데이터셋 생성
       const datasets = Object.keys(brandColors).map(brand => {
         const brandData = processedData.filter(d => d.brand === brand);
@@ -11088,8 +11095,14 @@
           label: brandNames[brand],
           clip: false,
           data: brandData.map(d => {
-            const bubbleSize = d.share > 0 
-              ? Math.max(3, Math.min(35, 3 + d.share * 0.6))
+            // 재고금액을 2/3 지수 스케일로 변환하여 크기 차이를 약 3배로 표시
+            // 3424 vs 500 (7배 차이) → 2/3 지수: 약 3배 크기 차이
+            // 계산: 500/3424 = 0.146 → 0.146^(2/3) = 0.28 → 3 + 0.28 * 47 = 16.2
+            // 3424/3424 = 1.0 → 1.0^(2/3) = 1.0 → 3 + 1.0 * 47 = 50
+            // 차이: 50/16.2 ≈ 3.1배
+            const normalized = d.stockAmt / maxStockAmt;
+            const bubbleSize = (d.stockAmt != null && d.stockAmt > 0 && maxStockAmt > 0) 
+              ? Math.max(3, Math.min(50, 3 + Math.pow(normalized, 2/3) * 47))
               : 3;
             return {
               x: d.weeks,
@@ -11098,6 +11111,7 @@
               item: d.name,
               salesAmt: d.salesAmt,
               inventory: d.inventory,
+              stockAmt: d.stockAmt || 0,
               weeksOriginal: d.weeksOriginal,
               share: d.share,
               yoyOriginal: d.yoyOriginal,
@@ -11286,6 +11300,12 @@
         'ST': 'SERGIO'
       };
       
+      // 재고금액 최대값 계산 (정규화용)
+      const stockAmtValues = processedData
+        .map(d => d.stockAmt)
+        .filter(val => val != null && val > 0);
+      const maxStockAmt = stockAmtValues.length > 0 ? Math.max(...stockAmtValues) : 1000; // 기본값 1000백만원
+      
       // 차트 데이터셋 생성 (yoy > 0인 항목만 표시, KPI 카드는 모든 데이터 포함)
       const datasets = Object.keys(brandColors).map(brand => {
         const brandData = processedData.filter(d => d.brand === brand && d.yoyOriginal > 0);
@@ -11293,8 +11313,14 @@
           label: brandNames[brand],
           clip: false,
           data: brandData.map(d => {
-            const bubbleSize = d.share > 0 
-              ? Math.max(3, Math.min(35, 3 + d.share * 0.6))
+            // 재고금액을 2/3 지수 스케일로 변환하여 크기 차이를 약 3배로 표시
+            // 3424 vs 500 (7배 차이) → 2/3 지수: 약 3배 크기 차이
+            // 계산: 500/3424 = 0.146 → 0.146^(2/3) = 0.28 → 3 + 0.28 * 47 = 16.2
+            // 3424/3424 = 1.0 → 1.0^(2/3) = 1.0 → 3 + 1.0 * 47 = 50
+            // 차이: 50/16.2 ≈ 3.1배
+            const normalized = d.stockAmt / maxStockAmt;
+            const bubbleSize = (d.stockAmt != null && d.stockAmt > 0 && maxStockAmt > 0) 
+              ? Math.max(3, Math.min(50, 3 + Math.pow(normalized, 2/3) * 47))
               : 3;
             return {
               x: d.weeks,
@@ -11303,6 +11329,7 @@
               item: d.name,
               salesAmt: d.salesAmt,
               inventory: d.inventory,
+              stockAmt: d.stockAmt || 0,
               weeksOriginal: d.weeksOriginal,
               share: d.share,
               yoyOriginal: d.yoyOriginal,
@@ -11502,7 +11529,8 @@
                     `재고주수: ${weeksDisplay}`,
                     `매출 YOY: ${yoyDisplay}`,
                     `매출비중: ${d.share}%`,
-                    `재고: ${(d.inventory/1000).toFixed(1)}K개`
+                    `재고: ${(d.inventory/1000).toFixed(1)}K개`,
+                    `재고금액: ${(d.stockAmt != null ? d.stockAmt : 0).toLocaleString('ko-KR')} 백만원`
                   ];
                 }
               }
@@ -11965,21 +11993,32 @@
         // 해당 브랜드 전체 매출 계산 (비중 계산용)
         const totalSales = items.reduce((sum, item) => sum + (item.saleAmt || 0), 0);
         
-        const brandData = items.map(item => ({
-          category: item.category || 'Acc_etc',
-          item: item.itemCode || '',
-          name: item.itemName || '',
-          sales: item.saleAmt ? Math.round(item.saleAmt / 1000000) : null, // 백만원 단위
-          yoy: parseYoyRate(item.yoyRate),
-          weight: totalSales > 0 ? Math.round((item.saleAmt || 0) / totalSales * 100) : 0,
-          qty: item.saleQty || null,
-          avg4w: item.avg4wSaleQty ? Math.round(item.avg4wSaleQty) : null,
-          stockQty: item.stockQty || 0,
-          stockWeeks: item.stockWeeks || null,
-          diff: item.stockWeeksDiff || null
-        }));
+        const brandData = items.map(item => {
+          const stockAmtValue = item.stockAmt != null ? Math.round(item.stockAmt / 1000000) : null;
+          // 디버깅: stockAmt 변환 확인
+          if (item.itemCode === 'WM' && item.itemName === '방한모') {
+            console.log(`[ACC 변환 디버깅] 방한모 - 원본 stockAmt: ${item.stockAmt}, 변환된 값: ${stockAmtValue}`);
+          }
+          return {
+            category: item.category || 'Acc_etc',
+            item: item.itemCode || '',
+            name: item.itemName || '',
+            sales: item.saleAmt ? Math.round(item.saleAmt / 1000000) : null, // 백만원 단위
+            yoy: parseYoyRate(item.yoyRate),
+            weight: totalSales > 0 ? Math.round((item.saleAmt || 0) / totalSales * 100) : 0,
+            qty: item.saleQty || null,
+            avg4w: item.avg4wSaleQty ? Math.round(item.avg4wSaleQty) : null,
+            stockQty: item.stockQty || 0,
+            stockAmt: stockAmtValue, // 백만원 단위
+            stockWeeks: item.stockWeeks || null,
+            diff: item.stockWeeksDiff || null
+          };
+        });
         
         console.log(`[ACC 변환] 브랜드 ${brandCode}: ${brandData.length}개 아이템, stockWeeks 있는 항목: ${brandData.filter(d => d.stockWeeks != null && d.stockWeeks > 0).length}개`);
+        // 디버깅: stockAmt가 있는 항목 확인
+        const itemsWithStockAmt = brandData.filter(d => d.stockAmt != null && d.stockAmt !== 0);
+        console.log(`[ACC 변환] 브랜드 ${brandCode}: stockAmt 있는 항목: ${itemsWithStockAmt.length}개`, itemsWithStockAmt.slice(0, 3).map(d => `${d.name}: ${d.stockAmt}백만원`));
         
         // inventoryTableDataByBrand에 데이터 덮어쓰기 (로컬 변수 + window 전역 변수)
         if (typeof inventoryTableDataByBrand !== 'undefined') {
