@@ -1067,7 +1067,7 @@
                 </div>
                 <div class="overview-kpi-card q3" onclick="openBubbleModal('q3')" style="padding:12px;border-radius:6px;border-left:3px solid #6b7280;background:#f3f4f6;text-align:center;cursor:pointer;transition:transform 0.2s;">
                   <div style="font-size:18px;font-weight:700;margin-bottom:3px;" id="overviewQ3Count">0</div>
-                  <div style="font-size:10px;font-weight:600;color:#374151;line-height:1.3;">📋 단종검토<br>(저재고+감소)</div>
+                  <div style="font-size:10px;font-weight:600;color:#374151;line-height:1.3;">📋 검토필요<br>(저재고+감소)</div>
                 </div>
                 <div class="overview-kpi-card q6" onclick="openBubbleModal('q6')" style="padding:12px;border-radius:6px;border-left:3px solid #f59e0b;background:#fef3c7;text-align:center;cursor:pointer;transition:transform 0.2s;">
                   <div style="font-size:18px;font-weight:700;margin-bottom:3px;" id="overviewQ6Count">0</div>
@@ -11022,7 +11022,7 @@
       const YOY_THRESHOLD_4 = 100;
       const WEEKS_THRESHOLD_LOW = 30;
       const WEEKS_THRESHOLD_HIGH = 50;
-      const YOY_THRESHOLD_LOW = 100;
+      const YOY_THRESHOLD_LOW = 80;
       const YOY_THRESHOLD_HIGH = 120;
       
       // 4분면 분류 (차트 표시용으로 제한된 weeks 사용)
@@ -11238,7 +11238,7 @@
           ctx.fillText('✅ 발주유지', left + (xLow - left) / 2, yHigh + (yLow - yHigh) / 2);
           
           ctx.fillStyle = '#6b7280';
-          ctx.fillText('📋 단종검토', left + (xLow - left) / 2, bottom - 10);
+          ctx.fillText('📋 검토필요', left + (xLow - left) / 2, bottom - 10);
           
           ctx.fillStyle = '#047857';
           ctx.fillText('💚 안정성장', xLow + (xHigh - xLow) / 2, top + 18);
@@ -11351,7 +11351,7 @@
       const YOY_THRESHOLD_4 = 100;
       const WEEKS_THRESHOLD_LOW = 30;
       const WEEKS_THRESHOLD_HIGH = 50;
-      const YOY_THRESHOLD_LOW = 100;
+      const YOY_THRESHOLD_LOW = 80;
       const YOY_THRESHOLD_HIGH = 120;
       
       const backgroundPlugin4 = {
@@ -11462,7 +11462,7 @@
           ctx.fillText('✅ 발주유지', left + (xLow - left) / 2, yHigh + (yLow - yHigh) / 2);
           
           ctx.fillStyle = '#6b7280';
-          ctx.fillText('📋 단종검토', left + (xLow - left) / 2, bottom - 10);
+          ctx.fillText('📋 검토필요', left + (xLow - left) / 2, bottom - 10);
           
           ctx.fillStyle = '#047857';
           ctx.fillText('💚 안정성장', xLow + (xHigh - xLow) / 2, top + 18);
@@ -11512,7 +11512,7 @@
                     'review': '📋 저성장+저재고'
                   };
                   const quadrantNames9 = {
-                    'q1': '🔥 적극발주', 'q2': '✅ 발주유지', 'q3': '📋 단종검토',
+                    'q1': '🔥 적극발주', 'q2': '✅ 발주유지', 'q3': '📋 검토필요',
                     'q4': '💚 안정성장', 'q5': '🔵 현상유지', 'q6': '⚠️ 주의관찰',
                     'q7': '🟡 발주중단', 'q8': '🟠 재고관리', 'q9': '🚨 긴급조치'
                   };
@@ -11677,7 +11677,7 @@
         review: '📋 저성장+저재고',
         q1: '🔥 적극발주: 최우선 재고 확보 필요',
         q2: '✅ 발주유지: 안정적 발주 유지',
-        q3: '📋 단종검토: 전략 재검토 필요',
+        q3: '📋 검토필요: 전략 재검토 필요',
         q4: '💚 안정성장: 모니터링 지속',
         q5: '🔵 현상유지: 적정 재고 수준',
         q6: '⚠️ 주의관찰: 발주 신중 검토',
