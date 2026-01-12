@@ -231,3 +231,6 @@ print(f"할인율: {discount_rate:.2f}%")
 
 
 
+
+
+

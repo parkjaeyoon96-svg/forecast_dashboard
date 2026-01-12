@@ -308,3 +308,6 @@ console.log(itemTableDataByBrand['M'].Outer.find(i => i.code === 'DJ'));
 
 
 
+
+
+

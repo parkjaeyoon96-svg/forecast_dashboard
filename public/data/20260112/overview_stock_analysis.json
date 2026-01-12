@@ -8,7 +8,7 @@
     "cySeason": "25F",
     "pySeason": "24F",
     "pySeasonEnd": "2026-02-28",
-    "generatedAt": "2026-01-12 09:27:25"
+    "generatedAt": "2026-01-12 10:09:54"
   },
   "clothingBrandStatus": {
     "I": [
@@ -2616,6 +2616,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 0,
+        "stockAmt": 71400,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2630,6 +2631,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 0,
+        "stockAmt": -26604,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2644,6 +2646,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -10,
+        "stockAmt": -1800000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2658,6 +2661,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -1,
+        "stockAmt": 2530500,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2672,6 +2676,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 0,
+        "stockAmt": 17700,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2686,6 +2691,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -1,
+        "stockAmt": 77700,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2700,6 +2706,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -1,
+        "stockAmt": -198000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2714,6 +2721,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -3,
+        "stockAmt": -231198,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2728,6 +2736,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -3,
+        "stockAmt": -774638,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2742,6 +2751,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -3,
+        "stockAmt": -750900,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -2758,6 +2768,7 @@
         "shareRate": "52%",
         "avg4wSaleQty": 3523.0,
         "stockQty": 52118,
+        "stockAmt": 3821370800,
         "stockWeeks": 14.8,
         "pyStockWeeks": 38.0,
         "stockWeeksDiff": -23.2
@@ -2772,6 +2783,7 @@
         "shareRate": "23%",
         "avg4wSaleQty": 1640.0,
         "stockQty": 62001,
+        "stockAmt": 10777651863,
         "stockWeeks": 37.8,
         "pyStockWeeks": 49.5,
         "stockWeeksDiff": -11.7
@@ -2786,6 +2798,7 @@
         "shareRate": "7%",
         "avg4wSaleQty": 1730.0,
         "stockQty": 178712,
+        "stockAmt": 7529804226,
         "stockWeeks": 103.3,
         "pyStockWeeks": 103.5,
         "stockWeeksDiff": -0.2
@@ -2800,6 +2813,7 @@
         "shareRate": "4%",
         "avg4wSaleQty": 1360.0,
         "stockQty": 15589,
+        "stockAmt": 636143400,
         "stockWeeks": 11.5,
         "pyStockWeeks": 16.5,
         "stockWeeksDiff": -5.0
@@ -2814,6 +2828,7 @@
         "shareRate": "4%",
         "avg4wSaleQty": 950.0,
         "stockQty": 18499,
+        "stockAmt": 1741844000,
         "stockWeeks": 19.5,
         "pyStockWeeks": 19.3,
         "stockWeeksDiff": 0.2
@@ -2828,6 +2843,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 286.0,
         "stockQty": 48979,
+        "stockAmt": 4642075442,
         "stockWeeks": 171.3,
         "pyStockWeeks": 67.1,
         "stockWeeksDiff": 104.2
@@ -2842,6 +2858,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 422.0,
         "stockQty": 55396,
+        "stockAmt": 5477935525,
         "stockWeeks": 131.3,
         "pyStockWeeks": 86.5,
         "stockWeeksDiff": 44.8
@@ -2856,6 +2873,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 509.0,
         "stockQty": 10868,
+        "stockAmt": 712158559,
         "stockWeeks": 21.4,
         "pyStockWeeks": 16.8,
         "stockWeeksDiff": 4.5
@@ -2870,6 +2888,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 149.0,
         "stockQty": 22552,
+        "stockAmt": 2094276873,
         "stockWeeks": 151.4,
         "pyStockWeeks": 95.7,
         "stockWeeksDiff": 55.7
@@ -2884,6 +2903,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 135.0,
         "stockQty": 5524,
+        "stockAmt": 272891600,
         "stockWeeks": 40.9,
         "pyStockWeeks": 168.9,
         "stockWeeksDiff": -128.0
@@ -2898,6 +2918,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 418.0,
         "stockQty": 82952,
+        "stockAmt": 997678673,
         "stockWeeks": 198.4,
         "pyStockWeeks": 223.3,
         "stockWeeksDiff": -24.8
@@ -2912,6 +2933,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 58.0,
         "stockQty": 9371,
+        "stockAmt": 321046100,
         "stockWeeks": 161.6,
         "pyStockWeeks": 210.3,
         "stockWeeksDiff": -48.7
@@ -2926,6 +2948,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 47.0,
         "stockQty": 1026,
+        "stockAmt": 62046000,
         "stockWeeks": 21.8,
         "pyStockWeeks": 22.1,
         "stockWeeksDiff": -0.3
@@ -2940,6 +2963,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 61.0,
         "stockQty": 6029,
+        "stockAmt": 343856000,
         "stockWeeks": 98.8,
         "pyStockWeeks": 67.0,
         "stockWeeksDiff": 31.8
@@ -2954,6 +2978,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 56.0,
         "stockQty": 2611,
+        "stockAmt": 86281000,
         "stockWeeks": 46.6,
         "pyStockWeeks": 30.5,
         "stockWeeksDiff": 16.1
@@ -2968,6 +2993,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 24.0,
         "stockQty": 2777,
+        "stockAmt": 137349000,
         "stockWeeks": 115.7,
         "pyStockWeeks": 190.4,
         "stockWeeksDiff": -74.7
@@ -2982,6 +3008,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 20.0,
         "stockQty": 3205,
+        "stockAmt": 247798200,
         "stockWeeks": 160.3,
         "pyStockWeeks": 115.3,
         "stockWeeksDiff": 44.9
@@ -2996,6 +3023,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 5.0,
         "stockQty": 17698,
+        "stockAmt": 1057863692,
         "stockWeeks": 3539.6,
         "pyStockWeeks": 3583.2,
         "stockWeeksDiff": -43.6
@@ -3010,6 +3038,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 5.0,
         "stockQty": 1785,
+        "stockAmt": 105319800,
         "stockWeeks": 357.0,
         "pyStockWeeks": 1213.0,
         "stockWeeksDiff": -856.0
@@ -3024,6 +3053,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 11568,
+        "stockAmt": 471961800,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3038,6 +3068,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1,
+        "stockAmt": 90600,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3052,6 +3083,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -5,
+        "stockAmt": -186600,
         "stockWeeks": null,
         "pyStockWeeks": 323.5,
         "stockWeeksDiff": null
@@ -3066,6 +3098,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 884,
+        "stockAmt": 20331000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3080,6 +3113,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -6,
+        "stockAmt": -403200,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3094,6 +3128,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 7,
+        "stockAmt": 623000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3108,6 +3143,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 643,
+        "stockAmt": 31398600,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3122,6 +3158,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 24172,
+        "stockAmt": 1681863000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3136,6 +3173,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": -2,
+        "stockAmt": -121600,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3152,6 +3190,7 @@
         "shareRate": "37%",
         "avg4wSaleQty": 49700.0,
         "stockQty": 1338222,
+        "stockAmt": 53559071076,
         "stockWeeks": 26.9,
         "pyStockWeeks": 17.9,
         "stockWeeksDiff": 9.0
@@ -3166,6 +3205,7 @@
         "shareRate": "19%",
         "avg4wSaleQty": 7125.0,
         "stockQty": 281500,
+        "stockAmt": 42236763441,
         "stockWeeks": 39.5,
         "pyStockWeeks": 36.5,
         "stockWeeksDiff": 3.0
@@ -3180,6 +3220,7 @@
         "shareRate": "15%",
         "avg4wSaleQty": 19855.0,
         "stockQty": 81023,
+        "stockAmt": 3613169878,
         "stockWeeks": 4.1,
         "pyStockWeeks": 11.4,
         "stockWeeksDiff": -7.3
@@ -3194,6 +3235,7 @@
         "shareRate": "15%",
         "avg4wSaleQty": 6071.0,
         "stockQty": 269852,
+        "stockAmt": 34719275019,
         "stockWeeks": 44.4,
         "pyStockWeeks": 118.7,
         "stockWeeksDiff": -74.2
@@ -3208,6 +3250,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 497.0,
         "stockQty": 46303,
+        "stockAmt": 5162344967,
         "stockWeeks": 93.2,
         "pyStockWeeks": 176.6,
         "stockWeeksDiff": -83.5
@@ -3222,6 +3265,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 527.0,
         "stockQty": 29762,
+        "stockAmt": 3957949800,
         "stockWeeks": 56.5,
         "pyStockWeeks": 35.9,
         "stockWeeksDiff": 20.5
@@ -3236,6 +3280,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 676.0,
         "stockQty": 111218,
+        "stockAmt": 15947519672,
         "stockWeeks": 164.5,
         "pyStockWeeks": 29.6,
         "stockWeeksDiff": 134.9
@@ -3250,6 +3295,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 1864.0,
         "stockQty": 117141,
+        "stockAmt": 14053168620,
         "stockWeeks": 62.8,
         "pyStockWeeks": 37.7,
         "stockWeeksDiff": 25.1
@@ -3264,6 +3310,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 985.0,
         "stockQty": 24104,
+        "stockAmt": 2720525642,
         "stockWeeks": 24.5,
         "pyStockWeeks": 19.3,
         "stockWeeksDiff": 5.2
@@ -3278,6 +3325,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 657.0,
         "stockQty": 17214,
+        "stockAmt": 2651620717,
         "stockWeeks": 26.2,
         "pyStockWeeks": 31.0,
         "stockWeeksDiff": -4.8
@@ -3292,6 +3340,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 955.0,
         "stockQty": 43529,
+        "stockAmt": 2636939169,
         "stockWeeks": 45.6,
         "pyStockWeeks": 91.8,
         "stockWeeksDiff": -46.2
@@ -3306,6 +3355,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 840.0,
         "stockQty": 5958,
+        "stockAmt": 450500642,
         "stockWeeks": 7.1,
         "pyStockWeeks": 41.2,
         "stockWeeksDiff": -34.1
@@ -3320,6 +3370,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 297.0,
         "stockQty": 4267,
+        "stockAmt": 422884200,
         "stockWeeks": 14.4,
         "pyStockWeeks": 34.1,
         "stockWeeksDiff": -19.7
@@ -3334,6 +3385,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 182.0,
         "stockQty": 12533,
+        "stockAmt": 1229394126,
         "stockWeeks": 68.9,
         "pyStockWeeks": 102.8,
         "stockWeeksDiff": -33.9
@@ -3348,6 +3400,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 779.0,
         "stockQty": 79372,
+        "stockAmt": 1261109930,
         "stockWeeks": 101.9,
         "pyStockWeeks": 124.2,
         "stockWeeksDiff": -22.4
@@ -3362,6 +3415,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 302.0,
         "stockQty": 13388,
+        "stockAmt": 477090000,
         "stockWeeks": 44.3,
         "pyStockWeeks": 46.8,
         "stockWeeksDiff": -2.4
@@ -3376,6 +3430,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 47.0,
         "stockQty": 15766,
+        "stockAmt": 1920939475,
         "stockWeeks": 335.4,
         "pyStockWeeks": 378.7,
         "stockWeeksDiff": -43.2
@@ -3390,6 +3445,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 312.0,
         "stockQty": 8369,
+        "stockAmt": 193038500,
         "stockWeeks": 26.8,
         "pyStockWeeks": 75.5,
         "stockWeeksDiff": -48.7
@@ -3404,6 +3460,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 48.0,
         "stockQty": 47296,
+        "stockAmt": 3299265766,
         "stockWeeks": 985.3,
         "pyStockWeeks": 494.9,
         "stockWeeksDiff": 490.4
@@ -3418,6 +3475,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 31.0,
         "stockQty": 46498,
+        "stockAmt": 3201008500,
         "stockWeeks": 1499.9,
         "pyStockWeeks": 2862.4,
         "stockWeeksDiff": -1362.5
@@ -3432,6 +3490,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 48.0,
         "stockQty": 1584,
+        "stockAmt": 61775800,
         "stockWeeks": 33.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3446,6 +3505,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 19.0,
         "stockQty": 13662,
+        "stockAmt": 2137216900,
         "stockWeeks": 719.1,
         "pyStockWeeks": 208.6,
         "stockWeeksDiff": 510.5
@@ -3460,6 +3520,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 4.0,
         "stockQty": 845,
+        "stockAmt": 211395000,
         "stockWeeks": 211.3,
         "pyStockWeeks": 84.5,
         "stockWeeksDiff": 126.8
@@ -3474,6 +3535,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 3.0,
         "stockQty": 53588,
+        "stockAmt": 5580189862,
         "stockWeeks": 17862.7,
         "pyStockWeeks": 18762.0,
         "stockWeeksDiff": -899.3
@@ -3488,6 +3550,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 9202,
+        "stockAmt": 699121546,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3502,6 +3565,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 7,
+        "stockAmt": 663694,
         "stockWeeks": null,
         "pyStockWeeks": 42.8,
         "stockWeeksDiff": null
@@ -3516,6 +3580,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 0,
+        "stockAmt": -200,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3530,6 +3595,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 895,
+        "stockAmt": 18474400,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3544,6 +3610,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 12,
+        "stockAmt": 1178200,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3558,6 +3625,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1961,
+        "stockAmt": 297189000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3572,6 +3640,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1,
+        "stockAmt": 99000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3586,6 +3655,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 8,
+        "stockAmt": 435000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3600,6 +3670,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 727,
+        "stockAmt": 130545537,
         "stockWeeks": null,
         "pyStockWeeks": 1969.3,
         "stockWeeksDiff": null
@@ -3614,6 +3685,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 2281,
+        "stockAmt": 95526400,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3628,6 +3700,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 4.0,
         "stockQty": 6168,
+        "stockAmt": 351289756,
         "stockWeeks": 1542.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3644,6 +3717,7 @@
         "shareRate": "42%",
         "avg4wSaleQty": 80.0,
         "stockQty": 8630,
+        "stockAmt": 1935980000,
         "stockWeeks": 107.9,
         "pyStockWeeks": 319.8,
         "stockWeeksDiff": -211.9
@@ -3658,6 +3732,7 @@
         "shareRate": "12%",
         "avg4wSaleQty": 37.0,
         "stockQty": 5291,
+        "stockAmt": 275979000,
         "stockWeeks": 143.0,
         "pyStockWeeks": 108.0,
         "stockWeeksDiff": 35.0
@@ -3672,6 +3747,7 @@
         "shareRate": "9%",
         "avg4wSaleQty": 76.0,
         "stockQty": 9732,
+        "stockAmt": 187720300,
         "stockWeeks": 128.1,
         "pyStockWeeks": 89.3,
         "stockWeeksDiff": 38.7
@@ -3686,6 +3762,7 @@
         "shareRate": "8%",
         "avg4wSaleQty": 7.0,
         "stockQty": 1495,
+        "stockAmt": 230785000,
         "stockWeeks": 213.6,
         "pyStockWeeks": 109.6,
         "stockWeeksDiff": 104.0
@@ -3700,6 +3777,7 @@
         "shareRate": "8%",
         "avg4wSaleQty": 14.0,
         "stockQty": 2699,
+        "stockAmt": 197161000,
         "stockWeeks": 192.8,
         "pyStockWeeks": 117.6,
         "stockWeeksDiff": 75.2
@@ -3714,6 +3792,7 @@
         "shareRate": "7%",
         "avg4wSaleQty": 5.0,
         "stockQty": 1506,
+        "stockAmt": 254354000,
         "stockWeeks": 301.2,
         "pyStockWeeks": 134.2,
         "stockWeeksDiff": 167.0
@@ -3728,6 +3807,7 @@
         "shareRate": "6%",
         "avg4wSaleQty": 6.0,
         "stockQty": 951,
+        "stockAmt": 177959000,
         "stockWeeks": 158.5,
         "pyStockWeeks": 117.8,
         "stockWeeksDiff": 40.8
@@ -3742,6 +3822,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 1.0,
         "stockQty": 511,
+        "stockAmt": 51829000,
         "stockWeeks": 511.0,
         "pyStockWeeks": 645.0,
         "stockWeeksDiff": -134.0
@@ -3756,6 +3837,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 6.0,
         "stockQty": 642,
+        "stockAmt": 41768000,
         "stockWeeks": 107.0,
         "pyStockWeeks": 46.6,
         "stockWeeksDiff": 60.4
@@ -3770,6 +3852,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 1.0,
         "stockQty": 509,
+        "stockAmt": 36371000,
         "stockWeeks": 509.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3784,6 +3867,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 4.0,
         "stockQty": 805,
+        "stockAmt": 23405000,
         "stockWeeks": 201.3,
         "pyStockWeeks": 100.2,
         "stockWeeksDiff": 101.1
@@ -3798,6 +3882,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 3.0,
         "stockQty": 390,
+        "stockAmt": 36640000,
         "stockWeeks": 130.0,
         "pyStockWeeks": 80.0,
         "stockWeeksDiff": 50.0
@@ -3812,6 +3897,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1289,
+        "stockAmt": 36111700,
         "stockWeeks": null,
         "pyStockWeeks": 136.4,
         "stockWeeksDiff": null
@@ -3826,6 +3912,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 130,
+        "stockAmt": 12870000,
         "stockWeeks": null,
         "pyStockWeeks": 169.5,
         "stockWeeksDiff": null
@@ -3840,6 +3927,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 3.0,
         "stockQty": 2039,
+        "stockAmt": 54253000,
         "stockWeeks": 679.7,
         "pyStockWeeks": 306.8,
         "stockWeeksDiff": 372.9
@@ -3854,6 +3942,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1590,
+        "stockAmt": 109710000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3868,6 +3957,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 587,
+        "stockAmt": 58113000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3882,6 +3972,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 1.0,
         "stockQty": 840,
+        "stockAmt": 62530000,
         "stockWeeks": 840.0,
         "pyStockWeeks": 1130.5,
         "stockWeeksDiff": -290.5
@@ -3896,6 +3987,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 34,
+        "stockAmt": 510000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -3910,6 +4002,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 4.0,
         "stockQty": 527,
+        "stockAmt": 128393000,
         "stockWeeks": 131.8,
         "pyStockWeeks": 240.0,
         "stockWeeksDiff": -108.3
@@ -3926,6 +4019,7 @@
         "shareRate": "53%",
         "avg4wSaleQty": 212.0,
         "stockQty": 3506,
+        "stockAmt": 824946000,
         "stockWeeks": 16.5,
         "pyStockWeeks": 8.7,
         "stockWeeksDiff": 7.9
@@ -3940,6 +4034,7 @@
         "shareRate": "13%",
         "avg4wSaleQty": 30.0,
         "stockQty": 3288,
+        "stockAmt": 1175120000,
         "stockWeeks": 109.6,
         "pyStockWeeks": 59.9,
         "stockWeeksDiff": 49.7
@@ -3954,6 +4049,7 @@
         "shareRate": "8%",
         "avg4wSaleQty": 10.0,
         "stockQty": 396,
+        "stockAmt": 147300000,
         "stockWeeks": 39.6,
         "pyStockWeeks": 22.3,
         "stockWeeksDiff": 17.3
@@ -3968,6 +4064,7 @@
         "shareRate": "4%",
         "avg4wSaleQty": 16.0,
         "stockQty": 1438,
+        "stockAmt": 262730000,
         "stockWeeks": 89.9,
         "pyStockWeeks": 248.0,
         "stockWeeksDiff": -158.1
@@ -3982,6 +4079,7 @@
         "shareRate": "4%",
         "avg4wSaleQty": 19.0,
         "stockQty": 871,
+        "stockAmt": 165420000,
         "stockWeeks": 45.8,
         "pyStockWeeks": 31.5,
         "stockWeeksDiff": 14.3
@@ -3996,6 +4094,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 7.0,
         "stockQty": 701,
+        "stockAmt": 206030000,
         "stockWeeks": 100.1,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4010,6 +4109,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 19.0,
         "stockQty": 288,
+        "stockAmt": 48440000,
         "stockWeeks": 15.2,
         "pyStockWeeks": 74.5,
         "stockWeeksDiff": -59.3
@@ -4024,6 +4124,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 21.0,
         "stockQty": 908,
+        "stockAmt": 256652000,
         "stockWeeks": 43.2,
         "pyStockWeeks": 393.3,
         "stockWeeksDiff": -350.0
@@ -4038,6 +4139,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 2.0,
         "stockQty": 454,
+        "stockAmt": 130300000,
         "stockWeeks": 227.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4052,6 +4154,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 4.0,
         "stockQty": 373,
+        "stockAmt": 94690000,
         "stockWeeks": 93.3,
         "pyStockWeeks": 53.0,
         "stockWeeksDiff": 40.3
@@ -4066,6 +4169,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 4.0,
         "stockQty": 1154,
+        "stockAmt": 304140000,
         "stockWeeks": 288.5,
         "pyStockWeeks": 106.7,
         "stockWeeksDiff": 181.8
@@ -4080,6 +4184,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 11.0,
         "stockQty": 596,
+        "stockAmt": 77348000,
         "stockWeeks": 54.2,
         "pyStockWeeks": 188.3,
         "stockWeeksDiff": -134.2
@@ -4094,6 +4199,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 10.0,
         "stockQty": 168,
+        "stockAmt": 24760000,
         "stockWeeks": 16.8,
         "pyStockWeeks": 17.0,
         "stockWeeksDiff": -0.2
@@ -4108,6 +4214,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 19.0,
         "stockQty": 979,
+        "stockAmt": 31764000,
         "stockWeeks": 51.5,
         "pyStockWeeks": 254.7,
         "stockWeeksDiff": -203.2
@@ -4122,6 +4229,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 2.0,
         "stockQty": 184,
+        "stockAmt": 39800000,
         "stockWeeks": 92.0,
         "pyStockWeeks": 35.3,
         "stockWeeksDiff": 56.8
@@ -4136,6 +4244,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 1.0,
         "stockQty": 111,
+        "stockAmt": 19869000,
         "stockWeeks": 111.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4150,6 +4259,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 2.0,
         "stockQty": 101,
+        "stockAmt": 23090000,
         "stockWeeks": 50.5,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4164,6 +4274,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 2.0,
         "stockQty": 24,
+        "stockAmt": 6890000,
         "stockWeeks": 12.0,
         "pyStockWeeks": 111.0,
         "stockWeeksDiff": -99.0
@@ -4178,6 +4289,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 21,
+        "stockAmt": 2268000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4192,6 +4304,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 405,
+        "stockAmt": 70875000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4206,6 +4319,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 16,
+        "stockAmt": 4000000,
         "stockWeeks": null,
         "pyStockWeeks": 45.0,
         "stockWeeksDiff": null
@@ -4220,6 +4334,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 10,
+        "stockAmt": 3500000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4234,6 +4349,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 193,
+        "stockAmt": 31170000,
         "stockWeeks": null,
         "pyStockWeeks": 564.0,
         "stockWeeksDiff": null
@@ -4250,6 +4366,7 @@
         "shareRate": "47%",
         "avg4wSaleQty": 48.0,
         "stockQty": 2603,
+        "stockAmt": 488438904,
         "stockWeeks": 54.2,
         "pyStockWeeks": 164.9,
         "stockWeeksDiff": -110.7
@@ -4264,6 +4381,7 @@
         "shareRate": "21%",
         "avg4wSaleQty": 70.0,
         "stockQty": 3974,
+        "stockAmt": 240461173,
         "stockWeeks": 56.8,
         "pyStockWeeks": 337.6,
         "stockWeeksDiff": -280.8
@@ -4278,6 +4396,7 @@
         "shareRate": "8%",
         "avg4wSaleQty": 16.0,
         "stockQty": 167,
+        "stockAmt": 8987956,
         "stockWeeks": 10.4,
         "pyStockWeeks": 105.0,
         "stockWeeksDiff": -94.6
@@ -4292,6 +4411,7 @@
         "shareRate": "7%",
         "avg4wSaleQty": 12.0,
         "stockQty": 1801,
+        "stockAmt": 226569000,
         "stockWeeks": 150.1,
         "pyStockWeeks": 2064.5,
         "stockWeeksDiff": -1914.4
@@ -4306,6 +4426,7 @@
         "shareRate": "6%",
         "avg4wSaleQty": 7.0,
         "stockQty": 161,
+        "stockAmt": 20769000,
         "stockWeeks": 23.0,
         "pyStockWeeks": 249.5,
         "stockWeeksDiff": -226.5
@@ -4320,6 +4441,7 @@
         "shareRate": "3%",
         "avg4wSaleQty": 3.0,
         "stockQty": 638,
+        "stockAmt": 49082000,
         "stockWeeks": 212.7,
         "pyStockWeeks": 310.3,
         "stockWeeksDiff": -97.7
@@ -4334,6 +4456,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 5.0,
         "stockQty": 225,
+        "stockAmt": 41925000,
         "stockWeeks": 45.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4348,6 +4471,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 1.0,
         "stockQty": 79,
+        "stockAmt": 7821000,
         "stockWeeks": 79.0,
         "pyStockWeeks": 33.0,
         "stockWeeksDiff": 46.0
@@ -4362,6 +4486,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 5.0,
         "stockQty": 2096,
+        "stockAmt": 150863000,
         "stockWeeks": 419.2,
         "pyStockWeeks": 2819.0,
         "stockWeeksDiff": -2399.8
@@ -4376,6 +4501,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 4.0,
         "stockQty": 1363,
+        "stockAmt": 203007936,
         "stockWeeks": 340.8,
         "pyStockWeeks": 401.6,
         "stockWeeksDiff": -60.9
@@ -4390,6 +4516,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 2.0,
         "stockQty": 588,
+        "stockAmt": 41205145,
         "stockWeeks": 294.0,
         "pyStockWeeks": 1523.0,
         "stockWeeksDiff": -1229.0
@@ -4404,6 +4531,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 1.0,
         "stockQty": 63,
+        "stockAmt": 1363900,
         "stockWeeks": 63.0,
         "pyStockWeeks": 102.5,
         "stockWeeksDiff": -39.5
@@ -4418,6 +4546,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 1.0,
         "stockQty": 145,
+        "stockAmt": 17255000,
         "stockWeeks": 145.0,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4432,6 +4561,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 1.0,
         "stockQty": 289,
+        "stockAmt": 21591000,
         "stockWeeks": 289.0,
         "pyStockWeeks": 381.0,
         "stockWeeksDiff": -92.0
@@ -4446,6 +4576,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 166,
+        "stockAmt": 8134000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4462,6 +4593,7 @@
         "shareRate": "42%",
         "avg4wSaleQty": 4113.0,
         "stockQty": 180504,
+        "stockAmt": 29461295320,
         "stockWeeks": 43.9,
         "pyStockWeeks": 46.7,
         "stockWeeksDiff": -2.8
@@ -4476,6 +4608,7 @@
         "shareRate": "37%",
         "avg4wSaleQty": 8212.0,
         "stockQty": 346852,
+        "stockAmt": 41635380310,
         "stockWeeks": 42.2,
         "pyStockWeeks": 51.8,
         "stockWeeksDiff": -9.6
@@ -4490,6 +4623,7 @@
         "shareRate": "6%",
         "avg4wSaleQty": 3007.0,
         "stockQty": 42815,
+        "stockAmt": 1981617000,
         "stockWeeks": 14.2,
         "pyStockWeeks": 7.9,
         "stockWeeksDiff": 6.3
@@ -4504,6 +4638,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 832.0,
         "stockQty": 47749,
+        "stockAmt": 3762735400,
         "stockWeeks": 57.4,
         "pyStockWeeks": 92.4,
         "stockWeeksDiff": -35.0
@@ -4518,6 +4653,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 1347.0,
         "stockQty": 18427,
+        "stockAmt": 927264600,
         "stockWeeks": 13.7,
         "pyStockWeeks": 21.6,
         "stockWeeksDiff": -7.9
@@ -4532,6 +4668,7 @@
         "shareRate": "2%",
         "avg4wSaleQty": 1191.0,
         "stockQty": 90614,
+        "stockAmt": 4171037200,
         "stockWeeks": 76.1,
         "pyStockWeeks": 75.5,
         "stockWeeksDiff": 0.6
@@ -4546,6 +4683,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 548.0,
         "stockQty": 26381,
+        "stockAmt": 1569527770,
         "stockWeeks": 48.1,
         "pyStockWeeks": 68.2,
         "stockWeeksDiff": -20.1
@@ -4560,6 +4698,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 403.0,
         "stockQty": 56972,
+        "stockAmt": 2784514500,
         "stockWeeks": 141.4,
         "pyStockWeeks": 69.5,
         "stockWeeksDiff": 71.9
@@ -4574,6 +4713,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 322.0,
         "stockQty": 24548,
+        "stockAmt": 2291813600,
         "stockWeeks": 76.2,
         "pyStockWeeks": 63.7,
         "stockWeeksDiff": 12.6
@@ -4588,6 +4728,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 190.0,
         "stockQty": 14217,
+        "stockAmt": 1571075700,
         "stockWeeks": 74.8,
         "pyStockWeeks": 65.3,
         "stockWeeksDiff": 9.6
@@ -4602,6 +4743,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 546.0,
         "stockQty": 8299,
+        "stockAmt": 522807000,
         "stockWeeks": 15.2,
         "pyStockWeeks": 26.4,
         "stockWeeksDiff": -11.2
@@ -4616,6 +4758,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 361.0,
         "stockQty": 5601,
+        "stockAmt": 387391000,
         "stockWeeks": 15.5,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4630,6 +4773,7 @@
         "shareRate": "1%",
         "avg4wSaleQty": 716.0,
         "stockQty": 7060,
+        "stockAmt": 287860000,
         "stockWeeks": 9.9,
         "pyStockWeeks": 28.4,
         "stockWeeksDiff": -18.6
@@ -4644,6 +4788,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 943.0,
         "stockQty": 99024,
+        "stockAmt": 1156805900,
         "stockWeeks": 105.0,
         "pyStockWeeks": 97.4,
         "stockWeeksDiff": 7.6
@@ -4658,6 +4803,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 162.0,
         "stockQty": 31973,
+        "stockAmt": 2098731700,
         "stockWeeks": 197.4,
         "pyStockWeeks": 209.1,
         "stockWeeksDiff": -11.7
@@ -4672,6 +4818,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 207.0,
         "stockQty": 4545,
+        "stockAmt": 181794900,
         "stockWeeks": 22.0,
         "pyStockWeeks": 32.7,
         "stockWeeksDiff": -10.8
@@ -4686,6 +4833,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 46.0,
         "stockQty": 5456,
+        "stockAmt": 697534000,
         "stockWeeks": 118.6,
         "pyStockWeeks": 184.3,
         "stockWeeksDiff": -65.7
@@ -4700,6 +4848,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 66.0,
         "stockQty": 7058,
+        "stockAmt": 540516900,
         "stockWeeks": 106.9,
         "pyStockWeeks": 242.6,
         "stockWeeksDiff": -135.7
@@ -4714,6 +4863,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 45.0,
         "stockQty": 3052,
+        "stockAmt": 127476000,
         "stockWeeks": 67.8,
         "pyStockWeeks": 29.5,
         "stockWeeksDiff": 38.3
@@ -4728,6 +4878,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 22.0,
         "stockQty": 2802,
+        "stockAmt": 297908000,
         "stockWeeks": 127.4,
         "pyStockWeeks": 309.6,
         "stockWeeksDiff": -182.2
@@ -4742,6 +4893,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 7.0,
         "stockQty": 1611,
+        "stockAmt": 168459000,
         "stockWeeks": 230.1,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4756,6 +4908,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 7.0,
         "stockQty": 7414,
+        "stockAmt": 194120000,
         "stockWeeks": 1059.1,
         "pyStockWeeks": 2382.1,
         "stockWeeksDiff": -1323.0
@@ -4770,6 +4923,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 23,
+        "stockAmt": 1239000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4784,6 +4938,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 0,
+        "stockAmt": 71100,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null
@@ -4798,6 +4953,7 @@
         "shareRate": "0%",
         "avg4wSaleQty": 0.0,
         "stockQty": 1500,
+        "stockAmt": 73500000,
         "stockWeeks": null,
         "pyStockWeeks": null,
         "stockWeeksDiff": null

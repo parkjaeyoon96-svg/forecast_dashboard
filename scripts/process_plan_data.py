@@ -1123,15 +1123,28 @@ def process_plan_files(year_month: str) -> pd.DataFrame:
                 "수수료차감매출 [v-]": "수수료차감매출 [v-]",
                 "매출(출고)": "매출(출고)",
                 "매출원가": "매출원가",
+                "원가": "매출원가(환입후)",  # 원가를 매출원가(환입후)로 변환
                 "직접이익": "직접이익",
             }
+            
+            # 채널별 합산 후 지표명 매핑 적용
+            channel_sums_mapped = {}
+            for ch, indicators in channel_sums.items():
+                channel_sums_mapped[ch] = {}
+                for indicator, val in indicators.items():
+                    # 매핑된 지표명 사용 (매핑이 없으면 원본 지표명 사용)
+                    mapped_indicator = indicator_map.get(indicator, indicator)
+                    if mapped_indicator not in channel_sums_mapped[ch]:
+                        channel_sums_mapped[ch][mapped_indicator] = 0.0
+                    channel_sums_mapped[ch][mapped_indicator] += val
+            channel_sums = channel_sums_mapped  # 매핑된 결과로 교체
             
             # 백화점 데이터 확인
             if "백화점" in channel_sums:
                 백화점_실판매액 = channel_sums["백화점"].get("실판매액 [v+]", 0)
                 print(f"  [DEBUG] 백화점 RF 실판매액: {백화점_실판매액/1e6:.1f}백만원 = {백화점_실판매액/1e8:.2f}억원")
             
-            # RF 합계 계산 (모든 채널의 합계)
+            # RF 합계 계산 (모든 채널의 합계, 매핑된 지표명 사용)
             rf_total = {}
             for ch, indicators in channel_sums.items():
                 for indicator, val in indicators.items():
@@ -1162,14 +1175,17 @@ def process_plan_files(year_month: str) -> pd.DataFrame:
                                 new_val = old_val - rf_val
                                 print(f"    - {rf_channel}: 실판매액 {old_val/1e8:.1f}억 - {rf_val/1e8:.1f}억 = {new_val/1e8:.1f}억")
                             
-                            # 모든 지표 차감
+                            # 모든 지표 차감 (이미 매핑된 지표명 사용)
                             for indicator, rf_val in rf_indicators.items():
-                                # 컬럼명 매핑 (RF 파일의 지표명 -> M 파일의 컬럼명)
+                                # indicator는 이미 매핑된 상태이므로 그대로 사용
                                 col = indicator
                                 if col in result_df.columns:
                                     old_val = result_df.loc[mask, col].values[0]
                                     new_val = old_val - rf_val
                                     result_df.loc[mask, col] = new_val
+                                else:
+                                    # 매핑된 컬럼명이 없는 경우 로그 출력
+                                    print(f"    [WARNING] 컬럼 '{col}'이 M 결과에 없음 (RF 차감 건너뜀)")
                         else:
                             print(f"    - {rf_channel}: M 결과에 없음 (건너뜀)")
                     

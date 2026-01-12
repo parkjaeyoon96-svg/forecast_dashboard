@@ -26,12 +26,12 @@
   },
   {
     "label": "영업비(-)",
-    "value": 104.38,
+    "value": 111.0,
     "type": "decrease"
   },
   {
     "label": "영업이익",
-    "value": 75.62,
+    "value": 69.0,
     "type": "result"
   }
 ]
