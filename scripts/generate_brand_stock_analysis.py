@@ -295,7 +295,7 @@ def process_clothing_csv(file_path):
                     overall_category_totals[str(subcat)]['tagPyEnd'] += sub_tag_py_end
                     overall_category_totals[str(subcat)]['storPyEnd'] += sub_stor_py_end
             
-            # 브랜드별 아이템별 판매율 재계산 (CSV 대신 result 딕셔너리 사용)
+            # 브랜드별 아이템별 판매율 재계산
             if item_code_col_name:
                 item_group = brand_df.groupby(item_code_col_name)
                 brand_item_totals[brand] = {}
@@ -322,58 +322,8 @@ def process_clothing_csv(file_path):
                     overall_item_totals[str(item_code)]['storPy'] += item_stor_py
                     overall_item_totals[str(item_code)]['tagPyEnd'] += item_tag_py_end
                     overall_item_totals[str(item_code)]['storPyEnd'] += item_stor_py_end
-    
-    # ★ CSV 컬럼명에 의존하지 않고 result 딕셔너리에서 직접 아이템별 평균 판매율 계산 ★
-    # 위의 CSV 기반 로직이 실패해도 result에서 재계산
-    print(f"\n[당시즌의류] result 딕셔너리에서 아이템별 평균 판매율 재계산 중...")
-    result_based_item_totals = {}
-    result_based_brand_item_totals = {}
-    
-    for brand, items in result.items():
-        result_based_brand_item_totals[brand] = {}
-        for item in items:
-            item_code = str(item.get('itemCode', '')).strip()
-            if not item_code:
-                continue
-            
-            # 브랜드별 아이템별 판매율
-            result_based_brand_item_totals[brand][item_code] = {
-                'cumSalesRate': item.get('cumSalesRate'),
-                'cumSalesRatePy': item.get('cumSalesRatePy'),
-                'pyClosingSalesRate': item.get('pyClosingSalesRate')
-            }
-            
-            # 전체 아이템별 합산
-            if item_code not in result_based_item_totals:
-                result_based_item_totals[item_code] = {
-                    'cumSales': 0, 'stor': 0,
-                    'cumSalesPy': 0, 'storPy': 0,
-                    'tagPyEnd': 0, 'storPyEnd': 0
-                }
-            
-            result_based_item_totals[item_code]['cumSales'] += safe_float(item.get('cumSalesTag')) or 0
-            result_based_item_totals[item_code]['stor'] += safe_float(item.get('storageTagAmt')) or 0
-            result_based_item_totals[item_code]['cumSalesPy'] += safe_float(item.get('cumSalesTagPy')) or 0
-            result_based_item_totals[item_code]['storPy'] += safe_float(item.get('storageTagAmtPy')) or 0
-            result_based_item_totals[item_code]['tagPyEnd'] += safe_float(item.get('cumSalesTagPyEnd')) or 0
-            result_based_item_totals[item_code]['storPyEnd'] += safe_float(item.get('storageTagAmtPyEnd')) or 0
-    
-    # CSV 기반 계산이 실패했으면 result 기반으로 교체
-    if not overall_item_totals and result_based_item_totals:
-        print(f"[당시즌의류] CSV 기반 계산 실패 → result 기반 데이터 사용")
-        overall_item_totals = result_based_item_totals
-        if not brand_item_totals:
-            brand_item_totals = result_based_brand_item_totals
-    elif result_based_item_totals:
-        # 둘 다 있으면 result 기반이 더 신뢰할 수 있으므로 교체
-        print(f"[당시즌의류] result 기반 데이터로 교체 (더 안정적)")
-        overall_item_totals = result_based_item_totals
-        brand_item_totals = result_based_brand_item_totals
-    
-    print(f"[당시즌의류] 아이템별 집계 완료: {len(overall_item_totals)}개 아이템")
-    
-    # 전체 집계 및 재계산 (CSV 기반 - 가능한 경우에만)
-    if cum_sales_col and storage_amt_col:
+        
+        # 전체 집계 및 재계산
         total_cum_sales = df[cum_sales_col].apply(lambda x: safe_float(x) or 0).sum()
         total_storage_amt = df[storage_amt_col].apply(lambda x: safe_float(x) or 0).sum()
         total_cum_sales_py = df[cum_sales_py_col].apply(lambda x: safe_float(x) or 0).sum() if cum_sales_py_col and cum_sales_py_col in df.columns else 0
@@ -464,23 +414,6 @@ def process_clothing_csv(file_path):
         else:
             print(f"  [아이템별 평균] {item_code}: None (판매: {vals['cumSales']:.0f}, 입고: {vals['stor']:.0f})")
     
-    # ★ 아이템별 판매율에도 전체 평균(overall) 추가 ★
-    # brand_totals['overall']이 있으면 동일한 값을 item_totals_overall_rates['overall']에도 추가
-    if 'overall' in brand_totals:
-        item_totals_overall_rates['overall'] = {
-            'cumSalesRate': brand_totals['overall'].get('cumSalesRate'),
-            'cumSalesRatePy': brand_totals['overall'].get('cumSalesRatePy'),
-            'cumSalesRateDiff': brand_totals['overall'].get('cumSalesRateDiff'),
-            'pyClosingSalesRate': brand_totals['overall'].get('pyClosingSalesRate'),
-            'totalCumSales': brand_totals['overall'].get('totalCumSales', 0),
-            'totalStorage': brand_totals['overall'].get('totalOrderTag', 0),
-            'totalCumSalesPy': brand_totals['overall'].get('totalCumSalesPy', 0),
-            'totalStoragePy': brand_totals['overall'].get('totalOrderTagPy', 0),
-            'totalCumSalesPyEnd': brand_totals['overall'].get('totalCumSalesPyEnd', 0),
-            'totalStoragePyEnd': brand_totals['overall'].get('totalOrderTagPyEnd', 0)
-        }
-        print(f"  [전체 평균] overall: {brand_totals['overall'].get('cumSalesRate'):.4f} (전체 브랜드 합산)")
-    
     print(f"[당시즌의류] 브랜드별 아이템별 판매율 집계 완료: {len(brand_item_totals)}개 브랜드")
     print(f"[당시즌의류] 전체 아이템별 판매율 집계 완료: {len(item_totals_overall_rates)}개 아이템")
     print(f"[당시즌의류] 전체 아이템별 판매율 아이템 코드 목록: {list(item_totals_overall_rates.keys())}")
@@ -505,7 +438,7 @@ def process_acc_csv(file_path):
     
     CSV 컬럼:
     - 브랜드코드, 카테고리, 아이템, 아이템명, 판매수량, 판매매출, 전년비, 비중, 
-      4주평균판매량, 재고, 재고금액, 재고주수, 전년재고주수, 재고주수차이(당년-전년)
+      4주평균판매량, 재고, 재고주수, 전년재고주수, 재고주수차이(당년-전년)
     """
     print(f"[ACC 재고주수] 파일 읽는 중: {file_path}")
     
@@ -532,7 +465,7 @@ def process_acc_csv(file_path):
             "shareRate": str(row['비중']).strip() if pd.notna(row['비중']) else "0%",
             "avg4wSaleQty": safe_float(row['4주평균판매량']),
             "stockQty": safe_int(row['재고']),
-            "stockAmt": safe_int(row.get('재고금액')),
+            "stockAmt": safe_int(row.get('재고금액', 0)),  # 재고금액 추가
             "stockWeeks": safe_float(row['재고주수']),
             "pyStockWeeks": safe_float(row['전년재고주수']),
             "stockWeeksDiff": safe_float(row['재고주수차이(당년-전년)'])
@@ -791,8 +724,7 @@ def generate_js_file(clothing_data, acc_data, update_date, output_path=None, pro
             "itemCount": len(items),
             "totalSaleQty": sum(item.get("saleQty", 0) or 0 for item in items),
             "totalSaleAmt": sum(item.get("saleAmt", 0) or 0 for item in items),
-            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items),
-            "totalStockAmt": sum(item.get("stockAmt", 0) or 0 for item in items)
+            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
         }
     
     # 브랜드·카테고리별 판매율 집계 추가
@@ -915,11 +847,9 @@ def generate_json_file(clothing_data, acc_data, update_date, project_root=None, 
             "itemCount": len(items),
             "totalSaleQty": sum(item.get("saleQty", 0) or 0 for item in items),
             "totalSaleAmt": sum(item.get("saleAmt", 0) or 0 for item in items),
-            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items),
-            "totalStockAmt": sum(item.get("stockAmt", 0) or 0 for item in items)
+            "totalStockQty": sum(item.get("stockQty", 0) or 0 for item in items)
         }
 
-    brand_totals = brand_totals or {}
     category_totals = category_totals or {}
     category_totals_overall = category_totals_overall or {}
     brand_item_totals = brand_item_totals or {}

@@ -1211,17 +1211,17 @@ def process_overview_clothing_csv(file_path: str) -> Dict[str, List[Dict[str, An
             "orderYoY": safe_float(row['전년비(발주)']),
             "weeklySalesTag": safe_float(row['주간판매매출(TAG)']),
             "weeklyYoY": safe_float(row['전년비(주간)']),
-            "cumSalesTag": safe_float(row['누적판매매출(TAG)']),
+            "cumSalesTag": safe_float(row.get('누적판매TAG가') or row.get('누적판매매출(TAG)')),  # 판매율 계산용 원본 데이터 우선
             "cumYoY": safe_float(row['전년비(누적)']),
             "cumSalesRate": safe_float(row['누적판매율당년']),
             "cumSalesRateDiff": safe_float(row['누적판매율차이']),
             "pyClosingSalesRate": safe_float(row['전년마감판매율']),
             # 판매율 계산용 원본 TAG가 데이터 추가 (clothingSummary 집계용)
-            "storageTagAmt": safe_float(row.get('누적입고TAG가', 0)),  # 당년 누적입고TAG가
-            "cumSalesTagPy": safe_float(row.get('전년누적판매TAG가', 0)),  # 전년 누적판매TAG가
-            "storageTagAmtPy": safe_float(row.get('전년누적입고TAG가', 0)),  # 전년 누적입고TAG가
-            "cumSalesTagPyEnd": safe_float(row.get('전년마감누적판매TAG가', 0)),  # 전년마감 누적판매TAG가
-            "storageTagAmtPyEnd": safe_float(row.get('전년마감누적입고TAG가', 0))  # 전년마감 누적입고TAG가
+            "storageTagAmt": safe_float(row.get('누적입고TAG가') or 0),  # 당년 누적입고TAG가
+            "cumSalesTagPy": safe_float(row.get('전년누적판매TAG가') or 0),  # 전년 누적판매TAG가
+            "storageTagAmtPy": safe_float(row.get('전년누적입고TAG가') or 0),  # 전년 누적입고TAG가
+            "cumSalesTagPyEnd": safe_float(row.get('전년마감누적판매TAG가') or 0),  # 전년마감 누적판매TAG가
+            "storageTagAmtPyEnd": safe_float(row.get('전년마감누적입고TAG가') or 0)  # 전년마감 누적입고TAG가
         }
         
         result[brand_code].append(item_data)
@@ -1271,6 +1271,7 @@ def process_overview_acc_csv(file_path: str) -> Dict[str, List[Dict[str, Any]]]:
             "shareRate": str(row['비중']).strip() if pd.notna(row['비중']) else "0%",
             "avg4wSaleQty": safe_float(row['4주평균판매량']),
             "stockQty": safe_int(row['재고']),
+            "stockAmt": safe_int(row.get('재고금액', 0)),  # 재고금액 추가
             "stockWeeks": safe_float(row['재고주수']),
             "pyStockWeeks": safe_float(row['전년재고주수']),
             "stockWeeksDiff": safe_float(row['재고주수차이(당년-전년)'])
