@@ -141,7 +141,43 @@
             window.overviewPL = overview.overviewPL || null;
             window.waterfallData = overview.waterfallData || null;
             window.cumulativeTrendData = overview.cumulativeTrendData || null;
+            
+            // overview.json에서 stock_analysis 관련 데이터도 로드 (clothingItemRatesOverall 등)
+            if (overview.clothingSummary && !window.clothingSummary) {
+              window.clothingSummary = overview.clothingSummary;
+              console.log('  ✓ overview.json - clothingSummary');
+            }
+            if (overview.accSummary && !window.accSummary) {
+              window.accSummary = overview.accSummary;
+              console.log('  ✓ overview.json - accSummary');
+            }
+            if (overview.clothingItemRatesOverall && !window.clothingItemRatesOverall) {
+              window.clothingItemRatesOverall = overview.clothingItemRatesOverall;
+              console.log('  ✓ overview.json - clothingItemRatesOverall (평균판매율 데이터)');
+              console.log('  ✓ clothingItemRatesOverall 아이템:', Object.keys(window.clothingItemRatesOverall || {}));
+            }
+            
             console.log('  ✓ overview.json (통합 파일)');
+          }
+        }
+        
+        // overview.json에서 clothingItemRatesOverall 로드 (개별 파일이 있어도 로드)
+        // 이는 stock_analysis.json보다 먼저 로드되어 최신 데이터를 보장합니다
+        const overviewForRates = await fetch(`${baseUrl}/overview.json`).then(r => r.ok ? r.json() : null).catch(() => null);
+        if (overviewForRates) {
+          // overview.json에서 stock_analysis 관련 데이터 로드 (clothingItemRatesOverall 등)
+          if (overviewForRates.clothingSummary && !window.clothingSummary) {
+            window.clothingSummary = overviewForRates.clothingSummary;
+            console.log('  ✓ overview.json - clothingSummary');
+          }
+          if (overviewForRates.accSummary && !window.accSummary) {
+            window.accSummary = overviewForRates.accSummary;
+            console.log('  ✓ overview.json - accSummary');
+          }
+          if (overviewForRates.clothingItemRatesOverall) {
+            window.clothingItemRatesOverall = overviewForRates.clothingItemRatesOverall;
+            console.log('  ✓ overview.json - clothingItemRatesOverall (평균판매율 데이터)');
+            console.log('  ✓ clothingItemRatesOverall 아이템:', Object.keys(window.clothingItemRatesOverall || {}));
           }
         }
         
@@ -407,14 +443,16 @@
           window.brandStockMetadata = stockAnalysis.brandStockMetadata || {};
           window.clothingBrandStatus = stockAnalysis.clothingBrandStatus || {};
           window.accStockAnalysis = stockAnalysis.accStockAnalysis || {};
-          window.clothingSummary = stockAnalysis.clothingSummary || {};
-          window.accSummary = stockAnalysis.accSummary || {};
+          // overview.json에서 이미 로드한 데이터가 있으면 유지, 없으면 stock_analysis.json 사용
+          window.clothingSummary = window.clothingSummary || stockAnalysis.clothingSummary || {};
+          window.accSummary = window.accSummary || stockAnalysis.accSummary || {};
           // 브랜드별 집계 판매율 (당년/전년/차이)
           window.clothingBrandRates = stockAnalysis.clothingBrandRates || {};
           window.clothingCategoryRates = stockAnalysis.clothingCategoryRates || {};
           window.clothingCategoryRatesOverall = stockAnalysis.clothingCategoryRatesOverall || {};
           window.clothingBrandItemRates = stockAnalysis.clothingBrandItemRates || {};
-          window.clothingItemRatesOverall = stockAnalysis.clothingItemRatesOverall || {};
+          // overview.json에서 이미 로드한 clothingItemRatesOverall가 있으면 유지 (더 최신 데이터)
+          window.clothingItemRatesOverall = window.clothingItemRatesOverall || stockAnalysis.clothingItemRatesOverall || {};
           console.log('  ✓ stock_analysis.json');
           console.log('  ✓ clothingBrandStatus 브랜드:', Object.keys(window.clothingBrandStatus || {}));
           console.log('  ✓ accStockAnalysis 브랜드:', Object.keys(window.accStockAnalysis || {}));
@@ -7604,30 +7642,23 @@
       // 누적전년비 계산 (재계산된 금액 사용)
       const totalYoyCum = totalPrevCum > 0 ? Math.round((totalCumSales / totalPrevCum) * 100) : 0;
       
-      // 판매율 계산 - 카테고리 필터링된 아이템들로 재계산
+      // 판매율 계산 - clothingSummary에서 브랜드별 전체 판매율 사용
       let totalRateNow = null;
       let totalRateLast = null;
       let totalRatePy = null;
       
-      // 당년 판매율 계산: 누적판매TAG가 / 누적입고TAG가
-      if (totalOrderTag > 0) {
-        totalRateNow = (totalCumSales / totalOrderTag) * 100;
+      if (window.clothingSummary && window.clothingSummary[brandCode] && window.clothingSummary[brandCode].cumSalesRate != null) {
+        const summary = window.clothingSummary[brandCode];
+        totalRateNow = summary.cumSalesRate * 100; // 퍼센트로 변환
+        totalRatePy = summary.cumSalesRatePy ? summary.cumSalesRatePy * 100 : null;
+        totalRateLast = summary.pyClosingSalesRate ? summary.pyClosingSalesRate * 100 : null;
+        console.log(`[합계행] clothingSummary에서 브랜드 ${brandCode} 판매율 사용:`, {
+          totalRateNow,
+          totalRatePy,
+          totalRateLast
+        });
       } else {
-        totalRateNow = 0;
-      }
-      
-      // 전년 판매율 계산: 전년누적판매TAG가 / 전년누적입고TAG가
-      if (totalOrderTagPy > 0) {
-        totalRatePy = (totalCumSalesPy / totalOrderTagPy) * 100;
-      } else {
-        totalRatePy = 0;
-      }
-      
-      // 전년마감 판매율 계산: 전년마감누적판매TAG가 / 전년마감누적입고TAG가
-      if (totalOrderTagPyEnd > 0) {
-        totalRateLast = (totalCumSalesPyEnd / totalOrderTagPyEnd) * 100;
-      } else {
-        totalRateLast = 0;
+        console.warn(`[합계행] 브랜드 ${brandCode}의 clothingSummary 데이터가 없습니다.`);
       }
       
       // 판매율 차이 = 당년 판매율 - 전년 판매율 (전년마감이 아닌 전년 기준)
