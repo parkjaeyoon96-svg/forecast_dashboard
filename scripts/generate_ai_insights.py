@@ -1653,38 +1653,38 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                 recent_4weeks_dates = sorted_dates[-4:]
                             else:
                                 recent_4weeks_dates = sorted_dates
-                                
-                                # 채널별로 최근 4주간 데이터 집계
-                                channel_sums = {}
-                                for row in weekly_data["rawData"]:
-                                    if (row.get("브랜드") == brand_code and 
-                                        row.get("종료일") in recent_4weeks_dates):
-                                        channel_name = row.get("채널명", "")
-                                        if not channel_name:
-                                            continue
-                                        
-                                        if channel_name not in channel_sums:
-                                            channel_sums[channel_name] = {"current": 0, "previous": 0}
-                                        
-                                        구분 = row.get("구분", "")
-                                        실판매출 = row.get("실판매출", 0) or 0
-                                        
-                                        if 구분 == "당년":
-                                            channel_sums[channel_name]["current"] += 실판매출
-                                        elif 구분 == "전년":
-                                            channel_sums[channel_name]["previous"] += 실판매출
-                                
-                                # 성장률 계산
-                                for ch_name, sums in channel_sums.items():
-                                    prev_sum = sums["previous"]
-                                    curr_sum = sums["current"]
+                            
+                            # 채널별로 최근 4주간 데이터 집계
+                            channel_sums = {}
+                            for row in weekly_data["rawData"]:
+                                if (row.get("브랜드") == brand_code and 
+                                    row.get("종료일") in recent_4weeks_dates):
+                                    channel_name = row.get("채널명", "")
+                                    if not channel_name:
+                                        continue
                                     
-                                    if prev_sum > 0:
-                                        growth_rate = ((curr_sum - prev_sum) / prev_sum) * 100
-                                        channel_trends.append({
-                                            "name": ch_name,
-                                            "trend": growth_rate
-                                        })
+                                    if channel_name not in channel_sums:
+                                        channel_sums[channel_name] = {"current": 0, "previous": 0}
+                                    
+                                    구분 = row.get("구분", "")
+                                    실판매출 = row.get("실판매출", 0) or 0
+                                    
+                                    if 구분 == "당년":
+                                        channel_sums[channel_name]["current"] += 실판매출
+                                    elif 구분 == "전년":
+                                        channel_sums[channel_name]["previous"] += 실판매출
+                            
+                            # 성장률 계산
+                            for ch_name, sums in channel_sums.items():
+                                prev_sum = sums["previous"]
+                                curr_sum = sums["current"]
+                                
+                                if prev_sum > 0:
+                                    growth_rate = ((curr_sum - prev_sum) / prev_sum) * 100
+                                    channel_trends.append({
+                                        "name": ch_name,
+                                        "trend": growth_rate
+                                    })
                         
                         # rawData가 없으면 기존 방식 사용 (전체 기간)
                         if not channel_trends:
