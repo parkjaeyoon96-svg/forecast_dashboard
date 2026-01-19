@@ -862,7 +862,7 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
             overview_data["trend"] = trend_data
     
     # 5. 전체 재고 분석
-    stock_file = base_dir / "overview_stock_analysis.json"
+    stock_file = base_dir / "stock_analysis.json"
     if stock_file.exists():
         print("[ANALYZING] 전체 재고 분석 중...")
         stock_data = load_json_file(stock_file)

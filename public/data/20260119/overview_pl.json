@@ -1,0 +1,109 @@
+{
+  "tagRevenue": {
+    "prev": 1029.13,
+    "target": 1049.74,
+    "forecast": 1062.1099999999997,
+    "yoy": 103,
+    "achievement": 101
+  },
+  "revenue": {
+    "prev": 766.46,
+    "target": 813.33,
+    "forecast": 831.1000000000001,
+    "yoy": 108,
+    "achievement": 102
+  },
+  "discountRate": {
+    "prev": 25.5,
+    "target": 22.5,
+    "forecast": 21.8,
+    "yoy": -3.7,
+    "achievement": -0.7
+  },
+  "cog": {
+    "prev": 213.48999999999998,
+    "target": 220.40000000000003,
+    "forecast": 234.94,
+    "yoy": 110,
+    "achievement": 107
+  },
+  "grossProfit": {
+    "prev": 320.01,
+    "target": 348.35,
+    "forecast": 344.22,
+    "yoy": 108,
+    "achievement": 99
+  },
+  "directCost": {
+    "prev": 152.92000000000002,
+    "target": 160.01,
+    "forecast": 160.54000000000002,
+    "yoy": 105,
+    "achievement": 100
+  },
+  "directCostDetail": {
+    "인건비": {
+      "prev": 44.199999999999996,
+      "target": 45.419999999999995,
+      "forecast": 47.940000000000005,
+      "yoy": 108,
+      "achievement": 106
+    },
+    "임차관리비": {
+      "prev": 30.740000000000002,
+      "target": 31.060000000000002,
+      "forecast": 30.219999999999995,
+      "yoy": 98,
+      "achievement": 97
+    },
+    "물류운송비": {
+      "prev": 29.779999999999998,
+      "target": 32.73,
+      "forecast": 33.010000000000005,
+      "yoy": 111,
+      "achievement": 101
+    },
+    "로열티": {
+      "prev": 22.14,
+      "target": 23.74,
+      "forecast": 24.150000000000002,
+      "yoy": 109,
+      "achievement": 102
+    },
+    "감가상각비": {
+      "prev": 6.54,
+      "target": 5.02,
+      "forecast": 4.9,
+      "yoy": 75,
+      "achievement": 98
+    },
+    "기타": {
+      "prev": 19.53,
+      "target": 22.050000000000004,
+      "forecast": 20.32,
+      "yoy": 104,
+      "achievement": 92
+    }
+  },
+  "directProfit": {
+    "prev": 167.09,
+    "target": 188.32999999999998,
+    "forecast": 183.67999999999998,
+    "yoy": 110,
+    "achievement": 98
+  },
+  "operatingExpense": {
+    "prev": 110.01,
+    "target": 111.00000000000001,
+    "forecast": 111.00000000000001,
+    "yoy": 101,
+    "achievement": 100
+  },
+  "opProfit": {
+    "prev": 57.080000000000005,
+    "target": 77.31,
+    "forecast": 72.68,
+    "yoy": 127,
+    "achievement": 94
+  }
+}
