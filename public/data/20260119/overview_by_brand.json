@@ -8,6 +8,14 @@
     "YOY_SALES": 15
   },
   {
+    "BRAND": "MLB KIDS",
+    "SALES": 69.9,
+    "DIRECT_PROFIT": 0.9,
+    "OPERATING_PROFIT": -9.9,
+    "ACHIEVEMENT": 98,
+    "YOY_SALES": 5
+  },
+  {
     "BRAND": "DISCOVERY",
     "SALES": 403.2,
     "DIRECT_PROFIT": 88.7,

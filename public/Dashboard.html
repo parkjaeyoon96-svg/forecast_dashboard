@@ -10621,6 +10621,8 @@
         // brand_plan.json에서 브랜드별 계획 매출 가져오기 (억원 단위)
         const brandPlan = brandPlanData[key] || 0;
         
+        console.log(`[레이더차트] ${key}: brandPlanData[${key}] = ${brandPlan}억원`);
+        
         // brandData에서 forecast 가져오기
         let totalForecast = 0;
         if (brandData && brandData[key] && brandData[key].channels) {
@@ -10645,7 +10647,7 @@
         // 우선순위: brand_plan.json > brandData.channels.target
         const planValue = brandPlan > 0 ? brandPlan : totalTarget; // 둘 다 억원 단위
         
-        console.log(`[레이더차트] ${key}: planValue=${planValue}, totalForecast=${totalForecast}, 달성률=${planValue > 0 ? Math.round((totalForecast / planValue) * 100) : 0}%`);
+        console.log(`[레이더차트] ${key}: planValue=${planValue}억원, totalForecast=${totalForecast}억원, 달성률=${planValue > 0 ? Math.round((totalForecast / planValue) * 100) : 0}%`);
         
         return planValue > 0 ? Math.round((totalForecast / planValue) * 100) : 0;
       });

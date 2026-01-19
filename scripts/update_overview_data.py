@@ -304,11 +304,22 @@ def update_overview_data(date_str: str):
             'W': 'SUPRA'
         }
         
+        # brand_pl에서 사용하는 키 매핑 (공백 대신 언더스코어)
+        brand_pl_key_map = {
+            'M': 'MLB',
+            'I': 'MLB_KIDS',
+            'X': 'DISCOVERY',
+            'V': 'DUVETICA',
+            'ST': 'SERGIO',
+            'W': 'SUPRA'
+        }
+        
         overview_by_brand = []
         for brand_code, brand_name in brand_name_map.items():
-            if brand_code in brand_kpi and brand_name in brand_pl:
+            brand_pl_key = brand_pl_key_map.get(brand_code, brand_name)
+            if brand_code in brand_kpi and brand_pl_key in brand_pl:
                 kpi = brand_kpi[brand_code]
-                pl = brand_pl[brand_name]
+                pl = brand_pl[brand_pl_key]
                 
                 # 월말예상 데이터 사용
                 sales = (kpi.get('revenueForecast', 0) or kpi.get('revenue', 0)) / 100000000  # 억원 단위
