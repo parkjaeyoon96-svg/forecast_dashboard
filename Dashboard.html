@@ -1580,6 +1580,163 @@
       }
     }
     
+    // 전체현황 판매율 분석 데이터 (JSON에서 로드)
+    let overviewStockAnalysisData = null;
+    
+    // 전체현황 판매율 데이터 로드
+    async function loadOverviewStockAnalysisData() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        
+        const response = await fetch(`${baseUrl}/stock_analysis.json`);
+        if (!response.ok) {
+          console.warn('[전체현황] stock_analysis.json 로드 실패:', response.status);
+          return;
+        }
+        
+        const data = await response.json();
+        overviewStockAnalysisData = data;
+        
+        // clothingItemRatesOverall 데이터를 itemTableDataByBrand에 병합
+        if (data.clothingItemRatesOverall && typeof data.clothingItemRatesOverall === 'object') {
+          console.log('[전체현황] clothingItemRatesOverall 데이터 로드:', Object.keys(data.clothingItemRatesOverall));
+          
+          // 브랜드별로 데이터 변환
+          let updateCount = 0;
+          for (const [itemCode, itemData] of Object.entries(data.clothingItemRatesOverall)) {
+            if (!itemData.brands) continue;
+            
+            // 각 브랜드별 판매율 데이터 업데이트
+            for (const [brandCode, brandData] of Object.entries(itemData.brands)) {
+              if (!itemTableDataByBrand[brandCode]) {
+                itemTableDataByBrand[brandCode] = { Outer: [], Inner: [], Bottom: [], Wear_etc: [] };
+              }
+              
+              // 카테고리 결정
+              const category = brandData.parent || 'Inner';
+              const categoryKey = category === 'Outer' ? 'Outer' : 
+                                category === 'Bottom' ? 'Bottom' : 'Inner';
+              
+              // 해당 아이템 찾기 또는 추가
+              const existingItem = itemTableDataByBrand[brandCode][categoryKey].find(
+                item => item.code === itemCode
+              );
+              
+              if (existingItem) {
+                // 기존 아이템 업데이트
+                existingItem.rateNow = (brandData.cumSalesRate || 0) * 100;
+                existingItem.rateLast = (brandData.cumSalesRatePy || 0) * 100;
+                existingItem.closingRate = (brandData.pyClosingSalesRate || 0) * 100;
+                updateCount++;
+              } else {
+                // 새 아이템 추가
+                itemTableDataByBrand[brandCode][categoryKey].push({
+                  category: categoryKey,
+                  code: itemCode,
+                  name: itemData.name || itemCode,
+                  rateNow: (brandData.cumSalesRate || 0) * 100,
+                  rateLast: (brandData.cumSalesRatePy || 0) * 100,
+                  closingRate: (brandData.pyClosingSalesRate || 0) * 100,
+                  poNow: 0,
+                  poYoy: 0,
+                  weekly: 0,
+                  yoyWeekly: 0,
+                  cum: 0,
+                  yoyCum: 0,
+                  diffText: ''
+                });
+                updateCount++;
+              }
+            }
+          }
+          
+          console.log('[전체현황] itemTableDataByBrand 업데이트 완료:', {
+            updateCount,
+            sampleBrand: itemTableDataByBrand['M'] ? {
+              Outer: itemTableDataByBrand['M'].Outer.length,
+              Inner: itemTableDataByBrand['M'].Inner.length,
+              Bottom: itemTableDataByBrand['M'].Bottom.length,
+              firstOuter: itemTableDataByBrand['M'].Outer[0]
+            } : null
+          });
+          
+          // 카테고리별 평균 판매율 데이터 저장
+          if (data.clothingCategoryRatesOverall) {
+            window.overviewCategoryRatesOverall = data.clothingCategoryRatesOverall;
+            console.log('[전체현황] 카테고리별 평균 판매율 데이터 로드:', Object.keys(data.clothingCategoryRatesOverall));
+          }
+          
+          // 전체현황에서 판매율 모드인 경우 히트맵 다시 그리기
+          if (currentSection === 'overview' && overviewMode === 'sale') {
+            createOverviewHeatmap();
+          }
+          
+          // 데이터 로드 완료 플래그 설정
+          window.overviewStockAnalysisDataLoaded = true;
+        } else {
+          console.warn('[전체현황] clothingItemRatesOverall 데이터가 없습니다');
+        }
+      } catch (error) {
+        console.error('[전체현황] 판매율 데이터 로드 오류:', error);
+      }
+    }
+    
+    // 전체현황 재고주수 데이터 로드
+    async function loadOverviewInventoryData() {
+      try {
+        const dateParam = getDateParam();
+        const baseUrl = `/public/data/${dateParam}`;
+        
+        const response = await fetch(`${baseUrl}/stock_analysis.json`);
+        if (!response.ok) {
+          console.warn('[전체현황] stock_analysis.json 로드 실패:', response.status);
+          return;
+        }
+        
+        const data = await response.json();
+        
+        // accStockAnalysis 데이터를 inventoryTableDataByBrand에 병합
+        if (data.accStockAnalysis && typeof data.accStockAnalysis === 'object') {
+          console.log('[전체현황] accStockAnalysis 데이터 로드:', Object.keys(data.accStockAnalysis));
+          
+          // 브랜드별로 데이터 변환
+          for (const [brandCode, items] of Object.entries(data.accStockAnalysis)) {
+            if (!Array.isArray(items)) continue;
+            
+            inventoryTableDataByBrand[brandCode] = items.map(item => ({
+              category: item.category || '',
+              item: item.itemCode || '',
+              name: item.itemName || '',
+              sales: item.saleAmt || 0,
+              yoy: parseFloat(item.yoyRate?.replace('%', '') || '0') || 0,
+              weight: parseFloat(item.shareRate?.replace('%', '') || '0') || 0,
+              qty: item.saleQty || 0,
+              avg4w: item.avg4wSaleQty || 0,
+              stockQty: item.stockQty || 0,
+              stockAmt: item.stockAmt || 0, // 재고금액 추가
+              stockWeeks: item.stockWeeks,
+              diff: item.stockWeeksDiff
+            }));
+          }
+          
+          console.log('[전체현황] inventoryTableDataByBrand 업데이트 완료:', {
+            brands: Object.keys(inventoryTableDataByBrand),
+            sampleBrand: inventoryTableDataByBrand['M'] ? inventoryTableDataByBrand['M'].length : 0
+          });
+          
+          // 전체현황에서 재고주수 모드인 경우 버블 차트 다시 그리기
+          if (currentSection === 'overview' && overviewMode === 'inventory') {
+            initOverviewBubbleChart();
+          }
+        } else {
+          console.warn('[전체현황] accStockAnalysis 데이터가 없습니다');
+        }
+      } catch (error) {
+        console.error('[전체현황] 재고주수 데이터 로드 오류:', error);
+      }
+    }
+    
     // 트리맵 날짜 정보 표시 함수
     function updateTreemapDateInfo() {
       console.log('updateTreemapDateInfo 호출됨', {treemapMetadata});
@@ -3746,9 +3903,13 @@
       
       if(btnSaleRate && !btnSaleRate.hasAttribute('data-listener')){
         btnSaleRate.setAttribute('data-listener','true');
-        btnSaleRate.addEventListener('click', ()=>{ 
+        btnSaleRate.addEventListener('click', async ()=>{ 
           overviewMode = 'sale'; 
           updateOverviewModeButtons(); 
+          // 데이터가 아직 로드되지 않았으면 로드 시도
+          if (!window.overviewStockAnalysisDataLoaded) {
+            await loadOverviewStockAnalysisData();
+          }
           updateOverviewModeView(); 
         });
       }
@@ -3833,6 +3994,13 @@
         'LG': 'Leggings', 'PT': 'Pants', 'SK': 'Skirt', 'SP': 'SHORTS', 'TP': 'Training Pants'
       };
       
+      // 카테고리별 아이템 매핑 (Outer, Inner, Bottom)
+      const categoryMapping = {
+        'Outer': ['DJ', 'DV', 'JP', 'PD', 'SS', 'WJ'],
+        'Inner': ['HD', 'MT', 'OP', 'RL', 'RS', 'TL', 'TR', 'ZT'],
+        'Bottom': ['LG', 'PT', 'SK', 'SP', 'TP']
+      };
+      
       // 브랜드별 판매율 데이터 수집
       const heatmapData = {};
       brands.forEach((brandName, idx) => {
@@ -3846,6 +4014,13 @@
           brandRates[cat] = item ? (item.rateNow || 0) : null;
         });
         heatmapData[brandName] = brandRates;
+      });
+      
+      // 디버깅: 데이터 확인
+      console.log('[전체현황 히트맵] 데이터 수집 완료:', {
+        brands: Object.keys(heatmapData),
+        sampleBrand: heatmapData['MLB'] ? Object.keys(heatmapData['MLB']) : null,
+        sampleValue: heatmapData['MLB'] ? heatmapData['MLB']['DJ'] : null
       });
       
       // 색상 결정 함수
@@ -3893,20 +4068,27 @@
         html += '</tr>';
       });
       
-      // 카테고리별 평균 행
-      html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">카테고리 평균</td>';
+      // 아이템별 평균 행 (각 아이템의 브랜드별 평균)
+      html += '<tr style="background:#edf2f7;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#edf2f7;position:sticky;left:0;z-index:5;border-top:2px solid #cbd5e0;padding-top:15px;">아이템 평균</td>';
       categories.forEach((cat, idx) => {
         let sum = 0;
         let count = 0;
         brands.forEach(brand => {
-          const value = heatmapData[brand][cat];
-          if(value != null && !isNaN(value)){
+          const value = heatmapData[brand] ? heatmapData[brand][cat] : null;
+          // null이 아니고 숫자이며 0 이상인 경우 포함 (0도 유효한 값으로 처리)
+          if(value != null && !isNaN(value) && value >= 0){
             sum += value;
             count++;
           }
         });
-        const avg = count > 0 ? sum / count : 0;
-        if(avg > 0){
+        const avg = count > 0 ? sum / count : null;
+        // 디버깅: 모든 아이템 로그 출력
+        console.log(`[전체현황 히트맵] 아이템별 평균 계산 (${cat}):`, {
+          sum, count, avg,
+          values: brands.map(b => ({ brand: b, value: heatmapData[b] ? heatmapData[b][cat] : null }))
+        });
+        // 평균이 계산되었고 (null이 아니고) count가 0보다 크면 표시
+        if(avg != null && count > 0){
           const avgClass = getCellClass(avg);
           html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #cbd5e0;padding-top:15px;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${avg.toFixed(1)}%</span></td>`;
         } else {
@@ -3914,13 +4096,51 @@
         }
       });
       
+      // 카테고리별 평균 행 추가 (Outer, Inner, Bottom)
+      if (window.overviewCategoryRatesOverall) {
+        const categoryRates = window.overviewCategoryRatesOverall;
+        ['Outer', 'Inner', 'Bottom'].forEach(catType => {
+          const catItems = categoryMapping[catType] || [];
+          if (catItems.length === 0) return;
+          
+          const catRate = categoryRates[catType];
+          const catAvg = catRate && catRate.cumSalesRate ? (catRate.cumSalesRate * 100) : null;
+          
+          html += `<tr style="background:#e6f3ff;font-weight:700;"><td style="text-align:left;padding-left:15px;background:#e6f3ff;position:sticky;left:0;z-index:5;border-top:2px solid #93c5fd;padding-top:15px;">${catType} 평균</td>`;
+          
+          categories.forEach(cat => {
+            if (catItems.includes(cat)) {
+              // 해당 카테고리의 아이템이면 카테고리 평균 표시
+              if (catAvg != null && catAvg > 0) {
+                const avgClass = getCellClass(catAvg);
+                html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #93c5fd;padding-top:15px;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${catAvg.toFixed(1)}%</span></td>`;
+              } else {
+                html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #93c5fd;padding-top:15px;background:#f9fafb;">-</td>';
+              }
+            } else {
+              // 해당 카테고리의 아이템이 아니면 빈 셀
+              html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #93c5fd;padding-top:15px;background:#f9fafb;">-</td>';
+            }
+          });
+          
+          // 카테고리 평균 열
+          if (catAvg != null && catAvg > 0) {
+            const avgClass = getCellClass(catAvg);
+            html += `<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #93c5fd;padding-top:15px;"><span class="cell ${avgClass}" style="display:inline-block;padding:8px 12px;border-radius:6px;min-width:50px;">${catAvg.toFixed(1)}%</span></td>`;
+          } else {
+            html += '<td style="padding:15px 8px;text-align:center;font-weight:700;font-size:14px;border-top:2px solid #93c5fd;padding-top:15px;background:#f9fafb;">-</td>';
+          }
+          html += '</tr>';
+        });
+      }
+      
       // 전체 평균
       let totalSum = 0;
       let totalCount = 0;
       brands.forEach(brand => {
         categories.forEach(cat => {
-          const value = heatmapData[brand][cat];
-          if(value != null && !isNaN(value)){
+          const value = heatmapData[brand] ? heatmapData[brand][cat] : null;
+          if(value != null && !isNaN(value) && value > 0){
             totalSum += value;
             totalCount++;
           }
@@ -4340,7 +4560,8 @@
     };
 
     // 브랜드별 아이템 판매율 데이터 (M=MLB, I=MLB_KIDS, X=DISCOVERY, V=DUVETICA, ST=SERGIO, W=SUPRA)
-    const itemTableDataByBrand = {
+    // ★ JSON에서 로드하여 업데이트됩니다 ★
+    let itemTableDataByBrand = {
       'M': { // MLB
         Outer: [
           { category:'Outer', code:'DJ', name:'다운점퍼', poNow:329698, poYoy:127, weekly:2221, yoyWeekly:187, cum:3835, yoyCum:76, rateNow:8.16, rateLast:11.4, closingRate:65.2, diffText:'△3.24%p' },
@@ -4838,7 +5059,8 @@
     };
 
     // 브랜드별 재고주수 데이터
-    const inventoryTableDataByBrand = {
+    // ★ JSON에서 로드하여 업데이트됩니다 ★
+    let inventoryTableDataByBrand = {
       'I': [
         { category:'Shoes', item:'WB', name:'방한화', sales:104, yoy:244, weight:22, qty:1329, avg4w:784, stockQty:35233, stockWeeks:44.9, diff:-30.6 },
         { category:'Headwear', item:'CP', name:'운동모', sales:68, yoy:127, weight:15, qty:1830, avg4w:2399, stockQty:117935, stockWeeks:49.2, diff:14.8 },
@@ -8170,6 +8392,10 @@
         saveOriginalData();
         // 트리맵 메타데이터 로드
         loadTreemapMetadata();
+        // 전체현황 판매율 데이터 로드
+        loadOverviewStockAnalysisData();
+        // 전체현황 재고주수 데이터 로드
+        loadOverviewInventoryData();
       },100);
     });
 

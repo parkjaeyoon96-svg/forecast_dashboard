@@ -2,43 +2,43 @@
   "by_brand": [
     {
       "BRAND": "MLB",
-      "SALES": 315.8,
-      "DIRECT_PROFIT": 83.6,
-      "OPERATING_PROFIT": 46.1,
-      "ACHIEVEMENT": 109,
-      "YOY_SALES": 15
+      "SALES": 300.3,
+      "DIRECT_PROFIT": 77.7,
+      "OPERATING_PROFIT": 40.2,
+      "ACHIEVEMENT": 104,
+      "YOY_SALES": 9
     },
     {
       "BRAND": "MLB KIDS",
-      "SALES": 69.9,
+      "SALES": 71.5,
       "DIRECT_PROFIT": 0.9,
       "OPERATING_PROFIT": -9.9,
-      "ACHIEVEMENT": 98,
-      "YOY_SALES": 5
+      "ACHIEVEMENT": 100,
+      "YOY_SALES": 7
     },
     {
       "BRAND": "DISCOVERY",
-      "SALES": 403.2,
-      "DIRECT_PROFIT": 88.7,
-      "OPERATING_PROFIT": 38.8,
-      "ACHIEVEMENT": 100,
-      "YOY_SALES": 2
+      "SALES": 420.0,
+      "DIRECT_PROFIT": 92.8,
+      "OPERATING_PROFIT": 43.0,
+      "ACHIEVEMENT": 104,
+      "YOY_SALES": 6
     },
     {
       "BRAND": "DUVETICA",
-      "SALES": 36.8,
-      "DIRECT_PROFIT": 11.9,
-      "OPERATING_PROFIT": 5.3,
-      "ACHIEVEMENT": 97,
-      "YOY_SALES": 58
+      "SALES": 38.9,
+      "DIRECT_PROFIT": 12.6,
+      "OPERATING_PROFIT": 6.0,
+      "ACHIEVEMENT": 102,
+      "YOY_SALES": 67
     },
     {
       "BRAND": "SERGIO",
-      "SALES": 4.6,
-      "DIRECT_PROFIT": -1.1,
+      "SALES": 4.0,
+      "DIRECT_PROFIT": -1.2,
       "OPERATING_PROFIT": -7.1,
-      "ACHIEVEMENT": 69,
-      "YOY_SALES": 6
+      "ACHIEVEMENT": 60,
+      "YOY_SALES": -8
     },
     {
       "BRAND": "SUPRA",
@@ -46,49 +46,49 @@
       "DIRECT_PROFIT": -0.2,
       "OPERATING_PROFIT": -0.5,
       "ACHIEVEMENT": 32,
-      "YOY_SALES": -55
+      "YOY_SALES": -56
     }
   ],
   "overviewPL": {
     "tagRevenue": {
       "prev": 1029.13,
       "target": 1049.74,
-      "forecast": 1062.1099999999997,
-      "yoy": 103,
-      "achievement": 101
+      "forecast": 1069.65,
+      "yoy": 104,
+      "achievement": 102
     },
     "revenue": {
       "prev": 766.46,
       "target": 813.33,
-      "forecast": 831.1000000000001,
-      "yoy": 108,
-      "achievement": 102
+      "forecast": 835.4999999999999,
+      "yoy": 109,
+      "achievement": 103
     },
     "discountRate": {
       "prev": 25.5,
       "target": 22.5,
-      "forecast": 21.8,
-      "yoy": -3.7,
-      "achievement": -0.7
+      "forecast": 21.9,
+      "yoy": -3.6,
+      "achievement": -0.6
     },
     "cog": {
       "prev": 213.48999999999998,
       "target": 220.40000000000003,
-      "forecast": 234.94,
-      "yoy": 110,
-      "achievement": 107
+      "forecast": 237.39000000000001,
+      "yoy": 111,
+      "achievement": 108
     },
     "grossProfit": {
       "prev": 320.01,
       "target": 348.35,
-      "forecast": 344.22,
-      "yoy": 108,
+      "forecast": 343.48,
+      "yoy": 107,
       "achievement": 99
     },
     "directCost": {
       "prev": 152.92000000000002,
       "target": 160.01,
-      "forecast": 160.54000000000002,
+      "forecast": 160.79999999999998,
       "yoy": 105,
       "achievement": 100
     },
@@ -96,30 +96,30 @@
       "인건비": {
         "prev": 44.199999999999996,
         "target": 45.419999999999995,
-        "forecast": 47.940000000000005,
-        "yoy": 108,
-        "achievement": 106
+        "forecast": 48.4,
+        "yoy": 110,
+        "achievement": 107
       },
       "임차관리비": {
         "prev": 30.740000000000002,
         "target": 31.060000000000002,
-        "forecast": 30.219999999999995,
-        "yoy": 98,
-        "achievement": 97
+        "forecast": 30.700000000000003,
+        "yoy": 100,
+        "achievement": 99
       },
       "물류운송비": {
         "prev": 29.779999999999998,
         "target": 32.73,
-        "forecast": 33.010000000000005,
-        "yoy": 111,
-        "achievement": 101
+        "forecast": 32.85999999999999,
+        "yoy": 110,
+        "achievement": 100
       },
       "로열티": {
         "prev": 22.14,
         "target": 23.74,
-        "forecast": 24.150000000000002,
-        "yoy": 109,
-        "achievement": 102
+        "forecast": 23.87,
+        "yoy": 108,
+        "achievement": 101
       },
       "감가상각비": {
         "prev": 6.54,
@@ -131,17 +131,17 @@
       "기타": {
         "prev": 19.53,
         "target": 22.050000000000004,
-        "forecast": 20.32,
-        "yoy": 104,
-        "achievement": 92
+        "forecast": 20.060000000000002,
+        "yoy": 103,
+        "achievement": 91
       }
     },
     "directProfit": {
       "prev": 167.09,
       "target": 188.32999999999998,
-      "forecast": 183.67999999999998,
-      "yoy": 110,
-      "achievement": 98
+      "forecast": 182.67999999999998,
+      "yoy": 109,
+      "achievement": 97
     },
     "operatingExpense": {
       "prev": 110.01,
@@ -153,63 +153,63 @@
     "opProfit": {
       "prev": 57.080000000000005,
       "target": 77.31,
-      "forecast": 72.68,
-      "yoy": 127,
-      "achievement": 94
+      "forecast": 71.67999999999999,
+      "yoy": 126,
+      "achievement": 93
     }
   },
   "overviewKPI": {
     "OVERVIEW": {
       "revenue": 51902488599,
       "directProfit": 10423123465,
-      "revenueForecast": 83110566382,
-      "directProfitForecast": 18368371020,
+      "revenueForecast": 83549153357,
+      "directProfitForecast": 18266465589,
       "revenuePrevious": 76645792201,
       "directProfitPrevious": 16707632365,
       "operatingProfitPrevious": 5708315720,
       "revenuePlan": 81333271000,
       "directProfitPlan": 18832717000,
       "directProfitRate": 22.09,
-      "directProfitRateForecast": 24.31,
+      "directProfitRateForecast": 24.05,
       "directProfitRatePlan": 25.47,
       "discountRate": 21.89,
-      "discountRateForecast": 21.75,
+      "discountRateForecast": 21.89,
       "progressRate": 55.3,
-      "progressRateForecast": 97.5,
+      "progressRateForecast": 97.0,
       "operatingProfit": -677134535,
-      "operatingProfitForecast": 7268113020,
+      "operatingProfitForecast": 7166207589,
       "operatingProfitRate": -1.44,
-      "operatingProfitRateForecast": 9.62,
-      "revenueVsPlan": 2.2,
-      "revenueVsPrevious": 8.4,
-      "profitVsPlan": -2.5,
-      "profitVsPrevious": 9.9
+      "operatingProfitRateForecast": 9.43,
+      "revenueVsPlan": 2.7,
+      "revenueVsPrevious": 9.0,
+      "profitVsPlan": -3.0,
+      "profitVsPrevious": 9.3
     }
   },
   "waterfallData": [
     {
       "label": "실판매출",
-      "value": 831.1,
+      "value": 835.5,
       "type": "total"
     },
     {
       "label": "매출원가(-)",
-      "value": 234.94,
+      "value": 237.39,
       "type": "decrease"
     },
     {
       "label": "매출총이익",
-      "value": 344.22,
+      "value": 343.48,
       "type": "subtotal"
     },
     {
       "label": "직접비(-)",
-      "value": 160.54,
+      "value": 160.8,
       "type": "decrease"
     },
     {
       "label": "직접이익",
-      "value": 183.68,
+      "value": 182.68,
       "type": "subtotal"
     },
     {
@@ -219,7 +219,7 @@
     },
     {
       "label": "영업이익",
-      "value": 72.68,
+      "value": 71.68,
       "type": "result"
     }
   ],
@@ -234,7 +234,7 @@
       24630.3,
       20588.9,
       18145.5,
-      19675.0
+      19677.3
     ],
     "weekly_prev": [
       23232.3,
@@ -246,7 +246,7 @@
       24630.3,
       45219.2,
       63364.7,
-      83039.7
+      83042.0
     ],
     "cumulative_prev": [
       23232.3,
@@ -258,8 +258,8 @@
   "clothingSummary": {
     "I": {
       "itemCount": 25,
-      "totalWeeklySales": 286862000.0,
-      "totalCumSales": 16163963000.0,
+      "totalWeeklySales": 286991000.0,
+      "totalCumSales": 16164092000.0,
       "totalOrderTag": 41256553000.0,
       "totalOrderTagPy": 40916107000.0,
       "totalCumSalesPy": 16788042503.0,
@@ -272,8 +272,8 @@
     },
     "M": {
       "itemCount": 27,
-      "totalWeeklySales": 940186000.0,
-      "totalCumSales": 41773164000.0,
+      "totalWeeklySales": 940505000.0,
+      "totalCumSales": 41773483000.0,
       "totalOrderTag": 88406731000.0,
       "totalOrderTagPy": 85349011000.0,
       "totalCumSalesPy": 45838035282.0,
@@ -286,8 +286,8 @@
     },
     "ST": {
       "itemCount": 21,
-      "totalWeeklySales": 25677000.0,
-      "totalCumSales": 1538916000.0,
+      "totalWeeklySales": 25816000.0,
+      "totalCumSales": 1539055000.0,
       "totalOrderTag": 5379769000.0,
       "totalOrderTagPy": 8911122000.0,
       "totalCumSalesPy": 1949839000.0,
@@ -328,8 +328,8 @@
     },
     "X": {
       "itemCount": 20,
-      "totalWeeklySales": 6332483000.0,
-      "totalCumSales": 130164605000.0,
+      "totalWeeklySales": 6333559000.0,
+      "totalCumSales": 130165681000.0,
       "totalOrderTag": 318046897000.0,
       "totalOrderTagPy": 300663840000.0,
       "totalCumSalesPy": 141677333000.0,
@@ -343,7 +343,7 @@
     "overall": {
       "totalOrderTag": 484142878000.0,
       "totalOrderTagPy": 460355738000.0,
-      "totalCumSales": 204125931000.0,
+      "totalCumSales": 204127594000.0,
       "totalCumSalesPy": 214884276825.0,
       "totalOrderTagPyEnd": 460354358000.0,
       "totalCumSalesPyEnd": 239008408701.0,
@@ -364,19 +364,19 @@
       "itemCount": 28,
       "totalSaleQty": 13552,
       "totalSaleAmt": 1070602763,
-      "totalStockQty": 622424
+      "totalStockQty": 622421
     },
     "M": {
       "itemCount": 35,
-      "totalSaleQty": 123029,
-      "totalSaleAmt": 6761011851,
-      "totalStockQty": 2645352
+      "totalSaleQty": 123034,
+      "totalSaleAmt": 6761417851,
+      "totalStockQty": 2645347
     },
     "ST": {
       "itemCount": 20,
       "totalSaleQty": 259,
       "totalSaleAmt": 15187180,
-      "totalStockQty": 41471
+      "totalStockQty": 41470
     },
     "V": {
       "itemCount": 23,
@@ -886,16 +886,16 @@
           "parent": "Inner"
         },
         "ST": {
-          "cumSalesRate": 0.2859,
+          "cumSalesRate": 0.2861,
           "cumSalesRatePy": 0.2415,
           "pyClosingSalesRate": 0.2568,
           "parent": "Inner"
         }
       },
       "parent": "Inner",
-      "cumSalesRate": 0.3228,
+      "cumSalesRate": 0.3229,
       "cumSalesRatePy": 0.3069,
-      "cumSalesRateDiff": 0.0159,
+      "cumSalesRateDiff": 0.016,
       "pyClosingSalesRate": 0.3201
     },
     "PT": {
@@ -964,16 +964,16 @@
       "name": "맨투맨셋트",
       "brands": {
         "I": {
-          "cumSalesRate": 0.4553,
+          "cumSalesRate": 0.4554,
           "cumSalesRatePy": 0.434,
           "pyClosingSalesRate": 0.4665,
           "parent": "Wear_etc"
         }
       },
       "parent": "Wear_etc",
-      "cumSalesRate": 0.4553,
+      "cumSalesRate": 0.4554,
       "cumSalesRatePy": 0.434,
-      "cumSalesRateDiff": 0.0213,
+      "cumSalesRateDiff": 0.0214,
       "pyClosingSalesRate": 0.4665
     },
     "SK": {

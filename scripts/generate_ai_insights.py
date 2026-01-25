@@ -16,6 +16,7 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+import requests
 
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
@@ -809,6 +810,223 @@ class AIInsightGenerator:
         return insight
 
 
+
+
+def fetch_stock_weeks_api(api_base_url: str = "http://localhost:3000") -> Optional[Dict]:
+    """재고주수 API 데이터 조회"""
+    try:
+        url = f"{api_base_url}/api/stock-weeks"
+        print(f"[INFO] 재고주수 API 호출: {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        result = response.json()
+        if result.get('success'):
+            print(f"[SUCCESS] 재고주수 API 데이터 로드 완료")
+            return result
+        else:
+            print(f"[WARNING] 재고주수 API 응답 실패: {result.get('error')}")
+            return None
+    except Exception as e:
+        print(f"[WARNING] 재고주수 API 호출 실패: {e}")
+        return None
+
+
+def fetch_sales_rate_api(api_base_url: str = "http://localhost:3000") -> Optional[Dict]:
+    """판매율 API 데이터 조회"""
+    try:
+        url = f"{api_base_url}/api/sales-rate"
+        print(f"[INFO] 판매율 API 호출: {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        result = response.json()
+        if result.get('success'):
+            print(f"[SUCCESS] 판매율 API 데이터 로드 완료")
+            return result
+        else:
+            print(f"[WARNING] 판매율 API 응답 실패: {result.get('error')}")
+            return None
+    except Exception as e:
+        print(f"[WARNING] 판매율 API 호출 실패: {e}")
+        return None
+
+
+def transform_api_to_stock_format(stock_weeks_api: Dict, sales_rate_api: Optional[Dict]) -> Dict:
+    """
+    API 응답을 기존 stock_analysis.json 형식으로 변환
+    
+    stock_weeks_api: {success, date, asof_dt, data: {CY: [...], PY: [...]}}
+    sales_rate_api: {success, date, periodInfo: {...}, data: {CUR: [...], PY: [...], PY_END: [...]}}
+    
+    Returns: {
+        clothingBrandStatus: {브랜드코드: [아이템 리스트]},
+        accStockAnalysis: {브랜드코드: [아이템 리스트]}
+    }
+    """
+    result = {
+        'clothingBrandStatus': {},
+        'accStockAnalysis': {}
+    }
+    
+    if not stock_weeks_api or not stock_weeks_api.get('data'):
+        return result
+    
+    cy_data = stock_weeks_api['data'].get('CY', [])
+    py_data = stock_weeks_api['data'].get('PY', [])
+    
+    # 브랜드별, 아이템별로 집계
+    brand_item_map = {}
+    
+    # CY 데이터 집계
+    for row in cy_data:
+        brd_cd = row.get('BRD_CD')
+        item_cd = row.get('ITEM_CD') or row.get('ITEM')
+        if not brd_cd or not item_cd:
+            continue
+        
+        key = f"{brd_cd}_{item_cd}"
+        if key not in brand_item_map:
+            brand_item_map[key] = {
+                'brand': brd_cd,
+                'itemCode': item_cd,
+                'itemName': row.get('ITEM_NM', ''),
+                'prdtKindNm': row.get('PRDT_KIND_NM', ''),
+                'cy': {
+                    'saleQty7d': 0,
+                    'saleTag7d': 0,
+                    'saleQty28d': 0,
+                    'stockQty': 0,
+                    'stockTagAmt': 0
+                },
+                'py': {
+                    'saleQty28d': 0,
+                    'stockQty': 0
+                }
+            }
+        
+        brand_item_map[key]['cy']['saleQty7d'] += row.get('SALE_QTY_7D', 0) or 0
+        brand_item_map[key]['cy']['saleTag7d'] += row.get('SALE_TAG_7D', 0) or 0
+        brand_item_map[key]['cy']['saleQty28d'] += row.get('SALE_QTY_28D', 0) or 0
+        brand_item_map[key]['cy']['stockQty'] += row.get('STOCK_QTY', 0) or 0
+        brand_item_map[key]['cy']['stockTagAmt'] += row.get('STOCK_TAG_AMT', 0) or 0
+    
+    # PY 데이터 집계
+    for row in py_data:
+        brd_cd = row.get('BRD_CD')
+        item_cd = row.get('ITEM_CD') or row.get('ITEM')
+        if not brd_cd or not item_cd:
+            continue
+        
+        key = f"{brd_cd}_{item_cd}"
+        if key not in brand_item_map:
+            brand_item_map[key] = {
+                'brand': brd_cd,
+                'itemCode': item_cd,
+                'itemName': row.get('ITEM_NM', ''),
+                'prdtKindNm': row.get('PRDT_KIND_NM', ''),
+                'cy': {'saleQty7d': 0, 'saleTag7d': 0, 'saleQty28d': 0, 'stockQty': 0, 'stockTagAmt': 0},
+                'py': {'saleQty28d': 0, 'stockQty': 0}
+            }
+        
+        brand_item_map[key]['py']['saleQty28d'] += row.get('SALE_QTY_28D', 0) or 0
+        brand_item_map[key]['py']['stockQty'] += row.get('STOCK_QTY', 0) or 0
+    
+    # 판매율 데이터 추가 (sales_rate_api가 있으면)
+    # sales_rate_api 구조: {data: {CUR: [...], PY: [...], PY_END: [...]}}
+    sales_rate_by_item = {}
+    if sales_rate_api and sales_rate_api.get('data'):
+        cur_sales_data = sales_rate_api['data'].get('CUR', [])
+        py_sales_data = sales_rate_api['data'].get('PY', [])
+        py_end_sales_data = sales_rate_api['data'].get('PY_END', [])
+        
+        # CUR 데이터를 기준으로 판매율 계산
+        for cur_row in cur_sales_data:
+            brd_cd = cur_row.get('BRD_CD')
+            item_cd = cur_row.get('ITEM_CD')
+            if not brd_cd or not item_cd:
+                continue
+            
+            key = f"{brd_cd}_{item_cd}"
+            
+            # 누적 판매율 계산: SALE_QTY / AC_ORD_QTY_KOR
+            cum_sales_rate = 0
+            ac_ord_qty = cur_row.get('AC_ORD_QTY_KOR', 0) or 0
+            sale_qty = cur_row.get('SALE_QTY', 0) or 0
+            if ac_ord_qty > 0:
+                cum_sales_rate = sale_qty / ac_ord_qty
+            
+            # 전년 동기 판매율 찾기
+            py_rate = 0
+            for py_row in py_sales_data:
+                if py_row.get('BRD_CD') == brd_cd and py_row.get('ITEM_CD') == item_cd:
+                    py_ord_qty = py_row.get('AC_ORD_QTY_KOR', 0) or 0
+                    py_sale_qty = py_row.get('SALE_QTY', 0) or 0
+                    if py_ord_qty > 0:
+                        py_rate = py_sale_qty / py_ord_qty
+                    break
+            
+            # 판매율 차이
+            cum_sales_rate_diff = cum_sales_rate - py_rate
+            
+            sales_rate_by_item[key] = {
+                'cumSalesRate': cum_sales_rate,
+                'cumSalesRateDiff': cum_sales_rate_diff,
+                'cumSalesTag': cur_row.get('SALE_TAG', 0) or 0,
+                'orderTag': cur_row.get('AC_ORD_TAG_AMT_KOR', 0) or 0
+            }
+    
+    # accStockAnalysis 및 clothingBrandStatus 형식으로 변환
+    for key, item_data in brand_item_map.items():
+        brand = item_data['brand']
+        
+        # 재고주수 계산
+        avg4w = item_data['cy']['saleQty28d'] / 4 if item_data['cy']['saleQty28d'] > 0 else 0
+        stockWeeks = item_data['cy']['stockQty'] / avg4w if avg4w > 0 else 0
+        
+        pyAvg4w = item_data['py']['saleQty28d'] / 4 if item_data['py']['saleQty28d'] > 0 else 0
+        pyStockWeeks = item_data['py']['stockQty'] / pyAvg4w if pyAvg4w > 0 else 0
+        
+        stockWeeksDiff = stockWeeks - pyStockWeeks
+        
+        # YOY 계산 (전년 대비 비율)
+        yoyRate = (item_data['cy']['saleQty28d'] / item_data['py']['saleQty28d'] * 100) if item_data['py']['saleQty28d'] > 0 else 0
+        
+        # accStockAnalysis에 추가
+        if brand not in result['accStockAnalysis']:
+            result['accStockAnalysis'][brand] = []
+        
+        result['accStockAnalysis'][brand].append({
+            'itemName': item_data['itemName'],
+            'saleAmt': item_data['cy']['saleTag7d'],
+            'stockWeeks': stockWeeks,
+            'stockWeeksDiff': stockWeeksDiff,
+            'yoyRate': yoyRate
+        })
+        
+        # clothingBrandStatus에 추가 (판매율 데이터 포함)
+        if brand not in result['clothingBrandStatus']:
+            result['clothingBrandStatus'][brand] = []
+        
+        sales_rate_info = sales_rate_by_item.get(key, {})
+        
+        result['clothingBrandStatus'][brand].append({
+            'BRAND': brand,
+            'ITEM_CD': item_data['itemCode'],
+            'ITEM_NM': item_data['itemName'],
+            'PRDT_KIND_NM': item_data['prdtKindNm'],
+            'itemName': item_data['itemName'],
+            'stockWeeks': stockWeeks,
+            'stockWeeksDiff': stockWeeksDiff,
+            'cumSalesRate': sales_rate_info.get('cumSalesRate', 0),
+            'cumSalesRateDiff': sales_rate_info.get('cumSalesRateDiff', 0),
+            'cumSalesTag': sales_rate_info.get('cumSalesTag', 0),
+            'orderTag': sales_rate_info.get('orderTag', 0),
+            'stock': item_data['cy']['stockQty'],
+            'stockAmt': item_data['cy']['stockTagAmt']
+        })
+    
+    return result
+
+
 def load_json_file(file_path: Path) -> Optional[Dict]:
     """JSON 파일 로드"""
     try:
@@ -822,7 +1040,7 @@ def load_json_file(file_path: Path) -> Optional[Dict]:
         return None
 
 
-def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator, output_dir: Path):
+def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator, output_dir: Path, api_base_url: str = "http://localhost:3000"):
     """전체 현황에 대한 모든 인사이트 생성"""
     base_dir = project_root / "public" / "data" / date_str
     
@@ -861,13 +1079,32 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
         if trend_data:
             overview_data["trend"] = trend_data
     
-    # 5. 전체 재고 분석
-    stock_file = base_dir / "stock_analysis.json"
-    if stock_file.exists():
-        print("[ANALYZING] 전체 재고 분석 중...")
-        stock_data = load_json_file(stock_file)
-        if stock_data:
-            overview_data["stock"] = stock_data
+    # 5. 전체 재고 분석 (API 우선, 없으면 JSON)
+    stock_data = None
+    api_date = None
+    
+    # API 데이터 조회 시도
+    print("[ANALYZING] 전체 재고 분석 중...")
+    stock_weeks_api = fetch_stock_weeks_api(api_base_url)
+    sales_rate_api = fetch_sales_rate_api(api_base_url)
+    
+    if stock_weeks_api and stock_weeks_api.get('success'):
+        api_date = stock_weeks_api.get('asof_dt', stock_weeks_api.get('date'))
+        print(f"[INFO] API 데이터 사용 (기준일: {api_date})")
+        # API 데이터 변환 (기존 JSON 형식으로)
+        stock_data = transform_api_to_stock_format(stock_weeks_api, sales_rate_api)
+        stock_data['api_date'] = api_date  # API 날짜 저장
+    else:
+        # Fallback: JSON 파일 사용
+        print("[INFO] API 데이터 없음 - JSON 파일 사용")
+        stock_file = base_dir / "stock_analysis.json"
+        if stock_file.exists():
+            stock_data = load_json_file(stock_file)
+            if stock_data:
+                stock_data['api_date'] = None  # JSON 사용 표시
+    
+    if stock_data:
+        overview_data["stock"] = stock_data
     
     # 전체 현황 통합 분석
     if overview_data:
@@ -880,6 +1117,14 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
         pl_data = overview_data.get("pl", {})
         by_brand_data = overview_data.get("by_brand", {})
         stock_data = overview_data.get("stock", {})
+        
+        # 날짜 표시 결정
+        if stock_data and stock_data.get('api_date'):
+            # API 데이터 사용
+            date_prefix = f"(현재기준 {stock_data['api_date']})"
+        else:
+            # JSON 데이터 사용
+            date_prefix = f"(기준 {date_str[:4]}-{date_str[4:6]}-{date_str[6:]})"
         
         # 1. 전년대비 매출이 높은 브랜드, 낮은 브랜드
         if by_brand_data:
@@ -967,7 +1212,7 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
                     valid_low = [i for i in all_items if i["sales"] > 0]
                     if valid_low:
                         lowest = min(valid_low, key=lambda x: x["rate"])
-                        key_points.append(f"판매율이 가장 높은 것은 <strong>{highest['brand']}</strong> <strong>{highest['name']}</strong> ({highest['rate']*100:.1f}%)이며, 낮은 것은 <strong>{lowest['brand']}</strong> <strong>{lowest['name']}</strong>({lowest['rate']*100:.0f}%)입니다.")
+                        key_points.append(f"{date_prefix}판매율이 가장 높은 것은 <strong>{highest['brand']}</strong> <strong>{highest['name']}</strong> ({highest['rate']*100:.1f}%)이며, 낮은 것은 <strong>{lowest['brand']}</strong> <strong>{lowest['name']}</strong>({lowest['rate']*100:.0f}%)입니다.")
         
         # 4. 재고주수 적극발주인 곳 중에 재고주수 가장 적은 곳, 재고주수 긴급조치 중 재고주수 가장 긴 것 중에 매출 1억 이상인 것
         if stock_data:
@@ -1037,7 +1282,7 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
                         inventory_text = f"<strong>{longest_urgent['brand']}</strong> <strong>{longest_urgent['name']}</strong>(매출: {sales_millions:.0f}백만원) {longest_urgent['weeks']:.1f}주로 긴급 조치가 필요합니다"
                 
                 if inventory_text:
-                    key_points.append(f"아이템 중 {inventory_text}.")
+                    key_points.append(f"{date_prefix}아이템 중 {inventory_text}.")
     else:
         overview_insight = ""
         key_points = []
@@ -1120,7 +1365,7 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
     return overview_data_format
 
 
-def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightGenerator, output_dir: Path):
+def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightGenerator, output_dir: Path, api_base_url: str = "http://localhost:3000"):
     """특정 브랜드에 대한 모든 인사이트 생성"""
     base_dir = project_root / "public" / "data" / date_str
     brand_code = BRAND_CODE_MAP.get(brand, brand)
@@ -1390,20 +1635,44 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
             if brand_weekly_data:
                 insights["weekly"] = generator.generate_insight(brand_weekly_data, brand, "weekly")
     
-    # 6. 재고주수 분석
-    stock_file = base_dir / "stock_analysis.json"
-    if stock_file.exists():
-        print(f"[ANALYZING] 재고주수 분석 중... ({brand})")
-        stock_data = load_json_file(stock_file)
-        if stock_data and brand_code in stock_data.get("clothingBrandStatus", {}):
-            brand_stock = {"clothingBrandStatus": stock_data["clothingBrandStatus"][brand_code]}
+    # 6. 재고주수 분석 (API 우선)
+    stock_data = None
+    api_date = None
+    
+    print(f"[ANALYZING] 재고주수 분석 중... ({brand})")
+    stock_weeks_api = fetch_stock_weeks_api(api_base_url)
+    sales_rate_api = fetch_sales_rate_api(api_base_url)
+    
+    if stock_weeks_api and stock_weeks_api.get('success'):
+        api_date = stock_weeks_api.get('asof_dt', stock_weeks_api.get('date'))
+        print(f"[INFO] API 데이터 사용 (기준일: {api_date})")
+        # API 데이터 변환 후 브랜드 필터링
+        full_stock_data = transform_api_to_stock_format(stock_weeks_api, sales_rate_api)
+        
+        # 브랜드별로 필터링
+        if brand_code in full_stock_data.get("clothingBrandStatus", {}):
+            brand_stock = {"clothingBrandStatus": full_stock_data["clothingBrandStatus"][brand_code]}
             insights["inventory"] = generator.generate_insight(brand_stock, brand, "inventory")
             insights["saleRate"] = generator.generate_insight(brand_stock, brand, "sale_rate")
+            stock_data = full_stock_data
+    else:
+        # Fallback: JSON 파일
+        print(f"[INFO] API 데이터 없음 - JSON 파일 사용 ({brand})")
+        stock_file = base_dir / "stock_analysis.json"
+        if stock_file.exists():
+            stock_data = load_json_file(stock_file)
+            if stock_data and brand_code in stock_data.get("clothingBrandStatus", {}):
+                brand_stock = {"clothingBrandStatus": stock_data["clothingBrandStatus"][brand_code]}
+                insights["inventory"] = generator.generate_insight(brand_stock, brand, "inventory")
+                insights["saleRate"] = generator.generate_insight(brand_stock, brand, "sale_rate")
     
     # 브랜드별 주요 내용(content)과 핵심인사이트(keyPoints) 생성
     brand_kpi_file = base_dir / "brand_kpi.json"
     content = ""
     key_points = []
+    
+    # 날짜 표시 결정
+    date_prefix = f"(현재기준 {api_date})" if api_date else f"(기준 {date_str[:4]}-{date_str[4:6]}-{date_str[6:]})"
     
     if brand_kpi_file.exists():
         kpi_data = load_json_file(brand_kpi_file)
@@ -1815,9 +2084,9 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         
                                         # 1위, 2위와 min_diff_item이 다른 경우만 추가
                                         if min_diff_name != item1_name and min_diff_name != item2_name:
-                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
+                                            key_points.append(f"- {date_prefix}의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
                                         else:
-                                            key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p)입니다.")
+                                            key_points.append(f"- {date_prefix}의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 2위: <strong>{item2_name}</strong> 판매율 {item2_rate:.1f}%(전년대비 {item2_diff:+.1f}%p)입니다.")
                                     elif len(top2_items) >= 1:
                                         item1 = top2_items[0]
                                         item1_name = item1.get("itemName", "")
@@ -1826,7 +2095,7 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         min_diff_name = min_diff_item.get("itemName", "")
                                         min_diff_value = min_diff_item.get("cumSalesRateDiff", 0) * 100 if min_diff_item.get("cumSalesRateDiff") is not None else 0
                                         
-                                        key_points.append(f"- 의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
+                                        key_points.append(f"- {date_prefix}의류 누적 매출 1위: <strong>{item1_name}</strong>로 판매율 {item1_rate:.1f}%(전년대비 {item1_diff:+.1f}%p), 반면 <strong>{min_diff_name}</strong>는 누적판매율 전년대비 {min_diff_value:+.1f}%p로 조치 필요합니다.")
             
             # 5. 재고주수 판매매출 높은거 2개, 판매매출이 0원인곳 제외 상위 30%중 재고주수가 가장 높은곳
             if stock_file.exists():
@@ -1869,7 +2138,7 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         max_stock_weeks = max_stock_item.get("stockWeeks", 0) if max_stock_item.get("stockWeeks") is not None else 0
                                         max_stock_diff = max_stock_item.get("stockWeeksDiff", 0) if max_stock_item.get("stockWeeksDiff") is not None else 0
                                         
-                                        key_points.append(f"- 아이템 누적판매매출 1위: <strong>{acc1_name}</strong> 재고주수 {acc1_weeks:.1f}주(전년대비 {acc1_diff:+.1f}주) 2위: <strong>{acc2_name}</strong> 재고주수 {acc2_weeks:.1f}주(전년대비 {acc2_diff:+.1f}주), 반면 <strong>{max_stock_name}</strong>는 재고주수 {max_stock_weeks:.1f}주(전년대비 {max_stock_diff:+.1f}주)로 관리필요합니다.")
+                                        key_points.append(f"- {date_prefix}아이템 누적판매매출 1위: <strong>{acc1_name}</strong> 재고주수 {acc1_weeks:.1f}주(전년대비 {acc1_diff:+.1f}주) 2위: <strong>{acc2_name}</strong> 재고주수 {acc2_weeks:.1f}주(전년대비 {acc2_diff:+.1f}주), 반면 <strong>{max_stock_name}</strong>는 재고주수 {max_stock_weeks:.1f}주(전년대비 {max_stock_diff:+.1f}주)로 관리필요합니다.")
                                     elif len(top2_acc) >= 1:
                                         acc1 = top2_acc[0]
                                         acc1_name = acc1.get("itemName", "")
@@ -1880,7 +2149,7 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                         max_stock_weeks = max_stock_item.get("stockWeeks", 0) if max_stock_item.get("stockWeeks") is not None else 0
                                         max_stock_diff = max_stock_item.get("stockWeeksDiff", 0) if max_stock_item.get("stockWeeksDiff") is not None else 0
                                         
-                                        key_points.append(f"- 아이템 누적판매매출 1위: <strong>{acc1_name}</strong> 재고주수 {acc1_weeks:.1f}주(전년대비 {acc1_diff:+.1f}주), 반면 <strong>{max_stock_name}</strong>는 재고주수 {max_stock_weeks:.1f}주(전년대비 {max_stock_diff:+.1f}주)로 관리필요합니다.")
+                                        key_points.append(f"- {date_prefix}아이템 누적판매매출 1위: <strong>{acc1_name}</strong> 재고주수 {acc1_weeks:.1f}주(전년대비 {acc1_diff:+.1f}주), 반면 <strong>{max_stock_name}</strong>는 재고주수 {max_stock_weeks:.1f}주(전년대비 {max_stock_diff:+.1f}주)로 관리필요합니다.")
             
             # 6. 직접비 실판대비 비율 (인건비, 임차관리비, 물류운송비)
             pl_file = base_dir / "brand_pl.json"
@@ -1954,11 +2223,15 @@ def main():
     parser.add_argument("--api-key", type=str, help="OpenAI API 키 (없으면 환경변수 OPENAI_API_KEY 사용)")
     parser.add_argument("--use-local", action="store_true", help="로컬 분석만 사용 (OpenAI API 사용 안 함)")
     parser.add_argument("--output-dir", type=str, help="출력 디렉토리 (기본값: public/data/{date}/ai_insights)")
+    parser.add_argument("--api-url", type=str, default="http://localhost:3000", help="API 서버 URL (기본값: http://localhost:3000)")
     
     args = parser.parse_args()
     
     # API 키 설정
     api_key = args.api_key or os.getenv("OPENAI_API_KEY")
+    
+    # API URL 설정 (환경변수 우선)
+    api_base_url = os.getenv('API_BASE_URL', args.api_url)
     
     # 출력 디렉토리 설정
     if args.output_dir:
@@ -1974,19 +2247,19 @@ def main():
     
     # 전체 현황 분석 (--overview 옵션이 있거나 --all-brands 옵션이 있을 때)
     if args.overview or args.all_brands:
-        overview_insights = generate_insights_for_overview(args.date, generator, output_dir)
+        overview_insights = generate_insights_for_overview(args.date, generator, output_dir, api_base_url)
         all_insights["overview"] = overview_insights
     
     # 브랜드별 분석
     if args.all_brands:
         brands = list(BRAND_CODE_MAP.keys())
         for brand in brands:
-            insights = generate_insights_for_brand(args.date, brand, generator, output_dir)
+            insights = generate_insights_for_brand(args.date, brand, generator, output_dir, api_base_url)
             all_insights[brand] = insights
     elif args.brand:
         brands = [args.brand]
         for brand in brands:
-            insights = generate_insights_for_brand(args.date, brand, generator, output_dir)
+            insights = generate_insights_for_brand(args.date, brand, generator, output_dir, api_base_url)
             all_insights[brand] = insights
     elif not args.overview:
         print("[ERROR] --brand, --all-brands, 또는 --overview 옵션 중 하나를 지정해주세요.")

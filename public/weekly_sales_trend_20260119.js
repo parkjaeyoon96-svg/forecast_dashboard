@@ -1,4 +1,8 @@
-{
+// 주차별 매출추세 데이터
+// 자동 생성일: 2026-01-23 10:41:55
+// 업데이트일자: 2026-01-19
+
+const weeklySalesTrend = {
   "updateDate": "2026-01-19",
   "period": {
     "start": "2025-11-17",
@@ -7522,4 +7526,14 @@
       "실판매출": 34060432
     }
   ]
+};
+
+// Dashboard.html에서 사용
+if (typeof window !== 'undefined') {
+    window.weeklySalesTrend = weeklySalesTrend;
+}
+
+// Node.js 환경 지원
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = weeklySalesTrend;
 }
