@@ -517,31 +517,8 @@ def update_overview_data(date_str: str):
             overview_data['cumulativeTrendData'] = json.load(f)
         print(f"  ✓ cumulativeTrendData")
     
-    # stock_analysis.json에서 clothingSummary, accSummary, clothingItemRatesOverall 로드
-    stock_analysis_path = output_dir / "stock_analysis.json"
-    if stock_analysis_path.exists():
-        with open(stock_analysis_path, 'r', encoding='utf-8') as f:
-            stock_analysis = json.load(f)
-        
-        # clothingSummary 추가
-        if 'clothingSummary' in stock_analysis:
-            overview_data['clothingSummary'] = stock_analysis['clothingSummary']
-            print(f"  ✓ clothingSummary")
-        
-        # accSummary 추가
-        if 'accSummary' in stock_analysis:
-            overview_data['accSummary'] = stock_analysis['accSummary']
-            print(f"  ✓ accSummary")
-        
-        # clothingItemRatesOverall 추가 (평균판매율 데이터)
-        if 'clothingItemRatesOverall' in stock_analysis:
-            overview_data['clothingItemRatesOverall'] = stock_analysis['clothingItemRatesOverall']
-            print(f"  ✓ clothingItemRatesOverall (평균판매율 데이터 통합)")
-        else:
-            print(f"  ⚠ clothingItemRatesOverall가 stock_analysis.json에 없습니다.")
-    else:
-        print(f"  ⚠ stock_analysis.json 파일이 없습니다. clothingItemRatesOverall를 포함할 수 없습니다.")
-        print(f"     [정보] generate_brand_stock_analysis.py가 먼저 실행되어야 합니다.")
+    # stock_analysis.json 로딩 제거됨 - 더 이상 overview.json에 통합하지 않음
+    # clothingSummary, accSummary, clothingItemRatesOverall는 API에서 직접 제공
     
     # overview.json 저장
     if overview_data:

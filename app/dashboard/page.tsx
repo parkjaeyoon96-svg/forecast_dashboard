@@ -13,19 +13,25 @@ function DashboardContent() {
     document.body.style.padding = '0';
     document.body.style.overflow = 'hidden';
     
-    // URL에서 날짜 파라미터와 분석월 파라미터 가져오기
-    const dateParam = searchParams.get('date');
-    const monthParam = searchParams.get('month');
-    const timestamp = Date.now();
+    // URL에서 모든 파라미터 가져오기
+    const params = new URLSearchParams();
     
-    // 날짜 파라미터와 분석월 파라미터가 있으면 전달
-    if (dateParam && monthParam) {
-      setSrc(`/Dashboard.html?date=${dateParam}&month=${monthParam}&t=${timestamp}`);
-    } else if (dateParam) {
-      setSrc(`/Dashboard.html?date=${dateParam}&t=${timestamp}`);
-    } else {
-      setSrc(`/Dashboard.html?t=${timestamp}`);
-    }
+    // 모든 searchParams를 params에 복사
+    searchParams.forEach((value, key) => {
+      params.set(key, value);
+    });
+    
+    // 캐시 방지용 타임스탬프 추가
+    params.set('t', Date.now().toString());
+    
+    // 파라미터가 있으면 전달
+    const queryString = params.toString();
+    const newSrc = queryString ? `/Dashboard.html?${queryString}` : `/Dashboard.html`;
+    
+    console.log('[Dashboard Page] URL 파라미터:', Object.fromEntries(searchParams.entries()));
+    console.log('[Dashboard Page] iframe src 설정:', newSrc);
+    
+    setSrc(newSrc);
 
     return () => {
       document.body.style.margin = '';

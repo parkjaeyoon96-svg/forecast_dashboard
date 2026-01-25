@@ -1,22 +1,25 @@
 """
-KE30 파일을 진척일수를 사용하여 월말 예상 데이터로 변환
+KE30 파일을 가중치 진척율을 사용하여 월말 예상 데이터로 변환
 
 사용법:
     python scripts/convert_ke30_to_forecast.py [업데이트일자]
     
 예시:
-    python scripts/convert_ke30_to_forecast.py 20251117
+    python scripts/convert_ke30_to_forecast.py 20260112
     
 설명:
     1. KE30 Shop 및 Shop_item 파일 읽기
-    2. 진척일수 파일에서 전년동기간 진척일수 읽기
-    3. 브랜드별 진척일수 매핑 (M(면세), M(면세제외) 처리)
-    4. 각 필드별 계산:
-       - 진척율 계산 필드: 필드금액/분석일수 * 총일수
+    2. 가중치 진척율 파일에서 진척율 읽기 (요일/명절 계수 기반)
+    3. 각 필드별 계산:
+       - 진척율 계산 필드: 필드금액 / 진척율
        - 동일한 필드값: 그대로 유지
        - 직접비 계산 필드: 직접비 계산 로직 적용
        - 재계산 필드: 매출총이익, 직접비합계, 직접이익
-    5. forecast 파일로 저장
+    4. forecast 파일로 저장
+    
+참고:
+    - 채널명이 "미지정"인 데이터는 진척율을 적용하지 않고 원본 값 유지
+    - 전 브랜드 동일한 진척율 사용
 """
 
 import os
@@ -66,135 +69,91 @@ FIXED_COST_ITEMS = [
 ]
 
 
-def calculate_week_start_date(update_date_str: str) -> datetime:
+def load_weighted_progress_rate(analysis_month: str, update_date: datetime) -> float:
     """
-    업데이트일자로부터 분석기간 시작일(전주 월요일) 계산
+    가중치 진척율 파일에서 진척율 읽기
+    
+    사용 케이스:
+    - 월 중간 업데이트 (예: 1월 12일에 1~11일 매출로 1월 말 예측)
+      → 1월 11일 진척율 사용 (실제 매출 기간 종료일)
+    - 월 완료 후 업데이트 (예: 2월 2일에 1월 전체 매출 처리)
+      → 1월 31일 진척율 사용 (= 100%, 분석월 말일)
     
     Args:
-        update_date_str: YYYYMMDD 형식의 업데이트일자
+        analysis_month: 분석월 (YYYYMM)
+        update_date: 업데이트일자 (datetime 객체)
     
     Returns:
-        datetime: 분석기간 시작일 (전주 월요일)
+        float: 진척율 (0~1 사이 값)
+    
+    Raises:
+        FileNotFoundError: 진척율 파일이 없는 경우
+        ValueError: 진척율이 비정상적인 경우
     """
-    year = int(update_date_str[:4])
-    month = int(update_date_str[4:6])
-    day = int(update_date_str[6:8])
-    update_date = datetime(year, month, day)
+    file_path = project_root / "raw" / analysis_month / "progress_rate" / f"weighted_progress_rate_{analysis_month}.csv"
     
-    # 업데이트일자의 요일 (0=월요일, 6=일요일)
-    day_of_week = update_date.weekday()
+    # 진척율 파일 존재 확인
+    if not file_path.exists():
+        raise FileNotFoundError(
+            "진척율 정보가 없습니다. "
+            "전년 계획 업데이트 배치파일을 실행하여 진척율을 업데이트하세요.\n"
+            f"필요 파일: {file_path}"
+        )
     
-    # 전주 월요일까지의 일수 계산
-    if day_of_week == 0:  # 월요일
-        days_to_monday = 7
-    elif day_of_week == 6:  # 일요일
-        days_to_monday = 6
-    else:  # 화~토요일
-        days_to_monday = day_of_week + 7
+    df = pd.read_csv(file_path, encoding='utf-8-sig')
     
-    # 주차 시작일 계산 (전주 월요일)
-    week_start_date = update_date - timedelta(days=days_to_monday)
+    # 분석월 추출
+    year = int(analysis_month[:4])
+    month = int(analysis_month[4:6])
     
-    return week_start_date
-
-
-def calculate_previous_year_date(week_start_date: datetime) -> datetime:
-    """
-    전년동기간 날짜 계산 (364일 전)
+    # 업데이트일자의 월과 분석월 비교
+    update_year = update_date.year
+    update_month = update_date.month
     
-    Args:
-        week_start_date: 분석기간 시작일
-    
-    Returns:
-        datetime: 전년동기간 날짜
-    """
-    prev_year_date = week_start_date - timedelta(days=364)
-    return prev_year_date
-
-
-def load_progress_days(analysis_month: str, prev_year_date: datetime) -> dict:
-    """
-    진척일수 파일에서 전년동기간의 진척일수 읽기
-    
-    Args:
-        analysis_month: 분석월 (YYYYMM 형식)
-        prev_year_date: 전년동기간 날짜
-    
-    Returns:
-        dict: 브랜드별 진척일수 {브랜드: 진척일수}
-    """
-    progress_days_path = project_root / "raw" / analysis_month / "previous_year" / f"progress_days_{analysis_month}.csv"
-    
-    if not progress_days_path.exists():
-        raise FileNotFoundError(f"진척일수 파일을 찾을 수 없습니다: {progress_days_path}")
-    
-    df = pd.read_csv(progress_days_path, encoding='utf-8-sig')
-    
-    # 전년동기간 날짜를 컬럼명으로 찾기 (YYYY-MM-DD 형식)
-    date_str = prev_year_date.strftime('%Y-%m-%d')
-    
-    if date_str not in df.columns:
-        raise ValueError(f"진척일수 파일에 해당 날짜 컬럼이 없습니다: {date_str}")
-    
-    # 브랜드별 진척일수 딕셔너리 생성
-    progress_days_dict = {}
-    for idx, row in df.iterrows():
-        brand = row['브랜드']
-        progress_days = row[date_str]
-        progress_days_dict[brand] = progress_days
-    
-    return progress_days_dict
-
-
-def get_brand_progress_days(brand: str, channel_code: str, progress_days_dict: dict) -> float:
-    """
-    브랜드와 채널코드로부터 진척일수 가져오기
-    
-    Args:
-        brand: 브랜드코드
-        channel_code: 유통채널 코드
-        progress_days_dict: 브랜드별 진척일수 딕셔너리
-    
-    Returns:
-        float: 진척일수
-    """
-    # 브랜드 정규화 (공백 제거, 대문자 변환)
-    brand_clean = str(brand).strip().upper()
-    
-    # 유통채널 숫자 변환
-    try:
-        channel_num = float(channel_code) if pd.notna(channel_code) else -1
-    except (ValueError, TypeError):
-        channel_num = -1
-    
-    # M(면세) = 브랜드코드가 M이며 유통코드가 2인 경우
-    # 부동소수점 비교를 위해 int로 변환하여 비교
-    if brand_clean == 'M' and int(channel_num) == 2:
-        return progress_days_dict.get('M(면세)', 0.0)
-    # M(면세제외) = 브랜드코드가 M이며 유통코드가 2가 아닌 경우
-    elif brand_clean == 'M' and int(channel_num) != 2:
-        result = progress_days_dict.get('M(면세제외)', 0.0)
-        return result
+    if update_year == year and update_month == month:
+        # 같은 달: 업데이트일자 전날까지의 진척율 사용
+        # 예: 1월 12일 업데이트 → 1월 11일 진척율
+        target_day = (update_date - timedelta(days=1)).day
     else:
-        return progress_days_dict.get(brand_clean, progress_days_dict.get(brand, 0.0))
+        # 다른 달 (주로 다음 달): 분석월 말일의 진척율 사용
+        # 예: 2월에 1월 업데이트 → 1월 31일 진척율 (= 100%)
+        _, last_day = monthrange(year, month)
+        target_day = last_day
+    
+    # 해당 일자의 진척율 추출
+    row = df[df['일'] == target_day]
+    if row.empty:
+        raise ValueError(f"진척율 파일에 {target_day}일 데이터가 없습니다")
+    
+    progress_rate = row['진척율'].values[0]
+    
+    # 진척율 유효성 검증
+    if progress_rate <= 0 or progress_rate > 1:
+        raise ValueError(
+            f"비정상적인 진척율입니다: {progress_rate:.4f}\n"
+            f"(0 < 진척율 <= 1 범위여야 함)\n"
+            f"파일: {file_path}\n"
+            f"대상 일자: {target_day}일"
+        )
+    
+    return progress_rate
 
 
-def calculate_forecast_value(current_value: float, progress_days: float, total_days: int) -> float:
+def calculate_forecast_value(current_value: float, progress_rate: float) -> float:
     """
     진척율에 따라 월말 예상값 계산
     
     Args:
-        current_value: 현재 값
-        progress_days: 진척일수
-        total_days: 월 총 일수
+        current_value: 현재 값 (누적 매출)
+        progress_rate: 진척율 (0~1 사이 값)
     
     Returns:
         float: 월말 예상값
     """
-    if progress_days == 0:
+    if progress_rate == 0:
         return 0.0
     
-    forecast_value = (current_value / progress_days) * total_days
+    forecast_value = current_value / progress_rate
     return round(forecast_value, 0)
 
 
@@ -341,8 +300,7 @@ def convert_ke30_to_forecast(
     update_date_str: str,
     input_file_path: Path,
     output_file_path: Path,
-    progress_days_dict: dict,
-    total_days: int,
+    progress_rate: float,
     plan_dir: str,
     analysis_month: str
 ) -> pd.DataFrame:
@@ -353,8 +311,7 @@ def convert_ke30_to_forecast(
         update_date_str: 업데이트일자 (YYYYMMDD 형식)
         input_file_path: 입력 파일 경로
         output_file_path: 출력 파일 경로
-        progress_days_dict: 브랜드별 진척일수 딕셔너리
-        total_days: 월 총 일수
+        progress_rate: 가중치 진척율 (0~1 사이 값)
         plan_dir: 계획 파일 디렉토리
         analysis_month: 분석월 (YYYYMM 형식)
     
@@ -401,20 +358,17 @@ def convert_ke30_to_forecast(
         col_name = matching_cols[0]
         print(f"  처리 중: {col_name}")
         
-        # 각 행에 대해 진척일수 가져오기 및 계산
+        # 각 행에 대해 진척율 적용하여 계산
         for idx, row in df.iterrows():
             # 채널명이 "미지정"인 경우 원본 데이터 그대로 유지
             channel_name = str(row.get('채널명', '')).strip() if pd.notna(row.get('채널명')) else ''
             if channel_name == '미지정':
                 continue  # 원본 데이터 그대로 유지 (df_forecast는 이미 df.copy()로 복사됨)
             
-            brand = str(row['브랜드']).strip()
-            channel_code = str(row['유통채널']).strip() if pd.notna(row['유통채널']) else ''
-            
-            progress_days = get_brand_progress_days(brand, channel_code, progress_days_dict)
             current_value = row[col_name] if pd.notna(row[col_name]) else 0.0
             
-            forecast_value = calculate_forecast_value(current_value, progress_days, total_days)
+            # 전 브랜드 동일한 진척율 사용
+            forecast_value = calculate_forecast_value(current_value, progress_rate)
             df_forecast.at[idx, col_name] = forecast_value
     
     # 2) 동일한 필드값 유지 (이미 복사했으므로 그대로 사용)
@@ -516,12 +470,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 예시:
-  python scripts/convert_ke30_to_forecast.py 20251117
+  python scripts/convert_ke30_to_forecast.py 20260112
   
 설명:
   1. KE30 Shop 및 Shop_item 파일 읽기
-  2. 진척일수 파일에서 전년동기간 진척일수 읽기
-  3. 브랜드별 진척일수 매핑
+  2. 가중치 진척율 파일에서 진척율 읽기
+  3. 전 브랜드 동일한 진척율 적용하여 계산
   4. 각 필드별 계산
   5. forecast 파일로 저장
         """
@@ -548,17 +502,15 @@ def main():
     print()
     
     try:
-        # 분석기간 시작일 계산 (전주 월요일)
-        week_start_date = calculate_week_start_date(update_date_str)
-        print(f"[INFO] 분석기간 시작일: {week_start_date.strftime('%Y-%m-%d')} (월요일)")
+        # 업데이트일자 파싱
+        update_date = datetime(int(update_date_str[:4]), int(update_date_str[4:6]), int(update_date_str[6:8]))
         
-        # 전년동기간 날짜 계산
-        prev_year_date = calculate_previous_year_date(week_start_date)
-        print(f"[INFO] 전년동기간 날짜: {prev_year_date.strftime('%Y-%m-%d')}")
+        print(f"[INFO] 업데이트일자: {update_date.strftime('%Y-%m-%d')}")
+        print(f"[INFO] 실제 매출 기간 종료일: {(update_date - timedelta(days=1)).strftime('%Y-%m-%d')}")
         
-        # 분석월 계산 (주차 시작일의 월)
-        analysis_year = week_start_date.year
-        analysis_month_num = week_start_date.month
+        # 분석월 계산 (업데이트일자의 월)
+        analysis_year = update_date.year
+        analysis_month_num = update_date.month
         analysis_month = f"{analysis_year}{analysis_month_num:02d}"
         print(f"[INFO] 분석월: {analysis_month}")
         
@@ -567,12 +519,11 @@ def main():
         print(f"[INFO] 월 총 일수: {total_days}일")
         print()
         
-        # 진척일수 파일 읽기
-        print("[진척일수 파일 읽기] 시작...")
-        progress_days_dict = load_progress_days(analysis_month, prev_year_date)
-        print(f"[OK] 진척일수 로드 완료: {len(progress_days_dict)}개 브랜드")
-        for brand, days in progress_days_dict.items():
-            print(f"   {brand}: {days}일")
+        # 가중치 진척율 파일 읽기
+        print("[가중치 진척율 파일 읽기] 시작...")
+        progress_rate = load_weighted_progress_rate(analysis_month, update_date)
+        print(f"[OK] 진척율 로드 완료: {progress_rate * 100:.4f}%")
+        print(f"   전 브랜드 동일한 진척율 사용")
         print()
         
         # 계획 파일 디렉토리
@@ -591,8 +542,7 @@ def main():
                 update_date_str,
                 shop_input_path,
                 shop_output_path,
-                progress_days_dict,
-                total_days,
+                progress_rate,
                 str(plan_dir),
                 analysis_month
             )
@@ -609,8 +559,7 @@ def main():
                 update_date_str,
                 shop_item_input_path,
                 shop_item_output_path,
-                progress_days_dict,
-                total_days,
+                progress_rate,
                 str(plan_dir),
                 analysis_month
             )

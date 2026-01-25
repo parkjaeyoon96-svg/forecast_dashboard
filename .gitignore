@@ -65,6 +65,9 @@ build/
 *.swo
 *~
 
+# cache
+.cache/
+
 
 
 

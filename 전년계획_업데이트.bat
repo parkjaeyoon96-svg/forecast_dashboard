@@ -1,25 +1,25 @@
 @echo off
 REM ============================================================
-REM   전년/계획 데이터 업데이트 배치 파일
+REM   Previous Year / Plan Data Update Batch File
 REM ============================================================
 REM
-REM 실행 프로세스:
-REM   Step 1: 전년 데이터 다운로드 (Snowflake)
-REM   Step 2: 전년 데이터 전처리
-REM   Step 3: 계획 데이터 전처리
-REM   Step 4: 전년 누적 매출 다운로드 (Snowflake)
-REM   Step 5: 진척일수 계산
+REM Execution Process:
+REM   Step 1: Download previous year data (Snowflake)
+REM   Step 2: Process previous year data
+REM   Step 3: Process plan data
+REM   Step 4: Calculate weighted progress rate
 REM
-REM 주의: 직접비율 추출은 당년데이터_처리실행.bat에서 수행됩니다
+REM Note: Direct cost rate extraction is performed in 
+REM       current_year_data_processing.bat
 REM ============================================================
 
-REM UTF-8 인코딩 설정
+REM UTF-8 encoding setting
 chcp 65001 >nul
 
-REM 스크립트 파일 위치로 디렉토리 이동
+REM Change to script directory
 cd /d "%~dp0"
 
-REM Python 출력 인코딩을 UTF-8로 설정
+REM Set Python output encoding to UTF-8
 set PYTHONIOENCODING=utf-8
 
 echo ============================================================
@@ -27,11 +27,23 @@ echo   Previous Year / Plan Data Update
 echo ============================================================
 echo.
 
-REM Python 스크립트 실행
-REM scripts/run_previous_year_plan_update.py
-python scripts\run_previous_year_plan_update.py
+REM Get analysis month from user input
+set /p ANALYSIS_MONTH="Enter analysis month (YYYYMM, e.g., 202601): "
 
-REM 에러 처리: Python 스크립트 실행 실패 시
+REM Check if input is provided
+if "%ANALYSIS_MONTH%"=="" (
+    echo.
+    echo [INFO] No analysis month provided. Using latest folder from raw/
+    echo.
+    python scripts\run_previous_year_plan_update.py
+) else (
+    echo.
+    echo [INFO] Using analysis month: %ANALYSIS_MONTH%
+    echo.
+    python scripts\run_previous_year_plan_update.py %ANALYSIS_MONTH%
+)
+
+REM Error handling: If Python script execution fails
 if errorlevel 1 (
     echo.
     echo ============================================================
@@ -49,7 +61,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-REM 성공 메시지 출력
+REM Success message
 echo.
 echo ============================================================
 echo   COMPLETED!

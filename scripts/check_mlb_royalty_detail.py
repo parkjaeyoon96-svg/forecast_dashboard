@@ -149,3 +149,11 @@ print(f"차이: {int(mlb_ch1_ke30['계산된_로열티'].sum() - mlb_ch1_forecas
 
 
 
+
+
+
+
+
+
+
+

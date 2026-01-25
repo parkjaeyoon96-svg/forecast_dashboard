@@ -15,29 +15,50 @@ def main():
     print("=" * 80)
     print()
     
-    # 분석월 추출
-    print("[INFO] 분석월 폴더에서 분석월 추출 중...")
+    # raw_dir 정의 (항상 필요)
     raw_dir = project_root / "raw"
     if not raw_dir.exists():
-        print("[ERROR] raw 폴더를 찾을 수 없습니다.")
+        print("[ERROR] raw folder not found.")
         return 1
     
-    # YYYYMM 형식의 폴더 찾기
-    folders = [f for f in os.listdir(raw_dir) 
-               if os.path.isdir(raw_dir / f) and f.isdigit() and len(f) == 6]
+    # 분석월 추출 (인자로 받거나 자동으로 찾기)
+    year_month = None
     
-    if not folders:
-        print("[ERROR] 분석월 폴더를 찾을 수 없습니다.")
-        print("raw 폴더에 YYYYMM 형식의 폴더가 있어야 합니다 (예: 202511)")
-        print()
-        print("현재 raw 폴더 구조:")
-        for item in os.listdir(raw_dir):
-            print(f"  - {item}")
-        return 1
+    # 명령줄 인자에서 분석월 받기
+    if len(sys.argv) > 1:
+        year_month = sys.argv[1]
+        # YYYYMM 형식 검증
+        if len(year_month) == 6 and year_month.isdigit():
+            print(f"[INFO] Analysis month from argument: {year_month}")
+            # 폴더 존재 확인
+            if not (raw_dir / year_month).exists():
+                print(f"[ERROR] Analysis month folder not found: raw/{year_month}")
+                return 1
+        else:
+            print(f"[ERROR] Invalid analysis month format: {year_month}")
+            print("Format should be YYYYMM (e.g., 202601)")
+            return 1
+    else:
+        # 자동으로 최신 폴더 찾기
+        print("[INFO] Extracting analysis month from folder...")
+        
+        # YYYYMM 형식의 폴더 찾기
+        folders = [f for f in os.listdir(raw_dir) 
+                   if os.path.isdir(raw_dir / f) and f.isdigit() and len(f) == 6]
+        
+        if not folders:
+            print("[ERROR] Analysis month folder not found.")
+            print("raw folder should contain YYYYMM format folder (e.g., 202511)")
+            print()
+            print("Current raw folder structure:")
+            for item in os.listdir(raw_dir):
+                print(f"  - {item}")
+            return 1
+        
+        folders.sort(reverse=True)
+        year_month = folders[0]
+        print(f"[INFO] Analysis month (auto-detected): {year_month} (from folder: raw/{year_month})")
     
-    folders.sort(reverse=True)
-    year_month = folders[0]
-    print(f"Analysis Month: {year_month} (from folder name: raw/{year_month})")
     print()
     
     # Step 1: Download previous year data
@@ -78,25 +99,14 @@ def main():
         return 1
     print()
     
-    # Step 4: Download previous year cumulative sales
-    print("[Step 4/5] Downloading previous year cumulative sales (Snowflake)...")
-    from scripts.download_previous_year_cumulative_sales import main as download_cumulative
+    # Step 4: Calculate weighted progress rate
+    print("[Step 4/4] Calculating weighted progress rate...")
+    from scripts.calculate_weighted_progress_rate import main as calc_weighted
     try:
-        sys.argv = ['download_previous_year_cumulative_sales.py', year_month]
-        download_cumulative()
+        sys.argv = ['calculate_weighted_progress_rate.py', year_month]
+        calc_weighted()
     except Exception as e:
-        print(f"[ERROR] Previous year cumulative sales download failed: {e}")
-        return 1
-    print()
-    
-    # Step 5: Calculate progress days
-    print("[Step 5/5] Calculating progress days...")
-    from scripts.calculate_progress_days import main as calc_progress
-    try:
-        sys.argv = ['calculate_progress_days.py', year_month]
-        calc_progress()
-    except Exception as e:
-        print(f"[ERROR] Progress days calculation failed: {e}")
+        print(f"[ERROR] Weighted progress rate calculation failed: {e}")
         return 1
     print()
     
@@ -109,8 +119,7 @@ def main():
     print(f"  - raw/{year_month}/previous_year/previous_rawdata_{year_month}_Shop.csv")
     print(f"  - raw/{year_month}/previous_year/previous_rawdata_{year_month}_Shop_Item.csv")
     print(f"  - raw/{year_month}/plan/plan_{year_month}_전처리완료.csv")
-    print(f"  - raw/{year_month}/previous_year/cumulative_sales_*.csv")
-    print(f"  - raw/{year_month}/previous_year/progress_days_{year_month}.csv")
+    print(f"  - raw/{year_month}/progress_rate/weighted_progress_rate_{year_month}.csv")
     print()
     print("Note: Direct cost rates will be extracted when running 당년데이터_처리실행.bat")
     print()

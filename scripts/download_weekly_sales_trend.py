@@ -221,12 +221,18 @@ curr AS (  -- 당년
         s.BRD_CD AS "브랜드",
         w.END_DT AS "종료일",
         CASE
-            WHEN s.BRD_CD = 'M' 
+            WHEN s.BRD_CD = 'M'
              AND s.SHOP_ID IN ('649','155','524','526','82','744','6048','954')
-                THEN 'RF'       -- 지정 매장 강제 RF (954 포함)
+                THEN 'RF'
             ELSE sh.DIST_TYPE_SAP
         END AS "유통채널",
-        SUM(s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT) AS "실판매출"
+        SUM(
+            CASE
+                WHEN sh.DIST_TYPE_SAP IN ('08','99')
+                    THEN (s.DELV_NML_SUPP_AMT + s.DELV_RET_SUPP_AMT)
+                ELSE (s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT)
+            END
+        ) AS "실판매출"
     FROM weeks w
     JOIN FNF.PRCS.DB_SH_S_W s
       ON s.END_DT = w.END_DT
@@ -234,10 +240,15 @@ curr AS (  -- 당년
       ON sh.BRD_CD = s.BRD_CD
      AND sh.SHOP_ID = s.SHOP_ID
      AND sh.ANAL_CNTRY = 'KO'
-    WHERE 
-          s.BRD_CD != 'A'                         -- ✅ 브랜드 A 제외
+    WHERE s.BRD_CD != 'A'
     GROUP BY 1,2,3
-    HAVING SUM(s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT) <> 0  -- ✅ 합계 0 제외
+    HAVING SUM(
+            CASE
+                WHEN sh.DIST_TYPE_SAP IN ('08','99')
+                    THEN (s.DELV_NML_SUPP_AMT + s.DELV_RET_SUPP_AMT)
+                ELSE (s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT)
+            END
+        ) <> 0
 ),
 
 prev AS (  -- 전년 동주차
@@ -245,12 +256,18 @@ prev AS (  -- 전년 동주차
         s.BRD_CD AS "브랜드",
         w.END_DT AS "종료일",
         CASE
-            WHEN s.BRD_CD = 'M' 
+            WHEN s.BRD_CD = 'M'
              AND s.SHOP_ID IN ('649','155','524','526','82','744','6048','954')
                 THEN 'RF'
             ELSE sh.DIST_TYPE_SAP
         END AS "유통채널",
-        SUM(s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT) AS "실판매출"
+        SUM(
+            CASE
+                WHEN sh.DIST_TYPE_SAP IN ('08','99')
+                    THEN (s.DELV_NML_SUPP_AMT + s.DELV_RET_SUPP_AMT)
+                ELSE (s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT)
+            END
+        ) AS "실판매출"
     FROM weeks w
     JOIN FNF.PRCS.DB_SH_S_W s
       ON s.END_DT = DATE_TRUNC('WEEK', DATEADD(YEAR, -1, w.END_DT)) + 6
@@ -258,10 +275,15 @@ prev AS (  -- 전년 동주차
       ON sh.BRD_CD = s.BRD_CD
      AND sh.SHOP_ID = s.SHOP_ID
      AND sh.ANAL_CNTRY = 'KO'
-    WHERE 
-          s.BRD_CD != 'A'                         -- ✅ 브랜드 A 제외
+    WHERE s.BRD_CD != 'A'
     GROUP BY 1,2,3
-    HAVING SUM(s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT) <> 0  -- ✅ 합계 0 제외
+    HAVING SUM(
+            CASE
+                WHEN sh.DIST_TYPE_SAP IN ('08','99')
+                    THEN (s.DELV_NML_SUPP_AMT + s.DELV_RET_SUPP_AMT)
+                ELSE (s.SALE_NML_SALE_AMT + s.SALE_RET_SALE_AMT)
+            END
+        ) <> 0
 )
 
 SELECT  "브랜드",
@@ -539,6 +561,18 @@ if (typeof module !== 'undefined' && module.exports) {{
         print(f"✅ {description} 저장 완료: {output_path}")
         print(f"   파일 크기: {output_path.stat().st_size / 1024:.2f} KB")
         
+        # JSON 파일도 함께 저장 (public/data/YYYYMMDD/weekly_trend.json)
+        date_param = update_date.strftime('%Y%m%d')
+        json_dir = Path(os.path.dirname(os.path.dirname(__file__))) / "public" / "data" / date_param
+        json_dir.mkdir(parents=True, exist_ok=True)
+        json_path = json_dir / "weekly_trend.json"
+        
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(js_data, f, ensure_ascii=False, indent=2)
+        
+        print(f"✅ JSON 저장 완료: {json_path}")
+        print(f"   파일 크기: {json_path.stat().st_size / 1024:.2f} KB")
+        
     except Exception as e:
         print(f"❌ JS 저장 실패: {e}")
         raise
@@ -722,34 +756,6 @@ def main():
         print("\n" + "=" * 70)
         print("✅ 다운로드 완료!")
         print("=" * 70)
-        
-        # ★★★ JSON 파일로도 저장 ★★★
-        date_param = update_date.strftime('%Y%m%d')
-        json_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "data", date_param)
-        os.makedirs(json_dir, exist_ok=True)
-        
-        # weeklySalesTrend 데이터를 JSON으로 변환
-        weekly_trend_data = {}
-        for _, row in result_df.iterrows():
-            brand = row['브랜드']
-            channel = row['채널명']
-            period = row['구분']  # 당년/전년
-            
-            if brand not in weekly_trend_data:
-                weekly_trend_data[brand] = {}
-            if channel not in weekly_trend_data[brand]:
-                weekly_trend_data[brand][channel] = {'current': [], 'previous': []}
-            
-            key = 'current' if period == '당년' else 'previous'
-            weekly_trend_data[brand][channel][key].append({
-                'week': str(row['종료일']),
-                'value': float(row['실판매출'])
-            })
-        
-        json_path = os.path.join(json_dir, "weekly_trend.json")
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump({'weeklySalesTrend': weekly_trend_data}, f, ensure_ascii=False, indent=2)
-        print(f"  ✅ JSON 저장: {json_path}")
         
     except Exception as e:
         print()

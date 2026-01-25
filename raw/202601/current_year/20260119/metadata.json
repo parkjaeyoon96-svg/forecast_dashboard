@@ -1,0 +1,13 @@
+{
+  "update_date": "20260119",
+  "update_date_formatted": "2026.01.19",
+  "analysis_month": "202601",
+  "analysis_month_formatted": "2026-01",
+  "calculated_analysis_month": "202601",
+  "processed_at": "2026-01-23T10:38:29.733002",
+  "files": {
+    "preprocessed": "ke30_20260119_202601_전처리완료.csv",
+    "shop_item": "ke30_20260119_202601_Shop_item.csv",
+    "shop": "ke30_20260119_202601_Shop.csv"
+  }
+}

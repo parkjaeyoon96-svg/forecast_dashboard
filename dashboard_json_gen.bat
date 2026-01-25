@@ -137,13 +137,7 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-echo [Step 5] Stock Analysis Download
-set DATE_FORMATTED=!DATE_STR:~0,4!-!DATE_STR:~4,2!-!DATE_STR:~6,2!
-call "%PYTHON_CMD%" scripts\download_brand_stock_analysis.py --update-date !DATE_FORMATTED!
-set STOCK_ERR=!errorlevel!
-
-echo.
-echo [Step 6] Update Overview Data ^(requires stock analysis CSV^)
+echo [Step 6] Update Overview Data
 call "%PYTHON_CMD%" scripts\update_overview_data.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
@@ -154,32 +148,29 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-REM Always generate stock analysis from CSV to include aggregated data (clothingItemRatesOverall, etc.)
-REM This must run AFTER update_overview_data.py to ensure final stock_analysis.json has 'overall' key
-echo [Step 7] Generating aggregated stock analysis from CSV ^(FINAL - overwrites stock_analysis.json^)
-call "%PYTHON_CMD%" scripts\generate_brand_stock_analysis.py !DATE_STR!
-set GEN_ERR=!errorlevel!
-if !GEN_ERR! neq 0 (
-    echo [Step 7] Failed (Error code: !GEN_ERR!)
-    set PIPELINE_ERROR=!GEN_ERR!
-) else (
-    echo [Step 7] Success - Aggregated data generated with overall rates
-)
-echo.
-
-echo [Step 8] Downloading previous year treemap data for YOY calculation
+echo [Step 7] Downloading previous year treemap data for YOY calculation
 call "%PYTHON_CMD%" scripts\download_previous_year_treemap_data.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
-    echo [Step 8] Failed (Error code: !STEP_ERR!)
+    echo [Step 7] Failed (Error code: !STEP_ERR!)
     echo [Warning] Previous year data download failed. YOY calculation will be skipped.
+) else (
+    echo [Step 7] Completed
+)
+echo.
+
+echo [Step 8] Generating treemap JSON with YOY data
+call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
+set STEP_ERR=!errorlevel!
+if !STEP_ERR! neq 0 (
+    echo [Step 8] Failed (Error code: !STEP_ERR!)
+    set PIPELINE_ERROR=!STEP_ERR!
 ) else (
     echo [Step 8] Completed
 )
 echo.
 
-echo [Step 9] Generating treemap JSON with YOY data
-call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
+call "%PYTHON_CMD%" scripts\export_to_json.py !DATE_STR!
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 9] Failed (Error code: !STEP_ERR!)
@@ -189,23 +180,13 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\export_to_json.py !DATE_STR!
-set STEP_ERR=!errorlevel!
-if !STEP_ERR! neq 0 (
-    echo [Step 10] Failed (Error code: !STEP_ERR!)
-    set PIPELINE_ERROR=!STEP_ERR!
-) else (
-    echo [Step 10] Completed
-)
-echo.
-
 call "%PYTHON_CMD%" scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
-    echo [Step 11] Failed (Error code: !STEP_ERR!)
+    echo [Step 10] Failed (Error code: !STEP_ERR!)
     echo [Warning] AI Insights generation failed, but continuing...
 ) else (
-    echo [Step 11] Completed
+    echo [Step 10] Completed
 )
 echo.
 
