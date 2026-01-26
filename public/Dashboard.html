@@ -1374,9 +1374,20 @@
             
             <!-- 당시즌 의류 판매율 분석 테이블 -->
             <div id="brand-sales-rate-section" class="chart-container" style="margin-top: 15px; width: 100%;">
-              <div class="chart-title">
-                <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
-                당시즌 의류 판매율 / ACC 재고주수 분석
+              <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
+                  당시즌 의류 판매율 / ACC 재고주수 분석
+                </div>
+                <button id="btn-update-analysis-data" 
+                  style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;display:flex;align-items:center;gap:6px;"
+                  onmouseover="this.style.background='#4338ca'" 
+                  onmouseout="this.style.background='#4f46e5'">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                  </svg>
+                  업데이트
+                </button>
               </div>
               
               <!-- 탭 버튼 -->
@@ -4087,30 +4098,6 @@
           keyPointsLength: keyPoints.length
         });
         
-        // API에서 실시간 판매율/재고주수 데이터 가져와서 keyPoints 업데이트
-        fetchRealtimeInsights().then(realtimeKeyPoints => {
-          if (realtimeKeyPoints) {
-            // 기존 keyPoints와 병합 (판매율/재고주수 관련 항목만 교체)
-            const keyPointsLines = keyPoints.split('<br>').filter(line => line.trim());
-            const nonRealtimeLines = keyPointsLines.filter(line => 
-              !line.includes('판매율이 가장 높은') && 
-              !line.includes('아이템 중') &&
-              !line.includes('현재기준')
-            );
-            
-            // 실시간 데이터 추가
-            const updatedKeyPoints = [...nonRealtimeLines, ...realtimeKeyPoints].join('<br>');
-            
-            // DOM 업데이트
-            const keyPointsElement = overviewInsights.querySelector('div:last-child > div:last-child');
-            if (keyPointsElement) {
-              keyPointsElement.innerHTML = updatedKeyPoints || '데이터가 없습니다.';
-            }
-          }
-        }).catch(error => {
-          console.error('[fetchRealtimeInsights] 실시간 데이터 로드 실패:', error);
-        });
-        
         // overview 데이터가 없으면 전체 현황 KPI 데이터를 기반으로 요약 생성
         if (!content && !keyPoints) {
           console.log('[renderInsights] overview 데이터 없음, KPI 기반 생성 시작');
@@ -4186,6 +4173,7 @@
           keyPoints = insights.join('<br>');
         }
         
+        // 먼저 로딩 표시와 함께 렌더링
         overviewInsights.innerHTML = `
           <div style="margin-bottom: 20px;">
             <div style="font-size: 16px; font-weight: 600; color: #92400e; margin-bottom: 10px;">📋 주요내용</div>
@@ -4195,17 +4183,50 @@
           </div>
           <div>
             <div style="font-size: 16px; font-weight: 600; color: #92400e; margin-bottom: 10px;">💡 핵심인사이트</div>
-            <div style="margin-left: 10px; color: #78350f; line-height: 1.5;">
-              ${keyPoints || '데이터가 없습니다.'}
+            <div id="overview-key-points-content" style="margin-left: 10px; color: #78350f; line-height: 1.5;">
+              <div style="color: #94a3b8; font-style: italic;">실시간 데이터 로딩 중...</div>
             </div>
           </div>
         `;
+        
+        // API에서 실시간 판매율/재고주수 데이터 가져와서 keyPoints 업데이트
+        fetchRealtimeInsights().then(realtimeKeyPoints => {
+          // 기존 keyPoints와 병합 (판매율/재고주수 관련 항목만 교체)
+          const keyPointsLines = keyPoints.split('<br>').filter(line => line.trim());
+          const nonRealtimeLines = keyPointsLines.filter(line => 
+            !line.includes('판매율이 가장 높은') && 
+            !line.includes('아이템 중') &&
+            !line.includes('현재기준')
+          );
+          
+          // 실시간 데이터가 있으면 추가, 없으면 기존 데이터 사용
+          let finalKeyPoints;
+          if (realtimeKeyPoints && realtimeKeyPoints.length > 0) {
+            finalKeyPoints = [...nonRealtimeLines, ...realtimeKeyPoints].join('<br>');
+          } else {
+            finalKeyPoints = keyPoints;
+          }
+          
+          // DOM 업데이트 (한 번만)
+          const keyPointsElement = document.getElementById('overview-key-points-content');
+          if (keyPointsElement) {
+            keyPointsElement.innerHTML = finalKeyPoints || '데이터가 없습니다.';
+          }
+        }).catch(error => {
+          console.error('[fetchRealtimeInsights] 실시간 데이터 로드 실패:', error);
+          // 실패 시 기존 keyPoints 표시
+          const keyPointsElement = document.getElementById('overview-key-points-content');
+          if (keyPointsElement) {
+            keyPointsElement.innerHTML = keyPoints || '데이터가 없습니다.';
+          }
+        });
       }else{
         const bi = currentInsightsData[currentBrand] || currentInsightsData.MLB || {};
         const content = bi.content||'';
-        const keyPoints = bi.keyPoints||'';
+        let keyPoints = bi.keyPoints||'';
         console.log('브랜드 인사이트 데이터:', {currentBrand, bi, content, keyPoints});
         
+        // 로딩 표시를 먼저 렌더링
         brandInsights.innerHTML = `
           <div style="margin-bottom: 20px;">
             <div style="font-size: 16px; font-weight: 600; color: #92400e; margin-bottom: 10px;">📋 주요내용</div>
@@ -4215,35 +4236,43 @@
           </div>
           <div>
             <div style="font-size: 16px; font-weight: 600; color: #92400e; margin-bottom: 10px;">💡 핵심인사이트</div>
-            <div style="margin-left: 10px; color: #78350f; line-height: 1.5;">
-              ${keyPoints}
+            <div id="brand-key-points-content" style="margin-left: 10px; color: #78350f; line-height: 1.5;">
+              <div style="color: #94a3b8; font-style: italic;">실시간 데이터 로딩 중...</div>
             </div>
           </div>
         `;
         
         // API에서 실시간 브랜드별 판매율/재고주수 데이터 가져와서 keyPoints 업데이트
         fetchBrandRealtimeInsights(currentBrand).then(realtimeKeyPoints => {
-          if (realtimeKeyPoints) {
-            // 기존 keyPoints와 병합 (판매율/재고주수 관련 항목만 교체)
-            const keyPointsLines = keyPoints.split('<br>').filter(line => line.trim());
-            const nonRealtimeLines = keyPointsLines.filter(line => 
-              !line.includes('누적 TAG 매출') &&
-              !line.includes('의류 누적 매출') && 
-              !line.includes('아이템 누적판매매출') &&
-              !line.includes('현재기준')
-            );
-            
-            // 실시간 데이터 추가
-            const updatedKeyPoints = [...nonRealtimeLines, ...realtimeKeyPoints].join('<br>');
-            
-            // DOM 업데이트
-            const keyPointsElement = brandInsights.querySelector('div:last-child > div:last-child');
-            if (keyPointsElement) {
-              keyPointsElement.innerHTML = updatedKeyPoints || '데이터가 없습니다.';
-            }
+          // 기존 keyPoints와 병합 (판매율/재고주수 관련 항목만 교체)
+          const keyPointsLines = keyPoints.split('<br>').filter(line => line.trim());
+          const nonRealtimeLines = keyPointsLines.filter(line => 
+            !line.includes('누적 TAG 매출') &&
+            !line.includes('의류 누적 매출') && 
+            !line.includes('아이템 누적판매매출') &&
+            !line.includes('현재기준')
+          );
+          
+          // 실시간 데이터가 있으면 추가, 없으면 기존 데이터 사용
+          let finalKeyPoints;
+          if (realtimeKeyPoints && realtimeKeyPoints.length > 0) {
+            finalKeyPoints = [...nonRealtimeLines, ...realtimeKeyPoints].join('<br>');
+          } else {
+            finalKeyPoints = keyPoints;
+          }
+          
+          // DOM 업데이트 (한 번만)
+          const keyPointsElement = document.getElementById('brand-key-points-content');
+          if (keyPointsElement) {
+            keyPointsElement.innerHTML = finalKeyPoints || '데이터가 없습니다.';
           }
         }).catch(error => {
           console.error('[fetchBrandRealtimeInsights] 실시간 데이터 로드 실패:', error);
+          // 실패 시 기존 keyPoints 표시
+          const keyPointsElement = document.getElementById('brand-key-points-content');
+          if (keyPointsElement) {
+            keyPointsElement.innerHTML = keyPoints || '데이터가 없습니다.';
+          }
         });
       }
       
@@ -12036,7 +12065,7 @@
           <td style="padding:12px 10px;text-align:right;">${item.salesAmt.toLocaleString()}</td>
           <td style="padding:12px 10px;text-align:right;">
             <span style="color:${item.yoyOriginal >= 100 ? '#059669' : '#dc2626'};font-weight:600;">
-              ${item.yoyOriginal}%
+              ${Math.round(item.yoyOriginal)}%
             </span>
           </td>
           <td style="padding:12px 10px;text-align:right;">${item.weeksOriginal.toFixed(1)}주</td>
@@ -13727,8 +13756,8 @@
     window.salesRateSelectedCategory = '전체';
     
     // 판매율 데이터 로드 함수
-    async function loadSalesRateData() {
-      console.log('[판매율] 데이터 로드 시작');
+    async function loadSalesRateData(forceUpdate = false) {
+      console.log('[판매율] 데이터 로드 시작', { forceUpdate });
       
       // 로딩 표시
       const loadingDiv = document.getElementById('sales-rate-loading');
@@ -13742,7 +13771,8 @@
       try {
         // API 호출 (오늘 날짜 사용)
         const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const response = await fetch(`/api/sales-rate?date=${apiDate}`);
+        const forceParam = forceUpdate ? '&forceUpdate=true' : '';
+        const response = await fetch(`/api/sales-rate?date=${apiDate}${forceParam}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -14332,8 +14362,8 @@
     // ==================== 재고주수 관련 함수 ====================
     
     // 재고주수 데이터 로드
-    async function loadStockWeeksData() {
-      console.log('[재고주수] 데이터 로드 시작');
+    async function loadStockWeeksData(forceUpdate = false) {
+      console.log('[재고주수] 데이터 로드 시작', { forceUpdate });
       
       // 로딩 표시
       const loadingDiv = document.getElementById('stock-weeks-loading');
@@ -14347,7 +14377,8 @@
       try {
         // API 호출 (오늘 날짜 사용)
         const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const response = await fetch(`/api/stock-weeks?date=${apiDate}`);
+        const forceParam = forceUpdate ? '&forceUpdate=true' : '';
+        const response = await fetch(`/api/stock-weeks?date=${apiDate}${forceParam}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -15185,6 +15216,65 @@
           // 재고주수 데이터가 없으면 로드
           if (!window.stockWeeksData) {
             loadStockWeeksData();
+          }
+        });
+      }
+      
+      // 업데이트 버튼 이벤트 리스너
+      const updateBtn = document.getElementById('btn-update-analysis-data');
+      if (updateBtn) {
+        updateBtn.addEventListener('click', async function() {
+          console.log('[업데이트 버튼] 클릭 - 강제 업데이트 시작');
+          
+          // 버튼 비활성화 및 로딩 상태
+          this.disabled = true;
+          this.style.opacity = '0.6';
+          this.style.cursor = 'not-allowed';
+          const originalHTML = this.innerHTML;
+          this.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> 업데이트 중...';
+          
+          try {
+            // 현재 활성 탭 확인
+            const salesRateTab = document.getElementById('tab-sales-rate');
+            const isSalesRateActive = salesRateTab && salesRateTab.classList.contains('active');
+            
+            if (isSalesRateActive) {
+              // 판매율 데이터 강제 업데이트
+              await loadSalesRateData(true);
+              console.log('[업데이트 버튼] 판매율 데이터 업데이트 완료');
+            } else {
+              // 재고주수 데이터 강제 업데이트
+              await loadStockWeeksData(true);
+              console.log('[업데이트 버튼] 재고주수 데이터 업데이트 완료');
+            }
+            
+            // 성공 메시지
+            const tempHTML = this.innerHTML;
+            this.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> 업데이트 완료';
+            this.style.background = '#10b981';
+            
+            setTimeout(() => {
+              this.innerHTML = originalHTML;
+              this.style.background = '#4f46e5';
+              this.disabled = false;
+              this.style.opacity = '1';
+              this.style.cursor = 'pointer';
+            }, 2000);
+            
+          } catch (error) {
+            console.error('[업데이트 버튼] 업데이트 실패:', error);
+            
+            // 에러 메시지
+            this.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg> 업데이트 실패';
+            this.style.background = '#ef4444';
+            
+            setTimeout(() => {
+              this.innerHTML = originalHTML;
+              this.style.background = '#4f46e5';
+              this.disabled = false;
+              this.style.opacity = '1';
+              this.style.cursor = 'pointer';
+            }, 2000);
           }
         });
       }
