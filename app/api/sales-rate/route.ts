@@ -20,15 +20,13 @@ import { getCache, setCache } from '@/lib/redis';
  */
 export async function GET(request: Request) {
   try {
-    // URL 파라미터에서 forceUpdate, month 확인
+    // URL 파라미터에서 forceUpdate 확인
     const { searchParams } = new URL(request.url);
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
-    const analysisMonth = searchParams.get('month'); // YYYY-MM 형식
     
-    // 분석월 기준으로 캐시 키 생성
+    // 오늘 날짜로 캐시 키 생성 (재고주수와 동일)
     const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    const monthKey = analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6);
-    const cacheKey = `sales-rate-${monthKey}`;
+    const cacheKey = `sales-rate-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -46,25 +44,10 @@ export async function GET(request: Request) {
     }
     
     console.log(`[판매율 API] 캐시 미스: ${cacheKey} - Snowflake 조회 시작`);
-    console.log(`[판매율 API] Snowflake 환경변수 확인:`, {
-      account: process.env.SNOWFLAKE_ACCOUNT ? '✓' : '✗',
-      username: process.env.SNOWFLAKE_USERNAME ? '✓' : '✗',
-      password: process.env.SNOWFLAKE_PASSWORD ? '✓' : '✗',
-      warehouse: process.env.SNOWFLAKE_WAREHOUSE ? '✓' : '✗',
-      database: process.env.SNOWFLAKE_DATABASE ? '✓' : '✗'
-    });
     
-    // 2. 기준일 계산 (분석월 기준 또는 어제)
-    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : getYesterday();
-    console.log(`[판매율 API] 기준일:`, { analysisMonth, asof_dt });
-    
-    // 3. Snowflake 쿼리 실행
-    const query = getSalesRateQuery(asof_dt);
-    console.log(`[판매율 API] 쿼리 실행 시작...`);
-    const startTime = Date.now();
+    // 2. Snowflake 쿼리 실행
+    const query = getSalesRateQuery();
     const rows = await executeSnowflakeQuery(query);
-    const elapsed = Date.now() - startTime;
-    console.log(`[판매율 API] 쿼리 완료 (${elapsed}ms, ${rows.length}행)`);
     
     // 3. 데이터를 기간별로 분리
     const curData = rows.filter(row => row.PERIOD_GB === 'CUR');
@@ -105,23 +88,13 @@ export async function GET(request: Request) {
     return NextResponse.json(result);
     
   } catch (error: any) {
-    console.error('[판매율 API] 에러 발생:', {
-      message: error.message,
-      code: error.code,
-      sqlState: error.sqlState,
-      stack: error.stack
-    });
+    console.error('[판매율 API] 에러 발생:', error);
     
     return NextResponse.json(
       { 
         success: false, 
         error: error.message || '데이터 조회 실패',
-        errorCode: error.code,
-        errorDetails: error.sqlState,
-        errorType: error.name,
-        timestamp: new Date().toISOString(),
-        // 개발 환경이거나 Vercel에서도 스택 표시 (디버깅용)
-        stack: error.stack
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
       { status: 500 }
     );
@@ -130,20 +103,19 @@ export async function GET(request: Request) {
 
 /**
  * 판매율 분석 Snowflake 쿼리 생성
- * @param asofDate 기준일 (YYYY-MM-DD)
  */
-function getSalesRateQuery(asofDate: string): string {
+function getSalesRateQuery(): string {
   return `
 WITH PARAM AS (
   SELECT
-      '${asofDate}'::DATE                                                   AS ASOF_DT
-    , DATEADD(YEAR, -1, '${asofDate}'::DATE)                                AS ASOF_DT_PY
+      DATEADD(DAY, -1, CURRENT_DATE())                                      AS ASOF_DT
+    , DATEADD(YEAR, -1, DATEADD(DAY, -1, CURRENT_DATE()))                   AS ASOF_DT_PY
     /* 당년: 25F (FW 시즌이라고 가정) */
-    , CONCAT(RIGHT(YEAR('${asofDate}'::DATE) - 1, 2), 'F')                  AS CUR_SESN
+    , CONCAT(RIGHT(YEAR(DATEADD(DAY, -1, CURRENT_DATE())) - 1, 2), 'F')     AS CUR_SESN
     /* 전년: 24F */
-    , CONCAT(RIGHT(YEAR('${asofDate}'::DATE) - 2, 2), 'F')                  AS PY_SESN
+    , CONCAT(RIGHT(YEAR(DATEADD(DAY, -1, CURRENT_DATE())) - 2, 2), 'F')     AS PY_SESN
     /* 전년 마감(24F 마감): (ASOF_DT의 전년도) 2/28  -> 예: 2025-02-28 */
-    , DATE_FROM_PARTS(YEAR('${asofDate}'::DATE) - 1, 2, 28)                 AS PY_END_DT
+    , DATE_FROM_PARTS(YEAR(DATEADD(DAY, -1, CURRENT_DATE())) - 1, 2, 28)    AS PY_END_DT
 ),
 
 BASE AS (
@@ -276,38 +248,4 @@ function formatDate(date: any): string {
   if (typeof date === 'string') return date;
   if (date instanceof Date) return date.toISOString().split('T')[0];
   return String(date);
-}
-
-/**
- * 어제 날짜 반환 (YYYY-MM-DD)
- */
-function getYesterday(): string {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-}
-
-/**
- * 분석월 기준 asof_dt 계산
- * - 분석월이 과거월: 해당 월의 말일
- * - 분석월이 현재월: 어제
- * 
- * @param analysisMonth YYYY-MM 형식의 분석월
- * @returns YYYY-MM-DD 형식의 기준일
- */
-function calculateAsofDate(analysisMonth: string): string {
-  const [year, month] = analysisMonth.split('-').map(Number);
-  const targetMonthStart = new Date(year, month - 1, 1);
-  const today = new Date();
-  
-  // 현재월인 경우: 어제까지
-  if (year === today.getFullYear() && month === today.getMonth() + 1) {
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    return yesterday.toISOString().split('T')[0];
-  }
-  
-  // 과거월인 경우: 해당 월의 말일
-  const lastDay = new Date(year, month, 0); // month가 다음달이므로 0일 = 말일
-  return lastDay.toISOString().split('T')[0];
 }
