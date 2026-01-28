@@ -19220,9 +19220,9 @@
     }
     
     /**
-     * 프로모션 내용 업데이트
+     * 프로모션 내용 업데이트 (비동기)
      */
-    window.updatePromotionContent = function() {
+    window.updatePromotionContent = async function() {
       console.log('[프로모션] ========== updatePromotionContent 호출됨 ==========');
       console.log('[프로모션] window.promotionData:', window.promotionData);
       console.log('[프로모션] window.currentBrand:', window.currentBrand);
@@ -19258,11 +19258,51 @@
       console.log('[프로모션] 컨텐츠 업데이트:', selectedBrand, brandCode);
       
       // window.promotionData에서 해당 브랜드 데이터 조회
-      const brandData = window.promotionData && window.promotionData[brandCode];
+      let brandData = window.promotionData && window.promotionData[brandCode];
       
-      console.log('[프로모션] brandData:', brandData);
+      console.log('[프로모션] brandData (캐시):', brandData);
       
-      if (!brandData || !brandData.data || brandData.data.length === 0) {
+      // 데이터가 없으면 API에서 로드
+      if (!brandData || !brandData.data) {
+        console.log('[프로모션] 캐시에 데이터 없음, API에서 로드:', brandCode);
+        promotionContent.innerHTML = `
+          <div style="color:#64748b;font-size:13px;line-height:1.7;">
+            <p style="margin-bottom:10px;">⏳ 프로모션 데이터 로딩 중...</p>
+          </div>
+        `;
+        
+        try {
+          const response = await fetch(`/api/promotion?brand=${brandCode}`);
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            console.log('[프로모션] API 로드 성공:', brandCode, result.data.length, '개');
+            // 캐시에 저장
+            if (!window.promotionData) window.promotionData = {};
+            window.promotionData[brandCode] = result;
+            brandData = result;
+          } else {
+            console.warn('[프로모션] API 응답 실패:', result);
+            promotionContent.innerHTML = `
+              <div style="color:#64748b;font-size:13px;line-height:1.7;">
+                <p style="margin-bottom:10px;">❌ 프로모션 데이터 로드 실패</p>
+              </div>
+            `;
+            return;
+          }
+        } catch (error) {
+          console.error('[프로모션] API 호출 에러:', error);
+          promotionContent.innerHTML = `
+            <div style="color:#64748b;font-size:13px;line-height:1.7;">
+              <p style="margin-bottom:10px;">❌ 프로모션 데이터 로드 에러</p>
+            </div>
+          `;
+          return;
+        }
+      }
+      
+      // 데이터가 비어있으면
+      if (!brandData.data || brandData.data.length === 0) {
         promotionContent.innerHTML = `
           <div style="color:#64748b;font-size:13px;line-height:1.7;">
             <p style="margin-bottom:10px;">📌 진행 중인 프로모션이 없습니다.</p>
