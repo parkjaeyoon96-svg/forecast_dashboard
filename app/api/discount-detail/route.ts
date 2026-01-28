@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { executeSnowflakeQuery } from '@/lib/snowflake';
 import { getCache, setCache } from '@/lib/redis';
+import { getTodayCompact, getToday, calculateAsofDate } from '@/lib/dateUtils';
 
 /**
  * 할인내역 데이터 조회 API
@@ -33,10 +34,11 @@ export async function GET(request: Request) {
       );
     }
     
-    // 분석월 기준으로 캐시 키 생성
-    const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    const monthKey = analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6);
-    const cacheKey = `discount-detail-${brandCode}-${monthKey}`;
+    // 날짜별 캐시 키 생성 (한국 시간 기준)
+    // 판매율 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함
+    // 분석월은 쿼리 파라미터로 전달하여 데이터 필터링에 사용
+    const today = getTodayCompact();
+    const cacheKey = `discount-detail-${brandCode}-${analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6)}-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -55,16 +57,25 @@ export async function GET(request: Request) {
     
     console.log(`[할인내역 API] 캐시 미스: ${cacheKey} - Snowflake 조회 시작`);
     
-    // 2. Snowflake 쿼리 실행
-    const query = getDiscountQuery(brandCode);
+    // 2. 기준일 계산 (분석월이 있을 때만 사용)
+    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : null;
+    console.log(`[할인내역 API] 기준일:`, { analysisMonth, asof_dt });
+    
+    // 3. Snowflake 쿼리 실행
+    const query = getDiscountQuery(brandCode, asof_dt);
     const rows = await executeSnowflakeQuery(query);
     
     console.log(`[할인내역 API] Snowflake 조회 완료: ${rows.length}행`);
+    if (rows.length > 0) {
+      console.log(`[할인내역 API] 첫 번째 행 샘플:`, rows[0]);
+      console.log(`[할인내역 API] 첫 번째 행 키:`, Object.keys(rows[0]));
+    }
     
-    // 3. 결과 구성
+    // 4. 결과 구성
     const result = {
       success: true,
-      date: new Date().toISOString().split('T')[0],
+      date: getToday(), // 한국 시간 기준
+      asof_dt: asof_dt || 'CURRENT_DATE-1', // Snowflake에서 계산
       brandCode,
       analysisMonth: analysisMonth || today.slice(0, 6),
       data: rows,
@@ -72,7 +83,7 @@ export async function GET(request: Request) {
       cached: false
     };
     
-    // 4. Redis 캐시에 저장 (24시간)
+    // 5. Redis 캐시에 저장 (24시간)
     await setCache(cacheKey, result, 86400);
     console.log(`[할인내역 API] 캐시 저장 완료: ${cacheKey}`);
     
@@ -95,19 +106,39 @@ export async function GET(request: Request) {
 /**
  * 할인내역 Snowflake 쿼리 생성
  * @param brandCode 브랜드 코드 (M, I, X, V, ST, W)
+ * @param asofDate 기준일 (YYYY-MM-DD) - null이면 Snowflake CURRENT_DATE 사용
  */
-function getDiscountQuery(brandCode: string): string {
+function getDiscountQuery(brandCode: string, asofDate: string | null): string {
+  // 분석월이 지정되지 않으면 Snowflake의 CURRENT_DATE 사용
+  const dateLogic = asofDate 
+    ? `'${asofDate}'::DATE AS asof_dt   -- 파라미터로 받은 기준일`
+    : `DATEADD(DAY, -1, CURRENT_DATE())::DATE AS asof_dt   -- Snowflake 어제 날짜`;
+  
   return `
-WITH base AS (
+WITH params AS (
     SELECT
-        /* CY / PY 구분 */
-        CASE
-            WHEN a.SALE_DT >= DATE_TRUNC('month', CURRENT_DATE)
-             AND a.SALE_DT <  CURRENT_DATE
-                THEN 'CY'
-            ELSE 'PY'
-        END AS gubun,
-
+        ${dateLogic}
+),
+/* ✅ 날짜 로직
+   - CY: 이번달 1일 ~ asof_dt (분석월 말일 또는 어제)
+   - PY: 전년 동일월 1일 ~ 전년 동일일(= DATEADD(YEAR,-1,asof_dt))
+*/
+periods AS (
+    SELECT
+        'CY' AS gubun,
+        DATE_TRUNC('MONTH', asof_dt)::DATE AS dt_from,
+        asof_dt AS dt_to
+    FROM params
+    UNION ALL
+    SELECT
+        'PY' AS gubun,
+        DATEADD(YEAR, -1, DATE_TRUNC('MONTH', asof_dt))::DATE AS dt_from,
+        DATEADD(YEAR, -1, asof_dt)::DATE AS dt_to
+    FROM params
+),
+base AS (
+    SELECT
+        p.gubun,
         a.BRD_CD,
         b.CD_NM,
         e.PRDT_KIND_NM,
@@ -127,7 +158,9 @@ WITH base AS (
         a.TAG_AMT,
         a.SALE_AMT
 
-    FROM PRCS.DW_SALE a
+    FROM periods p
+    JOIN PRCS.DW_SALE a
+      ON a.SALE_DT BETWEEN p.dt_from AND p.dt_to
     JOIN PRCS.DB_SHOP s
       ON a.SHOP_ID = s.SHOP_ID
      AND a.BRD_CD  = s.BRD_CD
@@ -141,27 +174,13 @@ WITH base AS (
     LEFT JOIN PRCS.DW_COMN_CD c
       ON a.MARGIN_TYPE_CD = c.CD
      AND c.PARENT_CD = 'S079'
-    WHERE
-        a.BRD_CD = '${brandCode}'
-        AND (
-            (
-                /* CY */
-                a.SALE_DT BETWEEN DATE_TRUNC('month', CURRENT_DATE)
-                              AND CURRENT_DATE - INTERVAL '1 day'
-            )
-            OR
-            (
-                /* PY */
-                a.SALE_DT BETWEEN DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 year')
-                              AND (CURRENT_DATE - INTERVAL '1 day') - INTERVAL '1 year'
-            )
-        )
+    WHERE a.BRD_CD = '${brandCode}'
 )
 
 SELECT
     gubun              AS "구분",
     BRD_CD             AS "브랜드",
-    CD_NM              AS "할인유형명",
+    COALESCE(CD_NM, '기타')  AS "할인유형명",
     channel_cd         AS "채널코드",
 
     /* 🔹 채널명 */
@@ -202,4 +221,3 @@ HAVING SUM(SALE_AMT) <> 0
 ORDER BY gubun, CD_NM
 `;
 }
-

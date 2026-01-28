@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { executeSnowflakeQuery } from '@/lib/snowflake';
 import { getCache, setCache } from '@/lib/redis';
+import { getTodayCompact, getToday, formatDate } from '@/lib/dateUtils';
 
 /**
  * ACC 재고주수 분석 데이터 조회 API
@@ -24,8 +25,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
     
-    // 오늘 날짜로 캐시 키 생성
-    const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    // 오늘 날짜로 캐시 키 생성 (한국 시간 기준)
+    const today = getTodayCompact();
     const cacheKey = `stock-weeks-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
     // 5. 결과 구성
     const result = {
       success: true,
-      date: new Date().toISOString().split('T')[0],
+      date: getToday(), // 한국 시간 기준
       asof_dt: formatDate(asofDt),
       data: {
         CY: cyData,
@@ -254,12 +255,4 @@ ORDER BY
 `;
 }
 
-/**
- * 날짜 포맷 변환 (Date 객체 또는 문자열 -> YYYY-MM-DD)
- */
-function formatDate(date: any): string {
-  if (!date) return '';
-  if (typeof date === 'string') return date;
-  if (date instanceof Date) return date.toISOString().split('T')[0];
-  return String(date);
-}
+// formatDate 함수는 @/lib/dateUtils에서 import

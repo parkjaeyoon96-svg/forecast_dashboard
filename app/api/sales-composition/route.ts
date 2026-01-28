@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { executeSnowflakeQuery } from '@/lib/snowflake';
 import { getCache, setCache } from '@/lib/redis';
+import { getTodayCompact, getToday, calculateAsofDate } from '@/lib/dateUtils';
 
 /**
  * 매출구성 데이터 조회 API (채널별/아이템별 트리맵용)
@@ -25,10 +26,13 @@ export async function GET(request: Request) {
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
     const analysisMonth = searchParams.get('month'); // YYYY-MM 형식
     
-    // 분석월 기준으로 캐시 키 생성
-    const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    const monthKey = analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6);
-    const cacheKey = `sales-composition-${monthKey}`;
+    // 날짜별 캐시 키 생성 (한국 시간 기준)
+    // 분석월이 지정된 경우: 월별 캐시 (과거 데이터는 변하지 않음)
+    // 분석월이 없는 경우: 날짜별 캐시 (매일 업데이트 필요)
+    const today = getTodayCompact();
+    const cacheKey = analysisMonth 
+      ? `sales-composition-${analysisMonth.replace('-', '')}` 
+      : `sales-composition-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -54,8 +58,8 @@ export async function GET(request: Request) {
       database: process.env.SNOWFLAKE_DATABASE ? '✓' : '✗'
     });
     
-    // 2. 기준일 계산 (분석월 기준 또는 어제)
-    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : getYesterday();
+    // 2. 기준일 계산 (분석월이 있을 때만 사용)
+    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : null;
     console.log(`[매출구성 API] 기준일:`, { analysisMonth, asof_dt });
     
     // 3. Snowflake 쿼리 실행
@@ -73,7 +77,7 @@ export async function GET(request: Request) {
     // 5. 결과 구성
     const result = {
       success: true,
-      date: new Date().toISOString().split('T')[0],
+      date: getToday(), // 한국 시간 기준
       asof_dt,
       data: {
         CY: cyData,
@@ -115,13 +119,18 @@ export async function GET(request: Request) {
 
 /**
  * 매출구성 Snowflake 쿼리 생성
- * @param asofDate 기준일 (YYYY-MM-DD)
+ * @param asofDate 기준일 (YYYY-MM-DD) - null이면 Snowflake CURRENT_DATE 사용
  */
-function getSalesCompositionQuery(asofDate: string): string {
+function getSalesCompositionQuery(asofDate: string | null): string {
+  // 분석월이 지정되지 않으면 Snowflake의 어제 날짜 사용
+  const dateLogic = asofDate 
+    ? `'${asofDate}'::DATE AS asof_dt   -- 파라미터로 받은 기준일`
+    : `DATEADD(DAY, -1, CURRENT_DATE())::DATE AS asof_dt   -- Snowflake 어제 날짜`;
+  
   return `
 WITH params AS (
     SELECT
-        '${asofDate}'::DATE AS asof_dt   -- 파라미터로 받은 기준일
+        ${dateLogic}
 ),
 /* ✅ 날짜 로직
    - CY: 이번달 1일 ~ 어제(asof_dt)
@@ -314,38 +323,3 @@ GROUP BY
 HAVING (SUM(d.TAG_SALES) + SUM(d.REAL_SALES)) <> 0
 `;
 }
-
-/**
- * 어제 날짜 반환 (YYYY-MM-DD)
- */
-function getYesterday(): string {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-}
-
-/**
- * 분석월 기준 asof_dt 계산
- * - 분석월이 과거월: 해당 월의 말일
- * - 분석월이 현재월: 어제
- * 
- * @param analysisMonth YYYY-MM 형식의 분석월
- * @returns YYYY-MM-DD 형식의 기준일
- */
-function calculateAsofDate(analysisMonth: string): string {
-  const [year, month] = analysisMonth.split('-').map(Number);
-  const targetMonthStart = new Date(year, month - 1, 1);
-  const today = new Date();
-  
-  // 현재월인 경우: 어제까지
-  if (year === today.getFullYear() && month === today.getMonth() + 1) {
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    return yesterday.toISOString().split('T')[0];
-  }
-  
-  // 과거월인 경우: 해당 월의 말일
-  const lastDay = new Date(year, month, 0); // month가 다음달이므로 0일 = 말일
-  return lastDay.toISOString().split('T')[0];
-}
-

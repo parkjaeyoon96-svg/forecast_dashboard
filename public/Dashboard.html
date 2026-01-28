@@ -56,6 +56,8 @@
       window.channelTreemapData = null; // ★ JSON 사용 안함 - Snowflake API 사용 ★
       window.salesCompositionData = null; // 매출구성 데이터 (트리맵용 - Snowflake API)
       window.discountDetailData = null; // 할인내역 원본 데이터 (Snowflake API)
+      window.promotionData = {}; // 프로모션 데이터 (브랜드별 - Snowflake API)
+      window.promotionData = {}; // 프로모션 데이터 (브랜드별 - Snowflake API)
     })();
   </script>
   <script>
@@ -721,10 +723,14 @@
     .progress-bar{width:100%;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:6px;}
     .progress-fill{height:100%;background:linear-gradient(90deg,#4f46e5,#7c3aed);transition:width .3s ease;}
     canvas{max-height:100% !important;}
-    ::-webkit-scrollbar{width:6px;height:6px;}
-    ::-webkit-scrollbar-track{background:#f1f1f1;}
-    ::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:3px;}
-    ::-webkit-scrollbar-thumb:hover{background:#a8a8a8;}
+    ::-webkit-scrollbar{width:8px;height:8px;}
+    ::-webkit-scrollbar-track{background:#f1f5f9;border-radius:4px;}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:4px;}
+    ::-webkit-scrollbar-thumb:hover{background:linear-gradient(135deg,#4338ca,#6d28d9);}
+    #discount-detail-table-container::-webkit-scrollbar{width:10px;}
+    #discount-detail-table-container::-webkit-scrollbar-track{background:#e0e7ff;border-radius:5px;}
+    #discount-detail-table-container::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:5px;border:2px solid #e0e7ff;}
+    #discount-detail-table-container::-webkit-scrollbar-thumb:hover{background:linear-gradient(135deg,#4338ca,#6d28d9);}
     @media (max-width:1600px){
       .dashboard-layout{min-width:1400px;}
       .financial-report{width:300px;}
@@ -771,6 +777,16 @@
       </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
+          <button id="btn-update-all-data" 
+            style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;display:flex;align-items:center;gap:6px;"
+            onmouseover="this.style.background='#4338ca'" 
+            onmouseout="this.style.background='#4f46e5'"
+            title="모든 데이터 새로고침 (판매율/재고주수/트리맵/할인내역)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            업데이트
+          </button>
           <button id="ai-btn" class="ai-btn">🤖 AI분석</button>
         <button id="edit-mode-btn" class="edit-btn">✏️ 편집 모드</button>
         <button id="save-btn" class="save-btn" style="display:none;">💾 저장</button>
@@ -1164,7 +1180,7 @@
 
             <div class="charts-grid">
               <!-- 1행 1열: 채널별 매출구성 트리맵 -->
-              <div class="chart-container">
+              <div class="chart-container" style="position:relative;">
                 <div class="chart-title" id="treemapTitleChannel">
                   <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
                   채널별 매출구성(현시점)
@@ -1173,9 +1189,16 @@
                   <button id="treemapDrillbackChannel" class="drillback-btn" style="display:none;">← 뒤로가기</button>
                   <div style="flex:1;"></div>
                 </div>
+                <!-- 로딩 오버레이 -->
+                <div id="treemapChannelLoading" style="display:flex;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);z-index:1000;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" style="animation: spin 1s linear infinite;">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                  </svg>
+                  <div style="margin-top:12px;font-size:14px;font-weight:600;color:#4f46e5;">업데이트 중...</div>
+                </div>
                 <div class="chart-wrapper" id="treemapWrapperChannel"></div>
                 <!-- 트리맵 날짜 정보 -->
-                <div id="treemapChannelDateInfo" style="margin-top:6px;padding:6px 8px;background:#f8fafc;border-left:3px solid #3b82f6;font-size:10px;color:#64748b;line-height:1.4;">
+                <div id="treemapChannelDateInfo" style="margin-top:6px;padding:6px 8px;background:#f8fafc;border-left:3px solid #4f46e5;font-size:10px;color:#64748b;line-height:1.4;">
                   <div>데이터 로딩 중...</div>
                 </div>
               </div>
@@ -1189,6 +1212,13 @@
                 <div style="display:flex;gap:6px;margin-bottom:8px;">
                   <button id="treemapDrillbackItem" class="drillback-btn" style="display:none;">← 뒤로가기</button>
                   <button id="downloadItemTreemapCSV" class="drillback-btn" style="background:#10B981;">📥 전년 데이터 CSV</button>
+                </div>
+                <!-- 로딩 오버레이 -->
+                <div id="treemapItemLoading" style="display:flex;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);z-index:1000;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="animation: spin 1s linear infinite;">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                  </svg>
+                  <div style="margin-top:12px;font-size:14px;font-weight:600;color:#10b981;">업데이트 중...</div>
                 </div>
                 <div class="chart-wrapper" id="treemapWrapperItem"></div>
                 <!-- 트리맵 날짜 정보 -->
@@ -1304,20 +1334,9 @@
             
             <!-- 당시즌 의류 판매율 분석 테이블 -->
             <div id="brand-sales-rate-section" class="chart-container" style="margin-top: 15px; width: 100%;">
-              <div style="position:relative;">
-                <div class="chart-title" style="text-align:center;">
-                  <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
-                  당시즌 의류 판매율 / ACC 재고주수 분석
-                </div>
-                <button id="btn-update-analysis-data" 
-                  style="position:absolute;right:0;top:0;padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;display:flex;align-items:center;gap:6px;"
-                  onmouseover="this.style.background='#4338ca'" 
-                  onmouseout="this.style.background='#4f46e5'">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                  </svg>
-                  업데이트
-                </button>
+              <div class="chart-title" style="text-align:center;">
+                <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
+                당시즌 의류 판매율 / ACC 재고주수 분석
               </div>
               
               <!-- 탭 버튼 -->
@@ -1551,8 +1570,8 @@
               <div id="sidebar-total-revenue" style="color:#fff;font-size:18px;font-weight:700;">0원</div>
             </div>
             <div style="background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:8px;padding:12px;">
-              <div style="color:#fff;font-size:12px;margin-bottom:4px;opacity:0.9;">아이템 수</div>
-              <div id="sidebar-item-count" style="color:#fff;font-size:18px;font-weight:700;">0개</div>
+              <div style="color:#fff;font-size:12px;margin-bottom:4px;opacity:0.9;">매출기간</div>
+              <div id="sidebar-sales-period" style="color:#fff;font-size:18px;font-weight:700;">-</div>
             </div>
           </div>
         </div>
@@ -1602,11 +1621,6 @@
             <div style="background:#f8fafc;border-radius:8px;padding:16px;">
               <!-- 트리맵 영역 -->
               <div id="sidebar-category-channel-treemap" style="min-height:350px;background:#fff;border-radius:6px;border:1px solid #e5e7eb;"></div>
-              <!-- 날짜 정보 -->
-              <div id="sidebarCategoryChannelDateInfo" style="margin-top:12px;padding:12px;background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:6px;font-size:12px;color:#1e40af;line-height:1.6;">
-                <div><strong>업데이트 일자:</strong> -</div>
-                <div><strong>분석기간:</strong> -</div>
-              </div>
             </div>
           </div>
 
@@ -1623,20 +1637,26 @@
             <div style="background:#f8fafc;border-radius:8px;padding:16px;">
               <!-- 트리맵 영역 -->
               <div id="sidebar-category-item-treemap" style="min-height:350px;background:#fff;border-radius:6px;border:1px solid #e5e7eb;"></div>
-              <!-- 날짜 정보 -->
-              <div id="sidebarCategoryItemDateInfo" style="margin-top:12px;padding:12px;background:#f0fdf4;border-left:4px solid #10b981;border-radius:6px;font-size:12px;color:#065f46;line-height:1.6;">
-                <div><strong>업데이트 일자:</strong> -</div>
-                <div><strong>분석기간:</strong> -</div>
-              </div>
             </div>
           </div>
         </div>
 
         <!-- 2. 할인내역 -->
         <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
-          <h5 style="color:#1f2937;font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e5e7eb;">
-            💰 2. 할인내역
+          <h5 style="color:#1f2937;font-size:16px;font-weight:700;margin-bottom:8px;padding-bottom:12px;border-bottom:2px solid #e5e7eb;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:20px;">💰</span>
+            <span>2. 할인내역</span>
+            <span style="font-size:11px;color:#64748b;font-weight:500;margin-left:8px;">(단위: 백만)</span>
+            <button onclick="testDiscountAPI()" style="margin-left:auto;padding:4px 8px;background:#4f46e5;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;">API 테스트</button>
           </h5>
+          
+          <!-- 안내 멘트 -->
+          <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:10px 12px;margin-bottom:12px;border-radius:6px;">
+            <div style="font-size:11px;color:#92400e;font-weight:600;display:flex;align-items:center;gap:6px;">
+              <span style="font-size:14px;">ℹ️</span>
+              <span>※ 할인내역은 사입·기타 출고매출을 제외한 리테일 판매매출만을 포함</span>
+            </div>
+          </div>
           
           <div style="overflow-x:auto;">
             <table id="sidebar-discount-table" style="width:100%;border-collapse:collapse;font-size:12px;">
@@ -1681,12 +1701,23 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <!-- 프로모션 추가 버튼 (관리자용) -->
-          <div style="margin-top:12px;text-align:right;">
-            <button id="btn-add-promotion" style="padding:8px 16px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s ease;">
-              ➕ 프로모션 추가
-            </button>
+    <!-- 프로모션 상세 모달 -->
+    <div id="promotion-detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:12px;max-width:90%;max-height:90%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column;">
+        <!-- 모달 헤더 -->
+        <div style="padding:20px 24px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#667eea,#764ba2);">
+          <h3 id="promotion-modal-title" style="color:#fff;font-size:18px;font-weight:700;margin:0;">프로모션 상세 정보</h3>
+          <button onclick="closePromotionDetailModal()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:24px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.3)';" onmouseout="this.style.background='rgba(255,255,255,0.2)';">×</button>
+        </div>
+        
+        <!-- 모달 바디 -->
+        <div style="padding:24px;overflow-y:auto;max-height:calc(90vh - 120px);">
+          <div id="promotion-modal-body">
+            <!-- 상세 테이블이 여기에 동적으로 추가됩니다 -->
           </div>
         </div>
       </div>
@@ -1789,6 +1820,13 @@
   </div>
 
   <script>
+    // ※ 할인내역 드릴다운: 스크립트 실행 직후 스텁 등록 (DOM 로드 전 클릭 대비)
+    window.showDiscountDetail = function(discountCode, brandName) {
+      var fn = window.__showDiscountDetailImpl;
+      if (typeof fn === 'function') return fn(discountCode, brandName);
+      alert('할인내역 상세 기능을 불러오는 중입니다. 페이지가 완전히 뜬 뒤 잠시 기다렸다가 다시 시도해 주세요.');
+    };
+
     // ---------- 데이터 참조 세팅 (JSON 방식) ----------
     // ★ JSON 파일이 개별 전역 변수로 로드됨
     console.log('[데이터] 전역 변수 상태:');
@@ -2264,11 +2302,25 @@
                     if (currentBrand && typeof updateBrandTreemaps === 'function') {
                       console.log('[데이터로드] updateBrandTreemaps 호출:', currentBrand);
                       updateBrandTreemaps(currentBrand);
+                      
+                      // 트리맵 로딩 오버레이 숨김
+                      setTimeout(() => {
+                        const treemapChannelLoading = document.getElementById('treemapChannelLoading');
+                        const treemapItemLoading = document.getElementById('treemapItemLoading');
+                        if (treemapChannelLoading) treemapChannelLoading.style.display = 'none';
+                        if (treemapItemLoading) treemapItemLoading.style.display = 'none';
+                        console.log('[데이터로드] 트리맵 로딩 오버레이 숨김');
+                      }, 500);
                     } else {
                       console.warn('[데이터로드] updateBrandTreemaps 함수 없음 또는 currentBrand 없음');
                     }
                   }).catch(err => {
                     console.error('[데이터로드] 매출구성 데이터 로드 실패:', err);
+                    // 실패 시에도 로딩 오버레이 숨김
+                    const treemapChannelLoading = document.getElementById('treemapChannelLoading');
+                    const treemapItemLoading = document.getElementById('treemapItemLoading');
+                    if (treemapChannelLoading) treemapChannelLoading.style.display = 'none';
+                    if (treemapItemLoading) treemapItemLoading.style.display = 'none';
                   });
                 } else {
                   console.error('[데이터로드] loadSalesCompositionData 함수가 정의되지 않음');
@@ -2316,11 +2368,25 @@
                     if (currentBrand && typeof updateBrandTreemaps === 'function') {
                       console.log('[데이터로드] updateBrandTreemaps 호출:', currentBrand);
                       updateBrandTreemaps(currentBrand);
+                      
+                      // 트리맵 로딩 오버레이 숨김
+                      setTimeout(() => {
+                        const treemapChannelLoading = document.getElementById('treemapChannelLoading');
+                        const treemapItemLoading = document.getElementById('treemapItemLoading');
+                        if (treemapChannelLoading) treemapChannelLoading.style.display = 'none';
+                        if (treemapItemLoading) treemapItemLoading.style.display = 'none';
+                        console.log('[데이터로드] 트리맵 로딩 오버레이 숨김');
+                      }, 500);
                     } else {
                       console.warn('[데이터로드] updateBrandTreemaps 함수 없음 또는 currentBrand 없음');
                     }
                   }).catch(err => {
                     console.error('[데이터로드] 매출구성 데이터 로드 실패:', err);
+                    // 실패 시에도 로딩 오버레이 숨김
+                    const treemapChannelLoading = document.getElementById('treemapChannelLoading');
+                    const treemapItemLoading = document.getElementById('treemapItemLoading');
+                    if (treemapChannelLoading) treemapChannelLoading.style.display = 'none';
+                    if (treemapItemLoading) treemapItemLoading.style.display = 'none';
                   });
                 } else {
                   console.error('[데이터로드] loadSalesCompositionData 함수가 정의되지 않음');
@@ -2719,34 +2785,37 @@
       // 이미 로드된 경우 즉시 실행
         setTimeout(initRadarChartOnLoad, 300);
       
-      // ★ 전체현황 히트맵용 API 데이터 미리 로드
-      console.log('[전체현황] 판매율/재고주수/매출구성 API 데이터 로드 시작');
+      // ★ 전체현황 히트맵용 API 데이터 미리 로드 (매출구성/할인내역도 먼저 로드하여 브랜드 클릭 시 빠르게 표시)
+      console.log('[전체현황] 판매율/재고주수/매출구성/할인내역 API 데이터 로드 시작');
       
       Promise.all([
         loadOverviewSalesRateData(),
         loadOverviewStockWeeksData(),
-        loadSalesCompositionData()
+        loadSalesCompositionData(),
+        loadOverviewDiscountData(),
+        loadAllPromotionData()
       ]).then(() => {
         console.log('[전체현황] API 데이터 로드 완료');
+        // 할인내역: 로드된 overview 데이터로 브랜드별 캐시(byCode) 구조 생성 → 테이블/드릴다운에서 사용
+        if (typeof buildDiscountCacheFromOverview === 'function') {
+          buildDiscountCacheFromOverview();
+        }
+        if (typeof updateDiscountTable === 'function') {
+          updateDiscountTable()
+            .then(() => console.log('[전체현황] 할인내역 테이블 업데이트 완료'))
+            .catch(err => console.error('[전체현황] 할인내역 테이블 업데이트 실패:', err));
+        }
       }).catch(err => {
         console.error('[전체현황] API 데이터 로드 에러:', err);
+        // 실패해도 할인내역은 개별 API로 로드 가능하므로 테이블 갱신 시도
+        if (typeof updateDiscountTable === 'function') {
+          updateDiscountTable()
+            .then(() => console.log('[전체현황] 할인내역 테이블 업데이트 완료 (폴백)'))
+            .catch(e => console.error('[전체현황] 할인내역 테이블 폴백 실패:', e));
+        }
       });
       
-      // ★ 할인내역 초기 로드 (페이지 로드 시 기본 브랜드 MLB로)
-      console.log('[초기화] 할인내역 데이터 로드 시작');
-      console.log('[초기화] updateDiscountTable 함수 존재 여부:', typeof updateDiscountTable === 'function');
-      if (typeof updateDiscountTable === 'function') {
-        setTimeout(() => {
-          console.log('[초기화] updateDiscountTable 실행 시작');
-          updateDiscountTable().then(() => {
-            console.log('[초기화] updateDiscountTable 완료');
-          }).catch(err => {
-            console.error('[초기화] 할인내역 로드 실패:', err);
-          });
-        }, 1000); // 1초로 늘림
-      } else {
-        console.error('[초기화] updateDiscountTable 함수가 정의되지 않았습니다!');
-      }
+      // 할인내역은 loadOverviewDiscountData에서 Promise.all로 로드됨 (판매율/재고주수와 동일)
 
       // 편집 모드 버튼 이벤트
       document.getElementById('edit-mode-btn').addEventListener('click', toggleEditMode);
@@ -3504,15 +3573,30 @@
         
         try { console.log('2. updateBrandView 시작'); updateBrandView(); console.log('2. updateBrandView 완료'); } catch(e) { console.error('updateBrandView 에러:', e); }
         
-        // ★ 할인내역 업데이트 ★
+        // ★ 할인내역 업데이트 (판매율/재고주수와 동일하게 브랜드 변경 시 항상 업데이트) ★
         try { 
-          console.log('2-1. updateDiscountTable 시작'); 
+          console.log('2-1. updateDiscountTable 시작 - currentBrand:', currentBrand); 
           if(typeof updateDiscountTable === 'function') {
+            console.log('2-1. 할인내역 업데이트 실행 (브랜드 변경 시)');
             updateDiscountTable().catch(err => console.error('updateDiscountTable 비동기 에러:', err)); 
           }
           console.log('2-1. updateDiscountTable 호출 완료 (비동기 처리 중)'); 
         } catch(e) { 
           console.error('updateDiscountTable 에러:', e); 
+        }
+        
+        // ★ 프로모션 내용 업데이트 (브랜드 변경 시 항상 업데이트) ★
+        try { 
+          console.log('2-2. updatePromotionContent 시작 - currentBrand:', currentBrand); 
+          if(typeof window.updatePromotionContent === 'function') {
+            console.log('2-2. 프로모션 내용 업데이트 실행 (브랜드 변경 시)');
+            window.updatePromotionContent();
+          } else {
+            console.error('2-2. updatePromotionContent 함수가 정의되지 않음!');
+          }
+          console.log('2-2. updatePromotionContent 호출 완료'); 
+        } catch(e) { 
+          console.error('updatePromotionContent 에러:', e); 
         }
         
         // ★ 손익계산서 별도 호출 (updateBrandView와 독립적으로)
@@ -15259,6 +15343,172 @@
       }
     }
     
+    // 전체현황용 할인내역 데이터 로드 (매출구성과 동일하게 전체 브랜드 한 번에 로드)
+    // 할인내역 API는 브랜드별 호출이므로 M,I,X,V,ST,W 병렬 호출 후 브랜드별로 저장
+    // 하나라도 실패해도 나머지는 저장 (Promise.allSettled) → 테이블은 항상 표시
+    // Failed to fetch 등 일시적 네트워크 오류 시 1회 재시도
+    async function fetchDiscountWithRetry(url, code, retries = 1) {
+      try {
+        var res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var json = await res.json();
+        if (!json.success) throw new Error(json.error || 'API 실패');
+        return { code: code, result: json };
+      } catch (e) {
+        if (retries > 0 && (e.message === 'Failed to fetch' || e.name === 'TypeError')) {
+          await new Promise(function (r) { setTimeout(r, 800); });
+          return fetchDiscountWithRetry(url, code, 0);
+        }
+        throw e;
+      }
+    }
+    async function loadOverviewDiscountData() {
+      if (window.overviewDiscountData && typeof window.overviewDiscountData === 'object' && Object.keys(window.overviewDiscountData).length > 0) {
+        console.log('[전체현황] 할인내역 데이터 이미 로드됨 (전체 브랜드)');
+        return window.overviewDiscountData;
+      }
+      
+      console.log('[전체현황] 할인내역 데이터 로드 시작 (전체 브랜드)');
+      const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const analysisMonth = `${apiDate.slice(0, 4)}-${apiDate.slice(4, 6)}`;
+      const brandCodes = ['M', 'I', 'X', 'V', 'ST', 'W'];
+      
+      const settled = await Promise.allSettled(
+        brandCodes.map(function (code) {
+          var url = '/api/discount-detail?brand=' + encodeURIComponent(code) + '&month=' + encodeURIComponent(analysisMonth);
+          return fetchDiscountWithRetry(url, code);
+        })
+      );
+      
+      window.overviewDiscountData = {};
+      settled.forEach((outcome, i) => {
+        if (outcome.status === 'fulfilled' && outcome.value) {
+          var code = outcome.value.code;
+          var result = outcome.value.result; // API 응답 전체: { success, data: [...], rowCount, ... }
+          if (result && typeof result === 'object') {
+            // data가 배열인지 확인 후 저장 (API는 항상 data: rows 배열 반환)
+            var dataArr = Array.isArray(result.data) ? result.data : [];
+            window.overviewDiscountData[code] = {
+              success: result.success,
+              date: result.date,
+              asof_dt: result.asof_dt,
+              brandCode: result.brandCode,
+              analysisMonth: result.analysisMonth,
+              data: dataArr,
+              rowCount: dataArr.length,
+              cached: result.cached
+            };
+            console.log('[전체현황] 할인내역 브랜드 저장:', code, '행 수:', dataArr.length);
+          }
+        } else if (outcome.status === 'rejected') {
+          console.warn('[전체현황] 할인내역 브랜드 로드 실패:', brandCodes[i], outcome.reason);
+        }
+      });
+      var keys = Object.keys(window.overviewDiscountData);
+      var totalRows = keys.reduce(function (sum, k) { return sum + (window.overviewDiscountData[k].data?.length || 0); }, 0);
+      console.log('[전체현황] 할인내역 데이터 로드 완료 (전체 브랜드):', keys, '총 행:', totalRows);
+      return window.overviewDiscountData;
+    }
+    
+    /**
+     * 프로모션 데이터 로드 함수 (전체 브랜드)
+     * 대시보드 접속 시 모든 브랜드의 프로모션 데이터를 미리 로드
+     */
+    async function loadAllPromotionData() {
+      if (window.promotionData && typeof window.promotionData === 'object' && Object.keys(window.promotionData).length > 0) {
+        console.log('[프로모션] 데이터 이미 로드됨 (전체 브랜드)');
+        return window.promotionData;
+      }
+      
+      console.log('[프로모션] 데이터 로드 시작 (전체 브랜드)');
+      const brandCodes = ['M', 'I', 'X', 'V', 'ST', 'W'];
+      
+      const settled = await Promise.allSettled(
+        brandCodes.map(async function (code) {
+          try {
+            const url = '/api/promotion?brand=' + encodeURIComponent(code);
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error('HTTP ' + response.status);
+            }
+            const result = await response.json();
+            return { code: code, result: result };
+          } catch (error) {
+            console.error('[프로모션] 브랜드 로드 실패:', code, error);
+            throw error;
+          }
+        })
+      );
+      
+      window.promotionData = {};
+      settled.forEach((outcome, i) => {
+        if (outcome.status === 'fulfilled' && outcome.value) {
+          const code = outcome.value.code;
+          const result = outcome.value.result;
+          if (result && result.success) {
+            const dataArr = Array.isArray(result.data) ? result.data : [];
+            window.promotionData[code] = {
+              success: result.success,
+              date: result.date,
+              brandCode: result.brandCode,
+              data: dataArr,
+              rowCount: dataArr.length,
+              cached: result.cached
+            };
+            console.log('[프로모션] 브랜드 저장:', code, '행 수:', dataArr.length);
+          }
+        } else if (outcome.status === 'rejected') {
+          console.warn('[프로모션] 브랜드 로드 실패:', brandCodes[i], outcome.reason);
+        }
+      });
+      
+      const keys = Object.keys(window.promotionData);
+      const totalRows = keys.reduce(function (sum, k) { return sum + (window.promotionData[k].data?.length || 0); }, 0);
+      console.log('[프로모션] 데이터 로드 완료 (전체 브랜드):', keys, '총 행:', totalRows);
+      return window.promotionData;
+    }
+    
+    /** 브랜드 코드 → 브랜드명 (할인내역 캐시 키용) */
+    var discountBrandCodeToName = { 'M': 'MLB', 'I': 'MLB_KIDS', 'X': 'DISCOVERY', 'V': 'DUVETICA', 'ST': 'SERGIO', 'W': 'SUPRA' };
+    
+    /**
+     * overview 로드된 원본 배열로 할인코드별 byCode 구조 생성 (드릴다운 캐시용)
+     * @param {Array} rawData - 원본 행 배열
+     * @returns {Object} { [할인유형명]: { discountCode, products: [] } }
+     */
+    function buildDiscountByCode(rawData) {
+      var byCode = {};
+      if (!Array.isArray(rawData)) return byCode;
+      rawData.forEach(function (row) {
+        // 여러 케이스 확인 (한글 컬럼명, 영문 대문자, 영문 소문자)
+        var code = row['할인유형명'] || row['CD_NM'] || row['cd_nm'] || '기타';
+        if (!byCode[code]) {
+          byCode[code] = { discountCode: code, products: [] };
+        }
+        byCode[code].products.push(row);
+      });
+      return byCode;
+    }
+    
+    /**
+     * 전체현황 할인내역 로드 후, 브랜드별로 캐시(byCode) 구조 만들어 discountCache에 넣음.
+     * 이후 updateDiscountTable 호출 시 해당 브랜드 데이터가 바로 사용됨.
+     */
+    function buildDiscountCacheFromOverview() {
+      if (!window.overviewDiscountData || typeof window.overviewDiscountData !== 'object') return;
+      if (!window.discountCache) window.discountCache = {};
+      var codeToName = discountBrandCodeToName;
+      Object.keys(window.overviewDiscountData).forEach(function (brandCode) {
+        var entry = window.overviewDiscountData[brandCode];
+        var rawData = entry && Array.isArray(entry.data) ? entry.data : [];
+        if (rawData.length === 0) return;
+        var brandName = codeToName[brandCode];
+        if (!brandName) return;
+        window.discountCache[brandName] = buildDiscountByCode(rawData);
+        console.log('[전체현황] 할인내역 브랜드별 캐시 구성:', brandName, '할인코드 수:', Object.keys(window.discountCache[brandName]).length);
+      });
+    }
+    
     // 판매율 데이터를 히트맵용으로 집계
     function aggregateSalesRateForHeatmap(salesRateData) {
       if (!window.salesCompositionData || !window.salesCompositionData.data) {
@@ -16781,6 +17031,20 @@
           dateInfoEl.innerHTML = `<div><strong>업데이트 일자:</strong> ${updateDate}</div><div><strong>분석기간:</strong> 당년 ${cyPeriod} / 전년 ${pyPeriod}</div>`;
         }
       }
+      
+      // ★ 트리맵 렌더링 완료 - 로딩 오버레이 숨김 ★
+      setTimeout(() => {
+        const treemapChannelLoading = document.getElementById('treemapChannelLoading');
+        const treemapItemLoading = document.getElementById('treemapItemLoading');
+        if (treemapChannelLoading) {
+          treemapChannelLoading.style.display = 'none';
+          console.log('[트리맵] 채널 트리맵 로딩 오버레이 숨김');
+        }
+        if (treemapItemLoading) {
+          treemapItemLoading.style.display = 'none';
+          console.log('[트리맵] 아이템 트리맵 로딩 오버레이 숨김');
+        }
+      }, 300);
     }
     
     
@@ -16962,8 +17226,8 @@
     
     // ==================== 끝: 전체현황 히트맵 API 연동 ====================
     
-    // 드릴다운 패널 이벤트 리스너 설정
-    document.addEventListener('DOMContentLoaded', function() {
+    // 드릴다운 패널 이벤트 리스너 설정 (DOM 이미 로드된 경우에도 실행)
+    function initDashboardDOM() {
       // 탭 버튼 이벤트 리스너 (판매율 / 재고주수)
       const salesRateTabBtn = document.getElementById('tab-sales-rate');
       const stockWeeksTabBtn = document.getElementById('tab-stock-weeks');
@@ -16982,11 +17246,11 @@
         });
       }
       
-      // 업데이트 버튼 이벤트 리스너
-      const updateBtn = document.getElementById('btn-update-analysis-data');
-      if (updateBtn) {
-        updateBtn.addEventListener('click', async function() {
-          console.log('[업데이트 버튼] 클릭 - 강제 업데이트 시작');
+      // 전체 데이터 업데이트 버튼 이벤트 리스너 (상단 헤더)
+      const updateAllBtn = document.getElementById('btn-update-all-data');
+      if (updateAllBtn) {
+        updateAllBtn.addEventListener('click', async function() {
+          console.log('[전체 업데이트] 클릭 - 모든 API 강제 업데이트 시작');
           
           // 버튼 비활성화 및 로딩 상태
           this.disabled = true;
@@ -16996,22 +17260,87 @@
           this.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> 업데이트 중...';
           
           try {
-            // 현재 활성 탭 확인
-            const salesRateTab = document.getElementById('tab-sales-rate');
-            const isSalesRateActive = salesRateTab && salesRateTab.classList.contains('active');
+            // 모든 API 병렬 업데이트 (판매율, 재고주수, 트리맵, 할인내역)
+            console.log('[전체 업데이트] 모든 API 병렬 호출 시작...');
             
-            if (isSalesRateActive) {
-              // 판매율 데이터 강제 업데이트
-              await loadSalesRateData(true);
-              console.log('[업데이트 버튼] 판매율 데이터 업데이트 완료');
-            } else {
-              // 재고주수 데이터 강제 업데이트
-              await loadStockWeeksData(true);
-              console.log('[업데이트 버튼] 재고주수 데이터 업데이트 완료');
-            }
+            // 트리맵 로딩 오버레이 표시
+            const treemapChannelLoading = document.getElementById('treemapChannelLoading');
+            const treemapItemLoading = document.getElementById('treemapItemLoading');
+            if (treemapChannelLoading) treemapChannelLoading.style.display = 'flex';
+            if (treemapItemLoading) treemapItemLoading.style.display = 'flex';
+            
+            await Promise.all([
+              // 1. 판매율
+              loadSalesRateData(true).then(() => {
+                console.log('[전체 업데이트] ✓ 판매율 데이터 업데이트 완료');
+              }).catch(err => {
+                console.error('[전체 업데이트] ✗ 판매율 업데이트 실패:', err);
+              }),
+              
+              // 2. 재고주수
+              loadStockWeeksData(true).then(() => {
+                console.log('[전체 업데이트] ✓ 재고주수 데이터 업데이트 완료');
+              }).catch(err => {
+                console.error('[전체 업데이트] ✗ 재고주수 업데이트 실패:', err);
+              }),
+              
+              // 3. 트리맵 (매출구성)
+              loadSalesCompositionData(true).then(() => {
+                console.log('[전체 업데이트] ✓ 트리맵 데이터 업데이트 완료');
+                // 트리맵 다시 렌더링
+                if (window.salesCompositionData && typeof updateBrandTreemaps === 'function') {
+                  const currentBrand = document.querySelector('.brand-btn.active')?.dataset.brand;
+                  if (currentBrand) {
+                    updateBrandTreemaps(currentBrand);
+                  }
+                }
+                // 트리맵 로딩 오버레이 숨김
+                if (treemapChannelLoading) treemapChannelLoading.style.display = 'none';
+                if (treemapItemLoading) treemapItemLoading.style.display = 'none';
+              }).catch(err => {
+                console.error('[전체 업데이트] ✗ 트리맵 업데이트 실패:', err);
+                // 실패 시에도 로딩 오버레이 숨김
+                if (treemapChannelLoading) treemapChannelLoading.style.display = 'none';
+                if (treemapItemLoading) treemapItemLoading.style.display = 'none';
+              }),
+              
+              // 4. 할인내역 (현재 브랜드만)
+              (async () => {
+                const currentBrand = document.querySelector('.brand-btn.active')?.dataset.brand;
+                if (currentBrand && typeof loadDiscountData === 'function') {
+                  // 브랜드 코드 매핑
+                  const brandCodeMap = {
+                    'MLB': 'M',
+                    'MLB_KIDS': 'I',
+                    'DISCOVERY': 'X',
+                    'DUVETICA': 'V',
+                    'SERGIO': 'ST',
+                    'SUPRA': 'W'
+                  };
+                  const brandCode = brandCodeMap[currentBrand] || 'M';
+                  
+                  // forceUpdate를 위해 API 직접 호출
+                  const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const monthParam = urlParams.get('month');
+                  let url = `/api/discount-detail?brand=${brandCode}&date=${apiDate}&forceUpdate=true`;
+                  if (monthParam) {
+                    url += `&month=${monthParam}`;
+                  }
+                  return fetch(url).then(r => r.json()).then(() => {
+                    console.log('[전체 업데이트] ✓ 할인내역 데이터 업데이트 완료');
+                    // 할인내역 다시 로드
+                    return loadDiscountData(brandCode);
+                  }).catch(err => {
+                    console.error('[전체 업데이트] ✗ 할인내역 업데이트 실패:', err);
+                  });
+                }
+              })()
+            ]);
+            
+            console.log('[전체 업데이트] 모든 API 업데이트 완료');
             
             // 성공 메시지
-            const tempHTML = this.innerHTML;
             this.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> 업데이트 완료';
             this.style.background = '#10b981';
             
@@ -17024,7 +17353,7 @@
             }, 2000);
             
           } catch (error) {
-            console.error('[업데이트 버튼] 업데이트 실패:', error);
+            console.error('[전체 업데이트] 업데이트 실패:', error);
             
             // 에러 메시지
             this.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg> 업데이트 실패';
@@ -17147,10 +17476,22 @@
           totalRevenueEl.textContent = `${(totalRevenue / 100000000).toFixed(1)}억원`;
         }
         
-        // 아이템 수 표시 (ITEM_CD 기준 고유 아이템 수)
-        const itemCountEl = document.getElementById('sidebar-item-count');
-        if (itemCountEl) {
-          itemCountEl.textContent = `${uniqueItems.size}개`;
+        // 매출기간 표시 (salesCompositionData의 asof_dt 기반)
+        const salesPeriodEl = document.getElementById('sidebar-sales-period');
+        if (salesPeriodEl && window.salesCompositionData) {
+          const asofDate = window.salesCompositionData.asof_dt || '-';
+          
+          if (asofDate && asofDate !== '-') {
+            // 당년: 당월 1일 ~ asof_dt
+            const asofDateObj = new Date(asofDate);
+            const cyYear = asofDateObj.getFullYear();
+            const cyMonth = String(asofDateObj.getMonth() + 1).padStart(2, '0');
+            const cyPeriod = `${cyYear}-${cyMonth}-01 ~ ${asofDate}`;
+            
+            salesPeriodEl.textContent = cyPeriod;
+          } else {
+            salesPeriodEl.textContent = '-';
+          }
         }
         
         // 사이드바 트리맵은 이미 renderAllTreemaps()에서 렌더링됨
@@ -17160,11 +17501,13 @@
           categoryCount: Object.keys(categoryTotals).length
         });
         
-        // 2. 할인내역 업데이트 (옵션)
-        // updateDiscountTable(); // 필요시 구현
-        
-        // 3. 프로모션 내용 업데이트 (옵션)
-        // updatePromotionContent(); // 필요시 구현
+        // 프로모션 내용 업데이트
+        console.log('[사이드바] 프로모션 업데이트 호출 시도');
+        if (typeof window.updatePromotionContent === 'function') {
+          window.updatePromotionContent();
+        } else {
+          console.error('[사이드바] updatePromotionContent 함수가 정의되지 않음!');
+        }
       }
       
       // 1-1. 카테고리 → 채널 드릴다운 트리맵 렌더링 (Snowflake API)
@@ -17498,320 +17841,14 @@
       // ====== 할인내역 API 연결 함수 ======
       
       /**
-       * 할인내역 데이터 로드 (Snowflake API + Redis 캐시)
-       * @param {string} brandCode - 브랜드 코드 (M, I, X, V, ST, W)
-       * @returns {Promise<Array>} 할인내역 데이터 배열
-       */
-      async function loadDiscountData(brandCode) {
-        try {
-          // URL 파라미터에서 분석월 가져오기 (window.__DATA_DATE__ 사용)
-          const dateStr = window.__DATA_DATE__ || '20260119';
-          const analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
-          
-          console.log('[할인내역] 데이터 로드 시작:', { brandCode, analysisMonth });
-          
-          // API 호출 (Redis 캐시 사용)
-          const response = await fetch(
-            `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}`
-          );
-          
-          if (!response.ok) {
-            throw new Error(`API 호출 실패: ${response.status}`);
-          }
-          
-          const result = await response.json();
-          
-          if (!result.success) {
-            throw new Error(result.error || '데이터 로드 실패');
-          }
-          
-          // 전역 변수에 저장 (드릴다운에서 재사용)
-          window.discountDetailData = result.data;
-          
-          console.log('[할인내역] 데이터 로드 완료:', {
-            rowCount: result.data.length,
-            cached: result.cached
-          });
-          
-          return result.data;
-          
-        } catch (error) {
-          console.error('[할인내역] 데이터 로드 실패:', error);
-          throw error;
-        }
-      }
-      
-      // 2. 할인내역 업데이트
-      async function updateDiscountTable() {
-        try {
-          const brandCodeMap = {
-            'MLB': 'M',
-            'MLB_KIDS': 'I',
-            'DISCOVERY': 'X',
-            'DUVETICA': 'V',
-            'SERGIO': 'ST',
-            'SUPRA': 'W'
-          };
-          
-          const brandCode = brandCodeMap[currentBrand] || 'M';
-          
-          console.log('[할인내역] 테이블 업데이트 시작:', { currentBrand, brandCode });
-          
-          // API에서 데이터 로드
-          const rawData = await loadDiscountData(brandCode);
-          
-          if (!rawData || rawData.length === 0) {
-            console.warn('[할인내역] 데이터가 없습니다.');
-            return;
-          }
-          
-          // 데이터 집계 (할인코드별)
-          const discountData = aggregateDiscountData(rawData);
-          
-          // 테이블 렌더링
-          renderDiscountTable(discountData);
-          
-          // 차트 업데이트
-          updateDiscountChart(discountData);
-          
-          console.log('[할인내역] 테이블 업데이트 완료');
-          
-        } catch (error) {
-          console.error('[할인내역] 테이블 업데이트 실패:', error);
-        }
-      }
-      
-      /**
-       * 할인내역 데이터 집계
-       * @param {Array} rawData - 원본 데이터
-       * @returns {Object} 집계된 할인코드별 데이터
-       */
-      function aggregateDiscountData(rawData) {
-        const result = {};
-        
-        console.log('[할인내역] 집계 시작 - 원본 데이터 개수:', rawData.length);
-        console.log('[할인내역] 첫번째 행 샘플:', rawData[0]);
-        
-        rawData.forEach(row => {
-          const discountCode = row['할인유형명'] || '기타';
-          const gubun = row['구분']; // 'CY' or 'PY'
-          const tagSales = parseFloat(row['TAG매출']) || 0;
-          const actualSales = parseFloat(row['실판매출']) || 0;
-          
-          if (!result[discountCode]) {
-            result[discountCode] = {
-              cy: { tag: 0, sales: 0 },
-              py: { tag: 0, sales: 0 }
-            };
-          }
-          
-          if (gubun === 'CY') {
-            result[discountCode].cy.tag += tagSales;
-            result[discountCode].cy.sales += actualSales;
-          } else if (gubun === 'PY') {
-            result[discountCode].py.tag += tagSales;
-            result[discountCode].py.sales += actualSales;
-          }
-        });
-        
-        // 할인율 계산 (원 단위 그대로 저장)
-        Object.keys(result).forEach(code => {
-          const cy = result[code].cy;
-          const py = result[code].py;
-          
-          cy.discountRate = cy.tag > 0 ? ((1 - cy.sales / cy.tag) * 100) : 0;
-          py.discountRate = py.tag > 0 ? ((1 - py.sales / py.tag) * 100) : 0;
-        });
-        
-        console.log('[할인내역] 집계 완료 - 할인코드 개수:', Object.keys(result).length);
-        console.log('[할인내역] 집계 결과:', result);
-        
-        return result;
-      }
-      
-      /**
-       * 할인코드 정렬 함수
-       * - '정상'이 맨 위
-       * - 그 다음 숫자% (10%, 20%, 30%...)
-       * - 나머지는 가나다순
-       */
-      function sortDiscountCodes(codes) {
-        return codes.sort((a, b) => {
-          if (a === '정상') return -1;
-          if (b === '정상') return 1;
-          
-          const aIsPercent = /^\d+%$/.test(a);
-          const bIsPercent = /^\d+%$/.test(b);
-          
-          if (aIsPercent && bIsPercent) {
-            return parseInt(a) - parseInt(b);
-          }
-          if (aIsPercent) return -1;
-          if (bIsPercent) return 1;
-          
-          return a.localeCompare(b, 'ko');
-        });
-      }
-      
-      /**
-       * 할인내역 테이블 렌더링
-       */
-      function renderDiscountTable(discountData) {
-        const tbody = document.getElementById('sidebar-discount-tbody');
-        if (!tbody) {
-          console.error('[할인내역] tbody 요소를 찾을 수 없습니다!');
-          return;
-        }
-        
-        console.log('[할인내역] 테이블 렌더링 시작 - 데이터:', discountData);
-        
-        // 기존 내용 제거
-        tbody.innerHTML = '';
-        
-        // 합계 계산
-        let totalCySales = 0;
-        let totalPySales = 0;
-        let totalCyTag = 0;
-        let totalPyTag = 0;
-        
-        Object.keys(discountData).forEach(code => {
-          totalCySales += discountData[code].cy.sales;
-          totalPySales += discountData[code].py.sales;
-          totalCyTag += discountData[code].cy.tag;
-          totalPyTag += discountData[code].py.tag;
-        });
-        
-        const totalCyDiscountRate = totalCyTag > 0 ? ((1 - totalCySales / totalCyTag) * 100) : 0;
-        const totalPyDiscountRate = totalPyTag > 0 ? ((1 - totalPySales / totalPyTag) * 100) : 0;
-        const totalYoy = totalPySales > 0 ? ((totalCySales / totalPySales) * 100) : 0;
-        const totalDiscountDiff = totalCyDiscountRate - totalPyDiscountRate;
-        
-        // 합계 행 추가
-        const totalRow = document.createElement('tr');
-        totalRow.style.background = '#f8fafc';
-        totalRow.style.fontWeight = '700';
-        totalRow.style.borderTop = '2px solid #4f46e5';
-        totalRow.style.borderBottom = '2px solid #cbd5e1';
-        
-        totalRow.innerHTML = `
-          <td style="padding:10px 6px;text-align:left;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">합계</td>
-          <td style="padding:10px 6px;text-align:right;font-size:12px;color:#1f2937;">${(totalCySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0})}</td>
-          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalCyDiscountRate.toFixed(1)}%</td>
-          <td style="padding:10px 6px;text-align:right;font-size:12px;color:#1f2937;">${(totalPySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0})}</td>
-          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalPyDiscountRate.toFixed(1)}%</td>
-          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalYoy.toFixed(0)}%</td>
-          <td style="padding:10px 6px;text-align:center;font-size:12px;color:${totalDiscountDiff >= 0 ? '#dc2626' : '#059669'};font-weight:600;">${totalDiscountDiff >= 0 ? '+' : ''}${totalDiscountDiff.toFixed(1)}%p</td>
-        `;
-        
-        tbody.appendChild(totalRow);
-        
-        // 할인코드 정렬
-        const sortedCodes = sortDiscountCodes(Object.keys(discountData));
-        
-        // 각 할인코드별 행 추가
-        sortedCodes.forEach((code, index) => {
-          const data = discountData[code];
-          const cySales = data.cy.sales;
-          const pySales = data.py.sales;
-          const cyDiscountRate = data.cy.discountRate;
-          const pyDiscountRate = data.py.discountRate;
-          const yoy = pySales > 0 ? ((cySales / pySales) * 100) : 0;
-          const discountDiff = cyDiscountRate - pyDiscountRate;
-          
-          const row = document.createElement('tr');
-          row.style.background = index % 2 === 0 ? '#fff' : '#f9fafb';
-          row.style.cursor = 'pointer';
-          row.style.transition = 'background 0.2s';
-          
-          row.onmouseenter = () => { row.style.background = '#e0e7ff'; };
-          row.onmouseleave = () => { row.style.background = index % 2 === 0 ? '#fff' : '#f9fafb'; };
-          row.onclick = () => showDiscountDetail(code, currentBrand);
-          
-          // 데이터가 없는 경우 빈칸 처리
-          const cySalesText = cySales > 0 ? (cySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0}) : '';
-          const pySalesText = pySales > 0 ? (pySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0}) : '';
-          const cyRateText = cySales > 0 ? `${cyDiscountRate.toFixed(1)}%` : '';
-          const pyRateText = pySales > 0 ? `${pyDiscountRate.toFixed(1)}%` : '';
-          const yoyText = pySales > 0 && cySales > 0 ? `${yoy.toFixed(0)}%` : '';
-          const diffText = (cySales > 0 || pySales > 0) ? `${discountDiff >= 0 ? '+' : ''}${discountDiff.toFixed(1)}%p` : '';
-          const diffColor = discountDiff >= 0 ? '#dc2626' : '#059669';
-          
-          row.innerHTML = `
-            <td style="padding:9px 6px;text-align:left;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${code}</td>
-            <td style="padding:9px 6px;text-align:right;font-size:12px;color:#475569;">${cySalesText}</td>
-            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${cyRateText}</td>
-            <td style="padding:9px 6px;text-align:right;font-size:12px;color:#475569;">${pySalesText}</td>
-            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${pyRateText}</td>
-            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${yoyText}</td>
-            <td style="padding:9px 6px;text-align:center;font-size:12px;color:${diffColor};font-weight:600;">${diffText}</td>
-          `;
-          
-          tbody.appendChild(row);
-        });
-        
-        console.log('[할인내역] 테이블 렌더링 완료:', sortedCodes.length, '개 코드');
-      }
-      
-      // ====== 할인내역 옛날 코드 (사용 안함) ======
-      function updateDiscountTable_OLD() {
-        console.log('[사이드바] 할인내역 업데이트 (구버전 - 사용안함)');
-        return;
-        
-        /* 옛날 코드 (사용 안함)
-        // 샘플 데이터 (실제 데이터로 교체 필요)
-        const discountData = {
-          total: { cy: 45.3, py: 38.7, yoy: 17.1 },
-          '10%': { cy: 12.5, py: 10.3, yoy: 21.4 },
-          '20%': { cy: 18.8, py: 16.2, yoy: 16.0 },
-          '30%': { cy: 14.0, py: 12.2, yoy: 14.8 }
-        };
-        
-        // 합계
-        document.getElementById('discount-total-cy').textContent = `${discountData.total.cy.toFixed(1)}억`;
-        document.getElementById('discount-total-py').textContent = `${discountData.total.py.toFixed(1)}억`;
-        document.getElementById('discount-total-yoy').innerHTML = `
-          <span style="color:${discountData.total.yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
-            ${discountData.total.yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData.total.yoy).toFixed(1)}%
-          </span>
-        `;
-        
-        // 10%
-        document.getElementById('discount-10-cy').textContent = `${discountData['10%'].cy.toFixed(1)}억`;
-        document.getElementById('discount-10-py').textContent = `${discountData['10%'].py.toFixed(1)}억`;
-        document.getElementById('discount-10-yoy').innerHTML = `
-          <span style="color:${discountData['10%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
-            ${discountData['10%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['10%'].yoy).toFixed(1)}%
-          </span>
-        `;
-        
-        // 20%
-        document.getElementById('discount-20-cy').textContent = `${discountData['20%'].cy.toFixed(1)}억`;
-        document.getElementById('discount-20-py').textContent = `${discountData['20%'].py.toFixed(1)}억`;
-        document.getElementById('discount-20-yoy').innerHTML = `
-          <span style="color:${discountData['20%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
-            ${discountData['20%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['20%'].yoy).toFixed(1)}%
-          </span>
-        `;
-        
-        // 30%
-        document.getElementById('discount-30-cy').textContent = `${discountData['30%'].cy.toFixed(1)}억`;
-        document.getElementById('discount-30-py').textContent = `${discountData['30%'].py.toFixed(1)}억`;
-        document.getElementById('discount-30-yoy').innerHTML = `
-          <span style="color:${discountData['30%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
-            ${discountData['30%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['30%'].yoy).toFixed(1)}%
-          </span>
-        `;
-        
-        // 할인율 차트 업데이트
-        updateDiscountChart(discountData);
-      }
-      
-      /**
-       * 할인율 차트 업데이트
+       * 할인내역 차트 업데이트
        */
       function updateDiscountChart(discountData) {
         const canvas = document.getElementById('sidebar-discount-chart');
-        if (!canvas) return;
+        if (!canvas) {
+          console.log('[할인내역] 차트 캔버스를 찾을 수 없습니다.');
+          return;
+        }
         
         const ctx = canvas.getContext('2d');
         
@@ -17824,14 +17861,14 @@
         const codes = Object.keys(discountData)
           .filter(code => code !== '합계' && code !== '정상')
           .sort((a, b) => {
-            const aTotal = discountData[a].cy.salesInBillion + discountData[a].py.salesInBillion;
-            const bTotal = discountData[b].cy.salesInBillion + discountData[b].py.salesInBillion;
+            const aTotal = (discountData[a].cy.salesInBillion || 0) + (discountData[a].py.salesInBillion || 0);
+            const bTotal = (discountData[b].cy.salesInBillion || 0) + (discountData[b].py.salesInBillion || 0);
             return bTotal - aTotal;
           })
           .slice(0, 5);
         
-        const cyData = codes.map(code => discountData[code].cy.salesInBillion);
-        const pyData = codes.map(code => discountData[code].py.salesInBillion);
+        const cyData = codes.map(code => discountData[code].cy.salesInBillion || 0);
+        const pyData = codes.map(code => discountData[code].py.salesInBillion || 0);
         
         window.sidebarDiscountChart = new Chart(ctx, {
           type: 'bar',
@@ -17892,296 +17929,121 @@
         });
       }
       
-      // ====== 할인내역 드릴다운 기능 ======
-      
       /**
-       * 할인내역 드릴다운 표시
-       * @param {string} discountCode - 할인 코드
-       * @param {string} brandName - 브랜드명
+       * 할인내역 데이터 로드 (Snowflake API + Redis 캐시)
+       * @param {string} brandCode - 브랜드 코드 (M, I, X, V, ST, W)
+       * @returns {Promise<Array>} 할인내역 데이터 배열
        */
-      function showDiscountDetail(discountCode, brandName) {
-        console.log('[할인내역 드릴다운] 시작:', { discountCode, brandName });
-        
-        // 원본 데이터 확인
-        if (!window.discountDetailData || window.discountDetailData.length === 0) {
-          console.error('[할인내역 드릴다운] 원본 데이터가 없습니다.');
-          alert('할인내역 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
-          return;
-        }
-        
-        // 기존 드릴다운 패널이 있으면 제거
-        const existingPanel = document.getElementById('discount-drilldown-panel');
-        if (existingPanel) {
-          existingPanel.remove();
-        }
-        
-        // 드릴다운 패널 생성
-        const panel = document.createElement('div');
-        panel.id = 'discount-drilldown-panel';
-        panel.style.cssText = `
-          background: #fff;
-          border-radius: 12px;
-          padding: 20px;
-          margin-top: 20px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          border: 2px solid #4f46e5;
-        `;
-        
-        // 패널 헤더
-        const header = document.createElement('div');
-        header.style.cssText = `
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-          padding-bottom: 12px;
-          border-bottom: 2px solid #e5e7eb;
-        `;
-        header.innerHTML = `
-          <h5 style="color:#4f46e5;font-size:16px;font-weight:700;margin:0;">
-            📋 ${discountCode} 상세내역
-          </h5>
-          <button id="close-drilldown-btn" style="
-            padding: 6px 12px;
-            background: #ef4444;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-          ">✕ 닫기</button>
-        `;
-        
-        panel.appendChild(header);
-        
-        // 닫기 버튼 이벤트
-        setTimeout(() => {
-          const closeBtn = document.getElementById('close-drilldown-btn');
-          if (closeBtn) {
-            closeBtn.onclick = () => panel.remove();
+      async function loadDiscountData(brandCode) {
+        try {
+          // overview 로드와 동일한 분석월 사용 (__API_DATE__ 우선, 없으면 __DATA_DATE__)
+          const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '') || '20260119';
+          const analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
+          
+          console.log('[할인내역] 데이터 로드 시작:', { brandCode, analysisMonth });
+          
+          // API 호출 (Redis 캐시 사용, 60초 타임아웃)
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
+          const response = await fetch(
+            `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}`,
+            { signal: controller.signal }
+          );
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`API 호출 실패: ${response.status}`);
           }
-        }, 100);
-        
-        // 필터 UI 생성
-        const filterUI = createDiscountFilterUI();
-        panel.appendChild(filterUI);
-        
-        // 테이블 컨테이너
-        const tableContainer = document.createElement('div');
-        tableContainer.id = 'discount-detail-table-container';
-        tableContainer.style.cssText = `
-          margin-top: 16px;
-          max-height: 400px;
-          overflow-y: auto;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-        `;
-        
-        panel.appendChild(tableContainer);
-        
-        // 할인내역 테이블 아래에 패널 추가
-        const discountTable = document.getElementById('sidebar-discount-table');
-        if (discountTable && discountTable.parentElement) {
-          discountTable.parentElement.parentElement.appendChild(panel);
-        }
-        
-        // 초기 데이터 렌더링
-        renderDiscountDetailTable(discountCode, 'CY', [], '');
-      }
-      
-      /**
-       * 드릴다운 필터 UI 생성
-       */
-      function createDiscountFilterUI() {
-        const container = document.createElement('div');
-        container.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
-        
-        // 1. 당년/전년 토글
-        const periodToggle = document.createElement('div');
-        periodToggle.innerHTML = `
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span style="font-size:13px;color:#475569;font-weight:600;">기간:</span>
-            <button class="period-toggle-btn" data-period="CY" style="
-              padding: 8px 16px;
-              background: #4f46e5;
-              color: #fff;
-              border: none;
-              border-radius: 6px;
-              cursor: pointer;
-              font-size: 12px;
-              font-weight: 600;
-            ">당년</button>
-            <button class="period-toggle-btn" data-period="PY" style="
-              padding: 8px 16px;
-              background: #e5e7eb;
-              color: #374151;
-              border: none;
-              border-radius: 6px;
-              cursor: pointer;
-              font-size: 12px;
-              font-weight: 600;
-            ">전년</button>
-          </div>
-        `;
-        
-        // 2. 채널 필터
-        const channelFilter = document.createElement('div');
-        const channels = ['백화점', '면세점', '직영점(가두)', '자사몰', '제휴몰', '대리점', '아울렛', '직영몰', '직영점(가두)2'];
-        const channelButtons = channels.map(ch => 
-          `<button class="channel-filter-btn" data-channel="${ch}" style="
-            padding: 6px 12px;
-            background: #e5e7eb;
-            color: #374151;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-            transition: all 0.2s;
-          ">${ch}</button>`
-        ).join('');
-        
-        channelFilter.innerHTML = `
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <span style="font-size:13px;color:#475569;font-weight:600;">채널:</span>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;">
-              ${channelButtons}
-            </div>
-          </div>
-        `;
-        
-        // 3. 검색창
-        const searchBox = document.createElement('div');
-        searchBox.innerHTML = `
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span style="font-size:13px;color:#475569;font-weight:600;">검색:</span>
-            <input 
-              type="text" 
-              id="discount-detail-search" 
-              placeholder="아이템명, 품번, 품명 검색..."
-              style="
-                flex: 1;
-                padding: 8px 12px;
-                border: 1px solid #d1d5db;
-                border-radius: 6px;
-                font-size: 13px;
-              "
-            />
-          </div>
-        `;
-        
-        container.appendChild(periodToggle);
-        container.appendChild(channelFilter);
-        container.appendChild(searchBox);
-        
-        // 이벤트 리스너 추가 (딜레이 후)
-        setTimeout(() => {
-          attachDiscountFilterEvents();
-        }, 100);
-        
-        return container;
-      }
-      
-      /**
-       * 필터 이벤트 리스너 연결
-       */
-      function attachDiscountFilterEvents() {
-        // 현재 선택된 필터 상태
-        window.discountFilterState = {
-          period: 'CY',
-          channels: [],
-          searchText: ''
-        };
-        
-        // 당년/전년 토글
-        document.querySelectorAll('.period-toggle-btn').forEach(btn => {
-          btn.onclick = () => {
-            const period = btn.dataset.period;
-            window.discountFilterState.period = period;
-            
-            // 버튼 스타일 업데이트
-            document.querySelectorAll('.period-toggle-btn').forEach(b => {
-              b.style.background = b.dataset.period === period ? '#4f46e5' : '#e5e7eb';
-              b.style.color = b.dataset.period === period ? '#fff' : '#374151';
-            });
-            
-            // 테이블 재렌더링
-            refreshDiscountDetailTable();
-          };
-        });
-        
-        // 채널 필터
-        document.querySelectorAll('.channel-filter-btn').forEach(btn => {
-          btn.onclick = () => {
-            const channel = btn.dataset.channel;
-            const channels = window.discountFilterState.channels;
-            
-            if (channels.includes(channel)) {
-              // 선택 해제
-              window.discountFilterState.channels = channels.filter(ch => ch !== channel);
-              btn.style.background = '#e5e7eb';
-              btn.style.color = '#374151';
-              btn.style.borderColor = '#d1d5db';
-            } else {
-              // 선택
-              window.discountFilterState.channels.push(channel);
-              btn.style.background = '#4f46e5';
-              btn.style.color = '#fff';
-              btn.style.borderColor = '#4f46e5';
-            }
-            
-            // 테이블 재렌더링
-            refreshDiscountDetailTable();
-          };
-        });
-        
-        // 검색
-        const searchInput = document.getElementById('discount-detail-search');
-        if (searchInput) {
-          searchInput.oninput = (e) => {
-            window.discountFilterState.searchText = e.target.value.trim();
-            // 디바운스 (300ms)
-            clearTimeout(window.discountSearchTimeout);
-            window.discountSearchTimeout = setTimeout(() => {
-              refreshDiscountDetailTable();
-            }, 300);
-          };
+          
+          const result = await response.json();
+          
+          if (!result.success) {
+            throw new Error(result.error || '데이터 로드 실패');
+          }
+          
+          // 전역 변수에 저장 (드릴다운에서 재사용)
+          window.discountDetailData = result.data;
+          
+          console.log('[할인내역] 데이터 로드 완료:', {
+            rowCount: result.data.length,
+            cached: result.cached
+          });
+          
+          // API 응답 데이터 구조 확인
+          if (result.data && result.data.length > 0) {
+            console.log('[할인내역] API 응답 첫 번째 행:', result.data[0]);
+            console.log('[할인내역] API 응답 키 목록:', Object.keys(result.data[0]));
+          }
+          
+          return result.data;
+          
+        } catch (error) {
+          const msg = error && error.name === 'AbortError' ? '할인내역 API 타임아웃(60초 초과)' : (error && error.message) || error;
+          console.error('[할인내역] 데이터 로드 실패:', msg);
+          throw error;
         }
       }
       
-      /**
-       * 드릴다운 테이블 재렌더링
-       */
-      function refreshDiscountDetailTable() {
-        // 현재 선택된 할인코드 가져오기
-        const panel = document.getElementById('discount-drilldown-panel');
-        if (!panel) return;
-        
-        const headerText = panel.querySelector('h5').textContent;
-        const discountCode = headerText.replace('📋 ', '').replace(' 상세내역', '').trim();
-        
-        const { period, channels, searchText } = window.discountFilterState;
-        renderDiscountDetailTable(discountCode, period, channels, searchText);
-      }
+      // ====== 할인내역 드릴다운 관련 함수들 (먼저 정의) ======
       
       /**
        * 드릴다운 상세 테이블 렌더링
        */
-      function renderDiscountDetailTable(discountCode, period, selectedChannels, searchText) {
+      window.renderDiscountDetailTable = function renderDiscountDetailTable(discountCode, period, selectedChannels, searchText) {
+        console.log('[할인내역 드릴다운] renderDiscountDetailTable 호출:', { discountCode, period, selectedChannels, searchText });
+        
         const container = document.getElementById('discount-detail-table-container');
-        if (!container) return;
+        if (!container) {
+          console.error('[할인내역 드릴다운] container를 찾을 수 없습니다!');
+          return;
+        }
+        
+        var src = window.__drilldownData || window.discountDetailData || [];
+        console.log('[할인내역 드릴다운] 사용 데이터 개수:', src.length);
+        console.log('[할인내역 드릴다운] 데이터 소스:', window.__drilldownData ? 'drilldownData' : 'discountDetailData');
+        console.log('[할인내역 드릴다운] 필터 조건:', { discountCode, period, selectedChannels, searchText });
+        
+        if (src.length > 0) {
+          console.log('[할인내역 드릴다운] 첫 번째 데이터 샘플:', src[0]);
+        }
         
         // 데이터 필터링
-        let filteredData = window.discountDetailData.filter(row => {
+        let filteredData = src.filter(row => {
           // 할인코드 필터
-          if (row['할인유형명'] !== discountCode) return false;
+          const rowDiscountCode = row['할인유형명'] || row['CD_NM'] || row['cd_nm'];
+          const discountMatch = rowDiscountCode === discountCode;
+          
+          if (!discountMatch) {
+            if (src.indexOf(row) < 3) {
+              console.log(`[할인내역 필터] Row ${src.indexOf(row)} 할인코드 불일치:`, { 
+                찾는값: discountCode, 
+                실제값: rowDiscountCode,
+                원본: { 할인유형명: row['할인유형명'], CD_NM: row['CD_NM'] }
+              });
+            }
+            return false;
+          }
           
           // 기간 필터
-          if (row['구분'] !== period) return false;
+          const rowPeriod = row['구분'] || row['GUBUN'] || row['gubun'];
+          const periodMatch = rowPeriod === period;
+          
+          if (!periodMatch) {
+            if (src.indexOf(row) < 3) {
+              console.log(`[할인내역 필터] Row ${src.indexOf(row)} 기간 불일치:`, { 
+                찾는값: period, 
+                실제값: rowPeriod,
+                원본: { 구분: row['구분'], GUBUN: row['GUBUN'] }
+              });
+            }
+            return false;
+          }
           
           // 채널 필터 (선택된 채널이 있을 경우만)
-          if (selectedChannels.length > 0 && !selectedChannels.includes(row['채널명'])) return false;
+          if (selectedChannels.length > 0) {
+            const rowChannel = row['채널명'];
+            if (!selectedChannels.includes(rowChannel)) return false;
+          }
           
           // 검색 필터
           if (searchText) {
@@ -18202,15 +18064,34 @@
         
         console.log('[할인내역 드릴다운] 필터링된 데이터:', filteredData.length, '행');
         
+        // 결과 개수 표시
+        const resultCount = document.createElement('div');
+        resultCount.style.cssText = 'padding:12px 16px;background:#f8fafc;border-radius:8px 8px 0 0;border-bottom:2px solid #4f46e5;display:flex;justify-content:space-between;align-items:center;';
+        resultCount.innerHTML = `
+          <span style="font-size:13px;color:#475569;font-weight:600;">
+            <span style="color:#4f46e5;font-weight:700;font-size:16px;">${filteredData.length}</span>건의 데이터
+          </span>
+          <span style="font-size:11px;color:#64748b;">
+            ${window.discountFilterState?.period === 'CY' ? '당년' : '전년'} 데이터
+            ${window.discountFilterState?.channels?.length > 0 ? ` | 채널: ${window.discountFilterState.channels.join(', ')}` : ''}
+            ${window.discountFilterState?.searchText ? ` | 검색: "${window.discountFilterState.searchText}"` : ''}
+          </span>
+        `;
+        
         // 테이블 생성
         if (filteredData.length === 0) {
           container.innerHTML = `
-            <div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">
-              조건에 맞는 데이터가 없습니다.
+            <div style="padding:60px 40px;text-align:center;background:#f8fafc;border-radius:8px;">
+              <div style="font-size:48px;margin-bottom:16px;">📭</div>
+              <div style="color:#64748b;font-size:16px;font-weight:600;margin-bottom:8px;">조건에 맞는 데이터가 없습니다</div>
+              <div style="color:#94a3b8;font-size:13px;">다른 필터 조건을 선택해보세요</div>
             </div>
           `;
           return;
         }
+        
+        const tableWrapper = document.createElement('div');
+        tableWrapper.appendChild(resultCount);
         
         const table = document.createElement('table');
         table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;';
@@ -18218,21 +18099,53 @@
         // 테이블 헤더
         table.innerHTML = `
           <thead>
-            <tr style="background:#f8fafc;border-bottom:2px solid #cbd5e1;position:sticky;top:0;">
-              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">채널명</th>
-              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">카테고리</th>
-              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">아이템명</th>
-              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">품번</th>
-              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">품명</th>
-              <th style="padding:10px 8px;text-align:right;font-weight:700;color:#475569;">TAG매출</th>
-              <th style="padding:10px 8px;text-align:right;font-weight:700;color:#475569;">실판매출</th>
-              <th style="padding:10px 8px;text-align:right;font-weight:700;color:#475569;">할인율</th>
+            <tr style="background:#4f46e5;border-bottom:2px solid #4338ca;position:sticky;top:0;">
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">브랜드</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">할인유형명</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">채널코드</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">채널명</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">카테고리</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">아이템코드</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">아이템명</th>
+              <th style="padding:12px 10px;text-align:center;font-weight:700;color:#fff;font-size:12px;">품번</th>
+              <th style="padding:12px 10px;text-align:left;font-weight:700;color:#fff;font-size:12px;">품명</th>
+              <th style="padding:12px 10px;text-align:right;font-weight:700;color:#fff;font-size:12px;">TAG매출</th>
+              <th style="padding:12px 10px;text-align:right;font-weight:700;color:#fff;font-size:12px;">실판매출</th>
+              <th style="padding:12px 10px;text-align:right;font-weight:700;color:#fff;font-size:12px;">할인율</th>
             </tr>
           </thead>
           <tbody></tbody>
         `;
         
         const tbody = table.querySelector('tbody');
+        
+        // 숫자 포맷팅 함수 (로컬)
+        const formatNum = (num) => {
+          if (!num && num !== 0) return '-';
+          return Math.round(num).toLocaleString('ko-KR');
+        };
+        
+        console.log('[할인내역 드릴다운] 테이블 행 추가 시작:', filteredData.length, '행');
+        
+        // 합계 계산
+        let totalTag = 0;
+        let totalSales = 0;
+        filteredData.forEach(row => {
+          totalTag += parseFloat(row['TAG매출']) || 0;
+          totalSales += parseFloat(row['실판매출']) || 0;
+        });
+        const totalDiscountRate = totalTag > 0 ? ((1 - totalSales / totalTag) * 100) : 0;
+        
+        // 합계 행 추가 (맨 첫 줄)
+        const totalRow = document.createElement('tr');
+        totalRow.style.cssText = 'background:#f8fafc;font-weight:700;border-bottom:3px solid #4f46e5;position:sticky;top:0;z-index:1;';
+        totalRow.innerHTML = `
+          <td style="padding:12px 8px;text-align:center;font-weight:700;color:#1f2937;font-size:13px;" colspan="9">합계</td>
+          <td style="padding:12px 8px;text-align:right;font-weight:700;color:#1f2937;font-size:13px;">${formatNum(totalTag)}</td>
+          <td style="padding:12px 8px;text-align:right;font-weight:700;color:#059669;font-size:13px;">${formatNum(totalSales)}</td>
+          <td style="padding:12px 8px;text-align:right;font-weight:700;color:#dc2626;font-size:13px;">${totalDiscountRate.toFixed(1)}%</td>
+        `;
+        tbody.appendChild(totalRow);
         
         // 데이터 행 추가
         filteredData.forEach((row, index) => {
@@ -18243,81 +18156,1431 @@
           const tr = document.createElement('tr');
           tr.style.background = index % 2 === 0 ? '#fff' : '#f9fafb';
           tr.style.borderBottom = '1px solid #e5e7eb';
+          tr.style.transition = 'background 0.2s';
+          tr.onmouseenter = () => { tr.style.background = '#e0e7ff'; };
+          tr.onmouseleave = () => { tr.style.background = index % 2 === 0 ? '#fff' : '#f9fafb'; };
           
           tr.innerHTML = `
-            <td style="padding:10px 8px;">${row['채널명'] || '-'}</td>
-            <td style="padding:10px 8px;">${row['카테고리'] || '-'}</td>
-            <td style="padding:10px 8px;">${row['아이템명'] || '-'}</td>
-            <td style="padding:10px 8px;">${row['품번'] || '-'}</td>
-            <td style="padding:10px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${row['품명']}">${row['품명'] || '-'}</td>
-            <td style="padding:10px 8px;text-align:right;">${formatNumber(tag)}</td>
-            <td style="padding:10px 8px;text-align:right;">${formatNumber(sales)}</td>
-            <td style="padding:10px 8px;text-align:right;font-weight:600;color:#4f46e5;">${discountRate.toFixed(1)}%</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:#4f46e5;">${row['브랜드'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:#059669;">${row['할인유형명'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;">${row['채널코드'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;">${row['채널명'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;">${row['카테고리'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;">${row['아이템코드'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;">${row['아이템명'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:center;font-size:11px;">${row['품번'] || '-'}</td>
+            <td style="padding:10px 8px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${row['품명']}">${row['품명'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:right;font-weight:600;">${formatNum(tag)}</td>
+            <td style="padding:10px 8px;text-align:right;font-weight:600;color:#059669;">${formatNum(sales)}</td>
+            <td style="padding:10px 8px;text-align:right;font-weight:700;color:#dc2626;font-size:13px;">${discountRate.toFixed(1)}%</td>
           `;
           
           tbody.appendChild(tr);
+          
+          // 디버깅: 첫 3개 행만 로그
+          if (index < 3) {
+            console.log(`[할인내역 드릴다운] Row ${index} 추가:`, { 품명: row['품명'], TAG매출: tag, 실판매출: sales });
+          }
         });
         
-        container.innerHTML = '';
-        container.appendChild(table);
+        console.log('[할인내역 드릴다운] tbody.children.length:', tbody.children.length);
         
-        console.log('[할인내역 드릴다운] 테이블 렌더링 완료:', filteredData.length, '행');
+        tableWrapper.appendChild(table);
+        
+        container.innerHTML = '';
+        container.appendChild(tableWrapper);
+        
+        console.log('[할인내역 드릴다운] 테이블 렌더링 완료:', filteredData.length, '행, container:', container);
+      };
+      
+      /**
+       * 드릴다운 테이블 재렌더링
+       */
+      window.refreshDiscountDetailTable = function refreshDiscountDetailTable() {
+        const panel = document.getElementById('discount-drilldown-panel');
+        if (!panel) return;
+        
+        // 현재 드릴다운에서 열린 할인코드 가져오기 (전역 변수 사용)
+        const discountCode = window.currentDiscountCode;
+        
+        if (!discountCode) {
+          console.warn('[할인내역 드릴다운] currentDiscountCode가 설정되지 않음');
+          return;
+        }
+        
+        const { period, channels, searchText } = window.discountFilterState;
+        
+        if (typeof window.renderDiscountDetailTable === 'function') {
+          window.renderDiscountDetailTable(discountCode, period, channels, searchText);
+        }
+      };
+      
+      /**
+       * 필터 이벤트 리스너 연결
+       */
+      window.attachDiscountFilterEvents = function attachDiscountFilterEvents() {
+        window.discountFilterState = {
+          period: 'CY',
+          channels: [],
+          searchText: ''
+        };
+        
+        // 당년/전년 토글
+        document.querySelectorAll('.period-toggle-btn').forEach(btn => {
+          btn.onclick = () => {
+            const period = btn.dataset.period;
+            window.discountFilterState.period = period;
+            
+            document.querySelectorAll('.period-toggle-btn').forEach(b => {
+              if (b.dataset.period === period) {
+                b.style.background = '#4f46e5';
+                b.style.color = '#fff';
+                b.style.border = 'none';
+                b.style.boxShadow = '0 2px 4px rgba(79, 70, 229, 0.3)';
+              } else {
+                b.style.background = '#fff';
+                b.style.color = '#64748b';
+                b.style.border = '1px solid #cbd5e1';
+                b.style.boxShadow = 'none';
+              }
+            });
+            
+            if (typeof window.refreshDiscountDetailTable === 'function') {
+              window.refreshDiscountDetailTable();
+            }
+          };
+        });
+        
+        // 채널 필터
+        document.querySelectorAll('.channel-filter-btn').forEach(btn => {
+          btn.onclick = () => {
+            const channel = btn.dataset.channel;
+            const channels = window.discountFilterState.channels;
+            
+            if (channels.includes(channel)) {
+              window.discountFilterState.channels = channels.filter(ch => ch !== channel);
+              btn.style.background = '#fff';
+              btn.style.color = '#64748b';
+              btn.style.borderColor = '#cbd5e1';
+              btn.style.boxShadow = 'none';
+            } else {
+              window.discountFilterState.channels.push(channel);
+              btn.style.background = '#4f46e5';
+              btn.style.color = '#fff';
+              btn.style.borderColor = '#4f46e5';
+              btn.style.boxShadow = '0 2px 4px rgba(79, 70, 229, 0.2)';
+            }
+            
+            if (typeof window.refreshDiscountDetailTable === 'function') {
+              window.refreshDiscountDetailTable();
+            }
+          };
+        });
+        
+        // 검색
+        const searchInput = document.getElementById('discount-detail-search');
+        if (searchInput) {
+          searchInput.oninput = (e) => {
+            window.discountFilterState.searchText = e.target.value.trim();
+            clearTimeout(window.discountSearchTimeout);
+            window.discountSearchTimeout = setTimeout(() => {
+              if (typeof window.refreshDiscountDetailTable === 'function') {
+                window.refreshDiscountDetailTable();
+              }
+            }, 300);
+          };
+        }
+      };
+      
+      /**
+       * 드릴다운 필터 UI 생성
+       */
+      window.createDiscountFilterUI = function createDiscountFilterUI() {
+        const container = document.createElement('div');
+        container.style.cssText = 'display:flex;flex-direction:column;gap:12px;background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #e5e7eb;';
+        
+        // 1. 당년/전년 토글
+        const periodToggle = document.createElement('div');
+        periodToggle.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:#1f2937;font-weight:700;min-width:60px;">📅 기간:</span>
+            <button class="period-toggle-btn" data-period="CY" style="padding:8px 20px;background:#4f46e5;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;transition:all 0.2s;box-shadow:0 2px 4px rgba(79,70,229,0.3);">당년</button>
+            <button class="period-toggle-btn" data-period="PY" style="padding:8px 20px;background:#fff;color:#64748b;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">전년</button>
+          </div>
+        `;
+        
+        // 2. 채널 필터
+        const channelFilter = document.createElement('div');
+        const channels = ['백화점', '면세점', '직영점(가두)', '자사몰', '제휴몰', '대리점', '아울렛', '직영몰', '직영점(가두2)'];
+        const channelButtons = channels.map(ch => 
+          `<button class="channel-filter-btn" data-channel="${ch}" style="padding:7px 14px;background:#fff;color:#64748b;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.2s;">${ch}</button>`
+        ).join('');
+        
+        channelFilter.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <span style="font-size:13px;color:#1f2937;font-weight:700;">🏪 채널 필터:</span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">${channelButtons}</div>
+          </div>
+        `;
+        
+        // 3. 검색창
+        const searchBox = document.createElement('div');
+        searchBox.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:#1f2937;font-weight:700;min-width:60px;">🔍 검색:</span>
+            <input type="text" id="discount-detail-search" placeholder="아이템명, 품번, 품명 검색..." style="flex:1;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;background:#fff;transition:all 0.2s;" onfocus="this.style.borderColor='#4f46e5';this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)';" onblur="this.style.borderColor='#cbd5e1';this.style.boxShadow='none';" />
+          </div>
+        `;
+        
+        container.appendChild(periodToggle);
+        container.appendChild(channelFilter);
+        container.appendChild(searchBox);
+        
+        setTimeout(() => {
+          if (typeof window.attachDiscountFilterEvents === 'function') {
+            window.attachDiscountFilterEvents();
+          }
+        }, 100);
+        
+        return container;
+      };
+      
+      console.log('[할인내역] 드릴다운 함수들 정의 완료');
+      
+      // 2. 할인내역 업데이트
+      async function updateDiscountTable() {
+        try {
+          // currentBrand 확인
+          if (!currentBrand || typeof currentBrand === 'undefined') {
+            console.warn('[할인내역] currentBrand가 설정되지 않음, 기본값 MLB 사용');
+            currentBrand = 'MLB';
+          }
+          
+          const brandCodeMap = {
+            'MLB': 'M',
+            'MLB_KIDS': 'I',
+            'DISCOVERY': 'X',
+            'DUVETICA': 'V',
+            'SERGIO': 'ST',
+            'SUPRA': 'W'
+          };
+          
+          const brandCode = brandCodeMap[currentBrand] || 'M';
+          
+          console.log('[할인내역] 테이블 업데이트 시작:', { currentBrand, brandCode });
+          
+          // 매출구성과 동일하게: 전체 브랜드가 이미 로드되어 있으면 해당 브랜드 데이터 사용 (배열이고 길이 > 0일 때만)
+          let rawData = null;
+          var overview = window.overviewDiscountData && window.overviewDiscountData[brandCode];
+          if (overview && Array.isArray(overview.data) && overview.data.length > 0) {
+            console.log('[할인내역] 이미 로드된 데이터 사용 (overviewDiscountData)', { brandCode, currentBrand, rows: overview.data.length });
+            rawData = overview.data;
+          } else {
+            console.log('[할인내역] API에서 데이터 로드:', { brandCode, currentBrand });
+            rawData = await loadDiscountData(brandCode);
+          }
+          
+          console.log('[할인내역] rawData 로드 완료:', rawData ? rawData.length : 0, '행');
+          
+          if (!rawData || rawData.length === 0) {
+            console.warn('[할인내역] 데이터가 없습니다. 브랜드:', currentBrand, '브랜드코드:', brandCode);
+            // 빈 테이블이라도 표시
+            const tbody = document.getElementById('sidebar-discount-tbody');
+            if (tbody) {
+              tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#64748b;">데이터가 없습니다.</td></tr>';
+            }
+            console.log('[할인내역] 테이블 업데이트 완료 (데이터 없음)');
+            return;
+          }
+          
+          // A안: 캐시 구성 (할인코드별 상세 행 – 판매율/재고주수와 동일 패턴)
+          const byCode = {};
+          rawData.forEach(row => {
+            // 여러 케이스 확인 (한글 컬럼명, 영문 대문자, 영문 소문자)
+            const code = row['할인유형명'] || row['CD_NM'] || row['cd_nm'] || '기타';
+            if (!byCode[code]) {
+              byCode[code] = {
+                discountCode: code,
+                products: []  // 판매율/재고주수와 동일하게 products 배열 사용
+              };
+            }
+            byCode[code].products.push(row);
+          });
+          if (!window.discountCache) window.discountCache = {};
+          window.discountCache[currentBrand] = byCode;  // 재고주수처럼 단순 맵 구조
+          
+          // 데이터 집계 (할인코드별)
+          console.log('[할인내역] aggregateDiscountData 호출 전');
+          const discountData = aggregateDiscountData(rawData);
+          console.log('[할인내역] aggregateDiscountData 호출 후, 결과:', discountData);
+          console.log('[할인내역] discountData 키 개수:', Object.keys(discountData).length);
+          
+          // 테이블 렌더링 (드릴다운은 캐시에서 조회)
+          console.log('[할인내역] renderDiscountTable 호출 시작');
+          renderDiscountTable(discountData, rawData);
+          console.log('[할인내역] renderDiscountTable 호출 완료');
+          
+          // 차트 업데이트
+          try {
+            updateDiscountChart(discountData);
+          } catch (chartError) {
+            console.warn('[할인내역] 차트 업데이트 실패 (무시):', chartError);
+          }
+          
+          console.log('[할인내역] 테이블 업데이트 완료');
+          
+        } catch (error) {
+          console.error('[할인내역] 테이블 업데이트 실패:', error);
+        }
+      }
+      
+      // 전역으로 노출
+      window.updateDiscountTable = updateDiscountTable;
+      
+      /**
+       * 할인내역 데이터 집계
+       * @param {Array} rawData - 원본 데이터
+       * @returns {Object} 집계된 할인코드별 데이터
+       */
+      function aggregateDiscountData(rawData) {
+        const result = {};
+        
+        console.log('[할인내역] 집계 시작 - 원본 데이터 개수:', rawData.length);
+        console.log('[할인내역] 첫번째 행 샘플:', rawData[0]);
+        console.log('[할인내역] 첫 5개 행의 모든 키:', rawData.slice(0, 5).map(r => Object.keys(r)));
+        
+        rawData.forEach((row, idx) => {
+          // 디버깅: 첫 3개 행의 상세 정보 출력
+          if (idx < 3) {
+            console.log(`[할인내역] Row ${idx}:`, row);
+          }
+          
+          // Snowflake는 큰따옴표 없으면 대문자로 반환할 수 있으므로 여러 케이스 확인
+          const discountCode = row['할인유형명'] || row['CD_NM'] || row['cd_nm'] || '기타';
+          const gubun = row['구분'] || row['GUBUN'] || row['gubun']; // 'CY' or 'PY'
+          const tagSales = parseFloat(row['TAG매출'] || row['TAG_SALES'] || row['TAG매출_원'] || 0) || 0;
+          const actualSales = parseFloat(row['실판매출'] || row['ACTUAL_SALES'] || row['실판매출_원'] || 0) || 0;
+          
+          if (!result[discountCode]) {
+            result[discountCode] = {
+              cy: { tag: 0, sales: 0 },
+              py: { tag: 0, sales: 0 }
+            };
+          }
+          
+          if (gubun === 'CY') {
+            result[discountCode].cy.tag += tagSales;
+            result[discountCode].cy.sales += actualSales;
+            if (idx < 3) {
+              console.log(`[할인내역 집계] Row ${idx}: CY - ${discountCode} 추가, tagSales=${tagSales}, actualSales=${actualSales}`);
+            }
+          } else if (gubun === 'PY') {
+            result[discountCode].py.tag += tagSales;
+            result[discountCode].py.sales += actualSales;
+            if (idx < 3) {
+              console.log(`[할인내역 집계] Row ${idx}: PY - ${discountCode} 추가, tagSales=${tagSales}, actualSales=${actualSales}`);
+            }
+          } else {
+            if (idx < 3) {
+              console.warn(`[할인내역 집계] Row ${idx}: gubun이 'CY'도 'PY'도 아님:`, gubun);
+            }
+          }
+        });
+        
+        console.log('[할인내역 집계] 집계 완료 전 result:', result);
+        
+        // 할인율 계산 및 억원 단위 변환
+        Object.keys(result).forEach(code => {
+          const cy = result[code].cy;
+          const py = result[code].py;
+          
+          cy.discountRate = cy.tag > 0 ? ((1 - cy.sales / cy.tag) * 100) : 0;
+          py.discountRate = py.tag > 0 ? ((1 - py.sales / py.tag) * 100) : 0;
+          
+          // 차트용 억원 단위 데이터 추가
+          cy.salesInBillion = cy.sales / 100000000;
+          py.salesInBillion = py.sales / 100000000;
+        });
+        
+        console.log('[할인내역] 집계 완료 - 할인코드 개수:', Object.keys(result).length);
+        console.log('[할인내역] 집계 결과:', result);
+        
+        return result;
       }
       
       /**
-       * 숫자 포맷팅 (천 단위 콤마)
+       * 할인코드 정렬 함수
+       * - '정상'이 맨 위
+       * - 그 다음 숫자% (10%, 20%, 30%...)
+       * - 나머지는 가나다순
        */
-      function formatNumber(num) {
-        if (!num && num !== 0) return '-';
-        return Math.round(num).toLocaleString('ko-KR');
+      function sortDiscountCodes(codes) {
+        return codes.sort((a, b) => {
+          if (a === '정상') return -1;
+          if (b === '정상') return 1;
+          
+          const aIsPercent = /^\d+%$/.test(a);
+          const bIsPercent = /^\d+%$/.test(b);
+          
+          if (aIsPercent && bIsPercent) {
+            return parseInt(a) - parseInt(b);
+          }
+          if (aIsPercent) return -1;
+          if (bIsPercent) return 1;
+          
+          return a.localeCompare(b, 'ko');
+        });
       }
       
-      // 3. 프로모션 내용 업데이트 (옵션)
-      function updatePromotionContent() {
-        // ★ 필요시 Snowflake 데이터로 구현 ★
-        console.log('[사이드바] 프로모션 내용 업데이트 (미구현)');
+      /**
+       * 할인내역 드릴다운 열기 (판매율/재고주수와 동일하게 단일 함수로 직접 처리)
+       */
+      function openDiscountDrilldown(code) {
+        console.log('[할인내역 드릴다운] 시작:', { code, currentBrand });
+        
+        // 현재 할인코드를 전역 변수에 저장 (필터 갱신 시 사용)
+        window.currentDiscountCode = code;
+        
+        // 캐시에서 데이터 조회 (판매율/재고주수와 동일한 구조)
+        var cache = window.discountCache && window.discountCache[currentBrand];
+        var discountData = cache && cache[code];
+        var data = (discountData && discountData.products) || [];
+        if (!data.length) {
+          alert('해당 할인내역 데이터가 없습니다.');
+          return;
+        }
+        
+        console.log('[할인내역 드릴다운] 사용 데이터 개수:', data.length);
+        window.__drilldownData = data;  // renderDiscountDetailTable에서 사용
+        
+        // 기존 드릴다운 패널이 있으면 제거
+        const existingPanel = document.getElementById('discount-drilldown-panel');
+        if (existingPanel) {
+          existingPanel.remove();
+        }
+        
+        // 오버레이 생성
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: fadeIn 0.3s ease-out;
+        `;
+        
+        // 드릴다운 패널 생성
+        const panel = document.createElement('div');
+        panel.id = 'discount-drilldown-panel';
+        panel.style.cssText = `
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 16px;
+          padding: 24px;
+          margin: 20px;
+          box-shadow: 0 8px 24px rgba(79, 70, 229, 0.25);
+          border: 3px solid #4f46e5;
+          animation: slideDown 0.3s ease-out;
+          width: 90%;
+          max-width: 1200px;
+          max-height: 90vh;
+          display: flex;
+          flex-direction: column;
+        `;
+        
+        // 애니메이션 스타일 추가 (없으면)
+        if (!document.getElementById('drilldown-animation-style')) {
+          const style = document.createElement('style');
+          style.id = 'drilldown-animation-style';
+          style.textContent = `
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+              }
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; }
+              to { opacity: 0; }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
+        // 패널 헤더
+        const header = document.createElement('div');
+        header.style.cssText = `
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          padding: 16px;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        `;
+        header.innerHTML = `
+          <h5 style="color:#4f46e5;font-size:18px;font-weight:800;margin:0;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:24px;">📋</span>
+            <span>${code} 상세내역</span>
+          </h5>
+          <button id="close-drilldown-btn" style="
+            padding: 8px 16px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+          " onmouseover="this.style.background='#dc2626';this.style.transform='scale(1.05)';" onmouseout="this.style.background='#ef4444';this.style.transform='scale(1)';">✕ 닫기</button>
+        `;
+        panel.appendChild(header);
+        
+        // 닫기 함수
+        const closeModal = () => {
+          panel.style.animation = 'fadeOut 0.3s ease-out';
+          overlay.style.animation = 'fadeOut 0.3s ease-out';
+          setTimeout(() => {
+            overlay.remove();
+          }, 300);
+        };
+        
+        // 닫기 버튼 이벤트
+        setTimeout(() => {
+          const closeBtn = document.getElementById('close-drilldown-btn');
+          if (closeBtn) {
+            closeBtn.onclick = closeModal;
+          }
+        }, 100);
+        
+        // 오버레이 클릭 시 닫기
+        overlay.onclick = (e) => {
+          if (e.target === overlay) {
+            closeModal();
+          }
+        };
+        
+        // ESC 키로 닫기
+        const handleEscape = (e) => {
+          if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', handleEscape);
+          }
+        };
+        document.addEventListener('keydown', handleEscape);
+        
+        // 필터 UI 생성
+        const filterWrapper = document.createElement('div');
+        filterWrapper.style.cssText = 'background:#fff;border-radius:12px;padding:4px;margin-bottom:16px;';
+        
+        // createDiscountFilterUI가 정의되어 있으면 사용, 아니면 나중에 추가
+        if (typeof createDiscountFilterUI === 'function') {
+          const filterUI = createDiscountFilterUI();
+          filterWrapper.appendChild(filterUI);
+        } else {
+          // 임시 메시지
+          filterWrapper.innerHTML = '<div style="padding:16px;text-align:center;color:#64748b;">필터 로딩 중...</div>';
+          // 나중에 다시 시도
+          setTimeout(() => {
+            if (typeof createDiscountFilterUI === 'function') {
+              filterWrapper.innerHTML = '';
+              const filterUI = createDiscountFilterUI();
+              filterWrapper.appendChild(filterUI);
+            }
+          }, 100);
+        }
+        
+        panel.appendChild(filterWrapper);
+        
+        // 테이블 컨테이너
+        const tableContainer = document.createElement('div');
+        tableContainer.id = 'discount-detail-table-container';
+        tableContainer.style.cssText = `
+          flex: 1;
+          overflow-y: auto;
+          border: 2px solid #4f46e5;
+          border-radius: 12px;
+          background: #fff;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          min-height: 0;
+          max-height: calc(90vh - 250px);
+        `;
+        panel.appendChild(tableContainer);
+        
+        // 오버레이에 패널 추가
+        overlay.appendChild(panel);
+        
+        // body에 오버레이 추가
+        document.body.appendChild(overlay);
+        console.log('[할인내역 드릴다운] 모달 추가 완료');
+        
+        // 초기 데이터 렌더링
+        console.log('[할인내역 드릴다운] 초기 렌더링 시작:', code);
+        window.renderDiscountDetailTable(code, 'CY', [], '');
+      }
+      window.openDiscountDrilldown = openDiscountDrilldown;
+      
+      /**
+       * 할인내역 API 테스트 함수 (디버깅용)
+       */
+      async function testDiscountAPI() {
+        console.log('========== 할인내역 API 테스트 시작 ==========');
+        const brandCodeMap = {
+          'MLB': 'M',
+          'MLB_KIDS': 'I',
+          'DISCOVERY': 'X',
+          'DUVETICA': 'V',
+          'SERGIO': 'ST',
+          'SUPRA': 'W'
+        };
+        const brandCode = brandCodeMap[currentBrand] || 'M';
+        const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
+        const url = `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}`;
+        
+        console.log('테스트 파라미터:', { currentBrand, brandCode, analysisMonth, url });
+        
+        try {
+          const response = await fetch(url);
+          const result = await response.json();
+          
+          console.log('API 응답 전체:', result);
+          console.log('API 성공 여부:', result.success);
+          console.log('데이터 개수:', result.data?.length);
+          
+          if (result.data && result.data.length > 0) {
+            console.log('첫 번째 행:', result.data[0]);
+            console.log('컬럼명 목록:', Object.keys(result.data[0]));
+            console.log('첫 5개 행:', result.data.slice(0, 5));
+          } else {
+            console.warn('데이터가 없습니다!');
+          }
+          
+          alert(`API 테스트 완료!\n데이터 개수: ${result.data?.length || 0}행\n콘솔을 확인하세요.`);
+        } catch (error) {
+          console.error('API 호출 에러:', error);
+          alert('API 호출 실패: ' + error.message);
+        }
+        
+        console.log('========== 할인내역 API 테스트 종료 ==========');
+      }
+      window.testDiscountAPI = testDiscountAPI;
+      
+      /**
+       * 할인내역 테이블 렌더링
+       * @param {Object} discountData - 집계된 할인코드별 데이터
+       * @param {Array} [rawData] - 원본 데이터 (캐시에 이미 넣었으면 드릴다운은 openDiscountDrilldown에서 캐시 사용)
+       */
+      function renderDiscountTable(discountData, rawData) {
+        console.log('[할인내역 렌더링] 함수 진입 - discountData:', discountData);
+        console.log('[할인내역 렌더링] discountData 타입:', typeof discountData);
+        console.log('[할인내역 렌더링] discountData 키:', Object.keys(discountData));
+        
+        const tbody = document.getElementById('sidebar-discount-tbody');
+        console.log('[할인내역 렌더링] tbody 요소:', tbody);
+        
+        if (!tbody) {
+          console.error('[할인내역] tbody 요소를 찾을 수 없습니다!');
+          return;
+        }
+        
+        console.log('[할인내역] 테이블 렌더링 시작 - 데이터:', discountData);
+        
+        // 기존 내용 제거
+        tbody.innerHTML = '';
+        
+        // 합계 계산
+        let totalCySales = 0;
+        let totalPySales = 0;
+        let totalCyTag = 0;
+        let totalPyTag = 0;
+        
+        Object.keys(discountData).forEach(code => {
+          totalCySales += discountData[code].cy.sales;
+          totalPySales += discountData[code].py.sales;
+          totalCyTag += discountData[code].cy.tag;
+          totalPyTag += discountData[code].py.tag;
+        });
+        
+        console.log('[할인내역 렌더링] 합계 계산:', { totalCySales, totalPySales, totalCyTag, totalPyTag });
+        
+        const totalCyDiscountRate = totalCyTag > 0 ? ((1 - totalCySales / totalCyTag) * 100) : 0;
+        const totalPyDiscountRate = totalPyTag > 0 ? ((1 - totalPySales / totalPyTag) * 100) : 0;
+        const totalYoy = totalPySales > 0 ? ((totalCySales / totalPySales) * 100) : 0;
+        const totalDiscountDiff = totalCyDiscountRate - totalPyDiscountRate;
+        
+        console.log('[할인내역 렌더링] 합계 행 생성:', { totalCyDiscountRate, totalPyDiscountRate, totalYoy, totalDiscountDiff });
+        
+        // 합계 행 추가
+        const totalRow = document.createElement('tr');
+        totalRow.style.background = '#f8fafc';
+        totalRow.style.fontWeight = '700';
+        totalRow.style.borderTop = '2px solid #4f46e5';
+        totalRow.style.borderBottom = '2px solid #cbd5e1';
+        
+        totalRow.innerHTML = `
+          <td style="padding:10px 6px;text-align:left;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">합계</td>
+          <td style="padding:10px 6px;text-align:right;font-size:12px;color:#1f2937;">${(totalCySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0})}</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalCyDiscountRate.toFixed(1)}%</td>
+          <td style="padding:10px 6px;text-align:right;font-size:12px;color:#1f2937;">${(totalPySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0})}</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalPyDiscountRate.toFixed(1)}%</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalYoy.toFixed(0)}%</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:${totalDiscountDiff >= 0 ? '#dc2626' : '#059669'};font-weight:600;">${totalDiscountDiff >= 0 ? '+' : ''}${totalDiscountDiff.toFixed(1)}%p</td>
+        `;
+        
+        tbody.appendChild(totalRow);
+        console.log('[할인내역 렌더링] 합계 행 추가 완료');
+        
+        // 할인코드 정렬
+        const sortedCodes = sortDiscountCodes(Object.keys(discountData));
+        console.log('[할인내역 렌더링] 정렬된 할인코드:', sortedCodes);
+        
+        // 각 할인코드별 행 추가 (할인코드, 당년 실판매출/할인율, 전년 실판매출/할인율, YOY, 할인율차이)
+        sortedCodes.forEach((code, index) => {
+          const data = discountData[code];
+          
+          if (index < 3) {
+            console.log(`[할인내역 렌더링] 행 ${index} - 코드: ${code}, 데이터:`, data);
+          }
+          
+          const cySales = data.cy.sales;
+          const pySales = data.py.sales;
+          const cyDiscountRate = data.cy.discountRate;
+          const pyDiscountRate = data.py.discountRate;
+          const yoy = pySales > 0 ? ((cySales / pySales) * 100) : 0;
+          const discountDiff = cyDiscountRate - pyDiscountRate;
+          
+          const cySalesText = cySales > 0 ? (cySales / 1000000).toLocaleString('ko-KR', { maximumFractionDigits: 0 }) : '';
+          const pySalesText = pySales > 0 ? (pySales / 1000000).toLocaleString('ko-KR', { maximumFractionDigits: 0 }) : '';
+          const cyRateText = cySales > 0 ? cyDiscountRate.toFixed(1) + '%' : '';
+          const pyRateText = pySales > 0 ? pyDiscountRate.toFixed(1) + '%' : '';
+          const yoyText = pySales > 0 && cySales > 0 ? yoy.toFixed(0) + '%' : '';
+          const diffText = (cySales > 0 || pySales > 0) ? (discountDiff >= 0 ? '+' : '') + discountDiff.toFixed(1) + '%p' : '';
+          const diffColor = discountDiff >= 0 ? '#dc2626' : '#059669';
+          
+          const row = document.createElement('tr');
+          row.style.background = index % 2 === 0 ? '#fff' : '#f9fafb';
+          row.style.cursor = 'pointer';
+          row.style.transition = 'all 0.2s';
+          
+          row.innerHTML = `
+            <td style="padding:9px 6px;text-align:left;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">
+              <span style="font-weight:600;">${code}</span>
+            </td>
+            <td style="padding:9px 6px;text-align:right;font-size:12px;color:#475569;">${cySalesText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${cyRateText}</td>
+            <td style="padding:9px 6px;text-align:right;font-size:12px;color:#475569;">${pySalesText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${pyRateText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${yoyText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:${diffColor};font-weight:600;">${diffText}</td>
+          `;
+          
+          // innerHTML 설정 후 이벤트 리스너 추가
+          row.onmouseenter = () => { 
+            row.style.background = '#e0e7ff'; 
+            row.style.transform = 'scale(1.01)';
+            row.style.boxShadow = '0 2px 8px rgba(79, 70, 229, 0.15)';
+          };
+          row.onmouseleave = () => { 
+            row.style.background = index % 2 === 0 ? '#fff' : '#f9fafb'; 
+            row.style.transform = 'scale(1)';
+            row.style.boxShadow = 'none';
+          };
+          row.onclick = () => {
+            console.log('[할인내역] 행 클릭:', code, currentBrand);
+            row.style.background = '#c7d2fe';
+            var c = code;
+            setTimeout(function () {
+              var fn = window.openDiscountDrilldown || openDiscountDrilldown;
+              if (fn) fn(c); else alert('할인내역 상세 기능을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.');
+            }, 150);
+          };
+          
+          tbody.appendChild(row);
+          
+          if (index < 3) {
+            console.log(`[할인내역 렌더링] 행 ${index} - tbody에 추가 완료`);
+          }
+        });
+        
+        console.log('[할인내역] 테이블 렌더링 완료:', sortedCodes.length, '개 코드');
+        console.log('[할인내역] tbody.children.length:', tbody.children.length);
+      }
+      
+      // ====== 할인내역 옛날 코드 (사용 안함) ======
+      function updateDiscountTable_OLD() {
+        console.log('[사이드바] 할인내역 업데이트 (구버전 - 사용안함)');
         return;
         
         /* 옛날 코드 (사용 안함)
-        const promotionContent = document.getElementById('sidebar-promotion-content');
-        if (!promotionContent) return;
+        // 샘플 데이터 (실제 데이터로 교체 필요)
+        const discountData = {
+          total: { cy: 45.3, py: 38.7, yoy: 17.1 },
+          '10%': { cy: 12.5, py: 10.3, yoy: 21.4 },
+          '20%': { cy: 18.8, py: 16.2, yoy: 16.0 },
+          '30%': { cy: 14.0, py: 12.2, yoy: 14.8 }
+        };
         
-        // 샘플 프로모션 데이터 (실제 데이터로 교체 필요)
-        const promotions = [
-          // { title: '겨울 세일', period: '2026.01.15 ~ 2026.01.31', discount: '최대 30% 할인' },
-          // { title: '신상품 출시 기념', period: '2026.01.20 ~ 2026.02.05', discount: '20% 할인' }
-        ];
+        // 합계
+        document.getElementById('discount-total-cy').textContent = `${discountData.total.cy.toFixed(1)}억`;
+        document.getElementById('discount-total-py').textContent = `${discountData.total.py.toFixed(1)}억`;
+        document.getElementById('discount-total-yoy').innerHTML = `
+          <span style="color:${discountData.total.yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData.total.yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData.total.yoy).toFixed(1)}%
+          </span>
+        `;
         
-        if (promotions.length === 0) {
-          promotionContent.innerHTML = `
-            <div style="color:#64748b;font-size:13px;line-height:1.7;">
-              <p style="margin-bottom:10px;">📌 진행 중인 프로모션이 없습니다.</p>
-            </div>
-          `;
-        } else {
-          let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
-          promotions.forEach((promo, index) => {
-            html += `
-              <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
-                <div style="font-weight:600;color:#1f2937;font-size:13px;margin-bottom:6px;">
-                  🎉 ${promo.title}
-                </div>
-                <div style="color:#64748b;font-size:12px;margin-bottom:4px;">
-                  📅 기간: ${promo.period}
-                </div>
-                <div style="color:#059669;font-size:12px;font-weight:600;">
-                  💰 ${promo.discount}
-                </div>
-              </div>
-            `;
-          });
-          html += '</div>';
-          promotionContent.innerHTML = html;
-        }
-        */
+        // 10%
+        document.getElementById('discount-10-cy').textContent = `${discountData['10%'].cy.toFixed(1)}억`;
+        document.getElementById('discount-10-py').textContent = `${discountData['10%'].py.toFixed(1)}억`;
+        document.getElementById('discount-10-yoy').innerHTML = `
+          <span style="color:${discountData['10%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData['10%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['10%'].yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 20%
+        document.getElementById('discount-20-cy').textContent = `${discountData['20%'].cy.toFixed(1)}억`;
+        document.getElementById('discount-20-py').textContent = `${discountData['20%'].py.toFixed(1)}억`;
+        document.getElementById('discount-20-yoy').innerHTML = `
+          <span style="color:${discountData['20%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData['20%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['20%'].yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 30%
+        document.getElementById('discount-30-cy').textContent = `${discountData['30%'].cy.toFixed(1)}억`;
+        document.getElementById('discount-30-py').textContent = `${discountData['30%'].py.toFixed(1)}억`;
+        document.getElementById('discount-30-yoy').innerHTML = `
+          <span style="color:${discountData['30%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData['30%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['30%'].yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 할인율 차트 업데이트
+        updateDiscountChart(discountData);
       }
+      
+      // ====== 할인내역 드릴다운 기능 ======
+      // (openDiscountDrilldown에서 직접 처리하므로 별도 applyDiscountDrilldown 함수 없음)
+      
+      // 할인내역 테이블은 Promise.all(전체현황 API 로드) 완료 후 한 번만 갱신함 (중복 호출 제거)
+      // → updateDiscountTable은 2779 근처 Promise.all().then() / .catch() 에서만 호출
+      
+      /**
+       * 드릴다운 필터 UI 생성
+       */
+      window.createDiscountFilterUI = function createDiscountFilterUI() {
+        const container = document.createElement('div');
+        container.style.cssText = 'display:flex;flex-direction:column;gap:12px;background:#f8fafc;padding:16px;border-radius:8px;border:1px solid #e5e7eb;';
+        
+        // 1. 당년/전년 토글
+        const periodToggle = document.createElement('div');
+        periodToggle.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:#1f2937;font-weight:700;min-width:60px;">📅 기간:</span>
+            <button class="period-toggle-btn" data-period="CY" style="
+              padding: 8px 20px;
+              background: #4f46e5;
+              color: #fff;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 13px;
+              font-weight: 700;
+              transition: all 0.2s;
+              box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+            ">당년</button>
+            <button class="period-toggle-btn" data-period="PY" style="
+              padding: 8px 20px;
+              background: #fff;
+              color: #64748b;
+              border: 1px solid #cbd5e1;
+              border-radius: 8px;
+              cursor: pointer;
+              font-size: 13px;
+              font-weight: 600;
+              transition: all 0.2s;
+            ">전년</button>
+          </div>
+        `;
+        
+        // 2. 채널 필터
+        const channelFilter = document.createElement('div');
+        const channels = ['백화점', '면세점', '직영점(가두)', '자사몰', '제휴몰', '대리점', '아울렛', '직영몰', '직영점(가두2)'];
+        const channelButtons = channels.map(ch => 
+          `<button class="channel-filter-btn" data-channel="${ch}" style="
+            padding: 7px 14px;
+            background: #fff;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+          ">${ch}</button>`
+        ).join('');
+        
+        channelFilter.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <span style="font-size:13px;color:#1f2937;font-weight:700;">🏪 채널 필터:</span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${channelButtons}
+            </div>
+          </div>
+        `;
+        
+        // 3. 검색창
+        const searchBox = document.createElement('div');
+        searchBox.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:#1f2937;font-weight:700;min-width:60px;">🔍 검색:</span>
+            <input 
+              type="text" 
+              id="discount-detail-search" 
+              placeholder="아이템명, 품번, 품명 검색..."
+              style="
+                flex: 1;
+                padding: 10px 14px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                font-size: 13px;
+                background: #fff;
+                transition: all 0.2s;
+              "
+              onfocus="this.style.borderColor='#4f46e5';this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)';"
+              onblur="this.style.borderColor='#cbd5e1';this.style.boxShadow='none';"
+            />
+          </div>
+        `;
+        
+        container.appendChild(periodToggle);
+        container.appendChild(channelFilter);
+        container.appendChild(searchBox);
+        
+        // 이벤트 리스너 추가 (딜레이 후)
+        setTimeout(() => {
+          if (typeof window.attachDiscountFilterEvents === 'function') {
+            window.attachDiscountFilterEvents();
+          }
+        }, 100);
+        
+        return container;
+      }
+      
+      /**
+       * 필터 이벤트 리스너 연결
+       */
+      window.attachDiscountFilterEvents = function attachDiscountFilterEvents() {
+        // 현재 선택된 필터 상태
+        window.discountFilterState = {
+          period: 'CY',
+          channels: [],
+          searchText: ''
+        };
+        
+        // 당년/전년 토글
+        document.querySelectorAll('.period-toggle-btn').forEach(btn => {
+          btn.onclick = () => {
+            const period = btn.dataset.period;
+            window.discountFilterState.period = period;
+            
+            // 버튼 스타일 업데이트
+            document.querySelectorAll('.period-toggle-btn').forEach(b => {
+              if (b.dataset.period === period) {
+                b.style.background = '#4f46e5';
+                b.style.color = '#fff';
+                b.style.border = 'none';
+                b.style.boxShadow = '0 2px 4px rgba(79, 70, 229, 0.3)';
+              } else {
+                b.style.background = '#fff';
+                b.style.color = '#64748b';
+                b.style.border = '1px solid #cbd5e1';
+                b.style.boxShadow = 'none';
+              }
+            });
+            
+            // 테이블 재렌더링
+            if (typeof window.refreshDiscountDetailTable === 'function') {
+              window.refreshDiscountDetailTable();
+            }
+          };
+        });
+        
+        // 채널 필터
+        document.querySelectorAll('.channel-filter-btn').forEach(btn => {
+          btn.onclick = () => {
+            const channel = btn.dataset.channel;
+            const channels = window.discountFilterState.channels;
+            
+            if (channels.includes(channel)) {
+              // 선택 해제
+              window.discountFilterState.channels = channels.filter(ch => ch !== channel);
+              btn.style.background = '#fff';
+              btn.style.color = '#64748b';
+              btn.style.borderColor = '#cbd5e1';
+              btn.style.boxShadow = 'none';
+            } else {
+              // 선택
+              window.discountFilterState.channels.push(channel);
+              btn.style.background = '#4f46e5';
+              btn.style.color = '#fff';
+              btn.style.borderColor = '#4f46e5';
+              btn.style.boxShadow = '0 2px 4px rgba(79, 70, 229, 0.2)';
+            }
+            
+            // 테이블 재렌더링
+            if (typeof window.refreshDiscountDetailTable === 'function') {
+              window.refreshDiscountDetailTable();
+            }
+          };
+        });
+        
+        // 검색
+        const searchInput = document.getElementById('discount-detail-search');
+        if (searchInput) {
+          searchInput.oninput = (e) => {
+            window.discountFilterState.searchText = e.target.value.trim();
+            // 디바운스 (300ms)
+            clearTimeout(window.discountSearchTimeout);
+            window.discountSearchTimeout = setTimeout(() => {
+              refreshDiscountDetailTable();
+            }, 300);
+          };
+        }
+      }
+      
+      /**
+       * 드릴다운 테이블 재렌더링
+       */
+      
+      // 3. 프로모션 내용 업데이트 (전역으로 이동됨)
+      // window.updatePromotionContent는 DOMContentLoaded 블록 밖에 정의되어 있음
+      
       // ========== 끝: 아이템별 트리맵 사이드바 데이터 로드 함수 (Snowflake API로 대체) ==========
     }
+    
+    // ========== 프로모션 관련 함수 (전역) ==========
+    // ※ DOMContentLoaded 외부에서 정의하여 전역에서 접근 가능하도록 함
+    
+    // 날짜 포맷 함수 (YYYY-MM-DD → YYYY.MM.DD)
+    function formatPromotionDate(dateStr) {
+      if (!dateStr || dateStr === 'unknown') return '-';
+      try {
+        // Date 객체인 경우
+        if (dateStr instanceof Date) {
+          const year = dateStr.getFullYear();
+          const month = String(dateStr.getMonth() + 1).padStart(2, '0');
+          const day = String(dateStr.getDate()).padStart(2, '0');
+          return `${year}.${month}.${day}`;
+        }
+        // 문자열인 경우
+        const str = String(dateStr);
+        if (str.includes('-')) {
+          return str.replace(/-/g, '.');
+        }
+        return str;
+      } catch (e) {
+        return dateStr;
+      }
+    }
+    
+    // HTML 이스케이프 함수
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+    
+    // 숫자 포맷 함수 (천단위 콤마)
+    function formatNumber(num) {
+      if (!num && num !== 0) return '-';
+      return Number(num).toLocaleString('ko-KR');
+    }
+    
+    /**
+     * 프로모션 내용 업데이트
+     */
+    window.updatePromotionContent = function() {
+      console.log('[프로모션] ========== updatePromotionContent 호출됨 ==========');
+      console.log('[프로모션] window.promotionData:', window.promotionData);
+      console.log('[프로모션] window.currentBrand:', window.currentBrand);
+      
+      const promotionContent = document.getElementById('sidebar-promotion-content');
+      if (!promotionContent) {
+        console.error('[프로모션] sidebar-promotion-content 요소를 찾을 수 없습니다.');
+        return;
+      }
+      
+      // 현재 선택된 브랜드 확인
+      const selectedBrand = window.currentBrand || 'MLB';
+      const brandCodeMap = {
+        'MLB': 'M',
+        'MLB_KIDS': 'I',
+        'DISCOVERY': 'X',
+        'DUVETICA': 'V',
+        'SERGIO': 'ST',
+        'SUPRA': 'W'
+      };
+      const brandCode = brandCodeMap[selectedBrand];
+      
+      if (!brandCode) {
+        console.warn('[프로모션] 브랜드 코드를 찾을 수 없습니다:', selectedBrand);
+        promotionContent.innerHTML = `
+          <div style="color:#64748b;font-size:13px;line-height:1.7;">
+            <p style="margin-bottom:10px;">📌 브랜드 정보를 확인할 수 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      console.log('[프로모션] 컨텐츠 업데이트:', selectedBrand, brandCode);
+      
+      // window.promotionData에서 해당 브랜드 데이터 조회
+      const brandData = window.promotionData && window.promotionData[brandCode];
+      
+      console.log('[프로모션] brandData:', brandData);
+      
+      if (!brandData || !brandData.data || brandData.data.length === 0) {
+        promotionContent.innerHTML = `
+          <div style="color:#64748b;font-size:13px;line-height:1.7;">
+            <p style="margin-bottom:10px;">📌 진행 중인 프로모션이 없습니다.</p>
+          </div>
+        `;
+        console.log('[프로모션] 데이터 없음:', brandCode, brandData);
+        return;
+      }
+      
+      // 시작일자별로 그룹화 (같은 날짜의 프로모션을 하나로 묶음)
+      const groupedByDate = {};
+      brandData.data.forEach(row => {
+        const dateKey = row['시작일자'] || 'unknown';
+        if (!groupedByDate[dateKey]) {
+          groupedByDate[dateKey] = {
+            startDate: dateKey,
+            reason: row['사유'] || '-',
+            discountRate: row['할인율'] || '-',
+            items: []
+          };
+        }
+        groupedByDate[dateKey].items.push(row);
+      });
+      
+      // 날짜순으로 정렬 (최신순)
+      const sortedPromotions = Object.values(groupedByDate).sort((a, b) => {
+        return new Date(b.startDate) - new Date(a.startDate);
+      });
+      
+      console.log('[프로모션] 그룹화된 프로모션 개수:', sortedPromotions.length);
+      
+      // 리스트 형식으로 렌더링
+      let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+      sortedPromotions.forEach((promo, index) => {
+        const formattedDate = formatPromotionDate(promo.startDate);
+        const itemCount = promo.items.length;
+        
+        html += `
+          <div class="promotion-item" 
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px;cursor:pointer;transition:all 0.2s ease;"
+               onmouseover="this.style.borderColor='#4f46e5';this.style.boxShadow='0 2px 8px rgba(79,70,229,0.15)';"
+               onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none';"
+               onclick="showPromotionDetail('${brandCode}', '${promo.startDate}', '${escapeHtml(promo.reason)}', '${escapeHtml(promo.discountRate)}')">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+              <div style="font-weight:700;color:#1f2937;font-size:15px;">
+                📝 ${escapeHtml(promo.reason)}
+              </div>
+              <div style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:11px;color:#6b7280;">
+                ${itemCount}개 상품
+              </div>
+            </div>
+            <div style="color:#64748b;font-size:12px;margin-bottom:4px;">
+              📅 시작일자: ${formattedDate}
+            </div>
+            <div style="color:#059669;font-size:12px;font-weight:600;">
+              💰 할인율: ${escapeHtml(promo.discountRate)}
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      
+      promotionContent.innerHTML = html;
+      console.log('[프로모션] 렌더링 완료:', sortedPromotions.length, '개 프로모션');
+    };
+    
+    /**
+     * 프로모션 상세 모달 열기
+     */
+    window.showPromotionDetail = function(brandCode, startDate, reason, discountRate) {
+      console.log('[프로모션 모달] 열기:', { brandCode, startDate, reason, discountRate });
+      
+      const modal = document.getElementById('promotion-detail-modal');
+      const modalTitle = document.getElementById('promotion-modal-title');
+      const modalBody = document.getElementById('promotion-modal-body');
+      
+      if (!modal || !modalTitle || !modalBody) {
+        console.error('[프로모션 모달] 모달 요소를 찾을 수 없습니다.');
+        return;
+      }
+      
+      // 모달 타이틀 설정
+      const formattedDate = formatPromotionDate(startDate);
+      modalTitle.textContent = `프로모션 상세 정보 - ${formattedDate}`;
+      
+      // 해당 브랜드의 프로모션 데이터 필터링
+      const brandData = window.promotionData && window.promotionData[brandCode];
+      if (!brandData || !brandData.data) {
+        modalBody.innerHTML = '<p style="color:#64748b;text-align:center;padding:40px;">데이터를 찾을 수 없습니다.</p>';
+        modal.style.display = 'flex';
+        return;
+      }
+      
+      // 해당 날짜의 프로모션 항목 필터링
+      const filteredData = brandData.data.filter(row => {
+        return String(row['시작일자']) === String(startDate);
+      });
+      
+      if (filteredData.length === 0) {
+        modalBody.innerHTML = '<p style="color:#64748b;text-align:center;padding:40px;">프로모션 데이터가 없습니다.</p>';
+        modal.style.display = 'flex';
+        return;
+      }
+      
+      console.log('[프로모션 모달] 필터링된 데이터:', filteredData.length, '개');
+      
+      // 고유 카테고리 추출
+      const categories = [...new Set(filteredData.map(row => row['카테고리'] || '-'))].sort();
+      
+      // 요약 정보
+      let html = `
+        <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:20px;border:1px solid #e5e7eb;">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div>
+              <div style="color:#64748b;font-size:12px;margin-bottom:4px;">시작일자</div>
+              <div style="color:#1f2937;font-size:14px;font-weight:600;">${formattedDate}</div>
+            </div>
+            <div>
+              <div style="color:#64748b;font-size:12px;margin-bottom:4px;">사유</div>
+              <div style="color:#1f2937;font-size:14px;font-weight:600;">${escapeHtml(reason)}</div>
+            </div>
+            <div>
+              <div style="color:#64748b;font-size:12px;margin-bottom:4px;">할인율</div>
+              <div style="color:#059669;font-size:14px;font-weight:600;">${escapeHtml(discountRate)}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 필터 및 검색 -->
+        <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:20px;border:1px solid #e5e7eb;">
+          <!-- 카테고리 필터 -->
+          <div style="margin-bottom:12px;">
+            <div style="color:#1f2937;font-size:13px;font-weight:700;margin-bottom:8px;">📂 카테고리 필터</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button class="promotion-category-filter-btn" data-category="all" 
+                style="padding:6px 12px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.2s;">
+                전체
+              </button>
+              ${categories.map(cat => `
+                <button class="promotion-category-filter-btn" data-category="${escapeHtml(cat)}" 
+                  style="padding:6px 12px;background:#fff;color:#64748b;border:1px solid #cbd5e1;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.2s;">
+                  ${escapeHtml(cat)}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+          
+          <!-- 검색 -->
+          <div>
+            <div style="color:#1f2937;font-size:13px;font-weight:700;margin-bottom:8px;">🔍 검색</div>
+            <input 
+              type="text" 
+              id="promotion-detail-search" 
+              placeholder="아이템명, 품번, 품명 검색..."
+              style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;background:#fff;transition:all 0.2s;"
+              onfocus="this.style.borderColor='#4f46e5';this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)';"
+              onblur="this.style.borderColor='#cbd5e1';this.style.boxShadow='none';"
+            />
+          </div>
+        </div>
+      `;
+      
+      // 상세 테이블
+      html += `
+        <div style="overflow-x:auto;">
+          <table id="promotion-detail-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:#f8fafc;border-bottom:2px solid #e5e7eb;">
+                <th style="padding:12px 8px;text-align:left;font-weight:600;color:#1f2937;">카테고리</th>
+                <th style="padding:12px 8px;text-align:left;font-weight:600;color:#1f2937;">아이템코드</th>
+                <th style="padding:12px 8px;text-align:left;font-weight:600;color:#1f2937;">아이템명</th>
+                <th style="padding:12px 8px;text-align:left;font-weight:600;color:#1f2937;">품번</th>
+                <th style="padding:12px 8px;text-align:left;font-weight:600;color:#1f2937;">품명</th>
+                <th style="padding:12px 8px;text-align:right;font-weight:600;color:#1f2937;">TAG가</th>
+                <th style="padding:12px 8px;text-align:right;font-weight:600;color:#1f2937;">할인가</th>
+              </tr>
+            </thead>
+            <tbody id="promotion-detail-tbody">
+      `;
+      
+      filteredData.forEach((row, index) => {
+        const bgColor = index % 2 === 0 ? '#fff' : '#f9fafb';
+        const category = escapeHtml(row['카테고리'] || '-');
+        const itemCode = escapeHtml(row['아이템코드'] || '-');
+        const itemName = escapeHtml(row['아이템명'] || '-');
+        const productCode = escapeHtml(row['품번'] || '-');
+        const productName = escapeHtml(row['품명'] || '-');
+        const tagPrice = formatNumber(row['TAG가'] || 0);
+        const salePrice = formatNumber(row['할인가'] || 0);
+        
+        html += `
+          <tr data-category="${category}" data-item-name="${itemName.toLowerCase()}" data-product-code="${productCode.toLowerCase()}" data-product-name="${productName.toLowerCase()}" style="background:${bgColor};border-bottom:1px solid #e5e7eb;">
+            <td style="padding:10px 8px;color:#1f2937;">${category}</td>
+            <td style="padding:10px 8px;color:#64748b;">${itemCode}</td>
+            <td style="padding:10px 8px;color:#1f2937;">${itemName}</td>
+            <td style="padding:10px 8px;color:#64748b;font-family:monospace;">${productCode}</td>
+            <td style="padding:10px 8px;color:#1f2937;">${productName}</td>
+            <td style="padding:10px 8px;text-align:right;color:#64748b;">${tagPrice}</td>
+            <td style="padding:10px 8px;text-align:right;color:#059669;font-weight:600;">${salePrice}</td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+        <div id="promotion-result-count" style="margin-top:16px;padding:12px;background:#f8fafc;border-radius:6px;text-align:center;color:#64748b;font-size:12px;">
+          총 ${filteredData.length}개 상품
+        </div>
+      `;
+      
+      modalBody.innerHTML = html;
+      modal.style.display = 'flex';
+      
+      // 필터 및 검색 이벤트 리스너 등록
+      setTimeout(() => {
+        // 카테고리 필터 버튼
+        const categoryBtns = document.querySelectorAll('.promotion-category-filter-btn');
+        let selectedCategory = 'all';
+        
+        categoryBtns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            selectedCategory = this.dataset.category;
+            
+            // 버튼 스타일 업데이트
+            categoryBtns.forEach(b => {
+              if (b.dataset.category === selectedCategory) {
+                b.style.background = '#4f46e5';
+                b.style.color = '#fff';
+                b.style.border = 'none';
+              } else {
+                b.style.background = '#fff';
+                b.style.color = '#64748b';
+                b.style.border = '1px solid #cbd5e1';
+              }
+            });
+            
+            // 필터 적용
+            applyPromotionFilters();
+          });
+        });
+        
+        // 검색 입력
+        const searchInput = document.getElementById('promotion-detail-search');
+        if (searchInput) {
+          searchInput.addEventListener('input', function() {
+            applyPromotionFilters();
+          });
+        }
+        
+        // 필터 적용 함수
+        function applyPromotionFilters() {
+          const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+          const tbody = document.getElementById('promotion-detail-tbody');
+          if (!tbody) return;
+          
+          const rows = tbody.querySelectorAll('tr');
+          let visibleCount = 0;
+          
+          rows.forEach(row => {
+            const category = row.dataset.category;
+            const itemName = row.dataset.itemName || '';
+            const productCode = row.dataset.productCode || '';
+            const productName = row.dataset.productName || '';
+            
+            // 카테고리 필터 체크
+            const categoryMatch = selectedCategory === 'all' || category === selectedCategory;
+            
+            // 검색어 체크 (아이템명, 품번, 품명)
+            const searchMatch = !searchTerm || 
+              itemName.includes(searchTerm) || 
+              productCode.includes(searchTerm) || 
+              productName.includes(searchTerm);
+            
+            // 둘 다 만족하면 표시
+            if (categoryMatch && searchMatch) {
+              row.style.display = '';
+              visibleCount++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+          
+          // 결과 카운트 업데이트
+          const resultCount = document.getElementById('promotion-result-count');
+          if (resultCount) {
+            resultCount.textContent = `총 ${visibleCount}개 상품`;
+          }
+        }
+      }, 100);
+      
+      console.log('[프로모션 모달] 렌더링 완료');
+    };
+    
+    /**
+     * 프로모션 상세 모달 닫기
+     */
+    window.closePromotionDetailModal = function() {
+      const modal = document.getElementById('promotion-detail-modal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    };
+    
+    // 모달 배경 클릭 시 닫기
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('promotion-detail-modal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            window.closePromotionDetailModal();
+          }
+        });
+      }
+    });
+    
+    // ========== 끝: 프로모션 상세 모달 함수 ==========
     
     // 기간 선택 버튼
       const periodBtns = document.querySelectorAll('.period-btn');
@@ -18412,6 +19675,75 @@
               row.style.display = (codeText.includes(searchTerm) || nameText.includes(searchTerm)) ? '' : 'none';
             }
           });
+        });
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDashboardDOM);
+    } else {
+      initDashboardDOM();
+    }
+
+    // ============================================================
+    // 키보드 단축키: Ctrl+Shift+R로 Snowflake 데이터 강제 새로고침
+    // ============================================================
+    document.addEventListener('keydown', function(event) {
+      // Ctrl+Shift+R 또는 Cmd+Shift+R (Mac)
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'R') {
+        event.preventDefault(); // 브라우저 기본 새로고침 방지
+        
+        console.log('[키보드 단축키] Ctrl+Shift+R 감지 - Snowflake 데이터 강제 새로고침 시작');
+        
+        // 알림 표시
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #4CAF50;
+          color: white;
+          padding: 15px 25px;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          z-index: 10000;
+          font-size: 14px;
+          font-weight: 500;
+        `;
+        notification.textContent = '🔄 Snowflake 데이터 새로고침 중...';
+        document.body.appendChild(notification);
+        
+        // Snowflake API 강제 새로고침
+        Promise.all([
+          // 트리맵 (매출구성)
+          loadSalesCompositionData(true),
+          // 판매율
+          window.loadSalesRateData ? window.loadSalesRateData(true) : Promise.resolve(),
+          // 재고주수
+          window.loadStockWeeksData ? window.loadStockWeeksData(true) : Promise.resolve(),
+          // 할인내역 (현재 브랜드)
+          window.currentBrand ? loadDiscountDetailData(window.currentBrand, true) : Promise.resolve()
+        ]).then(() => {
+          console.log('[키보드 단축키] 모든 데이터 새로고침 완료');
+          notification.style.background = '#4CAF50';
+          notification.textContent = '✅ 데이터 새로고침 완료!';
+          
+          // 트리맵 다시 그리기
+          if (window.salesCompositionData) {
+            const currentView = document.querySelector('.treemap-view-btn.active')?.dataset.view || 'channel';
+            const currentPeriod = document.querySelector('.treemap-period-btn.active')?.dataset.period || 'CY';
+            drawTreemap(currentView, currentPeriod);
+          }
+          
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }).catch(error => {
+          console.error('[키보드 단축키] 데이터 새로고침 실패:', error);
+          notification.style.background = '#f44336';
+          notification.textContent = '❌ 데이터 새로고침 실패';
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
         });
       }
     });
