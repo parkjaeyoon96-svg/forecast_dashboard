@@ -16219,7 +16219,9 @@
       const headerEl = document.querySelector('#treemapWrapperChannel').closest('.chart-container')?.querySelector('.chart-title');
       if (!headerEl) return;
       
-      let titleText = '채널별 매출구성';
+      const dailyBadge = '<span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>';
+      
+      let titleText = dailyBadge + '채널별 매출구성';
       if (channelTreemapDrilldownPath.length > 0) {
         titleText += ' > ' + channelTreemapDrilldownPath.join(' > ');
       }
@@ -16426,7 +16428,9 @@
       const headerEl = document.querySelector('#treemapWrapperItem').closest('.chart-container')?.querySelector('.chart-title');
       if (!headerEl) return;
       
-      let titleText = '아이템별 매출구성';
+      const dailyBadge = '<span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>';
+      
+      let titleText = dailyBadge + '아이템별 매출구성';
       if (itemTreemapDrilldownPath.length > 0) {
         titleText += ' > ' + itemTreemapDrilldownPath.join(' > ');
       }
