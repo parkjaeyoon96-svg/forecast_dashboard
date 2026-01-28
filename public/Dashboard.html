@@ -53,7 +53,9 @@
       window.channelProfitLossData = {};
       window.weeklySalesTrend = {};
       window.clothingBrandStatus = {};
-      window.channelTreemapData = {};
+      window.channelTreemapData = null; // ★ JSON 사용 안함 - Snowflake API 사용 ★
+      window.salesCompositionData = null; // 매출구성 데이터 (트리맵용 - Snowflake API)
+      window.discountDetailData = null; // 할인내역 원본 데이터 (Snowflake API)
     })();
   </script>
   <script>
@@ -192,14 +194,14 @@
           }
         }
         
-        // 다른 JSON 파일들 병렬 로드
+        // 다른 JSON 파일들 병렬 로드 (treemap.json 제외 - Snowflake API 사용)
         const [brandKPI, brandPL, channelProfitLoss, radarChart, weeklyTrend, treemap, brandPlan, insightsData, metrics] = await Promise.all([
           fetch(`${baseUrl}/brand_kpi.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/brand_pl.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/channel_profit_loss.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/radar_chart.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/weekly_trend.json`).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${baseUrl}/treemap.json`).then(r => r.ok ? r.json() : null).catch(() => null),
+          Promise.resolve(null), // treemap.json 로딩 비활성화 - Snowflake API 사용
           fetch(`${baseUrl}/radar_chart.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/ai_insights/insights_data_${dateStr}.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/metrics.json`).then(r => r.ok ? r.json() : null).catch(() => null)
@@ -461,19 +463,8 @@
         
         // stock_analysis.json 로딩 제거됨 - 더 이상 사용하지 않음
         
-        if (treemap) {
-          // treemap.json 구조: { metadata: {...}, channelTreemapData: { total, channels, byBrand: { MLB: {channel: {...}, item: {...}} } } }
-          window.channelTreemapData = treemap.channelTreemapData || treemap;
-          
-          // 메타데이터 저장
-          if (treemap.metadata) {
-            if (!window.channelTreemapData.metadata) {
-              window.channelTreemapData.metadata = treemap.metadata;
-            }
-          }
-          
-          console.log('  ✓ treemap.json');
-        }
+        // ★ treemap.json 로딩 완전히 비활성화 - Snowflake API 사용 ★
+        console.log('  ⚠ treemap.json 로딩 스킵 (Snowflake API 사용)');
         
         // metrics.json 로드 (channelItemSalesData용)
         if (metrics) {
@@ -497,80 +488,9 @@
           console.warn('  ✗ metrics.json 로드 실패 - 브랜드별 트리맵이 표시되지 않을 수 있습니다');
         }
         
-        // treemap이 있을 때만 처리
-        if (treemap) {
-          // ★ JSON 데이터를 그대로 사용 (재계산 제거) ★
-          const byBrand = treemap.channelTreemapData?.byBrand || treemap.byBrand || {};
-          const convertedData = {};
-          const channelMetrics = {};  // 채널별 메트릭스
-          const itemMetrics = {};     // 아이템별 메트릭스
-          
-          Object.keys(byBrand).forEach(brandCode => {
-            const brandData = byBrand[brandCode];
-            convertedData[brandCode] = {};
-            channelMetrics[brandCode] = {};
-            itemMetrics[brandCode] = {};
-            
-            // ★ 아이템-채널별 메트릭스 (드릴다운용) ★
-            const itemChannelMetricsForBrand = {};
-            
-            // 1. 채널별 데이터 처리
-            const channels = brandData?.channel?.channels || {};
-            Object.keys(channels).forEach(channelName => {
-              const channelData = channels[channelName];
-              convertedData[brandCode][channelName] = {};
-              
-              // 채널별 할인율 - JSON에서 그대로 가져옴
-              channelMetrics[brandCode][channelName] = {
-                discountRate: (channelData?.discountRate || 0) / 100,
-                tag: channelData?.tag || 0,
-                sales: channelData?.sales || 0,
-                share: channelData?.share || 0
-              };
-              
-              // itemCategories (중분류) 순회
-              const itemCategories = channelData?.itemCategories || {};
-              Object.keys(itemCategories).forEach(categoryName => {
-                const categoryData = itemCategories[categoryName];
-                // 중분류 매출 저장
-                convertedData[brandCode][channelName][categoryName] = categoryData?.sales || 0;
-                
-                // 아이템-채널별 메트릭스 저장 (드릴다운용)
-                if (!itemChannelMetricsForBrand[categoryName]) {
-                  itemChannelMetricsForBrand[categoryName] = {};
-                }
-                itemChannelMetricsForBrand[categoryName][channelName] = {
-                  discountRate: (categoryData?.discountRate || 0) / 100,
-                  tag: categoryData?.tag || 0,
-                  sales: categoryData?.sales || 0,
-                  share: categoryData?.share || 0
-                };
-              });
-            });
-            
-            // 2. 아이템별 데이터 처리 - JSON에서 그대로 가져옴 (재계산 제거!)
-            const items = brandData?.item?.items || {};
-            Object.keys(items).forEach(itemName => {
-              const itemData = items[itemName];
-              itemMetrics[brandCode][itemName] = {
-                discountRate: (itemData?.discountRate || 0) / 100,  // JSON 값 그대로 사용
-                tag: itemData?.tag || 0,
-                sales: itemData?.sales || 0,
-                yoy: itemData?.yoy || null
-              };
-            });
-            
-            // 아이템-채널 메트릭스를 전역에 저장
-            if (!window.itemChannelMetrics) window.itemChannelMetrics = {};
-            window.itemChannelMetrics[brandCode] = itemChannelMetricsForBrand;
-          });
-          
-          window.channelItemSalesData = convertedData;
-          window.channelMetrics = channelMetrics;
-          window.itemMetrics = itemMetrics;
-          window.treemapRawData = byBrand;
-          console.log('  ✓ treemap.json 로드 완료 (JSON 데이터 직접 사용)');
-        }
+        // ★ treemap.json 데이터 처리 완전히 제거 - Snowflake API 사용 ★
+        // treemap 변수는 null이므로 이 블록은 실행되지 않음
+        console.log('  ⚠ treemap.json 데이터 처리 스킵 (Snowflake API로 대체)');
         
         if (insightsData) {
           window.insightsData = insightsData;
@@ -641,6 +561,11 @@
     /* 판매율 드릴다운 사이드 패널 */
     .side-panel{position:fixed;right:-550px;top:0;width:550px;height:100vh;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.15);transition:right 0.4s ease;z-index:1000;overflow-y:auto;}
     .side-panel.open{right:0;}
+    /* 아이템별 트리맵 사이드바 */
+    .item-treemap-sidebar{position:fixed;right:-600px;top:0;width:600px;height:100vh;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.15);transition:right 0.4s ease;z-index:1000;overflow-y:auto;}
+    .item-treemap-sidebar.open{right:0;}
+    .sidebar-arrow-btn{position:absolute;right:10px;top:10px;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;font-weight:600;transition:all 0.3s ease;z-index:10;}
+    .sidebar-arrow-btn:hover{background:#4338ca;transform:scale(1.05);}
     .period-btn{transition:all 0.3s ease;}
     .period-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(79,70,229,0.2);}
     .period-btn.active{border-color:#4f46e5!important;background:#4f46e5!important;color:#fff!important;}
@@ -707,8 +632,7 @@
     .kpi-change-line{font-size:11px;font-weight:500;margin-bottom:2px;}
     .kpi-positive{color:#059669;}
     .kpi-negative{color:#dc2626;}
-    .treemap-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;min-height:600px;margin-bottom:15px;}
-    .charts-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:450px 450px;gap:10px;min-height:580px;width:100%;}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:450px 450px;gap:10px;min-height:580px;width:100%;margin-bottom:10px;}
     .overview-charts-grid{grid-template-rows:350px 350px;}
     .chart-container{background:#fff;border-radius:10px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid #e2e8f0;display:flex;flex-direction:column;}
     .chart-title{color:#1e293b;font-size:16px;font-weight:700;margin-bottom:10px;text-align:center;flex-shrink:0;}
@@ -1239,9 +1163,12 @@
             </div>
 
             <div class="charts-grid">
-              <!-- 1행 1열: 채널별 매출구성 (히트맵) -->
+              <!-- 1행 1열: 채널별 매출구성 트리맵 -->
               <div class="chart-container">
-                <div class="chart-title" id="treemapTitleChannel">채널별 매출구성(현시점)</div>
+                <div class="chart-title" id="treemapTitleChannel">
+                  <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
+                  채널별 매출구성(현시점)
+                </div>
                 <div style="display:flex;gap:6px;margin-bottom:8px;">
                   <button id="treemapDrillbackChannel" class="drillback-btn" style="display:none;">← 뒤로가기</button>
                   <div style="flex:1;"></div>
@@ -1252,9 +1179,13 @@
                   <div>데이터 로딩 중...</div>
                 </div>
               </div>
-              <!-- 1행 2열: 아이템별 매출구성 (히트맵) -->
-              <div class="chart-container">
-                <div class="chart-title" id="treemapTitleItem">아이템별 매출구성(현시점)</div>
+              <!-- 1행 2열: 아이템별 매출구성 트리맵 -->
+              <div class="chart-container" style="position:relative;">
+                <div class="chart-title" id="treemapTitleItem">
+                  <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
+                  아이템별 매출구성(현시점)
+                </div>
+                <button id="openItemTreemapSidebar" class="sidebar-arrow-btn">→</button>
                 <div style="display:flex;gap:6px;margin-bottom:8px;">
                   <button id="treemapDrillbackItem" class="drillback-btn" style="display:none;">← 뒤로가기</button>
                   <button id="downloadItemTreemapCSV" class="drillback-btn" style="background:#10B981;">📥 전년 데이터 CSV</button>
@@ -1332,9 +1263,8 @@
                 </div>
               </div>
             </div>
-            
             <!-- 주차별 매출 추세 (전체 너비) -->
-            <div class="chart-container" style="margin-top: 15px; width: 100%;">
+            <div class="chart-container" style="width: 100%;">
                 <div class="chart-title">주차별 매출 추세</div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:10px;">
                   <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1374,13 +1304,13 @@
             
             <!-- 당시즌 의류 판매율 분석 테이블 -->
             <div id="brand-sales-rate-section" class="chart-container" style="margin-top: 15px; width: 100%;">
-              <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;">
-                <div>
+              <div style="position:relative;">
+                <div class="chart-title" style="text-align:center;">
                   <span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>
                   당시즌 의류 판매율 / ACC 재고주수 분석
                 </div>
                 <button id="btn-update-analysis-data" 
-                  style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;display:flex;align-items:center;gap:6px;"
+                  style="position:absolute;right:0;top:0;padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;display:flex;align-items:center;gap:6px;"
                   onmouseover="this.style.background='#4338ca'" 
                   onmouseout="this.style.background='#4f46e5'">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1598,6 +1528,166 @@
               <!-- JavaScript로 동적 생성 -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 아이템별 트리맵 사이드바 -->
+    <div id="item-treemap-sidebar" class="item-treemap-sidebar">
+      <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:2px solid #e5e7eb;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+        <h4 style="margin:0;font-size:20px;color:#fff;font-weight:700;">📊 아이템별 매출 상세 정보</h4>
+        <button id="close-item-treemap-sidebar" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s ease;">✕ 닫기</button>
+      </div>
+      
+      <div style="padding:24px;overflow-y:auto;height:calc(100vh - 80px);">
+        <!-- 요약 정보 카드 (브랜드 + 매출 배너) -->
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:12px;padding:20px;margin-bottom:24px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+          <div style="color:#fff;font-size:14px;margin-bottom:8px;opacity:0.9;">현재 선택된 브랜드</div>
+          <div id="sidebar-brand-name" style="color:#fff;font-size:24px;font-weight:700;margin-bottom:16px;">-</div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:8px;padding:12px;">
+              <div style="color:#fff;font-size:12px;margin-bottom:4px;opacity:0.9;">총 매출</div>
+              <div id="sidebar-total-revenue" style="color:#fff;font-size:18px;font-weight:700;">0원</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:8px;padding:12px;">
+              <div style="color:#fff;font-size:12px;margin-bottom:4px;opacity:0.9;">아이템 수</div>
+              <div id="sidebar-item-count" style="color:#fff;font-size:18px;font-weight:700;">0개</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 유의사항 -->
+        <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
+          <h5 style="color:#dc2626;font-size:14px;font-weight:700;margin-bottom:12px;">* 유의사항</h5>
+          <div style="font-size:12px;color:#475569;line-height:1.8;">
+            <p>대시보드 실판매출은 완불기준(재무손익 기준) 매출이며,<br>
+            현 데이터의 실판매출은 판매일자 기준(판매기준) 매출입니다.</p>
+            <p style="margin-top:8px;">매출인식 기준 시점의 차이로 인해 동일 기간이라도 매출 금액에 차이가 발생할 수 있습니다.</p>
+          </div>
+          
+          <details style="margin-top:12px;">
+            <summary style="cursor:pointer;font-weight:600;color:#1f2937;font-size:13px;">대시보드 매출 데이터 분류</summary>
+            <div style="margin-top:12px;font-size:12px;color:#475569;line-height:1.8;">
+              <p><strong>전체현황</strong></p>
+              <ul style="margin-left:20px;margin-top:4px;">
+                <li>완불기준(재무손익): KPI, 브랜드별 매출현황 & 영업이익, 전체 브랜드 매출계획/전년비 레이더차트, 전체손익구조</li>
+                <li>판매일자기준: 월중 누적 매출추이, 당시즌의류판매율/ACC재고주수분석</li>
+              </ul>
+              <p style="margin-top:8px;"><strong>브랜드별 현황</strong></p>
+              <ul style="margin-left:20px;margin-top:4px;">
+                <li>완불기준(재무손익): KPI, 손익계산서, 매출계획/전년비 레이더차트, 주요채널별 손익</li>
+                <li>판매일자기준: 주차별매출추세, 당시즌의류판매율/ACC재고주수분석</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+
+        <!-- 1. 아이템별 상세 -->
+        <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
+          <h5 style="color:#1f2937;font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e5e7eb;">
+            📋 1. 아이템별 상세
+          </h5>
+          
+          <!-- 1-1. 카테고리 → 채널 드릴다운 -->
+          <div style="margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h6 style="color:#475569;font-size:14px;font-weight:600;margin:0;padding-left:8px;border-left:3px solid #4f46e5;">
+                1) 카테고리 → 채널 드릴다운
+              </h6>
+              <button id="sidebar-category-channel-back-btn" onclick="sidebarCategoryChannelGoBack()" style="display:none;padding:4px 12px;background:#8b5cf6;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.3s ease;">
+                ← 뒤로
+              </button>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:16px;">
+              <!-- 트리맵 영역 -->
+              <div id="sidebar-category-channel-treemap" style="min-height:350px;background:#fff;border-radius:6px;border:1px solid #e5e7eb;"></div>
+              <!-- 날짜 정보 -->
+              <div id="sidebarCategoryChannelDateInfo" style="margin-top:12px;padding:12px;background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:6px;font-size:12px;color:#1e40af;line-height:1.6;">
+                <div><strong>업데이트 일자:</strong> -</div>
+                <div><strong>분석기간:</strong> -</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1-2. 카테고리 → 아이템 드릴다운 -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h6 style="color:#475569;font-size:14px;font-weight:600;margin:0;padding-left:8px;border-left:3px solid #10b981;">
+                2) 카테고리 → 아이템 드릴다운
+              </h6>
+              <button id="sidebar-category-item-back-btn" onclick="sidebarCategoryItemGoBack()" style="display:none;padding:4px 12px;background:#f59e0b;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.3s ease;">
+                ← 뒤로
+              </button>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:16px;">
+              <!-- 트리맵 영역 -->
+              <div id="sidebar-category-item-treemap" style="min-height:350px;background:#fff;border-radius:6px;border:1px solid #e5e7eb;"></div>
+              <!-- 날짜 정보 -->
+              <div id="sidebarCategoryItemDateInfo" style="margin-top:12px;padding:12px;background:#f0fdf4;border-left:4px solid #10b981;border-radius:6px;font-size:12px;color:#065f46;line-height:1.6;">
+                <div><strong>업데이트 일자:</strong> -</div>
+                <div><strong>분석기간:</strong> -</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. 할인내역 -->
+        <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
+          <h5 style="color:#1f2937;font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e5e7eb;">
+            💰 2. 할인내역
+          </h5>
+          
+          <div style="overflow-x:auto;">
+            <table id="sidebar-discount-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead>
+                <tr style="border-bottom:2px solid #cbd5e1;">
+                  <th rowspan="2" style="padding:10px 6px;text-align:left;font-size:12px;color:#475569;font-weight:700;background:#f8fafc;vertical-align:middle;border-right:1px solid #e5e7eb;">할인코드</th>
+                  <th colspan="2" style="padding:8px 6px;text-align:center;font-size:12px;color:#475569;font-weight:700;background:#f8fafc;border-right:1px solid #e5e7eb;">당년</th>
+                  <th colspan="2" style="padding:8px 6px;text-align:center;font-size:12px;color:#475569;font-weight:700;background:#f8fafc;border-right:1px solid #e5e7eb;">전년</th>
+                  <th rowspan="2" style="padding:10px 6px;text-align:center;font-size:12px;color:#475569;font-weight:700;background:#f8fafc;vertical-align:middle;border-right:1px solid #e5e7eb;">YOY</th>
+                  <th rowspan="2" style="padding:10px 6px;text-align:center;font-size:12px;color:#475569;font-weight:700;background:#f8fafc;vertical-align:middle;">할인율차이</th>
+                </tr>
+                <tr style="border-bottom:2px solid #cbd5e1;">
+                  <th style="padding:8px 6px;text-align:right;font-size:11px;color:#64748b;font-weight:600;background:#f8fafc;">실판매출</th>
+                  <th style="padding:8px 6px;text-align:center;font-size:11px;color:#64748b;font-weight:600;background:#f8fafc;border-right:1px solid #e5e7eb;">할인율</th>
+                  <th style="padding:8px 6px;text-align:right;font-size:11px;color:#64748b;font-weight:600;background:#f8fafc;">실판매출</th>
+                  <th style="padding:8px 6px;text-align:center;font-size:11px;color:#64748b;font-weight:600;background:#f8fafc;border-right:1px solid #e5e7eb;">할인율</th>
+                </tr>
+              </thead>
+              <tbody id="sidebar-discount-tbody">
+                <!-- 데이터는 JavaScript로 동적 생성 -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 할인율 차트 (선택사항) -->
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;">
+            <canvas id="sidebar-discount-chart" style="max-height:200px;"></canvas>
+          </div>
+        </div>
+
+        <!-- 3. 프로모션 내용 -->
+        <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
+          <h5 style="color:#1f2937;font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e5e7eb;">
+            🎯 3. 프로모션 내용
+          </h5>
+          
+          <div id="sidebar-promotion-content" style="background:#f8fafc;border-radius:8px;padding:16px;min-height:150px;">
+            <div style="color:#64748b;font-size:13px;line-height:1.7;">
+              <p style="margin-bottom:10px;">📌 진행 중인 프로모션이 없습니다.</p>
+              <div id="promotion-list" style="display:none;">
+                <!-- 프로모션 목록이 여기에 동적으로 추가됩니다 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 프로모션 추가 버튼 (관리자용) -->
+          <div style="margin-top:12px;text-align:right;">
+            <button id="btn-add-promotion" style="padding:8px 16px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s ease;">
+              ➕ 프로모션 추가
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2164,6 +2254,27 @@
               
               // brandPLData는 loadAllDashboardData()에서 이미 로드됨 (brand_pl.json)
               
+              // ★ 매출구성 데이터 로드 (트리맵용) - 페이지 로드 완료 후 실행
+              window.addEventListener('load', () => {
+                console.log('[데이터로드] 매출구성 데이터 로드 시작 (페이지 로드 완료 후)');
+                if (typeof loadSalesCompositionData === 'function') {
+                  loadSalesCompositionData().then(() => {
+                    console.log('[데이터로드] 매출구성 데이터 로드 완료');
+                    // 초기 브랜드 트리맵 렌더링
+                    if (currentBrand && typeof updateBrandTreemaps === 'function') {
+                      console.log('[데이터로드] updateBrandTreemaps 호출:', currentBrand);
+                      updateBrandTreemaps(currentBrand);
+                    } else {
+                      console.warn('[데이터로드] updateBrandTreemaps 함수 없음 또는 currentBrand 없음');
+                    }
+                  }).catch(err => {
+                    console.error('[데이터로드] 매출구성 데이터 로드 실패:', err);
+                  });
+                } else {
+                  console.error('[데이터로드] loadSalesCompositionData 함수가 정의되지 않음');
+                }
+              });
+              
               // dataLoaded 이벤트 발생
               console.log('[Dashboard] 데이터 로드 완료, dataLoaded 이벤트 발생');
               window.dispatchEvent(new CustomEvent('dataLoaded'));
@@ -2194,6 +2305,27 @@
               if (typeof window.brandKPI !== 'undefined' && typeof window.updateBrandDataFromKPI === 'function') {
                 window.updateBrandDataFromKPI();
               }
+              
+              // ★ 매출구성 데이터 로드 (트리맵용) - 페이지 로드 완료 후 실행
+              window.addEventListener('load', () => {
+                console.log('[데이터로드] 매출구성 데이터 로드 시작 (페이지 로드 완료 후)');
+                if (typeof loadSalesCompositionData === 'function') {
+                  loadSalesCompositionData().then(() => {
+                    console.log('[데이터로드] 매출구성 데이터 로드 완료');
+                    // 초기 브랜드 트리맵 렌더링
+                    if (currentBrand && typeof updateBrandTreemaps === 'function') {
+                      console.log('[데이터로드] updateBrandTreemaps 호출:', currentBrand);
+                      updateBrandTreemaps(currentBrand);
+                    } else {
+                      console.warn('[데이터로드] updateBrandTreemaps 함수 없음 또는 currentBrand 없음');
+                    }
+                  }).catch(err => {
+                    console.error('[데이터로드] 매출구성 데이터 로드 실패:', err);
+                  });
+                } else {
+                  console.error('[데이터로드] loadSalesCompositionData 함수가 정의되지 않음');
+                }
+              });
               
               // ★ 손익계산서는 jsonDataLoaded 이벤트에서 업데이트 (함수 정의 후)
               console.log('[데이터로드] window.overviewPL 상태:', !!window.overviewPL);
@@ -2486,43 +2618,15 @@
                 // 날짜별 데이터 파일 로드 (병렬 로드로 최적화됨)
                 await loadDataFile(dateParam);
                 
-                // 데이터가 로드되었는지 확인 후 트리맵 초기화 (setTimeout 제거로 즉시 실행)
-                const checkAndInit = () => {
-                  const channelItemSalesData = getChannelItemSalesData();
-                  if (channelItemSalesData && Object.keys(channelItemSalesData).length > 0 && typeof initTreemap === 'function') {
-                    console.log('트리맵 데이터 로드 완료, initTreemap 호출');
-                    initTreemap();
-                  } else {
-                    // 최대 3초까지 재시도 (500ms 간격)
-                    let retryCount = 0;
-                    const maxRetries = 6;
-                    const retryInterval = setInterval(() => {
-                      retryCount++;
-                      const data = getChannelItemSalesData();
-                      if (data && Object.keys(data).length > 0 && typeof initTreemap === 'function') {
-                        clearInterval(retryInterval);
-                        console.log('트리맵 데이터 로드 완료 (재시도 후), initTreemap 호출');
-                        initTreemap();
-                      } else if (retryCount >= maxRetries) {
-                        clearInterval(retryInterval);
-                        console.warn('트리맵 데이터 로드 실패: 최대 재시도 횟수 초과');
-                      }
-                    }, 500);
-                  }
-                };
-                checkAndInit();
+                // ★ 옛날 JSON 기반 트리맵 초기화 제거 - Snowflake API 사용 ★
+                console.log('⚠ 옛날 트리맵 초기화 스킵 (Snowflake API 사용)');
               } else {
                 console.warn('트리맵 데이터 생성 실패:', treemapData.error);
                 // 실패해도 기본 파일 로드 시도
                 await loadDataFile(dateParam).catch(() => {
                   console.error('데이터 파일 로드 실패');
                 });
-                // 데이터 로드 후 트리맵 초기화 시도
-                setTimeout(() => {
-                  if (typeof window.channelItemSalesData !== 'undefined' && typeof initTreemap === 'function') {
-                    initTreemap();
-                  }
-                }, 500);
+                // ★ 옛날 트리맵 초기화 제거 - Snowflake API 사용 ★
               }
             } catch (treemapError) {
               console.error('트리맵 데이터 생성 오류:', treemapError);
@@ -2616,16 +2720,33 @@
         setTimeout(initRadarChartOnLoad, 300);
       
       // ★ 전체현황 히트맵용 API 데이터 미리 로드
-      console.log('[전체현황] 판매율/재고주수 API 데이터 로드 시작');
+      console.log('[전체현황] 판매율/재고주수/매출구성 API 데이터 로드 시작');
       
       Promise.all([
         loadOverviewSalesRateData(),
-        loadOverviewStockWeeksData()
+        loadOverviewStockWeeksData(),
+        loadSalesCompositionData()
       ]).then(() => {
         console.log('[전체현황] API 데이터 로드 완료');
       }).catch(err => {
         console.error('[전체현황] API 데이터 로드 에러:', err);
       });
+      
+      // ★ 할인내역 초기 로드 (페이지 로드 시 기본 브랜드 MLB로)
+      console.log('[초기화] 할인내역 데이터 로드 시작');
+      console.log('[초기화] updateDiscountTable 함수 존재 여부:', typeof updateDiscountTable === 'function');
+      if (typeof updateDiscountTable === 'function') {
+        setTimeout(() => {
+          console.log('[초기화] updateDiscountTable 실행 시작');
+          updateDiscountTable().then(() => {
+            console.log('[초기화] updateDiscountTable 완료');
+          }).catch(err => {
+            console.error('[초기화] 할인내역 로드 실패:', err);
+          });
+        }, 1000); // 1초로 늘림
+      } else {
+        console.error('[초기화] updateDiscountTable 함수가 정의되지 않았습니다!');
+      }
 
       // 편집 모드 버튼 이벤트
       document.getElementById('edit-mode-btn').addEventListener('click', toggleEditMode);
@@ -3382,6 +3503,17 @@
         try { console.log('1. renderInsights 시작'); renderInsights(); console.log('1. renderInsights 완료'); } catch(e) { console.error('renderInsights 에러:', e); }
         
         try { console.log('2. updateBrandView 시작'); updateBrandView(); console.log('2. updateBrandView 완료'); } catch(e) { console.error('updateBrandView 에러:', e); }
+        
+        // ★ 할인내역 업데이트 ★
+        try { 
+          console.log('2-1. updateDiscountTable 시작'); 
+          if(typeof updateDiscountTable === 'function') {
+            updateDiscountTable().catch(err => console.error('updateDiscountTable 비동기 에러:', err)); 
+          }
+          console.log('2-1. updateDiscountTable 호출 완료 (비동기 처리 중)'); 
+        } catch(e) { 
+          console.error('updateDiscountTable 에러:', e); 
+        }
         
         // ★ 손익계산서 별도 호출 (updateBrandView와 독립적으로)
         try { console.log('3. updateBrandPL 시작'); if(typeof updateBrandPL === 'function') updateBrandPL(); console.log('3. updateBrandPL 완료'); } catch(e) { console.error('updateBrandPL 에러:', e); }
@@ -4286,23 +4418,14 @@
     function updateBrandCharts() {
       console.log('브랜드별 차트 업데이트:', currentBrand);
       
-      // 트리맵 컨테이너 크기 동일하게 설정
-      const channelContainer = document.getElementById('treemapWrapperChannel');
-      const itemContainer = document.getElementById('treemapWrapperItem');
-      
-      if (channelContainer && itemContainer) {
-        const targetHeight = '280px';
-        channelContainer.style.minHeight = targetHeight;
-        channelContainer.style.height = targetHeight;
-        itemContainer.style.minHeight = targetHeight;
-        itemContainer.style.height = targetHeight;
+      // ★ Snowflake API 기반 트리맵 업데이트 ★
+      if (currentBrand && typeof updateBrandTreemaps === 'function') {
+        try { 
+          updateBrandTreemaps(currentBrand); 
+        } catch(e) { 
+          console.error('트리맵 업데이트 에러:', e); 
+        }
       }
-      
-      // ★ 채널별 트리맵 업데이트 (에러 방지)
-      try { updateChannelTreemap(); } catch(e) { console.error('채널 트리맵 에러:', e); }
-      
-      // ★ 아이템별 트리맵 업데이트 (에러 방지)
-      try { updateItemTreemap(); } catch(e) { console.error('아이템 트리맵 에러:', e); }
       
       // 레이더 차트 데이터 업데이트 (차트가 없으면 생성)
       if (!charts.radar) {
@@ -7119,7 +7242,7 @@
         }
       });
 
-      // 트리맵 초기화 (brandKPI 데이터 사용)
+      // ★ Snowflake API 기반 트리맵 초기화 ★
       initTreemap();
 
       // 레이더 차트: 계획(달성률) vs 전년비
@@ -8515,7 +8638,8 @@
     // 브랜드별 채널-아이템 매출 상세 데이터 (트리맵 드릴다운용) - 외부(data.js)만 사용
     // 함수 내부에서 동적으로 가져오도록 변경 (데이터 로드 후 사용 보장)
     function getChannelItemSalesData() {
-      return window.channelItemSalesData || {};
+      // ★ JSON 기반 트리맵 비활성화 - Snowflake API 사용 ★
+      return {}; // 항상 빈 객체 반환하여 옛날 트리맵 초기화 방지
     }
     // (참고) 아래 하드코딩 데이터는 더 이상 사용하지 않습니다. 필요 시 __HARDCODED 참조
     const __HARDCODED = {
@@ -8583,57 +8707,44 @@
     
     // -------- 트리맵 초기화 (채널별/아이템별 분리) --------
     function initTreemap() {
-      // 데이터가 로드되었는지 확인
-      const channelItemSalesData = getChannelItemSalesData();
-      if (!channelItemSalesData || Object.keys(channelItemSalesData).length === 0) {
-        console.warn('트리맵 데이터가 아직 로드되지 않았습니다. 잠시 후 다시 시도합니다.');
-      setTimeout(() => {
-          initTreemap();
-        }, 500);
-        return;
+      // ★★★ Snowflake API 기반 트리맵 사용 ★★★
+      console.log('[initTreemap] Snowflake API 기반 트리맵 초기화:', currentBrand);
+      
+      // 매출구성 데이터가 로드되지 않았으면 로드
+      if (!window.salesCompositionData) {
+        console.log('[initTreemap] 매출구성 데이터 로드 중...');
+        loadSalesCompositionData().then(() => {
+          if (currentBrand && typeof updateBrandTreemaps === 'function') {
+            updateBrandTreemaps(currentBrand);
+          }
+        });
+      } else {
+        // 데이터가 이미 로드되어 있으면 바로 렌더링
+        if (currentBrand && typeof updateBrandTreemaps === 'function') {
+          updateBrandTreemaps(currentBrand);
+        }
       }
       
-      console.log('트리맵 데이터 확인 완료:', Object.keys(channelItemSalesData));
-      
-      // ★★★ 트리맵 컨테이너 크기를 먼저 고정한 후 렌더링 ★★★
-      const channelContainer = document.getElementById('treemapWrapperChannel');
-      const itemContainer = document.getElementById('treemapWrapperItem');
-      
-      if (channelContainer && itemContainer) {
-        // 두 컨테이너의 높이를 명시적으로 동일하게 설정 (렌더링 전)
-        const targetHeight = '280px';
-        channelContainer.style.height = targetHeight;
-        itemContainer.style.height = targetHeight;
-        
-        // 강제 리플로우
-        void channelContainer.offsetHeight;
-        void itemContainer.offsetHeight;
-      }
-      
-      // 즉시 트리맵 업데이트 (컨테이너 크기가 이미 고정됨)
-      updateChannelTreemap();
-      updateItemTreemap();
-      
-      // 드릴백 버튼 이벤트 리스너
+      // 드릴백 버튼 이벤트 리스너 (새로운 트리맵용)
       const drillbackChannelBtn = document.getElementById('treemapDrillbackChannel');
       const drillbackItemBtn = document.getElementById('treemapDrillbackItem');
       
-      if (drillbackChannelBtn && !drillbackChannelBtn.hasAttribute('data-listener')) {
-        drillbackChannelBtn.setAttribute('data-listener', 'true');
+      if (drillbackChannelBtn && !drillbackChannelBtn.hasAttribute('data-listener-new')) {
+        drillbackChannelBtn.setAttribute('data-listener-new', 'true');
         drillbackChannelBtn.addEventListener('click', () => {
-          if (channelTreemapPath.length > 0) {
-            channelTreemapPath.pop();
-            updateChannelTreemap();
+          if (channelTreemapDrilldownPath.length > 0) {
+            channelTreemapDrilldownPath.pop();
+            renderChannelSalesTreemap('treemapWrapperChannel', currentBrand);
           }
         });
       }
       
-      if (drillbackItemBtn && !drillbackItemBtn.hasAttribute('data-listener')) {
-        drillbackItemBtn.setAttribute('data-listener', 'true');
+      if (drillbackItemBtn && !drillbackItemBtn.hasAttribute('data-listener-new')) {
+        drillbackItemBtn.setAttribute('data-listener-new', 'true');
         drillbackItemBtn.addEventListener('click', () => {
-          if (itemTreemapPath.length > 0) {
-            itemTreemapPath.pop();
-            updateItemTreemap();
+          if (itemTreemapDrilldownPath.length > 0) {
+            itemTreemapDrilldownPath.pop();
+            renderItemSalesTreemap('treemapWrapperItem', currentBrand);
           }
         });
       }
@@ -8761,8 +8872,12 @@
       }
     }
     
-    // -------- 채널별 트리맵 업데이트 --------
+    // -------- 채널별 트리맵 업데이트 (옛날 JSON 기반 - 비활성화) --------
     function updateChannelTreemap() {
+      // ★ Snowflake API 기반 트리맵 사용으로 비활성화 ★
+      console.log('[옛날 트리맵] updateChannelTreemap 호출됨 - 무시됨 (Snowflake API 사용)');
+      return;
+      
       const container = document.getElementById('treemapWrapperChannel');
       if (!container) return;
       
@@ -8859,18 +8974,23 @@
       }
       
       if (titleElement) {
+        const dailyBadge = '<span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>';
         if (channelTreemapPath.length === 2) {
-          titleElement.textContent = `채널별 매출구성 > ${channelTreemapPath[0]} > ${channelTreemapPath[1]} (소분류별)`;
+          titleElement.innerHTML = `${dailyBadge}채널별 매출구성 > ${channelTreemapPath[0]} > ${channelTreemapPath[1]} (소분류별)`;
         } else if (channelTreemapPath.length === 1) {
-          titleElement.textContent = `채널별 매출구성 > ${channelTreemapPath[0]} (아이템별)`;
+          titleElement.innerHTML = `${dailyBadge}채널별 매출구성 > ${channelTreemapPath[0]} (아이템별)`;
         } else {
-          titleElement.textContent = '채널별 매출구성(현시점)';
+          titleElement.innerHTML = `${dailyBadge}채널별 매출구성(현시점)`;
         }
       }
     }
     
-    // -------- 아이템별 트리맵 업데이트 --------
+    // -------- 아이템별 트리맵 업데이트 (옛날 JSON 기반 - 비활성화) --------
     function updateItemTreemap() {
+      // ★ Snowflake API 기반 트리맵 사용으로 비활성화 ★
+      console.log('[옛날 트리맵] updateItemTreemap 호출됨 - 무시됨 (Snowflake API 사용)');
+      return;
+      
       const container = document.getElementById('treemapWrapperItem');
       if (!container) return;
       
@@ -8967,10 +9087,11 @@
       }
       
       if (titleElement) {
+        const dailyBadge = '<span style="display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;">Daily</span>';
         if (itemTreemapPath.length > 0) {
-          titleElement.textContent = `아이템별 매출구성 > ${itemTreemapPath[0]} (채널별)`;
+          titleElement.innerHTML = `${dailyBadge}아이템별 매출구성 > ${itemTreemapPath[0]} (채널별)`;
         } else {
-          titleElement.textContent = '아이템별 매출구성(현시점)';
+          titleElement.innerHTML = `${dailyBadge}아이템별 매출구성(현시점)`;
         }
       }
     }
@@ -9088,8 +9209,8 @@
         // 비중, 할인율, 전년할인율, YOY를 소수점 한 자리로 통일
         const percentageNum = parseFloat(percentage);
         const discountRateNum = parseFloat(discountRate.toFixed(1));
-        const prevDiscountRateNum = prevDiscountRate !== null ? parseFloat(prevDiscountRate.toFixed(1)) : null;
-        const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : null;
+        const prevDiscountRateNum = prevDiscountRate !== null ? parseFloat(prevDiscountRate.toFixed(1)) : 0.0;
+        const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : 0.0;
         customDataArray.push([percentageNum, discountRateNum, prevDiscountRateNum, yoyPercentage]);
         
         // 할인율 표시
@@ -9281,8 +9402,8 @@
         // 비중, 할인율, 전년할인율, YOY를 소수점 한 자리로 통일
         const percentageNum = parseFloat(percentage);
         const discountRateNum = parseFloat(discountRate.toFixed(1));
-        const prevDiscountRateNum = prevDiscountRate !== null ? parseFloat(prevDiscountRate.toFixed(1)) : null;
-        const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : null;
+        const prevDiscountRateNum = prevDiscountRate !== null ? parseFloat(prevDiscountRate.toFixed(1)) : 0.0;
+        const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : 0.0;
         customDataArray.push([percentageNum, discountRateNum, prevDiscountRateNum, yoyPercentage]);
         
         // 할인율 표시
@@ -9437,10 +9558,10 @@
             const shareFormatted = typeof subData.share === 'number' ? subData.share.toFixed(1) : parseFloat(subData.share || 0).toFixed(1);
             const discountRateFormatted = typeof subData.discountRate === 'number' ? subData.discountRate.toFixed(1) : parseFloat(subData.discountRate || 0).toFixed(1);
             const prevDiscountRate = subData.prevDiscountRate;
-            const prevDiscountRateFormatted = prevDiscountRate !== null && prevDiscountRate !== undefined ? parseFloat(prevDiscountRate).toFixed(1) : null;
+            const prevDiscountRateFormatted = prevDiscountRate !== null && prevDiscountRate !== undefined ? parseFloat(prevDiscountRate).toFixed(1) : '0.0';
             const yoy = subData.yoy;
-            const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : null;
-            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), prevDiscountRateFormatted !== null ? parseFloat(prevDiscountRateFormatted) : null, yoyPercentage]);
+            const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : 0.0;
+            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), parseFloat(prevDiscountRateFormatted), yoyPercentage]);
             
             // 할인율 표시
             let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%</span>`;
@@ -9521,10 +9642,10 @@
             const shareFormatted = typeof itemData.share === 'number' ? itemData.share.toFixed(1) : parseFloat(itemData.share || 0).toFixed(1);
             const discountRateFormatted = typeof itemData.discountRate === 'number' ? itemData.discountRate.toFixed(1) : parseFloat(itemData.discountRate || 0).toFixed(1);
             const prevDiscountRate = itemData.prevDiscountRate;
-            const prevDiscountRateFormatted = prevDiscountRate !== null && prevDiscountRate !== undefined ? parseFloat(prevDiscountRate).toFixed(1) : null;
+            const prevDiscountRateFormatted = prevDiscountRate !== null && prevDiscountRate !== undefined ? parseFloat(prevDiscountRate).toFixed(1) : '0.0';
             const yoy = itemData.yoy;
-            const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : null;
-            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), prevDiscountRateFormatted !== null ? parseFloat(prevDiscountRateFormatted) : null, yoyPercentage]);
+            const yoyPercentage = yoy !== null && yoy !== undefined ? parseFloat((100 + yoy).toFixed(1)) : 0.0;
+            customDataArray.push([parseFloat(shareFormatted), parseFloat(discountRateFormatted), parseFloat(prevDiscountRateFormatted), yoyPercentage]);
             
             // 할인율 표시
             let discountText = `<br><span style="font-size:12px;color:#fde68a;">할인율 : ${discountRateFormatted}%</span>`;
@@ -9872,9 +9993,9 @@
       // customdata 배열 생성: [비중, 할인율, 전년할인율, YOY] 형식 (소수점 한 자리로 통일)
       const customDataArray = sortedChannels.map((item, index) => {
         const share = itemDrilldownTotalValue > 0 ? ((item.value / itemDrilldownTotalValue) * 100) : 0;
-        const rateData = discountRates[index] || {discountRate: 0, prevDiscountRate: null, yoy: null};
-        const prevDiscountRateNum = rateData.prevDiscountRate !== null && rateData.prevDiscountRate !== undefined ? parseFloat(rateData.prevDiscountRate) : null;
-        const yoyPercentage = rateData.yoy !== null && rateData.yoy !== undefined ? parseFloat((100 + rateData.yoy).toFixed(1)) : null;
+        const rateData = discountRates[index] || {discountRate: 0, prevDiscountRate: 0.0, yoy: 0};
+        const prevDiscountRateNum = rateData.prevDiscountRate !== null && rateData.prevDiscountRate !== undefined ? parseFloat(rateData.prevDiscountRate) : 0.0;
+        const yoyPercentage = rateData.yoy !== null && rateData.yoy !== undefined ? parseFloat((100 + rateData.yoy).toFixed(1)) : 0.0;
         return [parseFloat(share.toFixed(1)), parseFloat(rateData.discountRate.toFixed(1)), prevDiscountRateNum, yoyPercentage];
       });
       
@@ -12218,11 +12339,17 @@
     }
     // -------- 리사이즈 --------
     window.addEventListener('resize',()=>{
-      // 브랜드별 트리맵 크기 재계산
+      // 브랜드별 트리맵 크기 재계산 (Plotly 자동 리사이즈)
       if (document.getElementById('content-brand')?.classList.contains('active')) {
         setTimeout(() => {
-          updateChannelTreemap();
-          updateItemTreemap();
+          const channelContainer = document.getElementById('treemapWrapperChannel');
+          const itemContainer = document.getElementById('treemapWrapperItem');
+          if (channelContainer && window.Plotly && window.Plotly.Plots) {
+            window.Plotly.Plots.resize(channelContainer);
+          }
+          if (itemContainer && window.Plotly && window.Plotly.Plots) {
+            window.Plotly.Plots.resize(itemContainer);
+          }
         }, 100);
       }
       
@@ -13771,17 +13898,44 @@
       try {
         // API 호출 (오늘 날짜 사용)
         const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const forceParam = forceUpdate ? '&forceUpdate=true' : '';
-        const response = await fetch(`/api/sales-rate?date=${apiDate}${forceParam}`);
+        
+        // URL에서 month 파라미터 읽기
+        const urlParams = new URLSearchParams(window.location.search);
+        const monthParam = urlParams.get('month');
+        
+        // API URL 구성
+        let url = `/api/sales-rate?date=${apiDate}`;
+        if (monthParam) {
+          url += `&month=${monthParam}`;
+        }
+        if (forceUpdate) {
+          url += '&forceUpdate=true';
+        }
+        
+        const response = await fetch(url);
         
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          // 에러 응답의 JSON 파싱 시도
+          let errorDetails = '';
+          try {
+            const errorData = await response.json();
+            console.error('[판매율] API 에러 응답:', errorData);
+            errorDetails = errorData.error || errorData.message || '';
+            if (errorData.errorCode) errorDetails += ` (코드: ${errorData.errorCode})`;
+            if (errorData.errorDetails) errorDetails += ` - ${errorData.errorDetails}`;
+          } catch (e) {
+            console.error('[판매율] 에러 응답 파싱 실패:', e);
+          }
+          throw new Error(`HTTP error! status: ${response.status}${errorDetails ? ' - ' + errorDetails : ''}`);
         }
         
         const result = await response.json();
         
         if (!result.success) {
-          throw new Error(result.error || '데이터 로드 실패');
+          let errorMsg = result.error || '데이터 로드 실패';
+          if (result.errorCode) errorMsg += ` (코드: ${result.errorCode})`;
+          if (result.errorDetails) errorMsg += ` - ${result.errorDetails}`;
+          throw new Error(errorMsg);
         }
         
         // 전역 변수에 저장
@@ -13812,7 +13966,16 @@
           // 에러 메시지 표시
           const errorMsg = errorDiv.querySelector('p');
           if (errorMsg) {
-            errorMsg.textContent = `⚠️ 판매율 데이터를 불러올 수 없습니다. (${error.message})`;
+            let errorText = `⚠️ 판매율 데이터를 불러올 수 없습니다. (${error.message})`;
+            
+            // 500 에러인 경우 서버 응답 확인
+            if (error.message.includes('500')) {
+              errorText += '\n\n서버 에러가 발생했습니다. Vercel 로그를 확인해주세요.';
+              errorText += '\n가능한 원인: Snowflake 연결 실패, 환경변수 누락, 쿼리 타임아웃';
+            }
+            
+            errorMsg.textContent = errorText;
+            errorMsg.style.whiteSpace = 'pre-line';
           }
         }
       }
@@ -14968,7 +15131,18 @@
       try {
         console.log('[전체현황] 판매율 데이터 로드 시작');
         const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const response = await fetch(`/api/sales-rate?date=${apiDate}`);
+        
+        // URL에서 month 파라미터 읽기
+        const urlParams = new URLSearchParams(window.location.search);
+        const monthParam = urlParams.get('month');
+        
+        // API URL 구성
+        let url = `/api/sales-rate?date=${apiDate}`;
+        if (monthParam) {
+          url += `&month=${monthParam}`;
+        }
+        
+        const response = await fetch(url);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -15021,6 +15195,1594 @@
         return null;
       }
     }
+    
+    // ==================== 매출구성 데이터 로드 (트리맵용) ====================
+    
+    // 매출구성 데이터 로드 함수
+    async function loadSalesCompositionData(forceUpdate = false) {
+      // 강제 업데이트가 아니고 이미 로드된 경우 캐시 반환
+      if (!forceUpdate && window.salesCompositionData) {
+        console.log('[매출구성] 데이터 이미 로드됨 (캐시 사용)');
+        return window.salesCompositionData;
+      }
+      
+      try {
+        console.log('[매출구성] 데이터 로드 시작', { forceUpdate });
+        const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        
+        // URL에서 month 파라미터 읽기
+        const urlParams = new URLSearchParams(window.location.search);
+        const monthParam = urlParams.get('month');
+        
+        // API URL 구성
+        let url = `/api/sales-composition?date=${apiDate}`;
+        if (monthParam) {
+          url += `&month=${monthParam}`;
+        }
+        if (forceUpdate) {
+          url += '&forceUpdate=true';
+        }
+        
+        console.log('[매출구성] API 호출:', { url, monthParam });
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || '데이터 로드 실패');
+        }
+        
+        // 전역 변수에 저장
+        window.salesCompositionData = result;
+        console.log('[매출구성] 데이터 로드 완료:', {
+          cached: result.cached,
+          cyCount: result.rowCount?.CY || 0,
+          pyCount: result.rowCount?.PY || 0,
+          asof_dt: result.asof_dt
+        });
+        
+        // 데이터 구조 확인
+        if (result.data && result.data.CY && result.data.CY.length > 0) {
+          console.log('[매출구성] CY 첫 번째 행 샘플:', result.data.CY[0]);
+          console.log('[매출구성] CY 컬럼명:', Object.keys(result.data.CY[0]));
+        }
+        
+        return result;
+        
+      } catch (error) {
+        console.error('[매출구성] 데이터 로드 에러:', error);
+        return null;
+      }
+    }
+    
+    // 판매율 데이터를 히트맵용으로 집계
+    function aggregateSalesRateForHeatmap(salesRateData) {
+      if (!window.salesCompositionData || !window.salesCompositionData.data) {
+        console.warn('[트리맵] 매출구성 데이터 없음');
+        return null;
+      }
+      
+      const brandCode = brandCodeMap[brand];
+      const cyData = window.salesCompositionData.data.CY || [];
+      const pyData = window.salesCompositionData.data.PY || [];
+      
+      // 브랜드 필터링
+      const cyFiltered = cyData.filter(row => row.브랜드 === brandCode);
+      const pyFiltered = pyData.filter(row => row.브랜드 === brandCode);
+      
+      // 채널별 집계
+      const channelMap = {};
+      
+      cyFiltered.forEach(row => {
+        const channel = row.채널;
+        if (!channelMap[channel]) {
+          channelMap[channel] = {
+            channel,
+            tagSales: 0,
+            realSales: 0,
+            categories: {}
+          };
+        }
+        
+        channelMap[channel].tagSales += row.TAG매출 || 0;
+        channelMap[channel].realSales += row.실판매출 || 0;
+        
+        // 카테고리별 집계
+        const category = row.카테고리;
+        if (!channelMap[channel].categories[category]) {
+          channelMap[channel].categories[category] = {
+            category,
+            tagSales: 0,
+            realSales: 0,
+            items: {}
+          };
+        }
+        
+        channelMap[channel].categories[category].tagSales += row.TAG매출 || 0;
+        channelMap[channel].categories[category].realSales += row.실판매출 || 0;
+        
+        // 아이템별 집계
+        const item = row.아이템;
+        if (!channelMap[channel].categories[category].items[item]) {
+          channelMap[channel].categories[category].items[item] = {
+            item,
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        
+        channelMap[channel].categories[category].items[item].tagSales += row.TAG매출 || 0;
+        channelMap[channel].categories[category].items[item].realSales += row.실판매출 || 0;
+      });
+      
+      // 전년 데이터 집계 (YOY 계산용)
+      const pyChannelMap = {};
+      pyFiltered.forEach(row => {
+        const channel = row.채널;
+        if (!pyChannelMap[channel]) {
+          pyChannelMap[channel] = { realSales: 0 };
+        }
+        pyChannelMap[channel].realSales += row.실판매출 || 0;
+      });
+      
+      // YOY 계산
+      Object.keys(channelMap).forEach(channel => {
+        const cyReal = channelMap[channel].realSales;
+        const pyReal = pyChannelMap[channel]?.realSales || 0;
+        channelMap[channel].yoy = pyReal > 0 ? Math.round((cyReal / pyReal) * 100) : 0;
+        channelMap[channel].discount = channelMap[channel].tagSales > 0 
+          ? ((1 - cyReal / channelMap[channel].tagSales) * 100).toFixed(1)
+          : '0.0';
+      });
+      
+      return channelMap;
+    }
+    
+    /**
+     * 채널별 매출구성 데이터 집계
+     * 드릴다운: 채널 → 카테고리 → 아이템
+     */
+    function aggregateChannelSalesComposition(brand) {
+      if (!window.salesCompositionData || !window.salesCompositionData.data) {
+        console.warn('[트리맵] 매출구성 데이터 없음');
+        return null;
+      }
+      
+      // 브랜드 코드 매핑
+      const brandCodeMap = {
+        'MLB': 'M',
+        'MLB_KIDS': 'I',
+        'MLB KIDS': 'I',
+        'DISCOVERY': 'X',
+        'DUVETICA': 'V',
+        'SERGIO': 'ST',
+        'SUPRA': 'W'
+      };
+      const brandCode = brandCodeMap[brand] || brandCodeMap[brand.replace('_', ' ')] || 'M';
+      const cyData = window.salesCompositionData.data.CY || [];
+      const pyData = window.salesCompositionData.data.PY || [];
+      
+      console.log('[채널 트리맵 집계] 브랜드:', brand, '→ 코드:', brandCode);
+      console.log('[채널 트리맵 집계] CY 데이터 개수:', cyData.length);
+      console.log('[채널 트리맵 집계] PY 데이터 개수:', pyData.length);
+      if (cyData.length > 0) {
+        console.log('[채널 트리맵 집계] CY 첫 행 샘플:', cyData[0]);
+      }
+      
+      // 브랜드 필터링
+      const cyFiltered = cyData.filter(row => row.브랜드 === brandCode);
+      const pyFiltered = pyData.filter(row => row.브랜드 === brandCode);
+      
+      console.log('[채널 트리맵 집계] 필터링 후 CY:', cyFiltered.length, '행');
+      console.log('[채널 트리맵 집계] 필터링 후 PY:', pyFiltered.length, '행');
+      
+      // 채널별 집계
+      const channelMap = {};
+      
+      cyFiltered.forEach(row => {
+        const channel = row.채널;
+        if (!channelMap[channel]) {
+          channelMap[channel] = {
+            channel,
+            tagSales: 0,
+            realSales: 0,
+            categories: {}
+          };
+        }
+        
+        channelMap[channel].tagSales += row.TAG매출 || 0;
+        channelMap[channel].realSales += row.실판매출 || 0;
+        
+        // 카테고리별 집계
+        const category = row.카테고리;
+        if (!channelMap[channel].categories[category]) {
+          channelMap[channel].categories[category] = {
+            category,
+            tagSales: 0,
+            realSales: 0,
+            items: {}
+          };
+        }
+        
+        channelMap[channel].categories[category].tagSales += row.TAG매출 || 0;
+        channelMap[channel].categories[category].realSales += row.실판매출 || 0;
+        
+        // 아이템별 집계
+        const item = row.아이템;
+        if (!channelMap[channel].categories[category].items[item]) {
+          channelMap[channel].categories[category].items[item] = {
+            item,
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        
+        channelMap[channel].categories[category].items[item].tagSales += row.TAG매출 || 0;
+        channelMap[channel].categories[category].items[item].realSales += row.실판매출 || 0;
+      });
+      
+      // 전년 데이터 집계 (할인율, YOY 계산용)
+      const pyChannelMap = {};
+      pyFiltered.forEach(row => {
+        const channel = row.채널;
+        if (!pyChannelMap[channel]) {
+          pyChannelMap[channel] = { 
+            tagSales: 0,
+            realSales: 0,
+            categories: {}
+          };
+        }
+        pyChannelMap[channel].tagSales += row.TAG매출 || 0;
+        pyChannelMap[channel].realSales += row.실판매출 || 0;
+        
+        // 카테고리별 전년 데이터
+        const category = row.카테고리;
+        if (!pyChannelMap[channel].categories[category]) {
+          pyChannelMap[channel].categories[category] = {
+            tagSales: 0,
+            realSales: 0,
+            items: {}
+          };
+        }
+        pyChannelMap[channel].categories[category].tagSales += row.TAG매출 || 0;
+        pyChannelMap[channel].categories[category].realSales += row.실판매출 || 0;
+        
+        // 아이템별 전년 데이터
+        const item = row.아이템;
+        if (!pyChannelMap[channel].categories[category].items[item]) {
+          pyChannelMap[channel].categories[category].items[item] = {
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        pyChannelMap[channel].categories[category].items[item].tagSales += row.TAG매출 || 0;
+        pyChannelMap[channel].categories[category].items[item].realSales += row.실판매출 || 0;
+      });
+      
+      // 할인율, 전년할인율, YOY 계산
+      Object.keys(channelMap).forEach(channel => {
+        const cyData = channelMap[channel];
+        const pyData = pyChannelMap[channel] || { tagSales: 0, realSales: 0, categories: {} };
+        
+        // 채널 레벨
+        cyData.discountRate = cyData.tagSales > 0 
+          ? parseFloat(((1 - cyData.realSales / cyData.tagSales) * 100).toFixed(1))
+          : 0.0;
+        cyData.prevDiscountRate = pyData.tagSales > 0
+          ? parseFloat(((1 - pyData.realSales / pyData.tagSales) * 100).toFixed(1))
+          : 0.0;
+        cyData.yoy = pyData.realSales > 0 ? Math.round((cyData.realSales / pyData.realSales) * 100) : 0;
+        
+        // 카테고리 레벨
+        Object.keys(cyData.categories).forEach(category => {
+          const cyCat = cyData.categories[category];
+          const pyCat = pyData.categories[category] || { tagSales: 0, realSales: 0, items: {} };
+          
+          cyCat.discountRate = cyCat.tagSales > 0
+            ? parseFloat(((1 - cyCat.realSales / cyCat.tagSales) * 100).toFixed(1))
+            : 0.0;
+          cyCat.prevDiscountRate = pyCat.tagSales > 0
+            ? parseFloat(((1 - pyCat.realSales / pyCat.tagSales) * 100).toFixed(1))
+            : 0.0;
+          cyCat.yoy = pyCat.realSales > 0 ? Math.round((cyCat.realSales / pyCat.realSales) * 100) : 0;
+          
+          // 아이템 레벨
+          Object.keys(cyCat.items).forEach(item => {
+            const cyItem = cyCat.items[item];
+            const pyItem = pyCat.items[item] || { tagSales: 0, realSales: 0 };
+            
+            cyItem.discountRate = cyItem.tagSales > 0
+              ? parseFloat(((1 - cyItem.realSales / cyItem.tagSales) * 100).toFixed(1))
+              : 0.0;
+            cyItem.prevDiscountRate = pyItem.tagSales > 0
+              ? parseFloat(((1 - pyItem.realSales / pyItem.tagSales) * 100).toFixed(1))
+              : 0.0;
+            cyItem.yoy = pyItem.realSales > 0 ? Math.round((cyItem.realSales / pyItem.realSales) * 100) : 0;
+          });
+        });
+      });
+      
+      return channelMap;
+    }
+    
+    /**
+     * 아이템별 매출구성 데이터 집계
+     * 드릴다운: 카테고리 → 아이템
+     */
+    function aggregateItemSalesComposition(brand) {
+      if (!window.salesCompositionData || !window.salesCompositionData.data) {
+        console.warn('[트리맵] 매출구성 데이터 없음');
+        return null;
+      }
+      
+      // 브랜드 코드 매핑
+      const brandCodeMap = {
+        'MLB': 'M',
+        'MLB_KIDS': 'I',
+        'MLB KIDS': 'I',
+        'DISCOVERY': 'X',
+        'DUVETICA': 'V',
+        'SERGIO': 'ST',
+        'SUPRA': 'W'
+      };
+      const brandCode = brandCodeMap[brand] || brandCodeMap[brand.replace('_', ' ')] || 'M';
+      const cyData = window.salesCompositionData.data.CY || [];
+      const pyData = window.salesCompositionData.data.PY || [];
+      
+      console.log('[아이템 트리맵 집계] 브랜드:', brand, '→ 코드:', brandCode);
+      console.log('[아이템 트리맵 집계] CY 데이터 개수:', cyData.length);
+      console.log('[아이템 트리맵 집계] PY 데이터 개수:', pyData.length);
+      
+      // 브랜드 필터링
+      const cyFiltered = cyData.filter(row => row.브랜드 === brandCode);
+      const pyFiltered = pyData.filter(row => row.브랜드 === brandCode);
+      
+      console.log('[아이템 트리맵 집계] 필터링 후 CY:', cyFiltered.length, '행');
+      console.log('[아이템 트리맵 집계] 필터링 후 PY:', pyFiltered.length, '행');
+      if (cyFiltered.length > 0) {
+        console.log('[아이템 트리맵 집계] CY 첫 행 샘플:', cyFiltered[0]);
+      }
+      
+      // 카테고리별 집계
+      const categoryMap = {};
+      
+      cyFiltered.forEach(row => {
+        const category = row.카테고리;
+        if (!categoryMap[category]) {
+          categoryMap[category] = {
+            category,
+            tagSales: 0,
+            realSales: 0,
+            items: {}
+          };
+        }
+        
+        categoryMap[category].tagSales += row.TAG매출 || 0;
+        categoryMap[category].realSales += row.실판매출 || 0;
+        
+        // 아이템별 집계
+        const item = row.아이템;
+        if (!categoryMap[category].items[item]) {
+          categoryMap[category].items[item] = {
+            item,
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        
+        categoryMap[category].items[item].tagSales += row.TAG매출 || 0;
+        categoryMap[category].items[item].realSales += row.실판매출 || 0;
+      });
+      
+      // 전년 데이터 집계 (할인율, YOY 계산용)
+      const pyCategoryMap = {};
+      pyFiltered.forEach(row => {
+        const category = row.카테고리;
+        if (!pyCategoryMap[category]) {
+          pyCategoryMap[category] = { 
+            tagSales: 0,
+            realSales: 0,
+            items: {}
+          };
+        }
+        pyCategoryMap[category].tagSales += row.TAG매출 || 0;
+        pyCategoryMap[category].realSales += row.실판매출 || 0;
+        
+        // 아이템별 전년 데이터
+        const item = row.아이템;
+        if (!pyCategoryMap[category].items[item]) {
+          pyCategoryMap[category].items[item] = {
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        pyCategoryMap[category].items[item].tagSales += row.TAG매출 || 0;
+        pyCategoryMap[category].items[item].realSales += row.실판매출 || 0;
+      });
+      
+      // 할인율, 전년할인율, YOY 계산
+      Object.keys(categoryMap).forEach(category => {
+        const cyData = categoryMap[category];
+        const pyData = pyCategoryMap[category] || { tagSales: 0, realSales: 0, items: {} };
+        
+        // 카테고리 레벨
+        cyData.discountRate = cyData.tagSales > 0
+          ? parseFloat(((1 - cyData.realSales / cyData.tagSales) * 100).toFixed(1))
+          : 0.0;
+        cyData.prevDiscountRate = pyData.tagSales > 0
+          ? parseFloat(((1 - pyData.realSales / pyData.tagSales) * 100).toFixed(1))
+          : 0.0;
+        cyData.yoy = pyData.realSales > 0 ? Math.round((cyData.realSales / pyData.realSales) * 100) : 0;
+        
+        // 아이템 레벨
+        Object.keys(cyData.items).forEach(item => {
+          const cyItem = cyData.items[item];
+          const pyItem = pyData.items[item] || { tagSales: 0, realSales: 0 };
+          
+          cyItem.discountRate = cyItem.tagSales > 0
+            ? parseFloat(((1 - cyItem.realSales / cyItem.tagSales) * 100).toFixed(1))
+            : 0.0;
+          cyItem.prevDiscountRate = pyItem.tagSales > 0
+            ? parseFloat(((1 - pyItem.realSales / pyItem.tagSales) * 100).toFixed(1))
+            : 0.0;
+          cyItem.yoy = pyItem.realSales > 0 ? Math.round((cyItem.realSales / pyItem.realSales) * 100) : 0;
+        });
+      });
+      
+      console.log('[아이템 트리맵 집계] 카테고리 개수:', Object.keys(categoryMap).length);
+      console.log('[아이템 트리맵 집계] 카테고리별 매출:', 
+        Object.entries(categoryMap).map(([cat, data]) => ({
+          카테고리: cat,
+          실판매출: (data.realSales / 100000000).toFixed(1) + '억원'
+        }))
+      );
+      
+      return categoryMap;
+    }
+    
+    /**
+     * 카테고리 → 채널 트리맵 데이터 (사이드바용)
+     */
+    function aggregateCategoryChannelComposition(brand) {
+      if (!window.salesCompositionData || !window.salesCompositionData.data) {
+        console.warn('[트리맵] 매출구성 데이터 없음');
+        return null;
+      }
+      
+      // 브랜드 코드 매핑
+      const brandCodeMap = {
+        'MLB': 'M',
+        'MLB_KIDS': 'I',
+        'MLB KIDS': 'I',
+        'DISCOVERY': 'X',
+        'DUVETICA': 'V',
+        'SERGIO': 'ST',
+        'SUPRA': 'W'
+      };
+      const brandCode = brandCodeMap[brand] || brandCodeMap[brand.replace('_', ' ')] || 'M';
+      const cyData = window.salesCompositionData.data.CY || [];
+      const pyData = window.salesCompositionData.data.PY || [];
+      
+      // 브랜드 필터링
+      const cyFiltered = cyData.filter(row => row.브랜드 === brandCode);
+      const pyFiltered = pyData.filter(row => row.브랜드 === brandCode);
+      
+      // 카테고리별 집계
+      const categoryMap = {};
+      
+      cyFiltered.forEach(row => {
+        const category = row.카테고리;
+        if (!categoryMap[category]) {
+          categoryMap[category] = {
+            category,
+            tagSales: 0,
+            realSales: 0,
+            channels: {}
+          };
+        }
+        
+        categoryMap[category].tagSales += row.TAG매출 || 0;
+        categoryMap[category].realSales += row.실판매출 || 0;
+        
+        // 채널별 집계
+        const channel = row.채널;
+        if (!categoryMap[category].channels[channel]) {
+          categoryMap[category].channels[channel] = {
+            channel,
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        
+        categoryMap[category].channels[channel].tagSales += row.TAG매출 || 0;
+        categoryMap[category].channels[channel].realSales += row.실판매출 || 0;
+      });
+      
+      // 전년 데이터 집계 (할인율, YOY 계산용)
+      const pyCategoryMap = {};
+      pyFiltered.forEach(row => {
+        const category = row.카테고리;
+        if (!pyCategoryMap[category]) {
+          pyCategoryMap[category] = { 
+            tagSales: 0,
+            realSales: 0,
+            channels: {}
+          };
+        }
+        pyCategoryMap[category].tagSales += row.TAG매출 || 0;
+        pyCategoryMap[category].realSales += row.실판매출 || 0;
+        
+        // 채널별 전년 데이터
+        const channel = row.채널;
+        if (!pyCategoryMap[category].channels[channel]) {
+          pyCategoryMap[category].channels[channel] = {
+            tagSales: 0,
+            realSales: 0
+          };
+        }
+        pyCategoryMap[category].channels[channel].tagSales += row.TAG매출 || 0;
+        pyCategoryMap[category].channels[channel].realSales += row.실판매출 || 0;
+      });
+      
+      // 할인율, 전년할인율, YOY 계산
+      Object.keys(categoryMap).forEach(category => {
+        const cyData = categoryMap[category];
+        const pyData = pyCategoryMap[category] || { tagSales: 0, realSales: 0, channels: {} };
+        
+        // 카테고리 레벨
+        cyData.discountRate = cyData.tagSales > 0
+          ? parseFloat(((1 - cyData.realSales / cyData.tagSales) * 100).toFixed(1))
+          : 0.0;
+        cyData.prevDiscountRate = pyData.tagSales > 0
+          ? parseFloat(((1 - pyData.realSales / pyData.tagSales) * 100).toFixed(1))
+          : 0.0;
+        cyData.yoy = pyData.realSales > 0 ? Math.round((cyData.realSales / pyData.realSales) * 100) : 0;
+        
+        // 채널 레벨
+        Object.keys(cyData.channels).forEach(channel => {
+          const cyChannel = cyData.channels[channel];
+          const pyChannel = pyData.channels[channel] || { tagSales: 0, realSales: 0 };
+          
+          cyChannel.discountRate = cyChannel.tagSales > 0
+            ? parseFloat(((1 - cyChannel.realSales / cyChannel.tagSales) * 100).toFixed(1))
+            : 0.0;
+          cyChannel.prevDiscountRate = pyChannel.tagSales > 0
+            ? parseFloat(((1 - pyChannel.realSales / pyChannel.tagSales) * 100).toFixed(1))
+            : 0.0;
+          cyChannel.yoy = pyChannel.realSales > 0 ? Math.round((cyChannel.realSales / pyChannel.realSales) * 100) : 0;
+        });
+      });
+      
+      return categoryMap;
+    }
+    
+    // ==================== 트리맵 렌더링 함수 ====================
+    
+    // 채널별 트리맵 드릴다운 경로 (전역 변수)
+    let channelTreemapDrilldownPath = [];
+    
+    /**
+     * 채널별 매출구성 트리맵 렌더링 (현시점)
+     * 드릴다운: 채널 → 카테고리 → 아이템
+     */
+    function renderChannelSalesTreemap(containerId, brand, skipAnimation = false) {
+      const data = aggregateChannelSalesComposition(brand);
+      if (!data) {
+        console.warn('[트리맵] 채널별 데이터 없음');
+        return;
+      }
+      
+      console.log('[채널 트리맵] 렌더링 시작:', { brand, path: channelTreemapDrilldownPath });
+      
+      // Plotly 데이터 구성
+      const labels = [];
+      const parents = [];
+      const values = [];
+      const customdata = [];
+      const ids = [];
+      
+      // 전체 매출 합계 계산 (비중 계산용)
+      const totalSales = Object.values(data).reduce((sum, channel) => sum + channel.realSales, 0) / 100000000;
+      
+      // 드릴다운 경로에 따라 다른 레벨 표시
+      if (channelTreemapDrilldownPath.length === 0) {
+        // Level 1: 채널 (매출 큰 순서대로 정렬)
+        const sortedChannels = Object.values(data).sort((a, b) => b.realSales - a.realSales);
+        sortedChannels.forEach(channel => {
+          const sales = channel.realSales / 100000000; // 억원
+          if (sales > 0) {
+            const ratio = totalSales > 0 ? (sales / totalSales * 100).toFixed(1) : 0;
+            labels.push(channel.channel);
+            parents.push('');
+            values.push(sales);
+            ids.push(`channel-${channel.channel}`);
+            customdata.push([
+              sales.toFixed(1),
+              parseFloat(ratio),
+              parseFloat(channel.discountRate || 0),
+              parseFloat(channel.prevDiscountRate || 0),
+              parseFloat(channel.yoy || 0)
+            ]);
+          }
+        });
+      } else if (channelTreemapDrilldownPath.length === 1) {
+        // Level 2: 선택된 채널의 카테고리
+        const selectedChannel = channelTreemapDrilldownPath[0];
+        const channelData = data[selectedChannel];
+        
+        if (channelData && channelData.categories) {
+          const channelTotal = channelData.realSales / 100000000;
+          Object.values(channelData.categories).forEach(category => {
+            const sales = category.realSales / 100000000; // 억원
+            if (sales > 0) {
+              const ratio = channelTotal > 0 ? (sales / channelTotal * 100).toFixed(1) : 0;
+              labels.push(category.category);
+              parents.push('');
+              values.push(sales);
+              ids.push(`category-${category.category}`);
+              customdata.push([
+                sales.toFixed(1),
+                parseFloat(ratio),
+                parseFloat(category.discountRate || 0),
+                parseFloat(category.prevDiscountRate || 0),
+                parseFloat(category.yoy || 0)
+              ]);
+            }
+          });
+        }
+      } else if (channelTreemapDrilldownPath.length === 2) {
+        // Level 3: 선택된 채널 > 카테고리의 아이템
+        const selectedChannel = channelTreemapDrilldownPath[0];
+        const selectedCategory = channelTreemapDrilldownPath[1];
+        const categoryData = data[selectedChannel]?.categories[selectedCategory];
+        
+        if (categoryData && categoryData.items) {
+          const categoryTotal = categoryData.realSales / 100000000;
+          Object.values(categoryData.items).forEach(item => {
+            const sales = item.realSales / 100000000; // 억원
+            if (sales > 0) {
+              const ratio = categoryTotal > 0 ? (sales / categoryTotal * 100).toFixed(1) : 0;
+              labels.push(item.item);
+              parents.push('');
+              values.push(sales);
+              ids.push(`item-${item.item}`);
+              customdata.push([
+                sales.toFixed(1),
+                ratio,
+                parseFloat(item.discountRate || 0),
+                parseFloat(item.prevDiscountRate || 0),
+                parseFloat(item.yoy || 0)
+              ]);
+            }
+          });
+        }
+      }
+      
+      if (labels.length === 0) {
+        console.warn('[채널 트리맵] 표시할 데이터 없음');
+        return;
+      }
+      
+      // 텍스트 배열 생성 (각 블록에 표시될 정보)
+      const text = customdata.map((d, i) => 
+        `<b style="font-size:16px;color:white;">${labels[i]}</b><br><span style="font-size:14px;color:white;">${d[0]}억(${d[1]}%)</span><br><span style="font-size:12px;">할인율: ${d[2]}%<br>전년할인율: ${d[3]}%<br>YOY: ${d[4]}%</span>`
+      );
+      
+      // 채널별 고정 색상 매핑 (매출 랭킹 순서)
+      const colorPalette = [
+        '#6F6FD9',  // 1위
+        '#9B6BF0',  // 2위
+        '#6AA7FF',  // 3위
+        '#3CB371',  // 4위
+        '#F4B24D',  // 5위
+        '#F26C6C',  // 6위
+        '#B57CFF',  // 7위
+        '#6ED39A',  // 8위
+        '#F7A35C'   // 9위
+      ];
+      
+      // 각 레이블에 순서대로 색상 할당 (이미 매출 큰 순서로 정렬됨)
+      const colors = labels.map((label, i) => colorPalette[i % colorPalette.length]);
+      
+      const plotlyData = [{
+        type: 'treemap',
+        labels,
+        parents,
+        values,
+        ids,
+        text,
+        textinfo: 'text',
+        textfont: { size: 14, color: 'yellow' },
+        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[1]:.1f}%<br>할인율 : %{customdata[2]:.1f}% (전년 : %{customdata[3]:.1f}%)<br>YOY : %{customdata[4]:.1f}%<extra></extra>',
+        customdata,
+        marker: {
+          colors: colors,
+          showscale: false,
+          line: { color: 'white', width: 2 }
+        }
+      }];
+      
+      const layout = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        transition: {
+          duration: 500,
+          easing: 'cubic-in-out'
+        }
+      };
+      
+      const layoutWithoutTransition = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      };
+      
+      const config = { 
+        responsive: true,
+        displayModeBar: false
+      };
+      
+      // skipAnimation이면 애니메이션 없이, 아니면 부드럽게 전환
+      let plotPromise;
+      if (skipAnimation) {
+        plotPromise = Plotly.newPlot(containerId, plotlyData, layoutWithoutTransition, config);
+      } else {
+        const containerEl = document.getElementById(containerId);
+        plotPromise = (containerEl && containerEl.data) 
+          ? Plotly.react(containerId, plotlyData, layout, config)
+          : Plotly.newPlot(containerId, plotlyData, layout, config);
+      }
+      
+      plotPromise.then(() => {
+        // 클릭 이벤트 등록
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.on('plotly_click', function(eventData) {
+            if (eventData.points && eventData.points.length > 0) {
+              const clickedLabel = eventData.points[0].label;
+              
+              // 드릴다운 실행
+              if (channelTreemapDrilldownPath.length < 2) {
+                channelTreemapDrilldownPath.push(clickedLabel);
+                console.log('[채널 트리맵] 드릴다운:', channelTreemapDrilldownPath);
+                renderChannelSalesTreemap(containerId, brand);
+                updateChannelTreemapHeader();
+              }
+            }
+          });
+        }
+      });
+      
+      // 헤더 업데이트
+      updateChannelTreemapHeader();
+    }
+    
+    /**
+     * 채널 트리맵 헤더 업데이트 (경로 표시 및 뒤로가기 버튼)
+     */
+    function updateChannelTreemapHeader() {
+      const headerEl = document.querySelector('#treemapWrapperChannel').closest('.chart-container')?.querySelector('.chart-title');
+      if (!headerEl) return;
+      
+      let titleText = '채널별 매출구성';
+      if (channelTreemapDrilldownPath.length > 0) {
+        titleText += ' > ' + channelTreemapDrilldownPath.join(' > ');
+      }
+      
+      // 뒤로가기 버튼
+      let backButton = '';
+      if (channelTreemapDrilldownPath.length > 0) {
+        backButton = '<button onclick="channelTreemapGoBack()" style="margin-left:10px;padding:4px 12px;background:#6366f1;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">← 뒤로</button>';
+      }
+      
+      headerEl.innerHTML = titleText + backButton;
+    }
+    
+    /**
+     * 채널 트리맵 뒤로가기
+     */
+    function channelTreemapGoBack() {
+      if (channelTreemapDrilldownPath.length > 0) {
+        channelTreemapDrilldownPath.pop();
+        const container = document.querySelector('#treemapWrapperChannel').closest('.chart-container');
+        const brand = currentBrand;
+        renderChannelSalesTreemap('treemapWrapperChannel', brand, true); // skipAnimation = true
+      }
+    }
+    
+    // 아이템별 트리맵 드릴다운 경로 (전역 변수)
+    let itemTreemapDrilldownPath = [];
+    
+    /**
+     * 아이템별 매출구성 트리맵 렌더링 (현시점)
+     * 드릴다운: 카테고리 → 아이템
+     */
+    function renderItemSalesTreemap(containerId, brand, skipAnimation = false) {
+      const data = aggregateItemSalesComposition(brand);
+      if (!data) {
+        console.warn('[트리맵] 아이템별 데이터 없음');
+        return;
+      }
+      
+      console.log('[아이템 트리맵] 렌더링 시작:', { brand, path: itemTreemapDrilldownPath });
+      
+      // Plotly 데이터 구성
+      const labels = [];
+      const parents = [];
+      const values = [];
+      const customdata = [];
+      const ids = [];
+      
+      // 전체 매출 합계 계산 (비중 계산용)
+      const totalSales = Object.values(data).reduce((sum, category) => sum + category.realSales, 0) / 100000000;
+      
+      // 드릴다운 경로에 따라 다른 레벨 표시
+      if (itemTreemapDrilldownPath.length === 0) {
+        // Level 1: 카테고리 (매출 큰 순서대로 정렬)
+        const sortedCategories = Object.values(data).sort((a, b) => b.realSales - a.realSales);
+        sortedCategories.forEach(category => {
+          const sales = category.realSales / 100000000; // 억원
+          if (sales > 0) {
+            const ratio = totalSales > 0 ? (sales / totalSales * 100).toFixed(1) : 0;
+            labels.push(category.category);
+            parents.push('');
+            values.push(sales);
+            ids.push(`category-${category.category}`);
+            customdata.push([
+              sales.toFixed(1),
+              ratio,
+                parseFloat(category.discountRate || 0),
+                parseFloat(category.prevDiscountRate || 0),
+                parseFloat(category.yoy || 0)
+            ]);
+          }
+        });
+      } else if (itemTreemapDrilldownPath.length === 1) {
+        // Level 2: 선택된 카테고리의 아이템
+        const selectedCategory = itemTreemapDrilldownPath[0];
+        const categoryData = data[selectedCategory];
+        
+        if (categoryData && categoryData.items) {
+          const categoryTotal = categoryData.realSales / 100000000;
+          Object.values(categoryData.items).forEach(item => {
+            const sales = item.realSales / 100000000; // 억원
+            if (sales > 0) {
+              const ratio = categoryTotal > 0 ? (sales / categoryTotal * 100).toFixed(1) : 0;
+              labels.push(item.item);
+              parents.push('');
+              values.push(sales);
+              ids.push(`item-${item.item}`);
+              customdata.push([
+                sales.toFixed(1),
+                ratio,
+                parseFloat(item.discountRate || 0),
+                parseFloat(item.prevDiscountRate || 0),
+                parseFloat(item.yoy || 0)
+              ]);
+            }
+          });
+        }
+      }
+      
+      if (labels.length === 0) {
+        console.warn('[아이템 트리맵] 표시할 데이터 없음');
+        return;
+      }
+      
+      // 텍스트 배열 생성 (각 블록에 표시될 정보)
+      const text = customdata.map((d, i) => 
+        `<b style="font-size:16px;color:white;">${labels[i]}</b><br><span style="font-size:14px;color:white;">${d[0]}억(${d[1]}%)</span><br><span style="font-size:12px;">할인율: ${d[2]}%<br>전년할인율: ${d[3]}%<br>YOY: ${d[4]}%</span>`
+      );
+      
+      // 카테고리별 고정 색상 매핑 (매출 랭킹 순서)
+      const colorPalette = [
+        '#6F6FD9',  // 1위
+        '#9B6BF0',  // 2위
+        '#6AA7FF',  // 3위
+        '#3CB371',  // 4위
+        '#F4B24D',  // 5위
+        '#F26C6C',  // 6위
+        '#B57CFF',  // 7위
+        '#6ED39A',  // 8위
+        '#F7A35C'   // 9위
+      ];
+      
+      // 각 레이블에 순서대로 색상 할당 (이미 매출 큰 순서로 정렬됨)
+      const colors = labels.map((label, i) => colorPalette[i % colorPalette.length]);
+      
+      const plotlyData = [{
+        type: 'treemap',
+        labels,
+        parents,
+        values,
+        ids,
+        text,
+        textinfo: 'text',
+        textfont: { size: 14, color: 'yellow' },
+        hovertemplate: '%{label}<br>매출 : %{value:.1f}억<br>비중 : %{customdata[1]:.1f}%<br>할인율 : %{customdata[2]:.1f}% (전년 : %{customdata[3]:.1f}%)<br>YOY : %{customdata[4]:.1f}%<extra></extra>',
+        customdata,
+        marker: {
+          colors: colors,
+          showscale: false,
+          line: { color: 'white', width: 2 }
+        }
+      }];
+      
+      const layout = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        transition: {
+          duration: 500,
+          easing: 'cubic-in-out'
+        }
+      };
+      
+      const layoutWithoutTransition = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      };
+      
+      const config = { 
+        responsive: true,
+        displayModeBar: false
+      };
+      
+      // skipAnimation이면 애니메이션 없이, 아니면 부드럽게 전환
+      let plotPromise;
+      if (skipAnimation) {
+        plotPromise = Plotly.newPlot(containerId, plotlyData, layoutWithoutTransition, config);
+      } else {
+        const containerEl = document.getElementById(containerId);
+        plotPromise = (containerEl && containerEl.data) 
+          ? Plotly.react(containerId, plotlyData, layout, config)
+          : Plotly.newPlot(containerId, plotlyData, layout, config);
+      }
+      
+      plotPromise.then(() => {
+        // 클릭 이벤트 등록
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.on('plotly_click', function(eventData) {
+            if (eventData.points && eventData.points.length > 0) {
+              const clickedLabel = eventData.points[0].label;
+              
+              // 드릴다운 실행 (카테고리 → 아이템)
+              if (itemTreemapDrilldownPath.length === 0) {
+                itemTreemapDrilldownPath.push(clickedLabel);
+                console.log('[아이템 트리맵] 드릴다운:', itemTreemapDrilldownPath);
+                renderItemSalesTreemap(containerId, brand);
+                updateItemTreemapHeader();
+              }
+            }
+          });
+        }
+      });
+      
+      // 헤더 업데이트
+      updateItemTreemapHeader();
+    }
+    
+    /**
+     * 아이템 트리맵 헤더 업데이트 (경로 표시 및 뒤로가기 버튼)
+     */
+    function updateItemTreemapHeader() {
+      const headerEl = document.querySelector('#treemapWrapperItem').closest('.chart-container')?.querySelector('.chart-title');
+      if (!headerEl) return;
+      
+      let titleText = '아이템별 매출구성';
+      if (itemTreemapDrilldownPath.length > 0) {
+        titleText += ' > ' + itemTreemapDrilldownPath.join(' > ');
+      }
+      
+      // 뒤로가기 버튼
+      let backButton = '';
+      if (itemTreemapDrilldownPath.length > 0) {
+        backButton = '<button onclick="itemTreemapGoBack()" style="margin-left:10px;padding:4px 12px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">← 뒤로</button>';
+      }
+      
+      headerEl.innerHTML = titleText + backButton;
+    }
+    
+    /**
+     * 아이템 트리맵 뒤로가기
+     */
+    function itemTreemapGoBack() {
+      if (itemTreemapDrilldownPath.length > 0) {
+        itemTreemapDrilldownPath.pop();
+        const brand = currentBrand;
+        renderItemSalesTreemap('treemapWrapperItem', brand, true); // skipAnimation = true
+      }
+    }
+    
+    // 사이드바 카테고리→채널 트리맵 드릴다운 경로
+    let sidebarCategoryChannelPath = [];
+    
+    /**
+     * 카테고리 → 채널 트리맵 렌더링 (사이드바)
+     */
+    function renderCategoryChannelTreemap(containerId, brand, skipAnimation = false) {
+      const data = aggregateCategoryChannelComposition(brand);
+      if (!data) {
+        console.warn('[트리맵] 카테고리-채널 데이터 없음');
+        return;
+      }
+      
+      console.log('[사이드바 카테고리→채널] 렌더링:', { brand, path: sidebarCategoryChannelPath });
+      
+      // Plotly 데이터 구성
+      const labels = [];
+      const parents = [];
+      const values = [];
+      const customdata = [];
+      const ids = [];
+      
+      // 전체 매출 합계 계산 (비중 계산용)
+      const totalSales = Object.values(data).reduce((sum, category) => sum + category.realSales, 0) / 100000000;
+      
+      // 드릴다운 경로에 따라 다른 레벨 표시
+      if (sidebarCategoryChannelPath.length === 0) {
+        // Level 1: 카테고리 (매출 큰 순서대로 정렬)
+        const sortedCategories = Object.values(data).sort((a, b) => b.realSales - a.realSales);
+        sortedCategories.forEach(category => {
+          const sales = category.realSales / 100000000; // 억원
+          if (sales > 0) {
+            const ratio = totalSales > 0 ? (sales / totalSales * 100).toFixed(1) : 0;
+            labels.push(category.category);
+            parents.push('');
+            values.push(sales);
+            ids.push(`cat-${category.category}`);
+            customdata.push([
+              sales.toFixed(1),
+              ratio,
+                parseFloat(category.discountRate || 0),
+                parseFloat(category.prevDiscountRate || 0),
+                parseFloat(category.yoy || 0)
+            ]);
+          }
+        });
+      } else if (sidebarCategoryChannelPath.length === 1) {
+        // Level 2: 선택된 카테고리의 채널 (매출 큰 순서대로 정렬)
+        const selectedCategory = sidebarCategoryChannelPath[0];
+        const categoryData = data[selectedCategory];
+        
+        if (categoryData && categoryData.channels) {
+          const channelTotal = categoryData.realSales / 100000000;
+          const sortedChannels = Object.values(categoryData.channels).sort((a, b) => b.realSales - a.realSales);
+          sortedChannels.forEach(channel => {
+            const sales = channel.realSales / 100000000; // 억원
+            if (sales > 0) {
+              const ratio = channelTotal > 0 ? (sales / channelTotal * 100).toFixed(1) : 0;
+              labels.push(channel.channel);
+              parents.push('');
+              values.push(sales);
+              ids.push(`channel-${channel.channel}`);
+              customdata.push([
+                sales.toFixed(1),
+                ratio,
+                parseFloat(channel.discountRate || 0),
+                parseFloat(channel.prevDiscountRate || 0),
+                parseFloat(channel.yoy || 0)
+              ]);
+            }
+          });
+        }
+      }
+      
+      if (labels.length === 0) {
+        console.warn('[사이드바 카테고리→채널] 표시할 데이터 없음');
+        return;
+      }
+      
+      // 텍스트 배열 생성 (메인 트리맵과 동일한 형식)
+      const text = customdata.map((d, i) => 
+        `<b style="font-size:16px;color:white;">${labels[i]}</b><br><span style="font-size:14px;color:white;">${d[0]}억(${d[1]}%)</span><br><span style="font-size:12px;">할인율: ${d[2]}%<br>전년할인율: ${d[3]}%<br>YOY: ${d[4]}%</span>`
+      );
+      
+      // 색상 팔레트 (메인 트리맵과 동일)
+      const colorPalette = [
+        '#6F6FD9',  // 1위
+        '#9B6BF0',  // 2위
+        '#6AA7FF',  // 3위
+        '#3CB371',  // 4위
+        '#F4B24D',  // 5위
+        '#F26C6C',  // 6위
+        '#B57CFF',  // 7위
+        '#6ED39A',  // 8위
+        '#F7A35C'   // 9위
+      ];
+      
+      const colors = labels.map((label, i) => colorPalette[i % colorPalette.length]);
+      
+      const plotlyData = [{
+        type: 'treemap',
+        labels,
+        parents,
+        values,
+        ids,
+        text,
+        textinfo: 'text',
+        textposition: 'top left',
+        textfont: { size: 14, color: 'yellow' },
+        hovertemplate: '<b>%{label}</b><br>매출 : %{value:.1f}억<br>비중 : %{customdata[1]:.1f}%<br>할인율 : %{customdata[2]:.1f}% (전년 : %{customdata[3]:.1f}%)<br>YOY : %{customdata[4]:.1f}%<extra></extra>',
+        customdata,
+        marker: {
+          colors: colors,
+          showscale: false,
+          line: { color: 'white', width: 2 }
+        }
+      }];
+      
+      const layout = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        height: 350,
+        transition: {
+          duration: 500,
+          easing: 'cubic-in-out'
+        }
+      };
+      
+      const layoutWithoutTransition = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        height: 350
+      };
+      
+      const config = { 
+        responsive: true,
+        displayModeBar: false
+      };
+      
+      // skipAnimation이면 애니메이션 없이, 아니면 부드럽게 전환
+      let plotPromise;
+      if (skipAnimation) {
+        plotPromise = Plotly.newPlot(containerId, plotlyData, layoutWithoutTransition, config);
+      } else {
+        const containerEl = document.getElementById(containerId);
+        plotPromise = (containerEl && containerEl.data) 
+          ? Plotly.react(containerId, plotlyData, layout, config)
+          : Plotly.newPlot(containerId, plotlyData, layout, config);
+      }
+      
+      plotPromise.then(() => {
+        // 클릭 이벤트 등록
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.on('plotly_click', function(eventData) {
+            if (eventData.points && eventData.points.length > 0) {
+              const clickedLabel = eventData.points[0].label;
+              
+              // 드릴다운 실행 (카테고리 → 채널)
+              if (sidebarCategoryChannelPath.length === 0) {
+                sidebarCategoryChannelPath.push(clickedLabel);
+                console.log('[사이드바 카테고리→채널] 드릴다운:', sidebarCategoryChannelPath);
+                renderCategoryChannelTreemap(containerId, brand);
+                updateSidebarCategoryChannelHeader();
+              }
+            }
+          });
+        }
+      });
+      
+      // 헤더 업데이트
+      updateSidebarCategoryChannelHeader();
+    }
+    
+    /**
+     * 사이드바 카테고리→채널 트리맵 헤더 업데이트
+     */
+    function updateSidebarCategoryChannelHeader() {
+      const backBtn = document.getElementById('sidebar-category-channel-back-btn');
+      if (backBtn) {
+        if (sidebarCategoryChannelPath.length > 0) {
+          backBtn.style.display = 'block';
+        } else {
+          backBtn.style.display = 'none';
+        }
+      }
+    }
+    
+    /**
+     * 사이드바 카테고리→채널 뒤로가기
+     */
+    function sidebarCategoryChannelGoBack() {
+      if (sidebarCategoryChannelPath.length > 0) {
+        sidebarCategoryChannelPath.pop();
+        const brand = currentBrand;
+        renderCategoryChannelTreemap('sidebar-category-channel-treemap', brand, true); // skipAnimation = true
+      }
+    }
+    
+    // 사이드바 카테고리→아이템 트리맵 드릴다운 경로
+    let sidebarCategoryItemPath = [];
+    
+    /**
+     * 카테고리 → 아이템 트리맵 렌더링 (사이드바)
+     */
+    function renderCategoryItemTreemap(containerId, brand, skipAnimation = false) {
+      const data = aggregateItemSalesComposition(brand);
+      if (!data) {
+        console.warn('[트리맵] 사이드바 카테고리-아이템 데이터 없음');
+        return;
+      }
+      
+      console.log('[사이드바 카테고리→아이템] 렌더링:', { brand, path: sidebarCategoryItemPath });
+      
+      // Plotly 데이터 구성
+      const labels = [];
+      const parents = [];
+      const values = [];
+      const customdata = [];
+      const ids = [];
+      
+      // 전체 매출 합계 계산 (비중 계산용)
+      const totalSales = Object.values(data).reduce((sum, category) => sum + category.realSales, 0) / 100000000;
+      
+      // 드릴다운 경로에 따라 다른 레벨 표시
+      if (sidebarCategoryItemPath.length === 0) {
+        // Level 1: 카테고리 (매출 큰 순서대로 정렬)
+        const sortedCategories = Object.values(data).sort((a, b) => b.realSales - a.realSales);
+        sortedCategories.forEach(category => {
+          const sales = category.realSales / 100000000; // 억원
+          if (sales > 0) {
+            const ratio = totalSales > 0 ? (sales / totalSales * 100).toFixed(1) : 0;
+            labels.push(category.category);
+            parents.push('');
+            values.push(sales);
+            ids.push(`cat-${category.category}`);
+            customdata.push([
+              sales.toFixed(1),
+              ratio,
+                parseFloat(category.discountRate || 0),
+                parseFloat(category.prevDiscountRate || 0),
+                parseFloat(category.yoy || 0)
+            ]);
+          }
+        });
+      } else if (sidebarCategoryItemPath.length === 1) {
+        // Level 2: 선택된 카테고리의 아이템 (매출 큰 순서대로 정렬)
+        const selectedCategory = sidebarCategoryItemPath[0];
+        const categoryData = data[selectedCategory];
+        
+        if (categoryData && categoryData.items) {
+          const categoryTotal = categoryData.realSales / 100000000;
+          const sortedItems = Object.values(categoryData.items).sort((a, b) => b.realSales - a.realSales);
+          sortedItems.forEach(item => {
+            const sales = item.realSales / 100000000; // 억원
+            if (sales > 0) {
+              const ratio = categoryTotal > 0 ? (sales / categoryTotal * 100).toFixed(1) : 0;
+              labels.push(item.item);
+              parents.push('');
+              values.push(sales);
+              ids.push(`item-${item.item}`);
+              customdata.push([
+                sales.toFixed(1),
+                ratio,
+                parseFloat(item.discountRate || 0),
+                parseFloat(item.prevDiscountRate || 0),
+                parseFloat(item.yoy || 0)
+              ]);
+            }
+          });
+        }
+      }
+      
+      if (labels.length === 0) {
+        console.warn('[사이드바 카테고리→아이템] 표시할 데이터 없음');
+        return;
+      }
+      
+      // 텍스트 배열 생성 (메인 트리맵과 동일한 형식)
+      const text = customdata.map((d, i) => 
+        `<b style="font-size:16px;color:white;">${labels[i]}</b><br><span style="font-size:14px;color:white;">${d[0]}억(${d[1]}%)</span><br><span style="font-size:12px;">할인율: ${d[2]}%<br>전년할인율: ${d[3]}%<br>YOY: ${d[4]}%</span>`
+      );
+      
+      // 색상 팔레트 (메인 트리맵과 동일)
+      const colorPalette = [
+        '#6F6FD9',  // 1위
+        '#9B6BF0',  // 2위
+        '#6AA7FF',  // 3위
+        '#3CB371',  // 4위
+        '#F4B24D',  // 5위
+        '#F26C6C',  // 6위
+        '#B57CFF',  // 7위
+        '#6ED39A',  // 8위
+        '#F7A35C'   // 9위
+      ];
+      
+      const colors = labels.map((label, i) => colorPalette[i % colorPalette.length]);
+      
+      const plotlyData = [{
+        type: 'treemap',
+        labels,
+        parents,
+        values,
+        ids,
+        text,
+        textinfo: 'text',
+        textposition: 'top left',
+        textfont: { size: 14, color: 'yellow' },
+        hovertemplate: '<b>%{label}</b><br>매출 : %{value:.1f}억<br>비중 : %{customdata[1]:.1f}%<br>할인율 : %{customdata[2]:.1f}% (전년 : %{customdata[3]:.1f}%)<br>YOY : %{customdata[4]:.1f}%<extra></extra>',
+        customdata,
+        marker: {
+          colors: colors,
+          showscale: false,
+          line: { color: 'white', width: 2 }
+        }
+      }];
+      
+      const layout = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        height: 350,
+        transition: {
+          duration: 500,
+          easing: 'cubic-in-out'
+        }
+      };
+      
+      const layoutWithoutTransition = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        height: 350
+      };
+      
+      const config = { 
+        responsive: true,
+        displayModeBar: false
+      };
+      
+      // skipAnimation이면 애니메이션 없이, 아니면 부드럽게 전환
+      let plotPromise;
+      if (skipAnimation) {
+        plotPromise = Plotly.newPlot(containerId, plotlyData, layoutWithoutTransition, config);
+      } else {
+        const containerEl = document.getElementById(containerId);
+        plotPromise = (containerEl && containerEl.data) 
+          ? Plotly.react(containerId, plotlyData, layout, config)
+          : Plotly.newPlot(containerId, plotlyData, layout, config);
+      }
+      
+      plotPromise.then(() => {
+        // 클릭 이벤트 등록
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.on('plotly_click', function(eventData) {
+            if (eventData.points && eventData.points.length > 0) {
+              const clickedLabel = eventData.points[0].label;
+              
+              // 드릴다운 실행 (카테고리 → 아이템, 2단계까지 허용)
+              if (sidebarCategoryItemPath.length < 1) {
+                sidebarCategoryItemPath.push(clickedLabel);
+                console.log('[사이드바 카테고리→아이템] 드릴다운:', sidebarCategoryItemPath);
+                renderCategoryItemTreemap(containerId, brand);
+                updateSidebarCategoryItemHeader();
+              }
+            }
+          });
+        }
+      });
+      
+      // 헤더 업데이트
+      updateSidebarCategoryItemHeader();
+    }
+    
+    /**
+     * 사이드바 카테고리→아이템 트리맵 헤더 업데이트
+     */
+    function updateSidebarCategoryItemHeader() {
+      const backBtn = document.getElementById('sidebar-category-item-back-btn');
+      if (backBtn) {
+        if (sidebarCategoryItemPath.length > 0) {
+          backBtn.style.display = 'block';
+        } else {
+          backBtn.style.display = 'none';
+        }
+      }
+    }
+    
+    /**
+     * 사이드바 카테고리→아이템 뒤로가기
+     */
+    function sidebarCategoryItemGoBack() {
+      if (sidebarCategoryItemPath.length > 0) {
+        sidebarCategoryItemPath.pop();
+        const brand = currentBrand;
+        renderCategoryItemTreemap('sidebar-category-item-treemap', brand, true); // skipAnimation = true
+      }
+    }
+    
+    /**
+     * 브랜드별 트리맵 업데이트 (브랜드 전환 시 호출)
+     */
+    function updateBrandTreemaps(brand) {
+      console.log('[트리맵] 브랜드 트리맵 업데이트:', brand);
+      
+      // 브랜드 전환 시 모든 드릴다운 경로 초기화
+      channelTreemapDrilldownPath = [];
+      itemTreemapDrilldownPath = [];
+      sidebarCategoryChannelPath = [];
+      sidebarCategoryItemPath = [];
+      
+      // 매출구성 데이터가 로드되지 않았으면 로드
+      if (!window.salesCompositionData) {
+        console.log('[트리맵] 매출구성 데이터 로드 중...');
+        loadSalesCompositionData().then(() => {
+          renderAllTreemaps(brand);
+        });
+      } else {
+        renderAllTreemaps(brand);
+      }
+    }
+    
+    /**
+     * 모든 트리맵 렌더링
+     */
+    function renderAllTreemaps(brand) {
+      // 채널별 매출구성 트리맵 (기존 컨테이너 사용)
+      const channelTreemapContainer = document.getElementById('treemapWrapperChannel');
+      if (channelTreemapContainer) {
+        renderChannelSalesTreemap('treemapWrapperChannel', brand);
+        
+        // 날짜 정보 업데이트
+        const dateInfoEl = document.getElementById('treemapChannelDateInfo');
+        if (dateInfoEl && window.salesCompositionData) {
+          const asofDate = window.salesCompositionData.asof_dt || '-';
+          
+          // 오늘 날짜 (업데이트 일자)
+          const today = new Date();
+          const updateDate = today.toISOString().split('T')[0];
+          
+          // 당년/전년 분석기간 계산
+          let cyPeriod = '-';
+          let pyPeriod = '-';
+          
+          if (asofDate && asofDate !== '-') {
+            // 당년: 당월 1일 ~ asof_dt
+            const asofDateObj = new Date(asofDate);
+            const cyYear = asofDateObj.getFullYear();
+            const cyMonth = String(asofDateObj.getMonth() + 1).padStart(2, '0');
+            cyPeriod = `${cyYear}-${cyMonth}-01 ~ ${asofDate}`;
+            
+            // 전년: 전년 동월 1일 ~ 전년 동일 날짜
+            const pyYear = cyYear - 1;
+            const pyEndDate = new Date(asofDateObj);
+            pyEndDate.setFullYear(pyYear);
+            const pyEndDateStr = pyEndDate.toISOString().split('T')[0];
+            const pyMonth = String(pyEndDate.getMonth() + 1).padStart(2, '0');
+            pyPeriod = `${pyYear}-${pyMonth}-01 ~ ${pyEndDateStr}`;
+          }
+          
+          dateInfoEl.innerHTML = `<div><strong>업데이트 일자:</strong> ${updateDate}</div><div><strong>분석기간:</strong> 당년 ${cyPeriod} / 전년 ${pyPeriod}</div>`;
+        }
+      }
+      
+      // 아이템별 매출구성 트리맵 (기존 컨테이너 사용)
+      const itemTreemapContainer = document.getElementById('treemapWrapperItem');
+      if (itemTreemapContainer) {
+        renderItemSalesTreemap('treemapWrapperItem', brand);
+        
+        // 날짜 정보 업데이트
+        const dateInfoEl = document.getElementById('treemapItemDateInfo');
+        if (dateInfoEl && window.salesCompositionData) {
+          const asofDate = window.salesCompositionData.asof_dt || '-';
+          
+          // 오늘 날짜 (업데이트 일자)
+          const today = new Date();
+          const updateDate = today.toISOString().split('T')[0];
+          
+          // 당년/전년 분석기간 계산
+          let cyPeriod = '-';
+          let pyPeriod = '-';
+          
+          if (asofDate && asofDate !== '-') {
+            // 당년: 당월 1일 ~ asof_dt
+            const asofDateObj = new Date(asofDate);
+            const cyYear = asofDateObj.getFullYear();
+            const cyMonth = String(asofDateObj.getMonth() + 1).padStart(2, '0');
+            cyPeriod = `${cyYear}-${cyMonth}-01 ~ ${asofDate}`;
+            
+            // 전년: 전년 동월 1일 ~ 전년 동일 날짜
+            const pyYear = cyYear - 1;
+            const pyEndDate = new Date(asofDateObj);
+            pyEndDate.setFullYear(pyYear);
+            const pyEndDateStr = pyEndDate.toISOString().split('T')[0];
+            const pyMonth = String(pyEndDate.getMonth() + 1).padStart(2, '0');
+            pyPeriod = `${pyYear}-${pyMonth}-01 ~ ${pyEndDateStr}`;
+          }
+          
+          dateInfoEl.innerHTML = `<div><strong>업데이트 일자:</strong> ${updateDate}</div><div><strong>분석기간:</strong> 당년 ${cyPeriod} / 전년 ${pyPeriod}</div>`;
+        }
+      }
+      
+      // 사이드바 트리맵 1: 카테고리 → 채널
+      const categoryChannelContainer = document.getElementById('sidebar-category-channel-treemap');
+      if (categoryChannelContainer) {
+        renderCategoryChannelTreemap('sidebar-category-channel-treemap', brand);
+        
+        // 날짜 정보 업데이트
+        const dateInfoEl = document.getElementById('sidebarCategoryChannelDateInfo');
+        if (dateInfoEl && window.salesCompositionData) {
+          const asofDate = window.salesCompositionData.asof_dt || '-';
+          
+          // 오늘 날짜 (업데이트 일자)
+          const today = new Date();
+          const updateDate = today.toISOString().split('T')[0];
+          
+          // 당년/전년 분석기간 계산
+          let cyPeriod = '-';
+          let pyPeriod = '-';
+          
+          if (asofDate && asofDate !== '-') {
+            // 당년: 당월 1일 ~ asof_dt
+            const asofDateObj = new Date(asofDate);
+            const cyYear = asofDateObj.getFullYear();
+            const cyMonth = String(asofDateObj.getMonth() + 1).padStart(2, '0');
+            cyPeriod = `${cyYear}-${cyMonth}-01 ~ ${asofDate}`;
+            
+            // 전년: 전년 동월 1일 ~ 전년 동일 날짜
+            const pyYear = cyYear - 1;
+            const pyEndDate = new Date(asofDateObj);
+            pyEndDate.setFullYear(pyYear);
+            const pyEndDateStr = pyEndDate.toISOString().split('T')[0];
+            const pyMonth = String(pyEndDate.getMonth() + 1).padStart(2, '0');
+            pyPeriod = `${pyYear}-${pyMonth}-01 ~ ${pyEndDateStr}`;
+          }
+          
+          dateInfoEl.innerHTML = `<div><strong>업데이트 일자:</strong> ${updateDate}</div><div><strong>분석기간:</strong> 당년 ${cyPeriod} / 전년 ${pyPeriod}</div>`;
+        }
+      }
+      
+      // 사이드바 트리맵 2: 카테고리 → 아이템
+      const categoryItemContainer = document.getElementById('sidebar-category-item-treemap');
+      if (categoryItemContainer) {
+        renderCategoryItemTreemap('sidebar-category-item-treemap', brand);
+        
+        // 날짜 정보 업데이트
+        const dateInfoEl = document.getElementById('sidebarCategoryItemDateInfo');
+        if (dateInfoEl && window.salesCompositionData) {
+          const asofDate = window.salesCompositionData.asof_dt || '-';
+          
+          // 오늘 날짜 (업데이트 일자)
+          const today = new Date();
+          const updateDate = today.toISOString().split('T')[0];
+          
+          // 당년/전년 분석기간 계산
+          let cyPeriod = '-';
+          let pyPeriod = '-';
+          
+          if (asofDate && asofDate !== '-') {
+            // 당년: 당월 1일 ~ asof_dt
+            const asofDateObj = new Date(asofDate);
+            const cyYear = asofDateObj.getFullYear();
+            const cyMonth = String(asofDateObj.getMonth() + 1).padStart(2, '0');
+            cyPeriod = `${cyYear}-${cyMonth}-01 ~ ${asofDate}`;
+            
+            // 전년: 전년 동월 1일 ~ 전년 동일 날짜
+            const pyYear = cyYear - 1;
+            const pyEndDate = new Date(asofDateObj);
+            pyEndDate.setFullYear(pyYear);
+            const pyEndDateStr = pyEndDate.toISOString().split('T')[0];
+            const pyMonth = String(pyEndDate.getMonth() + 1).padStart(2, '0');
+            pyPeriod = `${pyYear}-${pyMonth}-01 ~ ${pyEndDateStr}`;
+          }
+          
+          dateInfoEl.innerHTML = `<div><strong>업데이트 일자:</strong> ${updateDate}</div><div><strong>분석기간:</strong> 당년 ${cyPeriod} / 전년 ${pyPeriod}</div>`;
+        }
+      }
+    }
+    
     
     // 판매율 데이터를 히트맵용으로 집계
     function aggregateSalesRateForHeatmap(salesRateData) {
@@ -15301,7 +17063,1263 @@
         });
       }
       
-      // 기간 선택 버튼
+      // ========== 아이템별 트리맵 사이드바 이벤트 리스너 ==========
+      const openItemTreemapSidebarBtn = document.getElementById('openItemTreemapSidebar');
+      if (openItemTreemapSidebarBtn) {
+        openItemTreemapSidebarBtn.addEventListener('click', function() {
+          const sidebar = document.getElementById('item-treemap-sidebar');
+          if (sidebar) {
+            sidebar.classList.add('open');
+            // 사이드바가 열릴 때 데이터 로드
+            loadItemTreemapSidebarData();
+          }
+        });
+      }
+      
+      const closeItemTreemapSidebarBtn = document.getElementById('close-item-treemap-sidebar');
+      if (closeItemTreemapSidebarBtn) {
+        closeItemTreemapSidebarBtn.addEventListener('click', function() {
+          const sidebar = document.getElementById('item-treemap-sidebar');
+          if (sidebar) {
+            sidebar.classList.remove('open');
+          }
+        });
+      }
+      // ========== 끝: 아이템별 트리맵 사이드바 이벤트 리스너 ==========
+      
+      // ========== 아이템별 트리맵 사이드바 데이터 로드 함수 (Snowflake API) ==========
+      function loadItemTreemapSidebarData() {
+        console.log('[사이드바] 데이터 로드 시작 (Snowflake API)');
+        
+        // Snowflake 데이터 확인
+        if (!window.salesCompositionData || !window.salesCompositionData.data) {
+          console.warn('[사이드바] Snowflake 데이터가 없습니다. 데이터 로드 시도...');
+          loadSalesCompositionData().then(() => {
+            loadItemTreemapSidebarData(); // 재시도
+          });
+          return;
+        }
+        
+        // 현재 브랜드 정보 표시
+        const brandNameEl = document.getElementById('sidebar-brand-name');
+        if (brandNameEl) {
+          brandNameEl.textContent = currentBrand || '-';
+        }
+        
+        // 브랜드 코드 가져오기
+        const brandCode = brandCodeMap[currentBrand] || brandCodeMap[currentBrand.replace('_', ' ')] || 'M';
+        
+        // Snowflake 데이터에서 현재 브랜드 데이터 필터링
+        const cyData = window.salesCompositionData.data.CY || [];
+        const brandData = cyData.filter(row => row.브랜드 === brandCode);
+        
+        if (brandData.length === 0) {
+          console.warn('[사이드바] 브랜드 데이터가 없습니다:', {brandCode, currentBrand});
+          return;
+        }
+        
+        // Snowflake 데이터에서 카테고리별 매출 합계 및 고유 아이템 수 계산
+        const categoryTotals = {}; // 카테고리별 합계
+        const uniqueItems = new Set(); // 고유 아이템(ITEM_CD) 수 계산
+        
+        brandData.forEach(row => {
+          const category = row.카테고리;
+          const realSales = row.실판매출 || 0;
+          const item = row.아이템;
+          
+          if (!categoryTotals[category]) {
+            categoryTotals[category] = 0;
+          }
+          categoryTotals[category] += realSales;
+          
+          // 고유 아이템 추가
+          if (item) {
+            uniqueItems.add(item);
+          }
+        });
+        
+        // 총 매출 계산
+        const totalRevenue = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
+        
+        // 총 매출 표시 (이미 원 단위이므로 억 단위로 변환)
+        const totalRevenueEl = document.getElementById('sidebar-total-revenue');
+        if (totalRevenueEl) {
+          totalRevenueEl.textContent = `${(totalRevenue / 100000000).toFixed(1)}억원`;
+        }
+        
+        // 아이템 수 표시 (ITEM_CD 기준 고유 아이템 수)
+        const itemCountEl = document.getElementById('sidebar-item-count');
+        if (itemCountEl) {
+          itemCountEl.textContent = `${uniqueItems.size}개`;
+        }
+        
+        // 사이드바 트리맵은 이미 renderAllTreemaps()에서 렌더링됨
+        // 여기서는 추가 정보만 업데이트
+        console.log('[사이드바] 데이터 로드 완료:', {
+          totalRevenue: (totalRevenue / 100000000).toFixed(1) + '억원',
+          categoryCount: Object.keys(categoryTotals).length
+        });
+        
+        // 2. 할인내역 업데이트 (옵션)
+        // updateDiscountTable(); // 필요시 구현
+        
+        // 3. 프로모션 내용 업데이트 (옵션)
+        // updatePromotionContent(); // 필요시 구현
+      }
+      
+      // 1-1. 카테고리 → 채널 드릴다운 트리맵 렌더링 (Snowflake API)
+      function updateCategoryChannelTable(categoryTotals, totalRevenue, brandSalesData) {
+        // ★ 새로운 Snowflake 기반 트리맵 사용 ★
+        // renderCategoryChannelTreemap()이 이미 renderAllTreemaps()에서 호출됨
+        console.log('[사이드바] 카테고리→채널 트리맵은 renderCategoryChannelTreemap()에서 렌더링됨');
+        return;
+        
+        /* 옛날 JSON 기반 코드 (사용 안함)
+        const container = document.getElementById('sidebar-category-channel-treemap');
+        if (!container) return;
+        
+        const sortedCategories = Object.entries(categoryTotals)
+          .sort((a, b) => b[1] - a[1]);
+        
+        if (sortedCategories.length === 0) {
+          container.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#94a3b8;font-size:13px;">
+              데이터가 없습니다.
+            </div>
+          `;
+          return;
+        }
+        
+        // 할인율, 전년할인율, YOY 데이터 준비
+        const brandCode = brandCodeMap[currentBrand] || brandCodeMap[currentBrand.replace('_', ' ')] || 'M';
+        
+        // 트리맵 데이터 생성
+        const labels = [];
+        const values = [];
+        const parents = [];
+        const ids = [];
+        const customText = [];
+        const customDataArray = [];
+        
+        sortedCategories.forEach(([name, value], index) => {
+          const percentage = ((value / totalRevenue) * 100).toFixed(1);
+          const revenueInBillions = (value / 100000000).toFixed(1);
+          
+          // 할인율 계산 (샘플 데이터, 실제 데이터로 교체 필요)
+          let discountRate = 25.0; // 기본값
+          let prevDiscountRate = 23.5; // 기본값
+          let yoy = null; // 기본값
+          
+          // treemapRawData에서 실제 데이터 가져오기 시도
+          try {
+            const itemKeyMap = {
+              '신발': 'Shoes',
+              '가방': 'Bag',
+              '모자': 'Headwear',
+              '기타ACC': 'Acc_etc',
+              '당시즌의류': '당시즌의류',
+              '차시즌의류': '차시즌의류',
+              '과시즌의류': '과시즌의류'
+            };
+            const itemKey = itemKeyMap[name] || name;
+            const treemapRaw = window.treemapRawData?.[brandCode]?.item?.items?.[itemKey];
+            
+            if (treemapRaw) {
+              if (typeof treemapRaw.discountRate === 'number') {
+                discountRate = treemapRaw.discountRate;
+              }
+              if (typeof treemapRaw.prevDiscountRate === 'number') {
+                prevDiscountRate = treemapRaw.prevDiscountRate;
+              }
+              if (typeof treemapRaw.yoy === 'number') {
+                yoy = treemapRaw.yoy;
+              }
+            }
+          } catch (e) {
+            console.warn('할인율 데이터 로드 실패:', e);
+          }
+          
+          labels.push(name);
+          values.push(value / 100000000); // 억 단위
+          parents.push('');
+          ids.push(`cat-channel-${index}`);
+          
+          // customData 배열 생성 (비중, 할인율, 전년할인율, YOY)
+          const percentageNum = parseFloat(percentage);
+          const discountRateNum = parseFloat(discountRate.toFixed(1));
+          const prevDiscountRateNum = prevDiscountRate !== null ? parseFloat(prevDiscountRate.toFixed(1)) : 0.0;
+          const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : 0.0;
+          customDataArray.push([percentageNum, discountRateNum, prevDiscountRateNum, yoyPercentage]);
+          
+          // 텍스트 생성
+          let textHtml = `<b style="font-size:14px;">${name}</b><br><span style="font-size:12px;">${revenueInBillions}억원 (${percentage}%)</span>`;
+          
+          // 할인율 표시
+          textHtml += `<br><span style="font-size:11px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
+          
+          // 전년할인율 표시
+          if (prevDiscountRateNum !== null) {
+            textHtml += `<br><span style="font-size:11px;color:#fde68a;">전년할인율 : ${prevDiscountRateNum.toFixed(1)}%</span>`;
+          }
+          
+          // YOY 표시
+          if (yoyPercentage !== null) {
+            textHtml += `<br><span style="font-size:11px;color:#fde68a;">YOY : ${yoyPercentage.toFixed(1)}%</span>`;
+          }
+          
+          customText.push(textHtml);
+        });
+        
+        const data = [{
+          type: 'treemap',
+          labels: labels,
+          values: values,
+          parents: parents,
+          ids: ids,
+          text: customText,
+          textinfo: 'text',
+          hovertemplate: '<b>%{label}</b><br>매출: %{value:.1f}억<br>비중: %{customdata[0]:.1f}%<br>할인율: %{customdata[1]:.1f}%<br>전년할인율: %{customdata[2]:.1f}%<br>YOY: %{customdata[3]:.1f}%<extra></extra>',
+          customdata: customDataArray,
+          textfont: { size: 12, color: 'white' },
+          marker: {
+            colors: [
+              'rgba(79,70,229,0.85)', 'rgba(124,58,237,0.85)', 'rgba(59,130,246,0.85)', 
+              'rgba(16,185,129,0.85)', 'rgba(245,158,11,0.85)', 'rgba(239,68,68,0.85)',
+              'rgba(168,85,247,0.85)', 'rgba(34,197,94,0.85)', 'rgba(251,146,60,0.85)'
+            ],
+            line: { color: 'white', width: 2 }
+          }
+        }];
+        
+        const layout = {
+          margin: { l: 0, r: 0, t: 0, b: 0 },
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          height: 350
+        };
+        
+        const config = { 
+          responsive: true, 
+          displayModeBar: false 
+        };
+        
+        // 트리맵 렌더링
+        if (window.Plotly && typeof window.Plotly.newPlot === 'function') {
+          window.Plotly.newPlot(container, data, layout, config).then(() => {
+            // 클릭 이벤트 추가 (드릴다운)
+            container.on('plotly_click', function(eventData) {
+              if (eventData.points && eventData.points.length > 0) {
+                const category = eventData.points[0].label;
+                alert(`${category}의 채널별 상세 데이터를 표시합니다.\n(추후 구현 예정)`);
+              }
+            });
+          }).catch(err => {
+            console.error('Treemap render failed:', err);
+            container.innerHTML = `
+              <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#ef4444;font-size:13px;">
+                트리맵을 불러오는데 실패했습니다.
+              </div>
+            `;
+          });
+        } else {
+          container.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#f59e0b;font-size:13px;">
+              Plotly 라이브러리를 로드하는 중입니다...
+            </div>
+          `;
+        }
+        */ // 옛날 코드 끝
+      }
+      
+      // 1-2. 카테고리 → 아이템 드릴다운 트리맵 렌더링 (Snowflake API)
+      function updateCategoryItemTable(categoryTotals, totalRevenue) {
+        // ★ 새로운 Snowflake 기반 트리맵 사용 ★
+        // renderCategoryItemTreemap()이 이미 renderAllTreemaps()에서 호출됨
+        console.log('[사이드바] 카테고리→아이템 트리맵은 renderCategoryItemTreemap()에서 렌더링됨');
+        return;
+        
+        /* 옛날 JSON 기반 코드 (사용 안함)
+        const container = document.getElementById('sidebar-category-item-treemap');
+        if (!container) return;
+        
+        const sortedCategories = Object.entries(categoryTotals)
+          .sort((a, b) => b[1] - a[1]);
+        
+        if (sortedCategories.length === 0) {
+          container.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#94a3b8;font-size:13px;">
+              데이터가 없습니다.
+            </div>
+          `;
+          return;
+        }
+        
+        // 할인율, 전년할인율, YOY 데이터 준비
+        const brandCode = brandCodeMap[currentBrand] || brandCodeMap[currentBrand.replace('_', ' ')] || 'M';
+        
+        // 트리맵 데이터 생성
+        const labels = [];
+        const values = [];
+        const parents = [];
+        const ids = [];
+        const customText = [];
+        const customDataArray = [];
+        
+        sortedCategories.forEach(([name, value], index) => {
+          const percentage = ((value / totalRevenue) * 100).toFixed(1);
+          const revenueInBillions = (value / 100000000).toFixed(1);
+          
+          // 할인율 계산 (샘플 데이터, 실제 데이터로 교체 필요)
+          let discountRate = 24.5; // 기본값
+          let prevDiscountRate = 22.8; // 기본값
+          let yoy = null; // 기본값
+          
+          // treemapRawData에서 실제 데이터 가져오기 시도
+          try {
+            const itemKeyMap = {
+              '신발': 'Shoes',
+              '가방': 'Bag',
+              '모자': 'Headwear',
+              '기타ACC': 'Acc_etc',
+              '당시즌의류': '당시즌의류',
+              '차시즌의류': '차시즌의류',
+              '과시즌의류': '과시즌의류'
+            };
+            const itemKey = itemKeyMap[name] || name;
+            const treemapRaw = window.treemapRawData?.[brandCode]?.item?.items?.[itemKey];
+            
+            if (treemapRaw) {
+              if (typeof treemapRaw.discountRate === 'number') {
+                discountRate = treemapRaw.discountRate;
+              }
+              if (typeof treemapRaw.prevDiscountRate === 'number') {
+                prevDiscountRate = treemapRaw.prevDiscountRate;
+              }
+              if (typeof treemapRaw.yoy === 'number') {
+                yoy = treemapRaw.yoy;
+              }
+            }
+          } catch (e) {
+            console.warn('할인율 데이터 로드 실패:', e);
+          }
+          
+          labels.push(name);
+          values.push(value / 100000000); // 억 단위
+          parents.push('');
+          ids.push(`cat-item-${index}`);
+          
+          // customData 배열 생성 (비중, 할인율, 전년할인율, YOY)
+          const percentageNum = parseFloat(percentage);
+          const discountRateNum = parseFloat(discountRate.toFixed(1));
+          const prevDiscountRateNum = prevDiscountRate !== null ? parseFloat(prevDiscountRate.toFixed(1)) : 0.0;
+          const yoyPercentage = yoy !== null ? parseFloat((100 + yoy).toFixed(1)) : 0.0;
+          customDataArray.push([percentageNum, discountRateNum, prevDiscountRateNum, yoyPercentage]);
+          
+          // 텍스트 생성
+          let textHtml = `<b style="font-size:14px;">${name}</b><br><span style="font-size:12px;">${revenueInBillions}억원 (${percentage}%)</span>`;
+          
+          // 할인율 표시
+          textHtml += `<br><span style="font-size:11px;color:#fde68a;">할인율 : ${discountRateNum.toFixed(1)}%</span>`;
+          
+          // 전년할인율 표시
+          if (prevDiscountRateNum !== null) {
+            textHtml += `<br><span style="font-size:11px;color:#fde68a;">전년할인율 : ${prevDiscountRateNum.toFixed(1)}%</span>`;
+          }
+          
+          // YOY 표시
+          if (yoyPercentage !== null) {
+            textHtml += `<br><span style="font-size:11px;color:#fde68a;">YOY : ${yoyPercentage.toFixed(1)}%</span>`;
+          }
+          
+          customText.push(textHtml);
+        });
+        
+        const data = [{
+          type: 'treemap',
+          labels: labels,
+          values: values,
+          parents: parents,
+          ids: ids,
+          text: customText,
+          textinfo: 'text',
+          hovertemplate: '<b>%{label}</b><br>매출: %{value:.1f}억<br>비중: %{customdata[0]:.1f}%<br>할인율: %{customdata[1]:.1f}%<br>전년할인율: %{customdata[2]:.1f}%<br>YOY: %{customdata[3]:.1f}%<extra></extra>',
+          customdata: customDataArray,
+          textfont: { size: 12, color: 'white' },
+          marker: {
+            colors: [
+              'rgba(16,185,129,0.85)', 'rgba(34,197,94,0.85)', 'rgba(5,150,105,0.85)', 
+              'rgba(6,182,212,0.85)', 'rgba(14,165,233,0.85)', 'rgba(99,102,241,0.85)',
+              'rgba(139,92,246,0.85)', 'rgba(168,85,247,0.85)', 'rgba(217,70,239,0.85)'
+            ],
+            line: { color: 'white', width: 2 }
+          }
+        }];
+        
+        const layout = {
+          margin: { l: 0, r: 0, t: 0, b: 0 },
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          height: 350
+        };
+        
+        const config = { 
+          responsive: true, 
+          displayModeBar: false 
+        };
+        
+        // 트리맵 렌더링
+        if (window.Plotly && typeof window.Plotly.newPlot === 'function') {
+          window.Plotly.newPlot(container, data, layout, config).then(() => {
+            // 클릭 이벤트 추가 (드릴다운)
+            container.on('plotly_click', function(eventData) {
+              if (eventData.points && eventData.points.length > 0) {
+                const category = eventData.points[0].label;
+                alert(`${category}의 아이템별 상세 데이터를 표시합니다.\n(추후 구현 예정)`);
+              }
+            });
+          }).catch(err => {
+            console.error('Treemap render failed:', err);
+            container.innerHTML = `
+              <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#ef4444;font-size:13px;">
+                트리맵을 불러오는데 실패했습니다.
+              </div>
+            `;
+          });
+        } else {
+          container.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#f59e0b;font-size:13px;">
+              Plotly 라이브러리를 로드하는 중입니다...
+            </div>
+          `;
+        }
+        */ // 옛날 코드 끝
+      }
+      
+      // ====== 할인내역 API 연결 함수 ======
+      
+      /**
+       * 할인내역 데이터 로드 (Snowflake API + Redis 캐시)
+       * @param {string} brandCode - 브랜드 코드 (M, I, X, V, ST, W)
+       * @returns {Promise<Array>} 할인내역 데이터 배열
+       */
+      async function loadDiscountData(brandCode) {
+        try {
+          // URL 파라미터에서 분석월 가져오기 (window.__DATA_DATE__ 사용)
+          const dateStr = window.__DATA_DATE__ || '20260119';
+          const analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
+          
+          console.log('[할인내역] 데이터 로드 시작:', { brandCode, analysisMonth });
+          
+          // API 호출 (Redis 캐시 사용)
+          const response = await fetch(
+            `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}`
+          );
+          
+          if (!response.ok) {
+            throw new Error(`API 호출 실패: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          
+          if (!result.success) {
+            throw new Error(result.error || '데이터 로드 실패');
+          }
+          
+          // 전역 변수에 저장 (드릴다운에서 재사용)
+          window.discountDetailData = result.data;
+          
+          console.log('[할인내역] 데이터 로드 완료:', {
+            rowCount: result.data.length,
+            cached: result.cached
+          });
+          
+          return result.data;
+          
+        } catch (error) {
+          console.error('[할인내역] 데이터 로드 실패:', error);
+          throw error;
+        }
+      }
+      
+      // 2. 할인내역 업데이트
+      async function updateDiscountTable() {
+        try {
+          const brandCodeMap = {
+            'MLB': 'M',
+            'MLB_KIDS': 'I',
+            'DISCOVERY': 'X',
+            'DUVETICA': 'V',
+            'SERGIO': 'ST',
+            'SUPRA': 'W'
+          };
+          
+          const brandCode = brandCodeMap[currentBrand] || 'M';
+          
+          console.log('[할인내역] 테이블 업데이트 시작:', { currentBrand, brandCode });
+          
+          // API에서 데이터 로드
+          const rawData = await loadDiscountData(brandCode);
+          
+          if (!rawData || rawData.length === 0) {
+            console.warn('[할인내역] 데이터가 없습니다.');
+            return;
+          }
+          
+          // 데이터 집계 (할인코드별)
+          const discountData = aggregateDiscountData(rawData);
+          
+          // 테이블 렌더링
+          renderDiscountTable(discountData);
+          
+          // 차트 업데이트
+          updateDiscountChart(discountData);
+          
+          console.log('[할인내역] 테이블 업데이트 완료');
+          
+        } catch (error) {
+          console.error('[할인내역] 테이블 업데이트 실패:', error);
+        }
+      }
+      
+      /**
+       * 할인내역 데이터 집계
+       * @param {Array} rawData - 원본 데이터
+       * @returns {Object} 집계된 할인코드별 데이터
+       */
+      function aggregateDiscountData(rawData) {
+        const result = {};
+        
+        console.log('[할인내역] 집계 시작 - 원본 데이터 개수:', rawData.length);
+        console.log('[할인내역] 첫번째 행 샘플:', rawData[0]);
+        
+        rawData.forEach(row => {
+          const discountCode = row['할인유형명'] || '기타';
+          const gubun = row['구분']; // 'CY' or 'PY'
+          const tagSales = parseFloat(row['TAG매출']) || 0;
+          const actualSales = parseFloat(row['실판매출']) || 0;
+          
+          if (!result[discountCode]) {
+            result[discountCode] = {
+              cy: { tag: 0, sales: 0 },
+              py: { tag: 0, sales: 0 }
+            };
+          }
+          
+          if (gubun === 'CY') {
+            result[discountCode].cy.tag += tagSales;
+            result[discountCode].cy.sales += actualSales;
+          } else if (gubun === 'PY') {
+            result[discountCode].py.tag += tagSales;
+            result[discountCode].py.sales += actualSales;
+          }
+        });
+        
+        // 할인율 계산 (원 단위 그대로 저장)
+        Object.keys(result).forEach(code => {
+          const cy = result[code].cy;
+          const py = result[code].py;
+          
+          cy.discountRate = cy.tag > 0 ? ((1 - cy.sales / cy.tag) * 100) : 0;
+          py.discountRate = py.tag > 0 ? ((1 - py.sales / py.tag) * 100) : 0;
+        });
+        
+        console.log('[할인내역] 집계 완료 - 할인코드 개수:', Object.keys(result).length);
+        console.log('[할인내역] 집계 결과:', result);
+        
+        return result;
+      }
+      
+      /**
+       * 할인코드 정렬 함수
+       * - '정상'이 맨 위
+       * - 그 다음 숫자% (10%, 20%, 30%...)
+       * - 나머지는 가나다순
+       */
+      function sortDiscountCodes(codes) {
+        return codes.sort((a, b) => {
+          if (a === '정상') return -1;
+          if (b === '정상') return 1;
+          
+          const aIsPercent = /^\d+%$/.test(a);
+          const bIsPercent = /^\d+%$/.test(b);
+          
+          if (aIsPercent && bIsPercent) {
+            return parseInt(a) - parseInt(b);
+          }
+          if (aIsPercent) return -1;
+          if (bIsPercent) return 1;
+          
+          return a.localeCompare(b, 'ko');
+        });
+      }
+      
+      /**
+       * 할인내역 테이블 렌더링
+       */
+      function renderDiscountTable(discountData) {
+        const tbody = document.getElementById('sidebar-discount-tbody');
+        if (!tbody) {
+          console.error('[할인내역] tbody 요소를 찾을 수 없습니다!');
+          return;
+        }
+        
+        console.log('[할인내역] 테이블 렌더링 시작 - 데이터:', discountData);
+        
+        // 기존 내용 제거
+        tbody.innerHTML = '';
+        
+        // 합계 계산
+        let totalCySales = 0;
+        let totalPySales = 0;
+        let totalCyTag = 0;
+        let totalPyTag = 0;
+        
+        Object.keys(discountData).forEach(code => {
+          totalCySales += discountData[code].cy.sales;
+          totalPySales += discountData[code].py.sales;
+          totalCyTag += discountData[code].cy.tag;
+          totalPyTag += discountData[code].py.tag;
+        });
+        
+        const totalCyDiscountRate = totalCyTag > 0 ? ((1 - totalCySales / totalCyTag) * 100) : 0;
+        const totalPyDiscountRate = totalPyTag > 0 ? ((1 - totalPySales / totalPyTag) * 100) : 0;
+        const totalYoy = totalPySales > 0 ? ((totalCySales / totalPySales) * 100) : 0;
+        const totalDiscountDiff = totalCyDiscountRate - totalPyDiscountRate;
+        
+        // 합계 행 추가
+        const totalRow = document.createElement('tr');
+        totalRow.style.background = '#f8fafc';
+        totalRow.style.fontWeight = '700';
+        totalRow.style.borderTop = '2px solid #4f46e5';
+        totalRow.style.borderBottom = '2px solid #cbd5e1';
+        
+        totalRow.innerHTML = `
+          <td style="padding:10px 6px;text-align:left;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">합계</td>
+          <td style="padding:10px 6px;text-align:right;font-size:12px;color:#1f2937;">${(totalCySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0})}</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalCyDiscountRate.toFixed(1)}%</td>
+          <td style="padding:10px 6px;text-align:right;font-size:12px;color:#1f2937;">${(totalPySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0})}</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalPyDiscountRate.toFixed(1)}%</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:#1f2937;border-right:1px solid #e5e7eb;">${totalYoy.toFixed(0)}%</td>
+          <td style="padding:10px 6px;text-align:center;font-size:12px;color:${totalDiscountDiff >= 0 ? '#dc2626' : '#059669'};font-weight:600;">${totalDiscountDiff >= 0 ? '+' : ''}${totalDiscountDiff.toFixed(1)}%p</td>
+        `;
+        
+        tbody.appendChild(totalRow);
+        
+        // 할인코드 정렬
+        const sortedCodes = sortDiscountCodes(Object.keys(discountData));
+        
+        // 각 할인코드별 행 추가
+        sortedCodes.forEach((code, index) => {
+          const data = discountData[code];
+          const cySales = data.cy.sales;
+          const pySales = data.py.sales;
+          const cyDiscountRate = data.cy.discountRate;
+          const pyDiscountRate = data.py.discountRate;
+          const yoy = pySales > 0 ? ((cySales / pySales) * 100) : 0;
+          const discountDiff = cyDiscountRate - pyDiscountRate;
+          
+          const row = document.createElement('tr');
+          row.style.background = index % 2 === 0 ? '#fff' : '#f9fafb';
+          row.style.cursor = 'pointer';
+          row.style.transition = 'background 0.2s';
+          
+          row.onmouseenter = () => { row.style.background = '#e0e7ff'; };
+          row.onmouseleave = () => { row.style.background = index % 2 === 0 ? '#fff' : '#f9fafb'; };
+          row.onclick = () => showDiscountDetail(code, currentBrand);
+          
+          // 데이터가 없는 경우 빈칸 처리
+          const cySalesText = cySales > 0 ? (cySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0}) : '';
+          const pySalesText = pySales > 0 ? (pySales / 1000000).toLocaleString('ko-KR', {maximumFractionDigits: 0}) : '';
+          const cyRateText = cySales > 0 ? `${cyDiscountRate.toFixed(1)}%` : '';
+          const pyRateText = pySales > 0 ? `${pyDiscountRate.toFixed(1)}%` : '';
+          const yoyText = pySales > 0 && cySales > 0 ? `${yoy.toFixed(0)}%` : '';
+          const diffText = (cySales > 0 || pySales > 0) ? `${discountDiff >= 0 ? '+' : ''}${discountDiff.toFixed(1)}%p` : '';
+          const diffColor = discountDiff >= 0 ? '#dc2626' : '#059669';
+          
+          row.innerHTML = `
+            <td style="padding:9px 6px;text-align:left;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${code}</td>
+            <td style="padding:9px 6px;text-align:right;font-size:12px;color:#475569;">${cySalesText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${cyRateText}</td>
+            <td style="padding:9px 6px;text-align:right;font-size:12px;color:#475569;">${pySalesText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${pyRateText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:#475569;border-right:1px solid #e5e7eb;">${yoyText}</td>
+            <td style="padding:9px 6px;text-align:center;font-size:12px;color:${diffColor};font-weight:600;">${diffText}</td>
+          `;
+          
+          tbody.appendChild(row);
+        });
+        
+        console.log('[할인내역] 테이블 렌더링 완료:', sortedCodes.length, '개 코드');
+      }
+      
+      // ====== 할인내역 옛날 코드 (사용 안함) ======
+      function updateDiscountTable_OLD() {
+        console.log('[사이드바] 할인내역 업데이트 (구버전 - 사용안함)');
+        return;
+        
+        /* 옛날 코드 (사용 안함)
+        // 샘플 데이터 (실제 데이터로 교체 필요)
+        const discountData = {
+          total: { cy: 45.3, py: 38.7, yoy: 17.1 },
+          '10%': { cy: 12.5, py: 10.3, yoy: 21.4 },
+          '20%': { cy: 18.8, py: 16.2, yoy: 16.0 },
+          '30%': { cy: 14.0, py: 12.2, yoy: 14.8 }
+        };
+        
+        // 합계
+        document.getElementById('discount-total-cy').textContent = `${discountData.total.cy.toFixed(1)}억`;
+        document.getElementById('discount-total-py').textContent = `${discountData.total.py.toFixed(1)}억`;
+        document.getElementById('discount-total-yoy').innerHTML = `
+          <span style="color:${discountData.total.yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData.total.yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData.total.yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 10%
+        document.getElementById('discount-10-cy').textContent = `${discountData['10%'].cy.toFixed(1)}억`;
+        document.getElementById('discount-10-py').textContent = `${discountData['10%'].py.toFixed(1)}억`;
+        document.getElementById('discount-10-yoy').innerHTML = `
+          <span style="color:${discountData['10%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData['10%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['10%'].yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 20%
+        document.getElementById('discount-20-cy').textContent = `${discountData['20%'].cy.toFixed(1)}억`;
+        document.getElementById('discount-20-py').textContent = `${discountData['20%'].py.toFixed(1)}억`;
+        document.getElementById('discount-20-yoy').innerHTML = `
+          <span style="color:${discountData['20%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData['20%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['20%'].yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 30%
+        document.getElementById('discount-30-cy').textContent = `${discountData['30%'].cy.toFixed(1)}억`;
+        document.getElementById('discount-30-py').textContent = `${discountData['30%'].py.toFixed(1)}억`;
+        document.getElementById('discount-30-yoy').innerHTML = `
+          <span style="color:${discountData['30%'].yoy >= 0 ? '#059669' : '#dc2626'};font-weight:600;">
+            ${discountData['30%'].yoy >= 0 ? '▲' : '▼'} ${Math.abs(discountData['30%'].yoy).toFixed(1)}%
+          </span>
+        `;
+        
+        // 할인율 차트 업데이트
+        updateDiscountChart(discountData);
+      }
+      
+      /**
+       * 할인율 차트 업데이트
+       */
+      function updateDiscountChart(discountData) {
+        const canvas = document.getElementById('sidebar-discount-chart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // 기존 차트 제거
+        if (window.sidebarDiscountChart) {
+          window.sidebarDiscountChart.destroy();
+        }
+        
+        // 차트에 표시할 할인코드 선택 (상위 5개 또는 전체)
+        const codes = Object.keys(discountData)
+          .filter(code => code !== '합계' && code !== '정상')
+          .sort((a, b) => {
+            const aTotal = discountData[a].cy.salesInBillion + discountData[a].py.salesInBillion;
+            const bTotal = discountData[b].cy.salesInBillion + discountData[b].py.salesInBillion;
+            return bTotal - aTotal;
+          })
+          .slice(0, 5);
+        
+        const cyData = codes.map(code => discountData[code].cy.salesInBillion);
+        const pyData = codes.map(code => discountData[code].py.salesInBillion);
+        
+        window.sidebarDiscountChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: codes,
+            datasets: [
+              {
+                label: '당년',
+                data: cyData,
+                backgroundColor: 'rgba(79,70,229,0.8)',
+                borderColor: 'rgba(79,70,229,1)',
+                borderWidth: 2
+              },
+              {
+                label: '전년',
+                data: pyData,
+                backgroundColor: 'rgba(16,185,129,0.8)',
+                borderColor: 'rgba(16,185,129,1)',
+                borderWidth: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}억원`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: '#e5e7eb'
+                },
+                ticks: {
+                  callback: function(value) {
+                    return value + '억';
+                  }
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // ====== 할인내역 드릴다운 기능 ======
+      
+      /**
+       * 할인내역 드릴다운 표시
+       * @param {string} discountCode - 할인 코드
+       * @param {string} brandName - 브랜드명
+       */
+      function showDiscountDetail(discountCode, brandName) {
+        console.log('[할인내역 드릴다운] 시작:', { discountCode, brandName });
+        
+        // 원본 데이터 확인
+        if (!window.discountDetailData || window.discountDetailData.length === 0) {
+          console.error('[할인내역 드릴다운] 원본 데이터가 없습니다.');
+          alert('할인내역 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+          return;
+        }
+        
+        // 기존 드릴다운 패널이 있으면 제거
+        const existingPanel = document.getElementById('discount-drilldown-panel');
+        if (existingPanel) {
+          existingPanel.remove();
+        }
+        
+        // 드릴다운 패널 생성
+        const panel = document.createElement('div');
+        panel.id = 'discount-drilldown-panel';
+        panel.style.cssText = `
+          background: #fff;
+          border-radius: 12px;
+          padding: 20px;
+          margin-top: 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          border: 2px solid #4f46e5;
+        `;
+        
+        // 패널 헤더
+        const header = document.createElement('div');
+        header.style.cssText = `
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 2px solid #e5e7eb;
+        `;
+        header.innerHTML = `
+          <h5 style="color:#4f46e5;font-size:16px;font-weight:700;margin:0;">
+            📋 ${discountCode} 상세내역
+          </h5>
+          <button id="close-drilldown-btn" style="
+            padding: 6px 12px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+          ">✕ 닫기</button>
+        `;
+        
+        panel.appendChild(header);
+        
+        // 닫기 버튼 이벤트
+        setTimeout(() => {
+          const closeBtn = document.getElementById('close-drilldown-btn');
+          if (closeBtn) {
+            closeBtn.onclick = () => panel.remove();
+          }
+        }, 100);
+        
+        // 필터 UI 생성
+        const filterUI = createDiscountFilterUI();
+        panel.appendChild(filterUI);
+        
+        // 테이블 컨테이너
+        const tableContainer = document.createElement('div');
+        tableContainer.id = 'discount-detail-table-container';
+        tableContainer.style.cssText = `
+          margin-top: 16px;
+          max-height: 400px;
+          overflow-y: auto;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+        `;
+        
+        panel.appendChild(tableContainer);
+        
+        // 할인내역 테이블 아래에 패널 추가
+        const discountTable = document.getElementById('sidebar-discount-table');
+        if (discountTable && discountTable.parentElement) {
+          discountTable.parentElement.parentElement.appendChild(panel);
+        }
+        
+        // 초기 데이터 렌더링
+        renderDiscountDetailTable(discountCode, 'CY', [], '');
+      }
+      
+      /**
+       * 드릴다운 필터 UI 생성
+       */
+      function createDiscountFilterUI() {
+        const container = document.createElement('div');
+        container.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
+        
+        // 1. 당년/전년 토글
+        const periodToggle = document.createElement('div');
+        periodToggle.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:#475569;font-weight:600;">기간:</span>
+            <button class="period-toggle-btn" data-period="CY" style="
+              padding: 8px 16px;
+              background: #4f46e5;
+              color: #fff;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 12px;
+              font-weight: 600;
+            ">당년</button>
+            <button class="period-toggle-btn" data-period="PY" style="
+              padding: 8px 16px;
+              background: #e5e7eb;
+              color: #374151;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 12px;
+              font-weight: 600;
+            ">전년</button>
+          </div>
+        `;
+        
+        // 2. 채널 필터
+        const channelFilter = document.createElement('div');
+        const channels = ['백화점', '면세점', '직영점(가두)', '자사몰', '제휴몰', '대리점', '아울렛', '직영몰', '직영점(가두)2'];
+        const channelButtons = channels.map(ch => 
+          `<button class="channel-filter-btn" data-channel="${ch}" style="
+            padding: 6px 12px;
+            background: #e5e7eb;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s;
+          ">${ch}</button>`
+        ).join('');
+        
+        channelFilter.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <span style="font-size:13px;color:#475569;font-weight:600;">채널:</span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${channelButtons}
+            </div>
+          </div>
+        `;
+        
+        // 3. 검색창
+        const searchBox = document.createElement('div');
+        searchBox.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:#475569;font-weight:600;">검색:</span>
+            <input 
+              type="text" 
+              id="discount-detail-search" 
+              placeholder="아이템명, 품번, 품명 검색..."
+              style="
+                flex: 1;
+                padding: 8px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 13px;
+              "
+            />
+          </div>
+        `;
+        
+        container.appendChild(periodToggle);
+        container.appendChild(channelFilter);
+        container.appendChild(searchBox);
+        
+        // 이벤트 리스너 추가 (딜레이 후)
+        setTimeout(() => {
+          attachDiscountFilterEvents();
+        }, 100);
+        
+        return container;
+      }
+      
+      /**
+       * 필터 이벤트 리스너 연결
+       */
+      function attachDiscountFilterEvents() {
+        // 현재 선택된 필터 상태
+        window.discountFilterState = {
+          period: 'CY',
+          channels: [],
+          searchText: ''
+        };
+        
+        // 당년/전년 토글
+        document.querySelectorAll('.period-toggle-btn').forEach(btn => {
+          btn.onclick = () => {
+            const period = btn.dataset.period;
+            window.discountFilterState.period = period;
+            
+            // 버튼 스타일 업데이트
+            document.querySelectorAll('.period-toggle-btn').forEach(b => {
+              b.style.background = b.dataset.period === period ? '#4f46e5' : '#e5e7eb';
+              b.style.color = b.dataset.period === period ? '#fff' : '#374151';
+            });
+            
+            // 테이블 재렌더링
+            refreshDiscountDetailTable();
+          };
+        });
+        
+        // 채널 필터
+        document.querySelectorAll('.channel-filter-btn').forEach(btn => {
+          btn.onclick = () => {
+            const channel = btn.dataset.channel;
+            const channels = window.discountFilterState.channels;
+            
+            if (channels.includes(channel)) {
+              // 선택 해제
+              window.discountFilterState.channels = channels.filter(ch => ch !== channel);
+              btn.style.background = '#e5e7eb';
+              btn.style.color = '#374151';
+              btn.style.borderColor = '#d1d5db';
+            } else {
+              // 선택
+              window.discountFilterState.channels.push(channel);
+              btn.style.background = '#4f46e5';
+              btn.style.color = '#fff';
+              btn.style.borderColor = '#4f46e5';
+            }
+            
+            // 테이블 재렌더링
+            refreshDiscountDetailTable();
+          };
+        });
+        
+        // 검색
+        const searchInput = document.getElementById('discount-detail-search');
+        if (searchInput) {
+          searchInput.oninput = (e) => {
+            window.discountFilterState.searchText = e.target.value.trim();
+            // 디바운스 (300ms)
+            clearTimeout(window.discountSearchTimeout);
+            window.discountSearchTimeout = setTimeout(() => {
+              refreshDiscountDetailTable();
+            }, 300);
+          };
+        }
+      }
+      
+      /**
+       * 드릴다운 테이블 재렌더링
+       */
+      function refreshDiscountDetailTable() {
+        // 현재 선택된 할인코드 가져오기
+        const panel = document.getElementById('discount-drilldown-panel');
+        if (!panel) return;
+        
+        const headerText = panel.querySelector('h5').textContent;
+        const discountCode = headerText.replace('📋 ', '').replace(' 상세내역', '').trim();
+        
+        const { period, channels, searchText } = window.discountFilterState;
+        renderDiscountDetailTable(discountCode, period, channels, searchText);
+      }
+      
+      /**
+       * 드릴다운 상세 테이블 렌더링
+       */
+      function renderDiscountDetailTable(discountCode, period, selectedChannels, searchText) {
+        const container = document.getElementById('discount-detail-table-container');
+        if (!container) return;
+        
+        // 데이터 필터링
+        let filteredData = window.discountDetailData.filter(row => {
+          // 할인코드 필터
+          if (row['할인유형명'] !== discountCode) return false;
+          
+          // 기간 필터
+          if (row['구분'] !== period) return false;
+          
+          // 채널 필터 (선택된 채널이 있을 경우만)
+          if (selectedChannels.length > 0 && !selectedChannels.includes(row['채널명'])) return false;
+          
+          // 검색 필터
+          if (searchText) {
+            const searchLower = searchText.toLowerCase();
+            const itemName = (row['아이템명'] || '').toLowerCase();
+            const productCode = (row['품번'] || '').toLowerCase();
+            const productName = (row['품명'] || '').toLowerCase();
+            
+            if (!itemName.includes(searchLower) && 
+                !productCode.includes(searchLower) && 
+                !productName.includes(searchLower)) {
+              return false;
+            }
+          }
+          
+          return true;
+        });
+        
+        console.log('[할인내역 드릴다운] 필터링된 데이터:', filteredData.length, '행');
+        
+        // 테이블 생성
+        if (filteredData.length === 0) {
+          container.innerHTML = `
+            <div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">
+              조건에 맞는 데이터가 없습니다.
+            </div>
+          `;
+          return;
+        }
+        
+        const table = document.createElement('table');
+        table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;';
+        
+        // 테이블 헤더
+        table.innerHTML = `
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:2px solid #cbd5e1;position:sticky;top:0;">
+              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">채널명</th>
+              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">카테고리</th>
+              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">아이템명</th>
+              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">품번</th>
+              <th style="padding:10px 8px;text-align:left;font-weight:700;color:#475569;">품명</th>
+              <th style="padding:10px 8px;text-align:right;font-weight:700;color:#475569;">TAG매출</th>
+              <th style="padding:10px 8px;text-align:right;font-weight:700;color:#475569;">실판매출</th>
+              <th style="padding:10px 8px;text-align:right;font-weight:700;color:#475569;">할인율</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        `;
+        
+        const tbody = table.querySelector('tbody');
+        
+        // 데이터 행 추가
+        filteredData.forEach((row, index) => {
+          const tag = parseFloat(row['TAG매출']) || 0;
+          const sales = parseFloat(row['실판매출']) || 0;
+          const discountRate = tag > 0 ? ((1 - sales / tag) * 100) : 0;
+          
+          const tr = document.createElement('tr');
+          tr.style.background = index % 2 === 0 ? '#fff' : '#f9fafb';
+          tr.style.borderBottom = '1px solid #e5e7eb';
+          
+          tr.innerHTML = `
+            <td style="padding:10px 8px;">${row['채널명'] || '-'}</td>
+            <td style="padding:10px 8px;">${row['카테고리'] || '-'}</td>
+            <td style="padding:10px 8px;">${row['아이템명'] || '-'}</td>
+            <td style="padding:10px 8px;">${row['품번'] || '-'}</td>
+            <td style="padding:10px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${row['품명']}">${row['품명'] || '-'}</td>
+            <td style="padding:10px 8px;text-align:right;">${formatNumber(tag)}</td>
+            <td style="padding:10px 8px;text-align:right;">${formatNumber(sales)}</td>
+            <td style="padding:10px 8px;text-align:right;font-weight:600;color:#4f46e5;">${discountRate.toFixed(1)}%</td>
+          `;
+          
+          tbody.appendChild(tr);
+        });
+        
+        container.innerHTML = '';
+        container.appendChild(table);
+        
+        console.log('[할인내역 드릴다운] 테이블 렌더링 완료:', filteredData.length, '행');
+      }
+      
+      /**
+       * 숫자 포맷팅 (천 단위 콤마)
+       */
+      function formatNumber(num) {
+        if (!num && num !== 0) return '-';
+        return Math.round(num).toLocaleString('ko-KR');
+      }
+      
+      // 3. 프로모션 내용 업데이트 (옵션)
+      function updatePromotionContent() {
+        // ★ 필요시 Snowflake 데이터로 구현 ★
+        console.log('[사이드바] 프로모션 내용 업데이트 (미구현)');
+        return;
+        
+        /* 옛날 코드 (사용 안함)
+        const promotionContent = document.getElementById('sidebar-promotion-content');
+        if (!promotionContent) return;
+        
+        // 샘플 프로모션 데이터 (실제 데이터로 교체 필요)
+        const promotions = [
+          // { title: '겨울 세일', period: '2026.01.15 ~ 2026.01.31', discount: '최대 30% 할인' },
+          // { title: '신상품 출시 기념', period: '2026.01.20 ~ 2026.02.05', discount: '20% 할인' }
+        ];
+        
+        if (promotions.length === 0) {
+          promotionContent.innerHTML = `
+            <div style="color:#64748b;font-size:13px;line-height:1.7;">
+              <p style="margin-bottom:10px;">📌 진행 중인 프로모션이 없습니다.</p>
+            </div>
+          `;
+        } else {
+          let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+          promotions.forEach((promo, index) => {
+            html += `
+              <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
+                <div style="font-weight:600;color:#1f2937;font-size:13px;margin-bottom:6px;">
+                  🎉 ${promo.title}
+                </div>
+                <div style="color:#64748b;font-size:12px;margin-bottom:4px;">
+                  📅 기간: ${promo.period}
+                </div>
+                <div style="color:#059669;font-size:12px;font-weight:600;">
+                  💰 ${promo.discount}
+                </div>
+              </div>
+            `;
+          });
+          html += '</div>';
+          promotionContent.innerHTML = html;
+        }
+        */
+      }
+      // ========== 끝: 아이템별 트리맵 사이드바 데이터 로드 함수 (Snowflake API로 대체) ==========
+    }
+    
+    // 기간 선택 버튼
       const periodBtns = document.querySelectorAll('.period-btn');
       periodBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -15397,7 +18415,7 @@
         });
       }
     });
-    
+  
   </script>
 </body>
 </html>
