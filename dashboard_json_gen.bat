@@ -148,27 +148,8 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-echo [Step 7] Downloading previous year treemap data for YOY calculation
-call "%PYTHON_CMD%" scripts\download_previous_year_treemap_data.py !DATE_STR!
-set STEP_ERR=!errorlevel!
-if !STEP_ERR! neq 0 (
-    echo [Step 7] Failed (Error code: !STEP_ERR!)
-    echo [Warning] Previous year data download failed. YOY calculation will be skipped.
-) else (
-    echo [Step 7] Completed
-)
-echo.
-
-echo [Step 8] Generating treemap JSON with YOY data
-call "%PYTHON_CMD%" scripts\create_treemap_data_v2.py !DATE_STR!
-set STEP_ERR=!errorlevel!
-if !STEP_ERR! neq 0 (
-    echo [Step 8] Failed (Error code: !STEP_ERR!)
-    set PIPELINE_ERROR=!STEP_ERR!
-) else (
-    echo [Step 8] Completed
-)
-echo.
+REM [Step 7-8] Treemap data generation removed - now using Snowflake API in real-time
+REM Treemap data is fetched via /api/sales-composition endpoint
 
 call "%PYTHON_CMD%" scripts\export_to_json.py !DATE_STR!
 set STEP_ERR=!errorlevel!
