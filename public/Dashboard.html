@@ -19222,10 +19222,10 @@
     /**
      * 프로모션 내용 업데이트 (비동기)
      */
-    window.updatePromotionContent = async function() {
+    async function updatePromotionContent() {
       console.log('[프로모션] ========== updatePromotionContent 호출됨 ==========');
       console.log('[프로모션] window.promotionData:', window.promotionData);
-      console.log('[프로모션] window.currentBrand:', window.currentBrand);
+      console.log('[프로모션] currentBrand (클로저):', currentBrand);
       
       const promotionContent = document.getElementById('sidebar-promotion-content');
       if (!promotionContent) {
@@ -19233,8 +19233,8 @@
         return;
       }
       
-      // 현재 선택된 브랜드 확인
-      const selectedBrand = window.currentBrand || 'MLB';
+      // 현재 선택된 브랜드 확인 (클로저를 통해 currentBrand 접근)
+      const selectedBrand = currentBrand || 'MLB';
       const brandCodeMap = {
         'MLB': 'M',
         'MLB_KIDS': 'I',
@@ -19367,7 +19367,10 @@
       
       promotionContent.innerHTML = html;
       console.log('[프로모션] 렌더링 완료:', sortedPromotions.length, '개 프로모션');
-    };
+    }
+    
+    // 전역으로 노출 (다른 스코프에서 호출 가능하도록)
+    window.updatePromotionContent = updatePromotionContent;
     
     /**
      * 프로모션 상세 모달 열기
