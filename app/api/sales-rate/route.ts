@@ -50,6 +50,18 @@ export async function GET(request: Request) {
     const query = getSalesRateQuery();
     const rows = await executeSnowflakeQuery(query);
     
+    // 디버깅: 첫 번째 행의 필드명 확인
+    if (rows.length > 0) {
+      console.log('[판매율 API] 첫 번째 행 샘플:', {
+        PERIOD_GB: rows[0].PERIOD_GB,
+        BRD_CD: rows[0].BRD_CD,
+        SALE_AMT: rows[0].SALE_AMT,
+        SALE_TAG: rows[0].SALE_TAG,
+        SALE_QTY: rows[0].SALE_QTY,
+        모든키: Object.keys(rows[0])
+      });
+    }
+    
     // 3. 데이터를 기간별로 분리
     const curData = rows.filter(row => row.PERIOD_GB === 'CUR');
     const pyData = rows.filter(row => row.PERIOD_GB === 'PY');
@@ -135,8 +147,9 @@ BASE AS (
     , a.AC_ORD_TAG_AMT_KOR
     , a.AC_STOR_QTY_KOR
     , a.AC_STOR_TAG_AMT_KOR
-    , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)         AS SALE_QTY
-    , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS) AS SALE_TAG
+    , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)               AS SALE_QTY
+    , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS)       AS SALE_TAG
+    , (a.AC_SALE_NML_SALE_AMT_CNS + a.AC_SALE_RET_SALE_AMT_CNS)     AS SALE_AMT
     , a.STOCK_QTY
     , a.STOCK_TAG_AMT
   FROM FNF.PRCS.DW_SCS_DACUM a
@@ -165,8 +178,9 @@ BASE AS (
     , a.AC_ORD_TAG_AMT_KOR
     , a.AC_STOR_QTY_KOR
     , a.AC_STOR_TAG_AMT_KOR
-    , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)         AS SALE_QTY
-    , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS) AS SALE_TAG
+    , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)               AS SALE_QTY
+    , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS)       AS SALE_TAG
+    , (a.AC_SALE_NML_SALE_AMT_CNS + a.AC_SALE_RET_SALE_AMT_CNS)     AS SALE_AMT
     , a.STOCK_QTY
     , a.STOCK_TAG_AMT
   FROM FNF.PRCS.DW_SCS_DACUM a
@@ -195,8 +209,9 @@ BASE AS (
     , a.AC_ORD_TAG_AMT_KOR
     , a.AC_STOR_QTY_KOR
     , a.AC_STOR_TAG_AMT_KOR
-    , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)         AS SALE_QTY
-    , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS) AS SALE_TAG
+    , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)               AS SALE_QTY
+    , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS)       AS SALE_TAG
+    , (a.AC_SALE_NML_SALE_AMT_CNS + a.AC_SALE_RET_SALE_AMT_CNS)     AS SALE_AMT
     , a.STOCK_QTY
     , a.STOCK_TAG_AMT
   FROM FNF.PRCS.DW_SCS_DACUM a
@@ -225,6 +240,7 @@ SELECT
   , SUM(AC_STOR_TAG_AMT_KOR) AS AC_STOR_TAG_AMT_KOR
   , SUM(SALE_QTY)            AS SALE_QTY
   , SUM(SALE_TAG)            AS SALE_TAG
+  , SUM(SALE_AMT)            AS SALE_AMT
   , SUM(STOCK_QTY)           AS STOCK_QTY
   , SUM(STOCK_TAG_AMT)       AS STOCK_TAG_AMT
 FROM BASE

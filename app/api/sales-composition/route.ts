@@ -24,15 +24,12 @@ export async function GET(request: Request) {
     // URL 파라미터에서 forceUpdate, month 확인
     const { searchParams } = new URL(request.url);
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
-    const analysisMonth = searchParams.get('month'); // YYYY-MM 형식
+    const analysisMonth = searchParams.get('month'); // YYYY-MM 형식 (쿼리 파라미터로만 사용, 캐시 키에는 사용 안 함)
     
     // 날짜별 캐시 키 생성 (한국 시간 기준)
-    // 분석월이 지정된 경우: 월별 캐시 (과거 데이터는 변하지 않음)
-    // 분석월이 없는 경우: 날짜별 캐시 (매일 업데이트 필요)
+    // 판매율/재고주수 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함하여 매일 업데이트
     const today = getTodayCompact();
-    const cacheKey = analysisMonth 
-      ? `sales-composition-${analysisMonth.replace('-', '')}` 
-      : `sales-composition-${today}`;
+    const cacheKey = `sales-composition-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -230,21 +227,55 @@ dw_agg AS (
             ELSE sh.DIST_TYPE_SAP
         END
 ),
-/* ✅ 현재시즌(YY + 코드)을 dt_to(=어제) 기준으로 계산 */
+/* ✅ 현재시즌 + 차시즌(Next Season) 계산 */
 season_ref AS (
     SELECT
         gubun,
+        /* 현재 시즌 연도(YY): 1~2월은 직전년도 FW를 현재시즌으로 */
         TO_CHAR(
             CASE
-                WHEN MONTH(dt_to) BETWEEN 3 AND 8 THEN dt_to
-                WHEN MONTH(dt_to) BETWEEN 9 AND 12 THEN dt_to
-                ELSE DATEADD(YEAR, -1, dt_to)   -- 1~2월은 직전년도 FW가 현재시즌
+                WHEN MONTH(dt_to) BETWEEN 3 AND 12 THEN dt_to
+                ELSE DATEADD(YEAR, -1, dt_to)
             END
         , 'YY') AS cur_yy,
+        /* 현재 시즌 코드: 3~8월=S, 그 외=F */
         CASE
             WHEN MONTH(dt_to) BETWEEN 3 AND 8 THEN 'S'
             ELSE 'F'
-        END AS cur_code
+        END AS cur_code,
+        /* ✅ 차시즌(Next) 연도(YY)
+           - 현재가 F면 next는 다음해 S
+           - 현재가 S면 next는 같은해 F
+        */
+        CASE
+            WHEN (CASE WHEN MONTH(dt_to) BETWEEN 3 AND 8 THEN 'S' ELSE 'F' END) = 'F'
+                THEN LPAD(
+                        TO_VARCHAR(
+                            MOD(
+                                TO_NUMBER(
+                                    TO_CHAR(
+                                        CASE
+                                            WHEN MONTH(dt_to) BETWEEN 3 AND 12 THEN dt_to
+                                            ELSE DATEADD(YEAR, -1, dt_to)
+                                        END
+                                    , 'YY')
+                                ) + 1
+                            , 100)
+                        )
+                     , 2, '0')
+            ELSE TO_CHAR(
+                    CASE
+                        WHEN MONTH(dt_to) BETWEEN 3 AND 12 THEN dt_to
+                        ELSE DATEADD(YEAR, -1, dt_to)
+                    END
+                , 'YY')
+        END AS next_yy,
+        /* ✅ 차시즌(Next) 코드 */
+        CASE
+            WHEN (CASE WHEN MONTH(dt_to) BETWEEN 3 AND 8 THEN 'S' ELSE 'F' END) = 'F'
+                THEN 'S'
+            ELSE 'F'
+        END AS next_code
     FROM periods
 )
 SELECT
@@ -267,9 +298,9 @@ SELECT
         WHEN '99' THEN '기타'
         ELSE '기타'
     END AS "채널",
-    /* 카테고리 (기존 아이템대분류 로직) */
+    /* ✅ 카테고리 */
     CASE
-        /* 1) ACC면 PRDT_KIND_NM 반환 후 한글 매핑 */
+        /* 1) ACC는 시즌 분류 대상 아님 */
         WHEN b.PARENT_PRDT_KIND_NM = 'ACC' THEN
             CASE b.PRDT_KIND_NM
                 WHEN 'Bag'      THEN '가방'
@@ -278,23 +309,33 @@ SELECT
                 WHEN 'Acc_etc'  THEN '기타ACC'
                 ELSE b.PRDT_KIND_NM
             END
-        /* 2) 그 외: SESN + 현재시즌으로 당시즌/차시즌/과시즌 */
+        /* 2) 의류: 당시즌 / 차시즌 / 과시즌 */
         ELSE
             CASE
-                /* left(SESN,3)에 N 포함 → 연도(YY)만 카운팅 */
+                /* ✅ N 시즌: 현재연도면 당시즌, 미래연도면 차시즌, 과거면 과시즌 */
                 WHEN SUBSTR(d.SESN, 1, 3) LIKE '%N%' THEN
                     CASE
-                        WHEN SUBSTR(d.SESN, 1, 2) = sr.cur_yy THEN '당시즌의류'
+                        WHEN TO_NUMBER(SUBSTR(d.SESN, 1, 2)) = TO_NUMBER(sr.cur_yy) THEN '당시즌의류'
+                        WHEN TO_NUMBER(SUBSTR(d.SESN, 1, 2)) > TO_NUMBER(sr.cur_yy) THEN '차시즌의류'
                         ELSE '과시즌의류'
                     END
-                /* 일반 시즌 */
+                /* ✅ 일반 시즌: (YY + S/F) */
                 ELSE
                     CASE
+                        /* 당시즌: cur_yy + cur_code */
                         WHEN SUBSTR(d.SESN, 1, 2) = sr.cur_yy
                          AND RIGHT(d.SESN, 1) = sr.cur_code
                             THEN '당시즌의류'
-                        WHEN SUBSTR(d.SESN, 1, 2) = sr.cur_yy
+                        /* ✅ 차시즌: (next_yy + next_code) OR (미래연도 yy > cur_yy) */
+                        WHEN (
+                                SUBSTR(d.SESN, 1, 2) = sr.next_yy
+                            AND RIGHT(d.SESN, 1) = sr.next_code
+                             )
+                             OR (
+                                TO_NUMBER(SUBSTR(d.SESN, 1, 2)) > TO_NUMBER(sr.cur_yy)
+                             )
                             THEN '차시즌의류'
+                        /* 그 외: 과시즌 */
                         ELSE '과시즌의류'
                     END
             END
@@ -319,7 +360,9 @@ GROUP BY
     b.PRDT_KIND_NM,
     d.SESN,
     sr.cur_yy,
-    sr.cur_code
+    sr.cur_code,
+    sr.next_yy,
+    sr.next_code
 HAVING (SUM(d.TAG_SALES) + SUM(d.REAL_SALES)) <> 0
 `;
 }

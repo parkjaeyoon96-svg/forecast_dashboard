@@ -15,10 +15,15 @@ interface BrandData {
   brandCode: string;
   brandName: string;
   category: string; // Outer, Bottom, Inner
+  orderQty: number; // 발주수량
   orderTag: number;
   storageTag: number;
   salesTag: number;
+  salesAmt: number; // 실판매출
   salesRate: number;
+  discountRate: number; // 할인율
+  salesYoy: number; // 매출YOY
+  discountRateDiff: number; // 할인율 차이
 }
 
 // 기간별 집계 데이터
@@ -30,10 +35,15 @@ interface PeriodData {
 
 // 합계 데이터
 interface SummaryData {
+  orderQty: number; // 발주수량
   orderTag: number;
   storageTag: number;
   salesTag: number;
+  salesAmt: number; // 실판매출
   salesRate: number;
+  discountRate: number; // 할인율
+  salesYoy: number; // 매출YOY
+  discountRateDiff: number; // 할인율 차이
 }
 
 interface PeriodSummary {
@@ -70,9 +80,9 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
   });
   
   const [summary, setSummary] = useState<PeriodSummary>({
-    cur: { orderTag: 0, storageTag: 0, salesTag: 0, salesRate: 0 },
-    py: { orderTag: 0, storageTag: 0, salesTag: 0, salesRate: 0 },
-    pyEnd: { orderTag: 0, storageTag: 0, salesTag: 0, salesRate: 0 }
+    cur: { orderQty: 0, orderTag: 0, storageTag: 0, salesTag: 0, salesAmt: 0, salesRate: 0, discountRate: 0, salesYoy: 0, discountRateDiff: 0 },
+    py: { orderQty: 0, orderTag: 0, storageTag: 0, salesTag: 0, salesAmt: 0, salesRate: 0, discountRate: 0, salesYoy: 0, discountRateDiff: 0 },
+    pyEnd: { orderQty: 0, orderTag: 0, storageTag: 0, salesTag: 0, salesAmt: 0, salesRate: 0, discountRate: 0, salesYoy: 0, discountRateDiff: 0 }
   });
 
   // 브랜드 코드를 이름으로 변환
@@ -132,7 +142,7 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
           result = globalCacheData;
         } else {
           console.log('[판매율 테이블] API 호출 중...');
-          const response = await fetch('/api/sales-rate');
+          const response = await fetch('/api/sales-rate?forceUpdate=true');
           result = await response.json();
 
           if (!result.success) {
@@ -165,7 +175,7 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
           const brandCategoryMap = new Map<string, {
             brandCode: string;
             brandName: string;
-            categories: Map<string, { orderTag: number; storageTag: number; salesTag: number }>;
+            categories: Map<string, { orderQty: number; orderTag: number; storageTag: number; salesTag: number; salesAmt: number }>;
           }>();
 
           rawDataArray.forEach((row) => {
@@ -187,17 +197,26 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
             // 카테고리가 없으면 초기화
             if (!brandData.categories.has(category)) {
               brandData.categories.set(category, {
+                orderQty: 0,
                 orderTag: 0,
                 storageTag: 0,
-                salesTag: 0
+                salesTag: 0,
+                salesAmt: 0
               });
             }
 
             // 카테고리별 데이터 누적
             const categoryData = brandData.categories.get(category)!;
+            categoryData.orderQty += Number(row.AC_ORD_QTY_KOR || 0);
             categoryData.orderTag += Number(row.AC_ORD_TAG_AMT_KOR || 0);
             categoryData.storageTag += Number(row.AC_STOR_TAG_AMT_KOR || 0);
             categoryData.salesTag += Number(row.SALE_TAG || 0);
+            categoryData.salesAmt += Number(row.SALE_AMT || 0);
+            
+            // 디버깅: SALE_AMT가 없는 경우 로그 출력
+            if (!row.SALE_AMT && row.SALE_AMT !== 0) {
+              console.warn('[판매율 테이블] SALE_AMT 필드가 없습니다:', row);
+            }
           });
 
           // 2단계: 브랜드-카테고리 조합으로 BrandData 배열 생성
@@ -208,15 +227,24 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               const salesRate = categoryData.storageTag > 0 
                 ? (categoryData.salesTag / categoryData.storageTag) * 100 
                 : 0;
+              
+              const discountRate = categoryData.salesAmt > 0
+                ? (1 - categoryData.salesTag / categoryData.salesAmt) * 100
+                : 0;
 
               result.push({
                 brandCode: brandData.brandCode,
                 brandName: brandData.brandName,
                 category,
+                orderQty: categoryData.orderQty,
                 orderTag: categoryData.orderTag,
                 storageTag: categoryData.storageTag,
                 salesTag: categoryData.salesTag,
-                salesRate
+                salesAmt: categoryData.salesAmt,
+                salesRate,
+                discountRate,
+                salesYoy: 0, // 전년 데이터와 비교하여 계산
+                discountRateDiff: 0 // 전년 데이터와 비교하여 계산
               });
             });
           });
@@ -262,23 +290,33 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               brandCode: item.brandCode,
               brandName: item.brandName,
               category: '전체',
+              orderQty: 0,
               orderTag: 0,
               storageTag: 0,
               salesTag: 0,
-              salesRate: 0
+              salesAmt: 0,
+              salesRate: 0,
+              discountRate: 0,
+              salesYoy: 0,
+              discountRateDiff: 0
             });
           }
           
           const brand = brandMap.get(item.brandCode)!;
+          brand.orderQty += item.orderQty;
           brand.orderTag += item.orderTag;
           brand.storageTag += item.storageTag;
           brand.salesTag += item.salesTag;
+          brand.salesAmt += item.salesAmt;
         });
         
-        // 판매율 재계산
+        // 판매율 및 할인율 재계산
         brandMap.forEach(brand => {
           brand.salesRate = brand.storageTag > 0 
             ? (brand.salesTag / brand.storageTag) * 100 
+            : 0;
+          brand.discountRate = brand.salesAmt > 0
+            ? (1 - brand.salesTag / brand.salesAmt) * 100
             : 0;
         });
         
@@ -294,18 +332,30 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
     const calculateSummary = (data: BrandData[]): SummaryData => {
       const totals = data.reduce(
         (acc, item) => ({
+          orderQty: acc.orderQty + item.orderQty,
           orderTag: acc.orderTag + item.orderTag,
           storageTag: acc.storageTag + item.storageTag,
-          salesTag: acc.salesTag + item.salesTag
+          salesTag: acc.salesTag + item.salesTag,
+          salesAmt: acc.salesAmt + item.salesAmt
         }),
-        { orderTag: 0, storageTag: 0, salesTag: 0 }
+        { orderQty: 0, orderTag: 0, storageTag: 0, salesTag: 0, salesAmt: 0 }
       );
 
       const salesRate = totals.storageTag > 0 
         ? (totals.salesTag / totals.storageTag) * 100 
         : 0;
+      
+      const discountRate = totals.salesAmt > 0
+        ? (1 - totals.salesTag / totals.salesAmt) * 100
+        : 0;
 
-      return { ...totals, salesRate };
+      return { 
+        ...totals, 
+        salesRate, 
+        discountRate,
+        salesYoy: 0, // 전년 데이터와 비교하여 계산
+        discountRateDiff: 0 // 전년 데이터와 비교하여 계산
+      };
     };
 
     const filtered = {
@@ -314,10 +364,36 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
       pyEnd: filterByCategory(rawData.pyEnd)
     };
 
+    // 매출YOY 및 할인율 차이 계산
+    const curSummary = calculateSummary(filtered.cur);
+    const pySummary = calculateSummary(filtered.py);
+    
+    // 매출YOY = 당년 SALE_AMT / 전년 SALE_AMT
+    const salesYoy = pySummary.salesAmt > 0 
+      ? (curSummary.salesAmt / pySummary.salesAmt) * 100 
+      : 0;
+    
+    // 할인율 차이 = 당년할인율 - 전년할인율
+    const discountRateDiff = curSummary.discountRate - pySummary.discountRate;
+    
+    curSummary.salesYoy = salesYoy;
+    curSummary.discountRateDiff = discountRateDiff;
+
+    // 브랜드별 데이터에도 YOY 및 차이 계산
+    filtered.cur.forEach(curItem => {
+      const pyItem = filtered.py.find(p => p.brandCode === curItem.brandCode);
+      if (pyItem) {
+        curItem.salesYoy = pyItem.salesAmt > 0 
+          ? (curItem.salesAmt / pyItem.salesAmt) * 100 
+          : 0;
+        curItem.discountRateDiff = curItem.discountRate - pyItem.discountRate;
+      }
+    });
+
     setFilteredData(filtered);
     setSummary({
-      cur: calculateSummary(filtered.cur),
-      py: calculateSummary(filtered.py),
+      cur: curSummary,
+      py: pySummary,
       pyEnd: calculateSummary(filtered.pyEnd)
     });
   }, [selectedCategory, rawData]);
@@ -338,9 +414,28 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
     return (amount / 100000000).toFixed(1);
   };
 
+  // 수량 포맷팅 (천 단위)
+  const formatQuantity = (qty: number): string => {
+    if (qty >= 1000) {
+      return (qty / 1000).toFixed(1) + 'K';
+    }
+    return qty.toFixed(0);
+  };
+
   // 퍼센트 포맷팅
   const formatPercent = (value: number): string => {
     return value.toFixed(1) + '%';
+  };
+  
+  // YOY 포맷팅 (퍼센트 포인트)
+  const formatYoy = (value: number): string => {
+    return value.toFixed(1) + '%';
+  };
+  
+  // 차이 포맷팅 (퍼센트 포인트)
+  const formatDiff = (value: number): string => {
+    const sign = value >= 0 ? '+' : '';
+    return sign + value.toFixed(2) + '%p';
   };
 
   if (loading) {
@@ -413,7 +508,7 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700" rowSpan={2}>
                 브랜드
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300" colSpan={4}>
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300" colSpan={9}>
                 당년 ({formatDate(periodInfo.curDate)})
               </th>
               <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300" colSpan={4}>
@@ -422,13 +517,21 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300" colSpan={4}>
                 전년마감 ({formatDate(periodInfo.pyEndDate)})
               </th>
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-l border-gray-300" colSpan={3}>
+                비교
+              </th>
             </tr>
             <tr className="bg-gray-50 border-b border-gray-200">
               {/* 당년 */}
-              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600 border-l border-gray-300">발주(억)</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600 border-l border-gray-300">발주수량</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">발주(억)</th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">입고(억)</th>
-              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">판매(억)</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">판매TAG(억)</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">판매실(억)</th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">판매율</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">할인율</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">매출YOY</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">차이</th>
               {/* 전년 */}
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600 border-l border-gray-300">발주(억)</th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">입고(억)</th>
@@ -439,6 +542,10 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">입고(억)</th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">판매(억)</th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">판매율</th>
+              {/* 비교 */}
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600 border-l border-gray-300">할인율(전년)</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">매출YOY</th>
+              <th className="px-4 py-2 text-center text-xs font-medium text-gray-600">차이</th>
             </tr>
           </thead>
           <tbody>
@@ -447,6 +554,9 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               <td className="px-4 py-3 text-sm text-gray-800">합계</td>
               {/* 당년 합계 */}
               <td className="px-4 py-3 text-sm text-right text-gray-800 border-l border-gray-300">
+                {formatQuantity(summary.cur.orderQty)}
+              </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
                 {formatAmount(summary.cur.orderTag)}
               </td>
               <td className="px-4 py-3 text-sm text-right text-gray-800">
@@ -455,8 +565,20 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               <td className="px-4 py-3 text-sm text-right text-gray-800">
                 {formatAmount(summary.cur.salesTag)}
               </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
+                {formatAmount(summary.cur.salesAmt)}
+              </td>
               <td className="px-4 py-3 text-sm text-right text-blue-600">
                 {formatPercent(summary.cur.salesRate)}
+              </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
+                {formatPercent(summary.cur.discountRate)}
+              </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
+                {summary.cur.salesYoy > 0 ? formatYoy(summary.cur.salesYoy) : '-'}
+              </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
+                {formatDiff(summary.cur.discountRateDiff)}
               </td>
               {/* 전년 합계 */}
               <td className="px-4 py-3 text-sm text-right text-gray-800 border-l border-gray-300">
@@ -484,15 +606,25 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
               <td className="px-4 py-3 text-sm text-right text-blue-600">
                 {formatPercent(summary.pyEnd.salesRate)}
               </td>
+              {/* 비교 */}
+              <td className="px-4 py-3 text-sm text-right text-gray-800 border-l border-gray-300">
+                {formatPercent(summary.py.discountRate)}
+              </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
+                {summary.cur.salesYoy > 0 ? formatYoy(summary.cur.salesYoy) : '-'}
+              </td>
+              <td className="px-4 py-3 text-sm text-right text-gray-800">
+                {formatDiff(summary.cur.discountRateDiff)}
+              </td>
             </tr>
 
             {/* 브랜드별 데이터 */}
             {filteredData.cur.map((curItem) => {
               const pyItem = filteredData.py.find(p => p.brandCode === curItem.brandCode) || {
-                orderTag: 0, storageTag: 0, salesTag: 0, salesRate: 0
+                orderQty: 0, orderTag: 0, storageTag: 0, salesTag: 0, salesAmt: 0, salesRate: 0, discountRate: 0, salesYoy: 0, discountRateDiff: 0
               };
               const pyEndItem = filteredData.pyEnd.find(p => p.brandCode === curItem.brandCode) || {
-                orderTag: 0, storageTag: 0, salesTag: 0, salesRate: 0
+                orderQty: 0, orderTag: 0, storageTag: 0, salesTag: 0, salesAmt: 0, salesRate: 0, discountRate: 0, salesYoy: 0, discountRateDiff: 0
               };
 
               return (
@@ -502,6 +634,9 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
                   </td>
                   {/* 당년 */}
                   <td className="px-4 py-3 text-sm text-right text-gray-700 border-l border-gray-300">
+                    {formatQuantity(curItem.orderQty)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
                     {formatAmount(curItem.orderTag)}
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-gray-700">
@@ -510,8 +645,20 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
                   <td className="px-4 py-3 text-sm text-right text-gray-700">
                     {formatAmount(curItem.salesTag)}
                   </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
+                    {formatAmount(curItem.salesAmt)}
+                  </td>
                   <td className="px-4 py-3 text-sm text-right text-blue-600 font-medium">
                     {formatPercent(curItem.salesRate)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
+                    {formatPercent(curItem.discountRate)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
+                    {curItem.salesYoy > 0 ? formatYoy(curItem.salesYoy) : '-'}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
+                    {formatDiff(curItem.discountRateDiff)}
                   </td>
                   {/* 전년 */}
                   <td className="px-4 py-3 text-sm text-right text-gray-700 border-l border-gray-300">
@@ -538,6 +685,16 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-blue-600 font-medium">
                     {formatPercent(pyEndItem.salesRate)}
+                  </td>
+                  {/* 비교 */}
+                  <td className="px-4 py-3 text-sm text-right text-gray-700 border-l border-gray-300">
+                    {formatPercent(pyItem.discountRate)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
+                    {curItem.salesYoy > 0 ? formatYoy(curItem.salesYoy) : '-'}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-700">
+                    {formatDiff(curItem.discountRateDiff)}
                   </td>
                 </tr>
               );
