@@ -5257,16 +5257,20 @@
           <th rowspan="2">카테고리</th>
           <th rowspan="2">아이템코드</th>
           <th rowspan="2">아이템명</th>
+          <th colspan="2">발주수량</th>
           <th colspan="2">발주금액(TAG)</th>
           <th colspan="2">주간판매매출(TAG)</th>
-          <th colspan="2">누적판매매출(TAG)</th>
+          <th colspan="3">누적판매매출</th>
           <th colspan="3">누적판매율</th>
+          <th colspan="2">할인율</th>
         </tr>
         <tr>
+          <th>당년</th><th>전년비</th>
           <th>당년(백만)</th><th>전년비</th>
           <th>당년(백만)</th><th>전년비</th>
-          <th>당년(백만)</th><th>전년비</th>
+          <th>당년TAG(백만)</th><th>당년실(백만)</th><th>전년비</th>
           <th>당년(%)</th><th>차이</th><th>전년마감</th>
+          <th>당년(%)</th><th>차이</th>
         </tr>`;
       // 재고주수 설명 숨김
       const noteEl = document.getElementById('inventoryTableNote');
@@ -5481,14 +5485,26 @@
           return '+0.0%p';
         };
         const diffText = calculateDiffText(r);
+        // 발주수량
+        const orderQty = (r.orderQty==null)?'-':r.orderQty.toLocaleString('ko-KR');
+        const orderQtyYoy = (r.orderQtyYoy==null)?'-':`${r.orderQtyYoy}%`;
+        // 발주금액
         const poNow = (r.poNow==null)?'-':r.poNow.toLocaleString('ko-KR');
         const poYoy = (r.poYoy==null)?'-':`${r.poYoy}%`;
+        // 주간판매
         const yoyW = (r.yoyWeekly==null)?'-':`${r.yoyWeekly}%`;
-        const yoyC = (r.yoyCum==null)?'-':`${r.yoyCum}%`;
         const weekly = (r.weekly==null)?'-':r.weekly.toLocaleString('ko-KR');
+        // 누적판매
         const cum = (r.cum==null)?'-':r.cum.toLocaleString('ko-KR');
+        const cumReal = (r.cumReal==null)?'-':(r.cumReal/1000000).toFixed(1); // 실판매출 (백만원 단위)
+        const yoyC = (r.yoyCum==null)?'-':`${r.yoyCum}%`;
+        const salesYoy = (r.salesYoy==null || r.salesYoy===0)?'-':`${r.salesYoy.toFixed(1)}%`;
+        // 판매율
         const rateNow = percent(r.rateNow);
         const closingRate = (r.closingRate != null && !isNaN(r.closingRate)) ? percent(r.closingRate) : '-';
+        // 할인율
+        const discountRate = (r.discountRate==null || isNaN(r.discountRate))?'-':percent(r.discountRate);
+        const discountRateDiff = (r.discountRateDiff==null || isNaN(r.discountRateDiff))?'-':`${r.discountRateDiff>=0?'+':''}${r.discountRateDiff.toFixed(2)}%p`;
         const rowStyle = isAlert(r) ? 'background:#fff7ed;' : '';
         const diffStyle = 'font-weight:600;';
         const warn = isAlert(r) ? '⚠️ ' : '';
@@ -5501,15 +5517,20 @@
             <td>${warn}${r.category}</td>
             <td>${r.code}</td>
             <td>${r.name}</td>
+            <td>${orderQty}</td>
+            <td>${orderQtyYoy}</td>
             <td>${poNow}</td>
             <td style="${stPoY}">${poYoy}</td>
             <td>${weekly}</td>
             <td style="${stYW}">${yoyW}</td>
             <td>${cum}</td>
-            <td style="${stYC}">${yoyC}</td>
+            <td>${cumReal}</td>
+            <td>${salesYoy}</td>
             <td style="${stRateNow}">${rateNow}</td>
             <td style="${diffStyle}">${diffText}</td>
             <td>${closingRate}</td>
+            <td>${discountRate}</td>
+            <td>${discountRateDiff}</td>
           </tr>`;
       }).join('');
     }

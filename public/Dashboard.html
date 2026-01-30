@@ -1362,13 +1362,202 @@
                 <div><strong>판매율:</strong> 누적판매TAG매출/누적입고TAG금액</div>
               </div>
               
-              <!-- 카테고리 필터 버튼 -->
-              <div id="sales-rate-filters" style="padding:10px 0;display:flex;gap:8px;">
-                <button class="sales-rate-filter-btn active" data-category="전체" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">전체</button>
-                <button class="sales-rate-filter-btn" data-category="Outer" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Outer</button>
-                <button class="sales-rate-filter-btn" data-category="Inner" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Inner</button>
-                <button class="sales-rate-filter-btn" data-category="Bottom" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Bottom</button>
-                <button class="sales-rate-filter-btn" data-category="Acc_etc" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Acc_etc</button>
+              <!-- 카테고리 및 필드 필터 버튼 -->
+              <div style="padding:10px 0;display:flex;gap:8px;align-items:center;position:relative;">
+                <div id="sales-rate-filters" style="display:flex;gap:8px;">
+                  <button class="sales-rate-filter-btn active" data-category="전체" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">전체</button>
+                  <button class="sales-rate-filter-btn" data-category="Outer" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Outer</button>
+                  <button class="sales-rate-filter-btn" data-category="Inner" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Inner</button>
+                  <button class="sales-rate-filter-btn" data-category="Bottom" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Bottom</button>
+                  <button class="sales-rate-filter-btn" data-category="Acc_etc" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Acc_etc</button>
+                </div>
+                
+                <!-- 필드 선택 버튼 -->
+                <button id="field-filter-btn" onclick="toggleFieldFilter()" 
+                  style="padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">
+                  📋 필드 선택
+                </button>
+                
+                <!-- 필드 필터 드롭다운 패널 -->
+                <div id="field-filter-panel" style="display:none;position:absolute;top:45px;right:0;z-index:100;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:16px;min-width:280px;max-height:500px;overflow-y:auto;">
+                  
+                  <!-- 기본필드만 표시 옵션 -->
+                  <div style="padding-bottom:12px;border-bottom:2px solid #e5e7eb;margin-bottom:12px;">
+                    <button onclick="showOnlyRequired()" 
+                      style="width:100%;padding:10px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;">
+                      ⚡ 기본필드만 표시
+                    </button>
+                    <div style="margin-top:8px;font-size:11px;color:#6b7280;text-align:center;">
+                      필수 필드만 빠르게 선택합니다
+                    </div>
+                  </div>
+                  
+                  <!-- 발주 필드 -->
+                  <div style="margin-bottom:16px;">
+                    <div style="font-weight:600;margin-bottom:8px;color:#1f2937;font-size:14px;">발주</div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curOrdQty" class="field-checkbox required-field" checked>
+                      발주수량(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyOrdQty" class="field-checkbox">
+                      발주수량(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="ordQtyYoy" class="field-checkbox">
+                      발주수량YOY
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curOrd" class="field-checkbox required-field" checked>
+                      발주TAG(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyOrd" class="field-checkbox">
+                      발주TAG(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="ordYoy" class="field-checkbox required-field" checked>
+                      발주TAG(YOY) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                  </div>
+                  
+                  <!-- 입고 필드 -->
+                  <div style="margin-bottom:16px;">
+                    <div style="font-weight:600;margin-bottom:8px;color:#1f2937;font-size:14px;">입고</div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curStorQty" class="field-checkbox">
+                      입고수량(당년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyStorQty" class="field-checkbox">
+                      입고수량(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="storQtyYoy" class="field-checkbox">
+                      입고수량YOY
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curStor" class="field-checkbox">
+                      입고TAG(당년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyStor" class="field-checkbox">
+                      입고TAG(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="storYoy" class="field-checkbox">
+                      입고TAG(YOY)
+                    </label>
+                  </div>
+                  
+                  <!-- 판매 필드 -->
+                  <div style="margin-bottom:16px;">
+                    <div style="font-weight:600;margin-bottom:8px;color:#1f2937;font-size:14px;">판매</div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curSaleQty" class="field-checkbox">
+                      누적판매수량(당년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pySaleQty" class="field-checkbox">
+                      누적판매수량(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="saleQtyYoy" class="field-checkbox">
+                      누적판매수량YOY
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curSale" class="field-checkbox required-field" checked>
+                      누적TAG매출(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pySale" class="field-checkbox">
+                      누적TAG매출(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="saleYoy" class="field-checkbox">
+                      누적TAG매출(YOY)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curSaleAmt" class="field-checkbox required-field" checked>
+                      누적실판매출(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pySaleAmt" class="field-checkbox">
+                      누적실판매출(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="saleAmtYoy" class="field-checkbox required-field" checked>
+                      누적실판매출YOY <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curDiscountRate" class="field-checkbox required-field" checked>
+                      할인율(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyDiscountRate" class="field-checkbox required-field" checked>
+                      할인율(전년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="discountRateDiff" class="field-checkbox required-field" checked>
+                      할인율(차이) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curRate" class="field-checkbox required-field" checked>
+                      판매율(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyRate" class="field-checkbox required-field" checked>
+                      판매율(전년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="rateDiff" class="field-checkbox required-field" checked>
+                      판매율차이 <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyEndRate" class="field-checkbox required-field" checked>
+                      전년마감판매율 <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                  </div>
+                  
+                  <!-- 재고 필드 -->
+                  <div style="margin-bottom:16px;">
+                    <div style="font-weight:600;margin-bottom:8px;color:#1f2937;font-size:14px;">재고</div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curStockQty" class="field-checkbox">
+                      재고수량(당년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyStockQty" class="field-checkbox">
+                      재고수량(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="stockQtyYoy" class="field-checkbox">
+                      재고수량YOY
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="curStock" class="field-checkbox required-field" checked>
+                      재고TAG(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="pyStock" class="field-checkbox">
+                      재고TAG(전년)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
+                      <input type="checkbox" data-field="stockYoy" class="field-checkbox required-field" checked>
+                      재고TAG(YOY) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                    </label>
+                  </div>
+                  
+                  <!-- 버튼 -->
+                  <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid #e5e7eb;">
+                    <button onclick="applyFieldFilter()" style="flex:1;padding:8px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+                      적용
+                    </button>
+                    <button onclick="closeFieldFilter()" style="flex:1;padding:8px;background:#e5e7eb;color:#1f2937;border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+                      닫기
+                    </button>
+                  </div>
+                </div>
               </div>
               
               <div id="sales-rate-loading" style="display:none;text-align:center;padding:40px;">
@@ -1379,31 +1568,55 @@
                 <p>⚠️ 판매율 데이터를 불러올 수 없습니다.</p>
                 <button onclick="loadSalesRateData()" style="margin-top:10px;padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;">다시 시도</button>
               </div>
-              <div id="sales-rate-table-wrapper" style="overflow-x:auto;margin-top:10px;">
+              
+              <!-- 상단 스크롤바 -->
+              <div id="sales-rate-top-scroll" style="overflow-x:auto;overflow-y:hidden;margin-top:10px;border:1px solid #e5e7eb;border-radius:4px;">
+                <div id="sales-rate-top-scroll-content" style="height:1px;"></div>
+              </div>
+              
+              <div id="sales-rate-table-wrapper" style="overflow-x:auto;margin-top:5px;">
                 <table id="sales-rate-table" class="pl-table" style="width:100%;min-width:1400px;border-collapse:collapse;">
-                  <thead>
-                    <tr style="background:#f8fafc;border-bottom:2px solid #cbd5e1;">
-                      <th style="position:sticky;left:0;z-index:20;background:#f8fafc;padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">카테고리</th>
-                      <th style="position:sticky;left:80px;z-index:20;background:#f8fafc;padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">아이템코드</th>
-                      <th style="position:sticky;left:180px;z-index:20;background:#f8fafc;padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;border-right:2px solid #cbd5e1;">아이템명</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;border-right:2px solid #cbd5e1;">아이템비중</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">당년누적TAG매출</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">매출YOY</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">당년판매율</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">전년판매율</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">차이</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;border-right:2px solid #cbd5e1;">전년마감판매율</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">당년발주TAG</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">발주YOY</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">당년누적입고TAG</th>
-                      <th style="padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;">입고YOY</th>
-                    </tr>
+                  <thead id="sales-rate-thead">
+                    <!-- JavaScript로 동적 생성 -->
                   </thead>
                   <tbody id="sales-rate-tbody">
                     <!-- JavaScript로 동적 생성 -->
                   </tbody>
                 </table>
               </div>
+              
+              <script>
+                // 판매율 테이블 스크롤 동기화
+                function syncSalesRateScroll() {
+                  const topScroll = document.getElementById('sales-rate-top-scroll');
+                  const tableWrapper = document.getElementById('sales-rate-table-wrapper');
+                  const topScrollContent = document.getElementById('sales-rate-top-scroll-content');
+                  const table = document.getElementById('sales-rate-table');
+                  
+                  if (!topScroll || !tableWrapper || !topScrollContent || !table) return;
+                  
+                  // 상단 스크롤바의 너비를 테이블 너비와 동일하게 설정
+                  topScrollContent.style.width = table.scrollWidth + 'px';
+                  
+                  // 상단 스크롤 -> 테이블 스크롤 동기화
+                  topScroll.addEventListener('scroll', function() {
+                    if (!topScroll.isSyncing) {
+                      tableWrapper.isSyncing = true;
+                      tableWrapper.scrollLeft = topScroll.scrollLeft;
+                      tableWrapper.isSyncing = false;
+                    }
+                  });
+                  
+                  // 테이블 스크롤 -> 상단 스크롤 동기화
+                  tableWrapper.addEventListener('scroll', function() {
+                    if (!tableWrapper.isSyncing) {
+                      topScroll.isSyncing = true;
+                      topScroll.scrollLeft = tableWrapper.scrollLeft;
+                      topScroll.isSyncing = false;
+                    }
+                  });
+                }
+              </script>
               </div>
               <!-- /판매율 분석 콘텐츠 -->
               
@@ -1690,7 +1903,7 @@
         <!-- 3. 프로모션 내용 -->
         <div style="background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
           <h5 style="color:#1f2937;font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e5e7eb;">
-            🎯 3. 프로모션 내용
+            🎯 3. 가격조정 품의
           </h5>
           
           <div id="sidebar-promotion-content" style="background:#f8fafc;border-radius:8px;padding:16px;min-height:150px;">
@@ -2326,6 +2539,12 @@
                   console.error('[데이터로드] loadSalesCompositionData 함수가 정의되지 않음');
                 }
               });
+              
+              // 판매율 필터 상태 초기화
+              if (typeof loadFieldFilterState === 'function') {
+                const filterState = loadFieldFilterState();
+                console.log('[필터] 초기 필터 상태 로드:', filterState);
+              }
               
               // dataLoaded 이벤트 발생
               console.log('[Dashboard] 데이터 로드 완료, dataLoaded 이벤트 발생');
@@ -13959,6 +14178,11 @@
       html += '</tr>';
       
       tbody.innerHTML = html;
+      
+      // 스크롤 동기화 초기화
+      setTimeout(() => {
+        syncSalesRateScroll();
+      }, 100);
     }
 
     // ===================== 판매율 분석 기능 =====================
@@ -14192,6 +14416,368 @@
       return 'ETC';
     }
     
+    // 필터 상태 불러오기 (초기값: 필수 필드만, alwaysVisible 제외)
+    function loadFieldFilterState() {
+      const saved = localStorage.getItem('salesRateFieldFilter');
+      if (saved) {
+        return JSON.parse(saved);
+      } else {
+        // 초기값: 필수 필드만 선택 (alwaysVisible 제외)
+        const requiredFields = SALES_RATE_FIELD_ORDER
+          .filter(f => f.required && !f.alwaysVisible)
+          .map(f => f.id);
+        return { selected: requiredFields };
+      }
+    }
+    
+    // 필터 상태 저장
+    function saveFieldFilterState(state) {
+      localStorage.setItem('salesRateFieldFilter', JSON.stringify(state));
+    }
+    
+    // 표시할 필드 목록 가져오기
+    function getVisibleFields() {
+      const state = loadFieldFilterState();
+      
+      // alwaysVisible 필드 + 선택된 필드 반환 (순서 유지)
+      return SALES_RATE_FIELD_ORDER.filter(f => 
+        f.alwaysVisible || state.selected.includes(f.id)
+      );
+    }
+    
+    // 선택된 모든 필드 가져오기
+    function getSelectedFields() {
+      const checkboxes = document.querySelectorAll('.field-checkbox:checked');
+      return Array.from(checkboxes).map(cb => cb.dataset.field);
+    }
+    
+    // 필터 패널 토글
+    function toggleFieldFilter() {
+      const panel = document.getElementById('field-filter-panel');
+      if (panel.style.display === 'none' || !panel.style.display) {
+        panel.style.display = 'block';
+        // 현재 상태 복원
+        restoreFilterState();
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+    
+    function closeFieldFilter() {
+      document.getElementById('field-filter-panel').style.display = 'none';
+    }
+    
+    // 기본필드만 표시 (필수 필드만 체크, alwaysVisible 제외)
+    function showOnlyRequired() {
+      // 모든 체크박스 해제
+      const allCheckboxes = document.querySelectorAll('.field-checkbox');
+      allCheckboxes.forEach(cb => cb.checked = false);
+      
+      // 필수 필드만 체크 (alwaysVisible은 체크박스가 없으므로 자동 제외됨)
+      const requiredCheckboxes = document.querySelectorAll('.field-checkbox.required-field');
+      requiredCheckboxes.forEach(cb => cb.checked = true);
+    }
+    
+    // 필터 상태 복원
+    function restoreFilterState() {
+      const state = loadFieldFilterState();
+      
+      // 모든 체크박스 상태 복원
+      const allCheckboxes = document.querySelectorAll('.field-checkbox');
+      allCheckboxes.forEach(cb => {
+        cb.checked = state.selected.includes(cb.dataset.field);
+      });
+    }
+    
+    // 필터 적용
+    function applyFieldFilter() {
+      const selected = getSelectedFields();
+      
+      saveFieldFilterState({ selected });
+      renderSalesRateTable();
+      closeFieldFilter();
+    }
+    
+    // 필드 값 계산 함수
+    function calculateFieldValue(item, fieldId) {
+      switch(fieldId) {
+        case 'category': return item.prdtKind;
+        case 'itemCode': return item.itemCode;
+        case 'itemName': return item.itemName;
+        case 'itemWeight': return item.weight || 0;
+        
+        // 판매
+        case 'curSaleQty': return item.curSaleQty || 0;
+        case 'pySaleQty': return item.pySaleQty || 0;
+        case 'saleQtyYoy': 
+          return item.pySaleQty > 0 ? Math.round((item.curSaleQty / item.pySaleQty) * 100) : 0;
+        case 'curSale': return item.curSale || 0;
+        case 'pySale': return item.pySale || 0;
+        case 'saleYoy': 
+          return item.pySale > 0 ? Math.round((item.curSale / item.pySale) * 100) : 0;
+        case 'curSaleAmt': return item.curSaleAmt || 0;
+        case 'pySaleAmt': return item.pySaleAmt || 0;
+        case 'saleAmtYoy': 
+          return item.pySaleAmt > 0 ? Math.round((item.curSaleAmt / item.pySaleAmt) * 100) : 0;
+        
+        // 할인율 계산: 1 - (실판매출 / TAG매출)
+        // SALE_AMT가 0이면 할인율을 0으로 표시 (데이터 없음)
+        case 'curDiscountRate': 
+          return item.curSale > 0 ? (1 - (item.curSaleAmt / item.curSale)) * 100 : 0;
+        case 'pyDiscountRate': 
+          return item.pySale > 0 ? (1 - (item.pySaleAmt / item.pySale)) * 100 : 0;
+        case 'discountRateDiff': {
+          const curDiscount = item.curSale > 0 ? (1 - (item.curSaleAmt / item.curSale)) * 100 : 0;
+          const pyDiscount = item.pySale > 0 ? (1 - (item.pySaleAmt / item.pySale)) * 100 : 0;
+          return curDiscount - pyDiscount;
+        }
+        
+        // 판매율
+        case 'curRate': return item.curStor > 0 ? ((item.curSale / item.curStor) * 100) : 0;
+        case 'pyRate': return item.pyStor > 0 ? ((item.pySale / item.pyStor) * 100) : 0;
+        case 'rateDiff': {
+          const curRate = item.curStor > 0 ? ((item.curSale / item.curStor) * 100) : 0;
+          const pyRate = item.pyStor > 0 ? ((item.pySale / item.pyStor) * 100) : 0;
+          return curRate - pyRate;
+        }
+        case 'pyEndRate': 
+          return item.pyEndStor > 0 ? ((item.pyEndSale / item.pyEndStor) * 100) : 0;
+        
+        // 발주
+        case 'curOrdQty': return item.curOrdQty || 0;
+        case 'pyOrdQty': return item.pyOrdQty || 0;
+        case 'ordQtyYoy': 
+          return item.pyOrdQty > 0 ? Math.round((item.curOrdQty / item.pyOrdQty) * 100) : 0;
+        case 'curOrd': return item.curOrd || 0;
+        case 'pyOrd': return item.pyOrd || 0;
+        case 'ordYoy': 
+          return item.pyOrd > 0 ? Math.round((item.curOrd / item.pyOrd) * 100) : 0;
+        
+        // 입고
+        case 'curStorQty': return item.curStorQty || 0;
+        case 'pyStorQty': return item.pyStorQty || 0;
+        case 'storQtyYoy': 
+          return item.pyStorQty > 0 ? Math.round((item.curStorQty / item.pyStorQty) * 100) : 0;
+        case 'curStor': return item.curStor || 0;
+        case 'pyStor': return item.pyStor || 0;
+        case 'storYoy': 
+          return item.pyStor > 0 ? Math.round((item.curStor / item.pyStor) * 100) : 0;
+        
+        // 재고
+        case 'curStockQty': return item.curStockQty || 0;
+        case 'pyStockQty': return item.pyStockQty || 0;
+        case 'stockQtyYoy': 
+          return item.pyStockQty > 0 ? Math.round((item.curStockQty / item.pyStockQty) * 100) : 0;
+        case 'curStock': return item.curStock || 0;
+        case 'pyStock': return item.pyStock || 0;
+        case 'stockYoy': 
+          return item.pyStock > 0 ? Math.round((item.curStock / item.pyStock) * 100) : 0;
+        
+        default: return '-';
+      }
+    }
+    
+    // 필드 값 포맷팅 함수
+    function formatFieldValue(value, format) {
+      if (value === '-') return value;
+      
+      switch(format) {
+        case 'million': return Math.round(value / 1000000).toLocaleString();
+        case 'percent': return value + '%';
+        case 'decimal': return value.toFixed(1) + '%';
+        case 'decimalDiff': return (value >= 0 ? '+' : '') + value.toFixed(1) + '%p';
+        default: return typeof value === 'number' ? value.toLocaleString() : value;
+      }
+    }
+    
+    // 테이블 헤더 동적 생성 함수
+    function generateSalesRateTableHeader() {
+      const visibleFields = getVisibleFields();
+      let html = '<tr style="background:#f8fafc;border-bottom:2px solid #cbd5e1;">';
+      
+      visibleFields.forEach(field => {
+        let stickyStyle = '';
+        let widthStyle = field.width ? `width:${field.width};min-width:${field.width};` : '';
+        let bgColor = '#f8fafc'; // 기본 헤더 배경색
+        
+        // 판매율(당년) 필드는 옅은 노란색 배경
+        if (field.id === 'curRate') {
+          bgColor = '#fef9c3'; // 옅은 노란색
+        }
+        
+        if (field.sticky) {
+          stickyStyle = `position:sticky;left:${field.stickyLeft};z-index:20;background:${bgColor};`;
+        } else {
+          stickyStyle = `background:${bgColor};`;
+        }
+        
+        const borderRight = field.id === 'itemWeight' ? 'border-right:2px solid #cbd5e1;' : '';
+        
+        html += `<th style="${stickyStyle}${widthStyle}padding:12px 8px;text-align:center;font-size:12px;color:#475569;font-weight:600;${borderRight}">${field.label}</th>`;
+      });
+      
+      html += '</tr>';
+      return html;
+    }
+    
+    // 합계 행 생성 함수
+    function generateTotalRow(item, visibleFields, isGrandTotal = false) {
+      const bgColor = isGrandTotal ? '#e0e7ff' : '#f1f5f9';
+      const borderColor = isGrandTotal ? '#818cf8' : '#cbd5e1';
+      const borderWidth = isGrandTotal ? '3px' : '2px';
+      const fontWeight = isGrandTotal ? '700' : '600';
+      
+      // 아이템 비중 계산
+      item.weight = 0; // 합계 행은 비중 표시 안함
+      
+      let html = `<tr style="background:${bgColor};font-weight:${fontWeight};border-bottom:${borderWidth} solid ${borderColor};">`;
+      
+      visibleFields.forEach(field => {
+        let stickyStyle = '';
+        let widthStyle = field.width ? `width:${field.width};min-width:${field.width};` : '';
+        let cellBgColor = bgColor;
+        
+        // 판매율(당년) 필드는 옅은 노란색 배경
+        if (field.id === 'curRate') {
+          cellBgColor = '#fef9c3';
+        }
+        
+        if (field.sticky) {
+          stickyStyle = `position:sticky;left:${field.stickyLeft};z-index:20;background:${cellBgColor};`;
+        } else {
+          stickyStyle = `background:${cellBgColor};`;
+        }
+        
+        const borderRight = field.id === 'itemWeight' ? `border-right:2px solid ${borderColor};` : '';
+        const borderBottom = `border-bottom:${borderWidth} solid ${borderColor};`;
+        
+        let value = calculateFieldValue(item, field.id);
+        let formattedValue = formatFieldValue(value, field.format);
+        
+        // 텍스트 정렬
+        let textAlign = 'right';
+        if (field.id === 'category' || field.id === 'itemCode' || field.id === 'itemName') {
+          textAlign = 'left';
+        } else if (field.format === 'percent' || field.format === 'decimal' || field.format === 'decimalDiff') {
+          textAlign = 'center';
+        }
+        
+        // 색상 지정
+        let color = '#1f2937';
+        if (field.format === 'percent') {
+          color = value >= 100 ? '#059669' : '#dc2626';
+        } else if (field.format === 'decimalDiff') {
+          color = value >= 0 ? '#dc2626' : '#059669';
+        } else if (field.id === 'curSale' || field.id === 'curRate' || field.id === 'curDiscountRate') {
+          color = '#3730a3';
+        }
+        
+        html += `<td style="${stickyStyle}${widthStyle}padding:12px 8px;text-align:${textAlign};${borderBottom}${borderRight}font-size:13px;color:${color}">${formattedValue}</td>`;
+      });
+      
+      html += '</tr>';
+      return html;
+    }
+    
+    // 아이템 행 생성 함수
+    function generateItemRow(item, visibleFields) {
+      let html = '<tr style="border-bottom:1px solid #e5e7eb;">';
+      
+      visibleFields.forEach(field => {
+        let stickyStyle = '';
+        let widthStyle = field.width ? `width:${field.width};min-width:${field.width};` : '';
+        let cellBgColor = '#fff';
+        
+        // 판매율(당년) 필드는 옅은 노란색 배경
+        if (field.id === 'curRate') {
+          cellBgColor = '#fefce8'; // 더 옅은 노란색
+        }
+        
+        if (field.sticky) {
+          stickyStyle = `position:sticky;left:${field.stickyLeft};z-index:10;background:${cellBgColor};`;
+        } else {
+          stickyStyle = `background:${cellBgColor};`;
+        }
+        
+        const borderRight = field.id === 'itemWeight' ? 'border-right:2px solid #e5e7eb;' : '';
+        
+        let value = calculateFieldValue(item, field.id);
+        let formattedValue = formatFieldValue(value, field.format);
+        
+        // 텍스트 정렬
+        let textAlign = 'right';
+        if (field.id === 'category' || field.id === 'itemCode' || field.id === 'itemName') {
+          textAlign = 'left';
+        } else if (field.format === 'percent' || field.format === 'decimal' || field.format === 'decimalDiff') {
+          textAlign = 'center';
+        }
+        
+        // 색상 지정
+        let color = '#1f2937';
+        if (field.format === 'percent') {
+          color = value >= 100 ? '#059669' : '#dc2626';
+        } else if (field.format === 'decimalDiff') {
+          color = value >= 0 ? '#dc2626' : '#059669';
+        }
+        
+        html += `<td style="${stickyStyle}${widthStyle}padding:12px 8px;text-align:${textAlign};${borderRight}font-size:13px;color:${color}">${formattedValue}</td>`;
+      });
+      
+      html += '</tr>';
+      return html;
+    }
+    
+    // 판매율 테이블 필드 정의 (순서 중요!)
+    const SALES_RATE_FIELD_ORDER = [
+      // 필수 필드 - 기본 정보 (필터에서 제외, 항상 고정 표시)
+      { id: 'category', label: '카테고리', required: true, group: 'basic', sticky: true, stickyLeft: '0', alwaysVisible: true, width: '100px' },
+      { id: 'itemCode', label: '아이템코드', required: true, group: 'basic', sticky: true, stickyLeft: '100px', alwaysVisible: true, width: '100px' },
+      { id: 'itemName', label: '아이템명', required: true, group: 'basic', sticky: true, stickyLeft: '200px', alwaysVisible: true, width: '180px' },
+      { id: 'itemWeight', label: '아이템비중', required: true, group: 'basic', alwaysVisible: true, width: '90px', format: 'percent' },
+      
+      // 판매 그룹
+      { id: 'curSaleQty', label: '누적판매수량(당년)', required: false, group: 'sales', width: '120px' },
+      { id: 'pySaleQty', label: '누적판매수량(전년)', required: false, group: 'sales', width: '120px' },
+      { id: 'saleQtyYoy', label: '누적판매수량YOY', required: false, group: 'sales', format: 'percent', width: '100px' },
+      { id: 'curSale', label: '누적TAG매출(당년)', required: true, group: 'sales', format: 'million', width: '120px' },
+      { id: 'pySale', label: '누적TAG매출(전년)', required: false, group: 'sales', format: 'million', width: '120px' },
+      { id: 'saleYoy', label: '누적TAG매출(YOY)', required: false, group: 'sales', format: 'percent', width: '100px' },
+      { id: 'curSaleAmt', label: '누적실판매출(당년)', required: true, group: 'sales', format: 'million', width: '120px' },
+      { id: 'pySaleAmt', label: '누적실판매출(전년)', required: false, group: 'sales', format: 'million', width: '120px' },
+      { id: 'saleAmtYoy', label: '누적실판매출YOY', required: true, group: 'sales', format: 'percent', width: '100px' },
+      { id: 'curDiscountRate', label: '할인율(당년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
+      { id: 'pyDiscountRate', label: '할인율(전년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
+      { id: 'discountRateDiff', label: '할인율(차이)', required: true, group: 'sales', format: 'decimalDiff', width: '95px' },
+      { id: 'curRate', label: '판매율(당년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
+      { id: 'pyRate', label: '판매율(전년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
+      { id: 'rateDiff', label: '판매율차이', required: true, group: 'sales', format: 'decimalDiff', width: '90px' },
+      { id: 'pyEndRate', label: '전년마감판매율', required: true, group: 'sales', format: 'decimal', width: '110px' },
+      
+      // 발주 그룹
+      { id: 'curOrdQty', label: '발주수량(당년)', required: true, group: 'order', width: '110px' },
+      { id: 'pyOrdQty', label: '발주수량(전년)', required: false, group: 'order', width: '110px' },
+      { id: 'ordQtyYoy', label: '발주수량YOY', required: false, group: 'order', format: 'percent', width: '100px' },
+      { id: 'curOrd', label: '발주TAG(당년)', required: true, group: 'order', format: 'million', width: '110px' },
+      { id: 'pyOrd', label: '발주TAG(전년)', required: false, group: 'order', format: 'million', width: '110px' },
+      { id: 'ordYoy', label: '발주TAG(YOY)', required: true, group: 'order', format: 'percent', width: '100px' },
+      
+      // 입고 그룹
+      { id: 'curStorQty', label: '입고수량(당년)', required: false, group: 'storage', width: '110px' },
+      { id: 'pyStorQty', label: '입고수량(전년)', required: false, group: 'storage', width: '110px' },
+      { id: 'storQtyYoy', label: '입고수량YOY', required: false, group: 'storage', format: 'percent', width: '100px' },
+      { id: 'curStor', label: '입고TAG(당년)', required: false, group: 'storage', format: 'million', width: '110px' },
+      { id: 'pyStor', label: '입고TAG(전년)', required: false, group: 'storage', format: 'million', width: '110px' },
+      { id: 'storYoy', label: '입고TAG(YOY)', required: false, group: 'storage', format: 'percent', width: '100px' },
+      
+      // 재고 그룹
+      { id: 'curStockQty', label: '재고수량(당년)', required: false, group: 'stock', width: '110px' },
+      { id: 'pyStockQty', label: '재고수량(전년)', required: false, group: 'stock', width: '110px' },
+      { id: 'stockQtyYoy', label: '재고수량YOY', required: false, group: 'stock', format: 'percent', width: '100px' },
+      { id: 'curStock', label: '재고TAG(당년)', required: true, group: 'stock', format: 'million', width: '110px' },
+      { id: 'pyStock', label: '재고TAG(전년)', required: false, group: 'stock', format: 'million', width: '110px' },
+      { id: 'stockYoy', label: '재고TAG(YOY)', required: true, group: 'stock', format: 'percent', width: '100px' }
+    ];
+    
     // 판매율 테이블 렌더링 함수
     function renderSalesRateTable() {
       try {
@@ -14228,6 +14814,17 @@
       const brandData = allData.filter(row => row.BRD_CD === brandCode);
       console.log('[판매율] 브랜드:', currentBrand, '코드:', brandCode, '데이터:', brandData.length, '건');
       
+      // 데이터 샘플 확인
+      if (brandData.length > 0) {
+        console.log('[판매율] 첫 번째 데이터 샘플:', brandData[0]);
+        console.log('[판매율] SALE_AMT 필드 확인:', {
+          SALE_AMT: brandData[0].SALE_AMT,
+          SALE_TAG: brandData[0].SALE_TAG,
+          SALE_QTY: brandData[0].SALE_QTY,
+          모든키: Object.keys(brandData[0])
+        });
+      }
+      
       // 아이템별 집계
       const itemMap = {};
       
@@ -14241,23 +14838,60 @@
             prdtKind: row.PRDT_KIND_NM || '-',
             itemCode: row.ITEM_CD,
             itemName: row.ITEM_NM || '-',
+            // 판매
+            curSaleQty: 0,
+            pySaleQty: 0,
+            pyEndSaleQty: 0,
             curSale: 0,
             pySale: 0,
+            pyEndSale: 0,
+            curSaleAmt: 0,
+            pySaleAmt: 0,
+            pyEndSaleAmt: 0,
+            // 발주
+            curOrdQty: 0,
+            pyOrdQty: 0,
+            curOrd: 0,
+            pyOrd: 0,
+            // 입고
+            curStorQty: 0,
+            pyStorQty: 0,
+            pyEndStorQty: 0,
             curStor: 0,
             pyStor: 0,
             pyEndStor: 0,
-            pyEndSale: 0,
-            curOrd: 0,
-            pyOrd: 0,
+            // 재고
+            curStockQty: 0,
+            pyStockQty: 0,
+            curStock: 0,
+            pyStock: 0,
             products: []
           };
         }
         
         // 데이터 집계
         if (row.PERIOD_GB === 'CUR') {
+          itemMap[itemKey].curSaleQty += row.SALE_QTY || 0;
           itemMap[itemKey].curSale += row.SALE_TAG || 0;
-          itemMap[itemKey].curStor += row.AC_STOR_TAG_AMT_KOR || 0;
+          // SALE_AMT 필드명 확인 (대소문자 구분)
+          const saleAmt = row.SALE_AMT || row.sale_amt || row.Sale_Amt || 0;
+          itemMap[itemKey].curSaleAmt += saleAmt;
+          
+          // SALE_AMT 디버깅 (첫 번째 아이템만)
+          if (itemKey === 'DJ' && saleAmt > 0) {
+            console.log('[판매율] SALE_AMT 발견:', {
+              PRDT_CD: row.PRDT_CD,
+              SALE_AMT: saleAmt,
+              원본_SALE_AMT: row.SALE_AMT,
+              원본_sale_amt: row.sale_amt
+            });
+          }
+          itemMap[itemKey].curOrdQty += row.AC_ORD_QTY_KOR || 0;
           itemMap[itemKey].curOrd += row.AC_ORD_TAG_AMT_KOR || 0;
+          itemMap[itemKey].curStorQty += row.AC_STOR_QTY_KOR || 0;
+          itemMap[itemKey].curStor += row.AC_STOR_TAG_AMT_KOR || 0;
+          itemMap[itemKey].curStockQty += row.STOCK_QTY || 0;
+          itemMap[itemKey].curStock += row.STOCK_TAG_AMT || 0;
           
           // 상품별 데이터 추가
           itemMap[itemKey].products.push({
@@ -14271,9 +14905,17 @@
             stock: row.STOCK_TAG_AMT || 0
           });
         } else if (row.PERIOD_GB === 'PY') {
+          itemMap[itemKey].pySaleQty += row.SALE_QTY || 0;
           itemMap[itemKey].pySale += row.SALE_TAG || 0;
-          itemMap[itemKey].pyStor += row.AC_STOR_TAG_AMT_KOR || 0;
+          // SALE_AMT 필드명 확인 (대소문자 구분)
+          const saleAmt = row.SALE_AMT || row.sale_amt || row.Sale_Amt || 0;
+          itemMap[itemKey].pySaleAmt += saleAmt;
+          itemMap[itemKey].pyOrdQty += row.AC_ORD_QTY_KOR || 0;
           itemMap[itemKey].pyOrd += row.AC_ORD_TAG_AMT_KOR || 0;
+          itemMap[itemKey].pyStorQty += row.AC_STOR_QTY_KOR || 0;
+          itemMap[itemKey].pyStor += row.AC_STOR_TAG_AMT_KOR || 0;
+          itemMap[itemKey].pyStockQty += row.STOCK_QTY || 0;
+          itemMap[itemKey].pyStock += row.STOCK_TAG_AMT || 0;
           
           // 상품별 데이터 추가
           itemMap[itemKey].products.push({
@@ -14287,7 +14929,12 @@
             stock: row.STOCK_TAG_AMT || 0
           });
         } else if (row.PERIOD_GB === 'PY_END') {
+          itemMap[itemKey].pyEndSaleQty += row.SALE_QTY || 0;
           itemMap[itemKey].pyEndSale += row.SALE_TAG || 0;
+          // SALE_AMT 필드명 확인 (대소문자 구분)
+          const saleAmt = row.SALE_AMT || row.sale_amt || row.Sale_Amt || 0;
+          itemMap[itemKey].pyEndSaleAmt += saleAmt;
+          itemMap[itemKey].pyEndStorQty += row.AC_STOR_QTY_KOR || 0;
           itemMap[itemKey].pyEndStor += row.AC_STOR_TAG_AMT_KOR || 0;
           
           // 상품별 데이터 추가
@@ -14307,27 +14954,69 @@
       // 배열로 변환
       let allItems = Object.values(itemMap);
       
+      // 집계된 아이템 데이터 샘플 확인
+      if (allItems.length > 0) {
+        console.log('[판매율] 집계된 첫 번째 아이템:', allItems[0]);
+        console.log('[판매율] 실판매출 금액 확인:', {
+          curSaleAmt: allItems[0].curSaleAmt,
+          pySaleAmt: allItems[0].pySaleAmt,
+          pyEndSaleAmt: allItems[0].pyEndSaleAmt,
+          curSale: allItems[0].curSale,
+          pySale: allItems[0].pySale
+        });
+      }
+      
       // 전체 합계 계산 (필터링 전)
       const grandTotals = {
+        curSaleQty: 0,
+        pySaleQty: 0,
+        pyEndSaleQty: 0,
         curSale: 0,
         pySale: 0,
+        pyEndSale: 0,
+        curSaleAmt: 0,
+        pySaleAmt: 0,
+        pyEndSaleAmt: 0,
+        curOrdQty: 0,
+        pyOrdQty: 0,
+        curOrd: 0,
+        pyOrd: 0,
+        curStorQty: 0,
+        pyStorQty: 0,
+        pyEndStorQty: 0,
         curStor: 0,
         pyStor: 0,
         pyEndStor: 0,
-        pyEndSale: 0,
-        curOrd: 0,
-        pyOrd: 0
+        curStockQty: 0,
+        pyStockQty: 0,
+        curStock: 0,
+        pyStock: 0
       };
       
       allItems.forEach(item => {
+        grandTotals.curSaleQty += item.curSaleQty;
+        grandTotals.pySaleQty += item.pySaleQty;
+        grandTotals.pyEndSaleQty += item.pyEndSaleQty;
         grandTotals.curSale += item.curSale;
         grandTotals.pySale += item.pySale;
+        grandTotals.pyEndSale += item.pyEndSale;
+        grandTotals.curSaleAmt += item.curSaleAmt;
+        grandTotals.pySaleAmt += item.pySaleAmt;
+        grandTotals.pyEndSaleAmt += item.pyEndSaleAmt;
+        grandTotals.curOrdQty += item.curOrdQty;
+        grandTotals.pyOrdQty += item.pyOrdQty;
+        grandTotals.curOrd += item.curOrd;
+        grandTotals.pyOrd += item.pyOrd;
+        grandTotals.curStorQty += item.curStorQty;
+        grandTotals.pyStorQty += item.pyStorQty;
+        grandTotals.pyEndStorQty += item.pyEndStorQty;
         grandTotals.curStor += item.curStor;
         grandTotals.pyStor += item.pyStor;
         grandTotals.pyEndStor += item.pyEndStor;
-        grandTotals.pyEndSale += item.pyEndSale;
-        grandTotals.curOrd += item.curOrd;
-        grandTotals.pyOrd += item.pyOrd;
+        grandTotals.curStockQty += item.curStockQty;
+        grandTotals.pyStockQty += item.pyStockQty;
+        grandTotals.curStock += item.curStock;
+        grandTotals.pyStock += item.pyStock;
       });
       
       // 카테고리 필터링
@@ -14342,139 +15031,111 @@
       
       // 선택된 카테고리의 합계 계산
       const totals = {
+        curSaleQty: 0,
+        pySaleQty: 0,
+        pyEndSaleQty: 0,
         curSale: 0,
         pySale: 0,
+        pyEndSale: 0,
+        curSaleAmt: 0,
+        pySaleAmt: 0,
+        pyEndSaleAmt: 0,
+        curOrdQty: 0,
+        pyOrdQty: 0,
+        curOrd: 0,
+        pyOrd: 0,
+        curStorQty: 0,
+        pyStorQty: 0,
+        pyEndStorQty: 0,
         curStor: 0,
         pyStor: 0,
         pyEndStor: 0,
-        pyEndSale: 0,
-        curOrd: 0,
-        pyOrd: 0
+        curStockQty: 0,
+        pyStockQty: 0,
+        curStock: 0,
+        pyStock: 0
       };
       
       items.forEach(item => {
+        totals.curSaleQty += item.curSaleQty;
+        totals.pySaleQty += item.pySaleQty;
+        totals.pyEndSaleQty += item.pyEndSaleQty;
         totals.curSale += item.curSale;
         totals.pySale += item.pySale;
+        totals.pyEndSale += item.pyEndSale;
+        totals.curSaleAmt += item.curSaleAmt;
+        totals.pySaleAmt += item.pySaleAmt;
+        totals.pyEndSaleAmt += item.pyEndSaleAmt;
+        totals.curOrdQty += item.curOrdQty;
+        totals.pyOrdQty += item.pyOrdQty;
+        totals.curOrd += item.curOrd;
+        totals.pyOrd += item.pyOrd;
+        totals.curStorQty += item.curStorQty;
+        totals.pyStorQty += item.pyStorQty;
+        totals.pyEndStorQty += item.pyEndStorQty;
         totals.curStor += item.curStor;
         totals.pyStor += item.pyStor;
         totals.pyEndStor += item.pyEndStor;
-        totals.pyEndSale += item.pyEndSale;
-        totals.curOrd += item.curOrd;
-        totals.pyOrd += item.pyOrd;
+        totals.curStockQty += item.curStockQty;
+        totals.pyStockQty += item.pyStockQty;
+        totals.curStock += item.curStock;
+        totals.pyStock += item.pyStock;
       });
       
-      // 테이블 생성
+      // 테이블 헤더 생성
+      const thead = document.getElementById('sales-rate-thead');
+      if (thead) {
+        thead.innerHTML = generateSalesRateTableHeader();
+      }
+      
+      // 테이블 본문 생성
       const tbody = document.getElementById('sales-rate-tbody');
       if (!tbody) {
         console.error('[판매율] tbody 요소를 찾을 수 없습니다.');
         return;
       }
       
+      const visibleFields = getVisibleFields();
       let html = '';
       
       // === 1. 전체 합계 행 (항상 표시) ===
-      const grandTotalSaleYOY = grandTotals.pySale > 0 ? Math.round((grandTotals.curSale / grandTotals.pySale) * 100) : 0;
-      const grandTotalCurRate = grandTotals.curStor > 0 ? ((grandTotals.curSale / grandTotals.curStor) * 100).toFixed(1) : '0.0';
-      const grandTotalPyRate = grandTotals.pyStor > 0 ? ((grandTotals.pySale / grandTotals.pyStor) * 100).toFixed(1) : '0.0';
-      const grandTotalDiff = (parseFloat(grandTotalCurRate) - parseFloat(grandTotalPyRate)).toFixed(1);
-      const grandTotalPyEndRate = grandTotals.pyEndStor > 0 ? ((grandTotals.pyEndSale / grandTotals.pyEndStor) * 100).toFixed(1) : '0.0';
-      const grandTotalOrdYOY = grandTotals.pyOrd > 0 ? Math.round((grandTotals.curOrd / grandTotals.pyOrd) * 100) : 0;
-      const grandTotalStorYOY = grandTotals.pyStor > 0 ? Math.round((grandTotals.curStor / grandTotals.pyStor) * 100) : 0;
-      
-      const grandTotalCurSaleMillion = Math.round(grandTotals.curSale / 1000000);
-      const grandTotalCurOrdMillion = Math.round(grandTotals.curOrd / 1000000);
-      const grandTotalCurStorMillion = Math.round(grandTotals.curStor / 1000000);
-      
-      html += `
-        <tr style="background:#e0e7ff;font-weight:700;border-bottom:3px solid #818cf8;">
-          <td style="position:sticky;left:0;z-index:10;background:#e0e7ff;padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:14px;color:#3730a3;">전체합계</td>
-          <td style="position:sticky;left:80px;z-index:10;background:#e0e7ff;padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;">-</td>
-          <td style="position:sticky;left:180px;z-index:10;background:#e0e7ff;padding:12px 8px;text-align:left;border-bottom:3px solid #818cf8;border-right:2px solid #818cf8;font-size:13px;">전체</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;border-right:2px solid #818cf8;font-size:13px;">100%</td>
-          <td style="padding:12px 8px;text-align:right;border-bottom:3px solid #818cf8;font-size:13px;color:#3730a3;">${grandTotalCurSaleMillion.toLocaleString()}</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;color:${grandTotalSaleYOY >= 100 ? '#059669' : '#dc2626'}">${grandTotalSaleYOY}%</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;color:#3730a3;">${grandTotalCurRate}%</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;">${grandTotalPyRate}%</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;color:${grandTotalDiff >= 0 ? '#059669' : '#dc2626'}">${grandTotalDiff >= 0 ? '+' : ''}${grandTotalDiff}%p</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;border-right:2px solid #818cf8;font-size:13px;">${grandTotalPyEndRate}%</td>
-          <td style="padding:12px 8px;text-align:right;border-bottom:3px solid #818cf8;font-size:13px;">${grandTotalCurOrdMillion.toLocaleString()}</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;color:${grandTotalOrdYOY >= 100 ? '#059669' : '#dc2626'}">${grandTotalOrdYOY}%</td>
-          <td style="padding:12px 8px;text-align:right;border-bottom:3px solid #818cf8;font-size:13px;">${grandTotalCurStorMillion.toLocaleString()}</td>
-          <td style="padding:12px 8px;text-align:center;border-bottom:3px solid #818cf8;font-size:13px;color:${grandTotalStorYOY >= 100 ? '#059669' : '#dc2626'}">${grandTotalStorYOY}%</td>
-        </tr>
-      `;
+      const grandTotalItem = {
+        ...grandTotals,
+        prdtKind: '전체합계',
+        itemCode: '-',
+        itemName: '전체',
+        weight: 100
+      };
+      html += generateTotalRow(grandTotalItem, visibleFields, true);
       
       // === 2. 선택된 카테고리 합계 행 (필터링 시만 표시) ===
       if (selectedCategory !== '전체') {
-        const totalSaleYOY = totals.pySale > 0 ? Math.round((totals.curSale / totals.pySale) * 100) : 0;
-        const totalCurRate = totals.curStor > 0 ? ((totals.curSale / totals.curStor) * 100).toFixed(1) : '0.0';
-        const totalPyRate = totals.pyStor > 0 ? ((totals.pySale / totals.pyStor) * 100).toFixed(1) : '0.0';
-        const totalDiff = (parseFloat(totalCurRate) - parseFloat(totalPyRate)).toFixed(1);
-        const totalPyEndRate = totals.pyEndStor > 0 ? ((totals.pyEndSale / totals.pyEndStor) * 100).toFixed(1) : '0.0';
-        const totalOrdYOY = totals.pyOrd > 0 ? Math.round((totals.curOrd / totals.pyOrd) * 100) : 0;
-        const totalStorYOY = totals.pyStor > 0 ? Math.round((totals.curStor / totals.pyStor) * 100) : 0;
+        // 전체 대비 비중 계산 - 정수로 반올림
+        const categoryWeight = grandTotals.curSale > 0 ? Math.round((totals.curSale / grandTotals.curSale) * 100) : 0;
         
-        const totalCurSaleMillion = Math.round(totals.curSale / 1000000);
-        const totalCurOrdMillion = Math.round(totals.curOrd / 1000000);
-        const totalCurStorMillion = Math.round(totals.curStor / 1000000);
-        
-        // 전체 대비 비중 계산
-        const categoryWeight = grandTotals.curSale > 0 ? ((totals.curSale / grandTotals.curSale) * 100).toFixed(1) : '0.0';
-        
-        html += `
-          <tr style="background:#dbeafe;font-weight:700;">
-            <td style="position:sticky;left:0;z-index:10;background:#dbeafe;padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;">${selectedCategory} 합계</td>
-            <td style="position:sticky;left:80px;z-index:10;background:#dbeafe;padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;">-</td>
-            <td style="position:sticky;left:180px;z-index:10;background:#dbeafe;padding:12px 8px;text-align:left;border-bottom:2px solid #93c5fd;border-right:2px solid #93c5fd;font-size:13px;">${selectedCategory}</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;border-right:2px solid #93c5fd;font-size:13px;">${categoryWeight}%</td>
-            <td style="padding:12px 8px;text-align:right;border-bottom:2px solid #93c5fd;font-size:13px;color:#1e40af;">${totalCurSaleMillion.toLocaleString()}</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;color:${totalSaleYOY >= 100 ? '#059669' : '#dc2626'}">${totalSaleYOY}%</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;color:#1e40af;">${totalCurRate}%</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;">${totalPyRate}%</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;color:${totalDiff >= 0 ? '#059669' : '#dc2626'}">${totalDiff >= 0 ? '+' : ''}${totalDiff}%p</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;border-right:2px solid #93c5fd;font-size:13px;">${totalPyEndRate}%</td>
-            <td style="padding:12px 8px;text-align:right;border-bottom:2px solid #93c5fd;font-size:13px;">${totalCurOrdMillion.toLocaleString()}</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;color:${totalOrdYOY >= 100 ? '#059669' : '#dc2626'}">${totalOrdYOY}%</td>
-            <td style="padding:12px 8px;text-align:right;border-bottom:2px solid #93c5fd;font-size:13px;">${totalCurStorMillion.toLocaleString()}</td>
-            <td style="padding:12px 8px;text-align:center;border-bottom:2px solid #93c5fd;font-size:13px;color:${totalStorYOY >= 100 ? '#059669' : '#dc2626'}">${totalStorYOY}%</td>
-          </tr>
-        `;
+        const categoryTotalItem = {
+          ...totals,
+          prdtKind: `${selectedCategory} 합계`,
+          itemCode: '-',
+          itemName: selectedCategory,
+          weight: categoryWeight
+        };
+        html += generateTotalRow(categoryTotalItem, visibleFields, false);
       }
       
       // 아이템별 행 추가
       items.forEach((item, index) => {
-        // 전체 대비 비중 계산 (grandTotals 사용)
-        const itemWeight = grandTotals.curSale > 0 ? ((item.curSale / grandTotals.curSale) * 100).toFixed(1) : '0.0';
-        const saleYOY = item.pySale > 0 ? Math.round((item.curSale / item.pySale) * 100) : 0;
-        const curRate = item.curStor > 0 ? ((item.curSale / item.curStor) * 100).toFixed(1) : '0.0';
-        const pyRate = item.pyStor > 0 ? ((item.pySale / item.pyStor) * 100).toFixed(1) : '0.0';
-        const diff = (parseFloat(curRate) - parseFloat(pyRate)).toFixed(1);
-        const pyEndRate = item.pyEndStor > 0 ? ((item.pyEndSale / item.pyEndStor) * 100).toFixed(1) : '0.0';
-        const ordYOY = item.pyOrd > 0 ? Math.round((item.curOrd / item.pyOrd) * 100) : 0;
-        const storYOY = item.pyStor > 0 ? Math.round((item.curStor / item.pyStor) * 100) : 0;
+        // 전체 대비 비중 계산 (grandTotals 사용) - 정수로 반올림
+        item.weight = grandTotals.curSale > 0 ? Math.round((item.curSale / grandTotals.curSale) * 100) : 0;
         
-        const curSaleMillion = Math.round(item.curSale / 1000000);
-        const curOrdMillion = Math.round(item.curOrd / 1000000);
-        const curStorMillion = Math.round(item.curStor / 1000000);
+        // 행 생성 (클릭 이벤트 포함)
+        const rowHtml = generateItemRow(item, visibleFields);
         
-        html += `
-          <tr style="cursor:pointer;transition:all 0.2s ease;" onclick="openDrilldown('${item.itemCode}')" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
-            <td style="position:sticky;left:0;z-index:5;background:inherit;padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;">${item.prdtKind}</td>
-            <td style="position:sticky;left:80px;z-index:5;background:inherit;padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;">${item.itemCode}</td>
-            <td style="position:sticky;left:180px;z-index:5;background:inherit;padding:10px 8px;text-align:left;border-bottom:1px solid #e5e7eb;border-right:2px solid #cbd5e1;font-size:12px;">${item.itemName}</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;border-right:2px solid #cbd5e1;font-size:12px;">${itemWeight}%</td>
-            <td style="padding:10px 8px;text-align:right;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;">${curSaleMillion.toLocaleString()}</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;color:${saleYOY >= 100 ? '#059669' : '#dc2626'}">${saleYOY}%</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;">${curRate}%</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;">${pyRate}%</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;color:${diff >= 0 ? '#059669' : '#dc2626'}">${diff >= 0 ? '+' : ''}${diff}%p</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;border-right:2px solid #cbd5e1;font-size:12px;">${pyEndRate}%</td>
-            <td style="padding:10px 8px;text-align:right;border-bottom:1px solid #e5e7eb;font-size:12px;">${curOrdMillion.toLocaleString()}</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;color:${ordYOY >= 100 ? '#059669' : '#dc2626'}">${ordYOY}%</td>
-            <td style="padding:10px 8px;text-align:right;border-bottom:1px solid #e5e7eb;font-size:12px;">${curStorMillion.toLocaleString()}</td>
-            <td style="padding:10px 8px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:12px;color:${storYOY >= 100 ? '#059669' : '#dc2626'}">${storYOY}%</td>
-          </tr>
-        `;
+        // onclick 이벤트를 추가하기 위해 <tr> 태그 수정
+        html += rowHtml.replace(
+          '<tr style="border-bottom:1px solid #e5e7eb;">',
+          `<tr style="cursor:pointer;transition:all 0.2s ease;border-bottom:1px solid #e5e7eb;" onclick="openDrilldown('${item.itemCode}')" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">`
+        );
       });
       
       tbody.innerHTML = html;
@@ -16894,9 +17555,8 @@
         if (dateInfoEl && window.salesCompositionData) {
           const asofDate = window.salesCompositionData.asof_dt || '-';
           
-          // 오늘 날짜 (업데이트 일자)
-          const today = new Date();
-          const updateDate = today.toISOString().split('T')[0];
+          // 업데이트 일자: API에서 반환한 date 필드 사용 (한국 시간 기준)
+          const updateDate = window.salesCompositionData.date || new Date().toISOString().split('T')[0];
           
           // 당년/전년 분석기간 계산
           let cyPeriod = '-';
@@ -16932,9 +17592,8 @@
         if (dateInfoEl && window.salesCompositionData) {
           const asofDate = window.salesCompositionData.asof_dt || '-';
           
-          // 오늘 날짜 (업데이트 일자)
-          const today = new Date();
-          const updateDate = today.toISOString().split('T')[0];
+          // 업데이트 일자: API에서 반환한 date 필드 사용 (한국 시간 기준)
+          const updateDate = window.salesCompositionData.date || new Date().toISOString().split('T')[0];
           
           // 당년/전년 분석기간 계산
           let cyPeriod = '-';
@@ -16970,9 +17629,8 @@
         if (dateInfoEl && window.salesCompositionData) {
           const asofDate = window.salesCompositionData.asof_dt || '-';
           
-          // 오늘 날짜 (업데이트 일자)
-          const today = new Date();
-          const updateDate = today.toISOString().split('T')[0];
+          // 업데이트 일자: API에서 반환한 date 필드 사용 (한국 시간 기준)
+          const updateDate = window.salesCompositionData.date || new Date().toISOString().split('T')[0];
           
           // 당년/전년 분석기간 계산
           let cyPeriod = '-';
@@ -17008,9 +17666,8 @@
         if (dateInfoEl && window.salesCompositionData) {
           const asofDate = window.salesCompositionData.asof_dt || '-';
           
-          // 오늘 날짜 (업데이트 일자)
-          const today = new Date();
-          const updateDate = today.toISOString().split('T')[0];
+          // 업데이트 일자: API에서 반환한 date 필드 사용 (한국 시간 기준)
+          const updateDate = window.salesCompositionData.date || new Date().toISOString().split('T')[0];
           
           // 당년/전년 분석기간 계산
           let cyPeriod = '-';
