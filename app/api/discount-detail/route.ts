@@ -16,7 +16,7 @@ import { getTodayCompact, getToday, calculateAsofDate } from '@/lib/dateUtils';
  * 
  * 캐싱 전략:
  * - Redis 캐시 (24시간 TTL)
- * - 키: discount-detail-{브랜드코드}-YYYYMM
+ * - 키: discount-detail-{브랜드코드}-YYYYMMDD (날짜별)
  */
 export async function GET(request: Request) {
   try {
@@ -35,10 +35,10 @@ export async function GET(request: Request) {
     }
     
     // 날짜별 캐시 키 생성 (한국 시간 기준)
-    // 판매율 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함
-    // 분석월은 쿼리 파라미터로 전달하여 데이터 필터링에 사용
+    // 판매율/재고주수 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함하여 매일 업데이트
+    // 분석월은 쿼리 파라미터로 전달하여 데이터 필터링에만 사용
     const today = getTodayCompact();
-    const cacheKey = `discount-detail-${brandCode}-${analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6)}-${today}`;
+    const cacheKey = `discount-detail-${brandCode}-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {

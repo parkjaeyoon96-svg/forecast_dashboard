@@ -1569,12 +1569,12 @@
                 <button onclick="loadSalesRateData()" style="margin-top:10px;padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;">다시 시도</button>
               </div>
               
-              <!-- 상단 스크롤바 -->
-              <div id="sales-rate-top-scroll" style="overflow-x:auto;overflow-y:hidden;margin-top:10px;border:1px solid #e5e7eb;border-radius:4px;">
-                <div id="sales-rate-top-scroll-content" style="height:1px;"></div>
-              </div>
+              <script>
+                // 상단 스크롤바 제거로 인해 빈 함수로 정의 (호출 시 에러 방지)
+                window.syncSalesRateScroll = function() {};
+              </script>
               
-              <div id="sales-rate-table-wrapper" style="overflow-x:auto;margin-top:5px;">
+              <div id="sales-rate-table-wrapper" style="overflow-x:scroll;overflow-y:visible;margin-top:5px;width:100%;">
                 <table id="sales-rate-table" class="pl-table" style="width:100%;min-width:1400px;border-collapse:collapse;">
                   <thead id="sales-rate-thead">
                     <!-- JavaScript로 동적 생성 -->
@@ -1584,39 +1584,6 @@
                   </tbody>
                 </table>
               </div>
-              
-              <script>
-                // 판매율 테이블 스크롤 동기화
-                function syncSalesRateScroll() {
-                  const topScroll = document.getElementById('sales-rate-top-scroll');
-                  const tableWrapper = document.getElementById('sales-rate-table-wrapper');
-                  const topScrollContent = document.getElementById('sales-rate-top-scroll-content');
-                  const table = document.getElementById('sales-rate-table');
-                  
-                  if (!topScroll || !tableWrapper || !topScrollContent || !table) return;
-                  
-                  // 상단 스크롤바의 너비를 테이블 너비와 동일하게 설정
-                  topScrollContent.style.width = table.scrollWidth + 'px';
-                  
-                  // 상단 스크롤 -> 테이블 스크롤 동기화
-                  topScroll.addEventListener('scroll', function() {
-                    if (!topScroll.isSyncing) {
-                      tableWrapper.isSyncing = true;
-                      tableWrapper.scrollLeft = topScroll.scrollLeft;
-                      tableWrapper.isSyncing = false;
-                    }
-                  });
-                  
-                  // 테이블 스크롤 -> 상단 스크롤 동기화
-                  tableWrapper.addEventListener('scroll', function() {
-                    if (!tableWrapper.isSyncing) {
-                      topScroll.isSyncing = true;
-                      topScroll.scrollLeft = tableWrapper.scrollLeft;
-                      topScroll.isSyncing = false;
-                    }
-                  });
-                }
-              </script>
               </div>
               <!-- /판매율 분석 콘텐츠 -->
               
