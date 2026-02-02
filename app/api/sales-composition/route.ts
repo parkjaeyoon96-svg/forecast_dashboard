@@ -21,10 +21,11 @@ import { getTodayCompact, getToday, calculateAsofDate } from '@/lib/dateUtils';
  */
 export async function GET(request: Request) {
   try {
-    // URL 파라미터에서 forceUpdate, month 확인
+    // URL 파라미터에서 forceUpdate, month, brand 확인
     const { searchParams } = new URL(request.url);
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
     const analysisMonth = searchParams.get('month'); // YYYY-MM 형식 (쿼리 파라미터로만 사용, 캐시 키에는 사용 안 함)
+    const brandCode = searchParams.get('brand'); // 브랜드 코드 (M, I, X, V, ST, W)
     
     // 날짜별 캐시 키 생성 (한국 시간 기준)
     // 판매율/재고주수 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함하여 매일 업데이트
@@ -68,10 +69,19 @@ export async function GET(request: Request) {
     console.log(`[매출구성 API] 쿼리 완료 (${elapsed}ms, ${rows.length}행)`);
     
     // 4. 데이터를 당년/전년으로 분리
-    const cyData = rows.filter(row => row.구분 === 'CY');
+    let cyData = rows.filter(row => row.구분 === 'CY');
     const pyData = rows.filter(row => row.구분 === 'PY');
     
-    // 5. 결과 구성
+    // 브랜드 필터링 (브랜드 코드가 지정된 경우)
+    if (brandCode) {
+      cyData = cyData.filter(row => row.브랜드 === brandCode);
+      console.log(`[매출구성 API] 브랜드 필터링: ${brandCode}, 필터링 후 행 수: ${cyData.length}`);
+    }
+    
+    // 5. 트리맵 인사이트 생성 (판매비중 가장 높은 채널과 아이템)
+    const insights = generateTreemapInsights(cyData);
+    
+    // 6. 결과 구성
     const result = {
       success: true,
       date: getToday(), // 한국 시간 기준
@@ -84,6 +94,7 @@ export async function GET(request: Request) {
         CY: cyData.length,
         PY: pyData.length
       },
+      insights, // 트리맵 인사이트 추가
       cached: false
     };
     
@@ -365,4 +376,87 @@ GROUP BY
     sr.next_code
 HAVING (SUM(d.TAG_SALES) + SUM(d.REAL_SALES)) <> 0
 `;
+}
+
+/**
+ * 트리맵 인사이트 생성 함수
+ * 판매비중이 가장 높은 채널과 아이템에 대한 핵심인사이트 생성
+ */
+function generateTreemapInsights(cyData: any[]): {
+  topChannel: { name: string; sales: number; share: number; insight: string } | null;
+  topItem: { name: string; sales: number; share: number; insight: string } | null;
+} {
+  if (!cyData || cyData.length === 0) {
+    return { topChannel: null, topItem: null };
+  }
+
+  // 채널별 매출 집계
+  const channelSales: { [key: string]: number } = {};
+  let totalSales = 0;
+
+  cyData.forEach(row => {
+    const channel = row.채널 || '';
+    const sales = parseFloat(row.실판매출 || 0);
+    if (channel && sales > 0) {
+      channelSales[channel] = (channelSales[channel] || 0) + sales;
+      totalSales += sales;
+    }
+  });
+
+  // 가장 높은 채널 찾기
+  let topChannel: { name: string; sales: number; share: number; insight: string } | null = null;
+  if (Object.keys(channelSales).length > 0 && totalSales > 0) {
+    const sortedChannels = Object.entries(channelSales)
+      .map(([name, sales]) => ({ name, sales: sales as number }))
+      .sort((a, b) => b.sales - a.sales);
+    
+    if (sortedChannels.length > 0) {
+      const top = sortedChannels[0];
+      const share = (top.sales / totalSales) * 100;
+      const salesInBillions = top.sales / 100000000; // 억원 단위
+      
+      topChannel = {
+        name: top.name,
+        sales: top.sales,
+        share: share,
+        insight: `<strong>${top.name}</strong>이(가) 전체 매출의 <strong>${share.toFixed(1)}%</strong>를 차지하며 가장 큰 비중을 보이고 있습니다. (${salesInBillions.toFixed(1)}억원)`
+      };
+    }
+  }
+
+  // 아이템별 매출 집계
+  const itemSales: { [key: string]: number } = {};
+  let totalItemSales = 0;
+
+  cyData.forEach(row => {
+    const item = row.아이템 || '';
+    const sales = parseFloat(row.실판매출 || 0);
+    if (item && sales > 0) {
+      itemSales[item] = (itemSales[item] || 0) + sales;
+      totalItemSales += sales;
+    }
+  });
+
+  // 가장 높은 아이템 찾기
+  let topItem: { name: string; sales: number; share: number; insight: string } | null = null;
+  if (Object.keys(itemSales).length > 0 && totalItemSales > 0) {
+    const sortedItems = Object.entries(itemSales)
+      .map(([name, sales]) => ({ name, sales: sales as number }))
+      .sort((a, b) => b.sales - a.sales);
+    
+    if (sortedItems.length > 0) {
+      const top = sortedItems[0];
+      const share = (top.sales / totalItemSales) * 100;
+      const salesInBillions = top.sales / 100000000; // 억원 단위
+      
+      topItem = {
+        name: top.name,
+        sales: top.sales,
+        share: share,
+        insight: `<strong>${top.name}</strong>이(가) 전체 매출의 <strong>${share.toFixed(1)}%</strong>를 차지하며 가장 큰 비중을 보이고 있습니다. (${salesInBillions.toFixed(1)}억원)`
+      };
+    }
+  }
+
+  return { topChannel, topItem };
 }

@@ -161,7 +161,8 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-call "%PYTHON_CMD%" scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands
+echo [Step 10] Generate AI Insights (excluding stock/sales rate - using real-time API)
+call "%PYTHON_CMD%" scripts\generate_ai_insights.py --date !DATE_STR! --overview --all-brands --skip-stock-sales
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 10] Failed (Error code: !STEP_ERR!)

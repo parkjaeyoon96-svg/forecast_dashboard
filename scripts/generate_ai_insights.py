@@ -850,6 +850,46 @@ def fetch_sales_rate_api(api_base_url: str = "http://localhost:3000") -> Optiona
         return None
 
 
+def fetch_sales_composition_api(api_base_url: str = "http://localhost:3000", brand_code: Optional[str] = None) -> Optional[Dict]:
+    """매출구성 API 데이터 조회 (트리맵 인사이트 포함)"""
+    try:
+        url = f"{api_base_url}/api/sales-composition"
+        print(f"[INFO] 매출구성 API 호출: {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        result = response.json()
+        if result.get('success'):
+            print(f"[SUCCESS] 매출구성 API 데이터 로드 완료")
+            return result
+        else:
+            print(f"[WARNING] 매출구성 API 응답 실패: {result.get('error')}")
+            return None
+    except Exception as e:
+        print(f"[WARNING] 매출구성 API 호출 실패: {e}")
+        return None
+
+
+def format_treemap_insight_from_api(api_insights: Dict) -> str:
+    """API에서 받은 트리맵 인사이트를 HTML 형식으로 변환"""
+    if not api_insights:
+        return ""
+    
+    insight_parts = []
+    
+    if api_insights.get('topChannel'):
+        top_channel = api_insights['topChannel']
+        insight_parts.append(f"<strong>📊 채널별 매출구성 분석</strong><br>{top_channel.get('insight', '')}")
+    
+    if api_insights.get('topItem'):
+        top_item = api_insights['topItem']
+        if insight_parts:
+            insight_parts.append(f"<br><br><strong>📦 아이템별 매출구성 분석</strong><br>{top_item.get('insight', '')}")
+        else:
+            insight_parts.append(f"<strong>📦 아이템별 매출구성 분석</strong><br>{top_item.get('insight', '')}")
+    
+    return "<br>".join(insight_parts) if insight_parts else ""
+
+
 def transform_api_to_stock_format(stock_weeks_api: Dict, sales_rate_api: Optional[Dict]) -> Dict:
     """
     API 응답을 기존 stock_analysis.json 형식으로 변환
@@ -1040,7 +1080,7 @@ def load_json_file(file_path: Path) -> Optional[Dict]:
         return None
 
 
-def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator, output_dir: Path, api_base_url: str = "http://localhost:3000"):
+def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator, output_dir: Path, api_base_url: str = "http://localhost:3000", skip_stock_sales: bool = False):
     """전체 현황에 대한 모든 인사이트 생성"""
     base_dir = project_root / "public" / "data" / date_str
     
@@ -1079,32 +1119,35 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
         if trend_data:
             overview_data["trend"] = trend_data
     
-    # 5. 전체 재고 분석 (API 우선, 없으면 JSON)
+    # 5. 전체 재고 분석 (API 우선, 없으면 JSON) - skip_stock_sales 옵션이 있으면 제외
     stock_data = None
     api_date = None
     
-    # API 데이터 조회 시도
-    print("[ANALYZING] 전체 재고 분석 중...")
-    stock_weeks_api = fetch_stock_weeks_api(api_base_url)
-    sales_rate_api = fetch_sales_rate_api(api_base_url)
-    
-    if stock_weeks_api and stock_weeks_api.get('success'):
-        api_date = stock_weeks_api.get('asof_dt', stock_weeks_api.get('date'))
-        print(f"[INFO] API 데이터 사용 (기준일: {api_date})")
-        # API 데이터 변환 (기존 JSON 형식으로)
-        stock_data = transform_api_to_stock_format(stock_weeks_api, sales_rate_api)
-        stock_data['api_date'] = api_date  # API 날짜 저장
+    if not skip_stock_sales:
+        # API 데이터 조회 시도
+        print("[ANALYZING] 전체 재고 분석 중...")
+        stock_weeks_api = fetch_stock_weeks_api(api_base_url)
+        sales_rate_api = fetch_sales_rate_api(api_base_url)
+        
+        if stock_weeks_api and stock_weeks_api.get('success'):
+            api_date = stock_weeks_api.get('asof_dt', stock_weeks_api.get('date'))
+            print(f"[INFO] API 데이터 사용 (기준일: {api_date})")
+            # API 데이터 변환 (기존 JSON 형식으로)
+            stock_data = transform_api_to_stock_format(stock_weeks_api, sales_rate_api)
+            stock_data['api_date'] = api_date  # API 날짜 저장
+        else:
+            # Fallback: JSON 파일 사용
+            print("[INFO] API 데이터 없음 - JSON 파일 사용")
+            stock_file = base_dir / "stock_analysis.json"
+            if stock_file.exists():
+                stock_data = load_json_file(stock_file)
+                if stock_data:
+                    stock_data['api_date'] = None  # JSON 사용 표시
+        
+        if stock_data:
+            overview_data["stock"] = stock_data
     else:
-        # Fallback: JSON 파일 사용
-        print("[INFO] API 데이터 없음 - JSON 파일 사용")
-        stock_file = base_dir / "stock_analysis.json"
-        if stock_file.exists():
-            stock_data = load_json_file(stock_file)
-            if stock_data:
-                stock_data['api_date'] = None  # JSON 사용 표시
-    
-    if stock_data:
-        overview_data["stock"] = stock_data
+        print("[SKIP] 전체 재고 분석 제외 (API로 실시간 생성됨)")
     
     # 전체 현황 통합 분석
     if overview_data:
@@ -1293,21 +1336,33 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
     if pl_data:
         pl_insight = generator.generate_insight(pl_data, "전체 현황", "pl")
     
-    # 2. 트리맵 분석 (브랜드별 기여도)
+    # 2. 트리맵 분석 (API 우선, 없으면 JSON)
     treemap_insight = ""
-    treemap_file = base_dir / "treemap.json"
-    if treemap_file.exists():
-        print("[ANALYZING] 전체 현황 트리맵 분석 중...")
-        treemap_data = load_json_file(treemap_file)
-        if treemap_data:
-            # 전체 브랜드 데이터를 하나로 합침
-            all_brand_treemap = {}
-            if "channelTreemapData" in treemap_data and "byBrand" in treemap_data["channelTreemapData"]:
-                all_brand_treemap["channelTreemapData"] = {"byBrand": treemap_data["channelTreemapData"]["byBrand"]}
-            if "itemTreemapData" in treemap_data and "byBrand" in treemap_data["itemTreemapData"]:
-                all_brand_treemap["itemTreemapData"] = {"byBrand": treemap_data["itemTreemapData"]["byBrand"]}
-            if all_brand_treemap:
-                treemap_insight = generator.generate_insight(all_brand_treemap, "전체 현황", "treemap")
+    print("[ANALYZING] 전체 현황 트리맵 분석 중...")
+    
+    # API에서 트리맵 인사이트 조회 시도
+    sales_composition_api = fetch_sales_composition_api(api_base_url)
+    
+    if sales_composition_api and sales_composition_api.get('success') and sales_composition_api.get('insights'):
+        api_insights = sales_composition_api.get('insights', {})
+        print("[INFO] API 트리맵 인사이트 사용 (전체 현황)")
+        # API에서 받은 인사이트를 그대로 사용
+        treemap_insight = format_treemap_insight_from_api(api_insights)
+    else:
+        # Fallback: JSON 파일 사용
+        print("[INFO] API 데이터 없음 - JSON 파일 사용 (전체 현황)")
+        treemap_file = base_dir / "treemap.json"
+        if treemap_file.exists():
+            treemap_data = load_json_file(treemap_file)
+            if treemap_data:
+                # 전체 브랜드 데이터를 하나로 합침
+                all_brand_treemap = {}
+                if "channelTreemapData" in treemap_data and "byBrand" in treemap_data["channelTreemapData"]:
+                    all_brand_treemap["channelTreemapData"] = {"byBrand": treemap_data["channelTreemapData"]["byBrand"]}
+                if "itemTreemapData" in treemap_data and "byBrand" in treemap_data["itemTreemapData"]:
+                    all_brand_treemap["itemTreemapData"] = {"byBrand": treemap_data["itemTreemapData"]["byBrand"]}
+                if all_brand_treemap:
+                    treemap_insight = generator.generate_insight(all_brand_treemap, "전체 현황", "treemap")
     
     # 3. 레이더 차트 분석
     radar_insight = ""
@@ -1365,7 +1420,7 @@ def generate_insights_for_overview(date_str: str, generator: AIInsightGenerator,
     return overview_data_format
 
 
-def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightGenerator, output_dir: Path, api_base_url: str = "http://localhost:3000"):
+def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightGenerator, output_dir: Path, api_base_url: str = "http://localhost:3000", skip_stock_sales: bool = False):
     """특정 브랜드에 대한 모든 인사이트 생성"""
     base_dir = project_root / "public" / "data" / date_str
     brand_code = BRAND_CODE_MAP.get(brand, brand)
@@ -1380,36 +1435,52 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
         if pl_data and brand in pl_data:
             insights["pl"] = generator.generate_insight(pl_data[brand], brand, "pl")
     
-    # 2. 트리맵 분석
-    treemap_file = base_dir / "treemap.json"
-    if treemap_file.exists():
-        print(f"[ANALYZING] 트리맵 분석 중... ({brand})")
-        treemap_data = load_json_file(treemap_file)
-        if treemap_data:
-            # 브랜드별 데이터 필터링
-            brand_treemap_data = {}
-            if "channelTreemapData" in treemap_data:
-                channel_treemap = treemap_data["channelTreemapData"]
-                if "byBrand" in channel_treemap and brand_code in channel_treemap["byBrand"]:
-                    brand_treemap_data["channelTreemapData"] = {
-                        "byBrand": {
-                            brand_code: channel_treemap["byBrand"][brand_code]
+    # 2. 트리맵 분석 (API 우선, 없으면 JSON)
+    treemap_insight = ""
+    print(f"[ANALYZING] 트리맵 분석 중... ({brand})")
+    
+    # API에서 트리맵 인사이트 조회 시도
+    sales_composition_api = fetch_sales_composition_api(api_base_url, brand_code)
+    
+    if sales_composition_api and sales_composition_api.get('success') and sales_composition_api.get('insights'):
+        api_insights = sales_composition_api.get('insights', {})
+        print(f"[INFO] API 트리맵 인사이트 사용 ({brand})")
+        # API에서 받은 인사이트를 그대로 사용
+        treemap_insight = format_treemap_insight_from_api(api_insights)
+    else:
+        # Fallback: JSON 파일 사용
+        print(f"[INFO] API 데이터 없음 - JSON 파일 사용 ({brand})")
+        treemap_file = base_dir / "treemap.json"
+        if treemap_file.exists():
+            treemap_data = load_json_file(treemap_file)
+            if treemap_data:
+                # 브랜드별 데이터 필터링
+                brand_treemap_data = {}
+                if "channelTreemapData" in treemap_data:
+                    channel_treemap = treemap_data["channelTreemapData"]
+                    if "byBrand" in channel_treemap and brand_code in channel_treemap["byBrand"]:
+                        brand_treemap_data["channelTreemapData"] = {
+                            "byBrand": {
+                                brand_code: channel_treemap["byBrand"][brand_code]
+                            }
                         }
-                    }
-            
-            if "itemTreemapData" in treemap_data:
-                item_treemap = treemap_data["itemTreemapData"]
-                if "byBrand" in item_treemap and brand_code in item_treemap["byBrand"]:
-                    if "channelTreemapData" not in brand_treemap_data:
-                        brand_treemap_data["channelTreemapData"] = {}
-                    brand_treemap_data["itemTreemapData"] = {
-                        "byBrand": {
-                            brand_code: item_treemap["byBrand"][brand_code]
+                
+                if "itemTreemapData" in treemap_data:
+                    item_treemap = treemap_data["itemTreemapData"]
+                    if "byBrand" in item_treemap and brand_code in item_treemap["byBrand"]:
+                        if "channelTreemapData" not in brand_treemap_data:
+                            brand_treemap_data["channelTreemapData"] = {}
+                        brand_treemap_data["itemTreemapData"] = {
+                            "byBrand": {
+                                brand_code: item_treemap["byBrand"][brand_code]
+                            }
                         }
-                    }
-            
-            if brand_treemap_data:
-                insights["treemap"] = generator.generate_insight(brand_treemap_data, brand, "treemap")
+                
+                if brand_treemap_data:
+                    treemap_insight = generator.generate_insight(brand_treemap_data, brand, "treemap")
+    
+    if treemap_insight:
+        insights["treemap"] = treemap_insight
     
     # 3. 레이더 차트 분석
     radar_file = base_dir / "radar_chart.json"
@@ -1635,36 +1706,41 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
             if brand_weekly_data:
                 insights["weekly"] = generator.generate_insight(brand_weekly_data, brand, "weekly")
     
-    # 6. 재고주수 분석 (API 우선)
+    # 6. 재고주수 분석 (API 우선) - skip-stock-sales 옵션이 있으면 제외
     stock_data = None
     api_date = None
     
-    print(f"[ANALYZING] 재고주수 분석 중... ({brand})")
-    stock_weeks_api = fetch_stock_weeks_api(api_base_url)
-    sales_rate_api = fetch_sales_rate_api(api_base_url)
+    # skip_stock_sales 옵션 확인
     
-    if stock_weeks_api and stock_weeks_api.get('success'):
-        api_date = stock_weeks_api.get('asof_dt', stock_weeks_api.get('date'))
-        print(f"[INFO] API 데이터 사용 (기준일: {api_date})")
-        # API 데이터 변환 후 브랜드 필터링
-        full_stock_data = transform_api_to_stock_format(stock_weeks_api, sales_rate_api)
+    if not skip_stock_sales:
+        print(f"[ANALYZING] 재고주수 분석 중... ({brand})")
+        stock_weeks_api = fetch_stock_weeks_api(api_base_url)
+        sales_rate_api = fetch_sales_rate_api(api_base_url)
         
-        # 브랜드별로 필터링
-        if brand_code in full_stock_data.get("clothingBrandStatus", {}):
-            brand_stock = {"clothingBrandStatus": full_stock_data["clothingBrandStatus"][brand_code]}
-            insights["inventory"] = generator.generate_insight(brand_stock, brand, "inventory")
-            insights["saleRate"] = generator.generate_insight(brand_stock, brand, "sale_rate")
-            stock_data = full_stock_data
-    else:
-        # Fallback: JSON 파일
-        print(f"[INFO] API 데이터 없음 - JSON 파일 사용 ({brand})")
-        stock_file = base_dir / "stock_analysis.json"
-        if stock_file.exists():
-            stock_data = load_json_file(stock_file)
-            if stock_data and brand_code in stock_data.get("clothingBrandStatus", {}):
-                brand_stock = {"clothingBrandStatus": stock_data["clothingBrandStatus"][brand_code]}
+        if stock_weeks_api and stock_weeks_api.get('success'):
+            api_date = stock_weeks_api.get('asof_dt', stock_weeks_api.get('date'))
+            print(f"[INFO] API 데이터 사용 (기준일: {api_date})")
+            # API 데이터 변환 후 브랜드 필터링
+            full_stock_data = transform_api_to_stock_format(stock_weeks_api, sales_rate_api)
+            
+            # 브랜드별로 필터링
+            if brand_code in full_stock_data.get("clothingBrandStatus", {}):
+                brand_stock = {"clothingBrandStatus": full_stock_data["clothingBrandStatus"][brand_code]}
                 insights["inventory"] = generator.generate_insight(brand_stock, brand, "inventory")
                 insights["saleRate"] = generator.generate_insight(brand_stock, brand, "sale_rate")
+                stock_data = full_stock_data
+        else:
+            # Fallback: JSON 파일
+            print(f"[INFO] API 데이터 없음 - JSON 파일 사용 ({brand})")
+            stock_file = base_dir / "stock_analysis.json"
+            if stock_file.exists():
+                stock_data = load_json_file(stock_file)
+                if stock_data and brand_code in stock_data.get("clothingBrandStatus", {}):
+                    brand_stock = {"clothingBrandStatus": stock_data["clothingBrandStatus"][brand_code]}
+                    insights["inventory"] = generator.generate_insight(brand_stock, brand, "inventory")
+                    insights["saleRate"] = generator.generate_insight(brand_stock, brand, "sale_rate")
+    else:
+        print(f"[SKIP] 재고주수 및 판매율 인사이트 생성 제외 (API로 실시간 생성됨)")
     
     # 브랜드별 주요 내용(content)과 핵심인사이트(keyPoints) 생성
     brand_kpi_file = base_dir / "brand_kpi.json"
@@ -2224,6 +2300,7 @@ def main():
     parser.add_argument("--use-local", action="store_true", help="로컬 분석만 사용 (OpenAI API 사용 안 함)")
     parser.add_argument("--output-dir", type=str, help="출력 디렉토리 (기본값: public/data/{date}/ai_insights)")
     parser.add_argument("--api-url", type=str, default="http://localhost:3000", help="API 서버 URL (기본값: http://localhost:3000)")
+    parser.add_argument("--skip-stock-sales", action="store_true", help="재고주수 및 판매율 인사이트 생성 제외 (API로 실시간 생성되는 항목)")
     
     args = parser.parse_args()
     
@@ -2245,21 +2322,24 @@ def main():
     
     all_insights = {}
     
+    # skip_stock_sales 옵션 설정
+    skip_stock_sales = args.skip_stock_sales
+    
     # 전체 현황 분석 (--overview 옵션이 있거나 --all-brands 옵션이 있을 때)
     if args.overview or args.all_brands:
-        overview_insights = generate_insights_for_overview(args.date, generator, output_dir, api_base_url)
+        overview_insights = generate_insights_for_overview(args.date, generator, output_dir, api_base_url, skip_stock_sales)
         all_insights["overview"] = overview_insights
     
     # 브랜드별 분석
     if args.all_brands:
         brands = list(BRAND_CODE_MAP.keys())
         for brand in brands:
-            insights = generate_insights_for_brand(args.date, brand, generator, output_dir, api_base_url)
+            insights = generate_insights_for_brand(args.date, brand, generator, output_dir, api_base_url, skip_stock_sales)
             all_insights[brand] = insights
     elif args.brand:
         brands = [args.brand]
         for brand in brands:
-            insights = generate_insights_for_brand(args.date, brand, generator, output_dir, api_base_url)
+            insights = generate_insights_for_brand(args.date, brand, generator, output_dir, api_base_url, skip_stock_sales)
             all_insights[brand] = insights
     elif not args.overview:
         print("[ERROR] --brand, --all-brands, 또는 --overview 옵션 중 하나를 지정해주세요.")

@@ -486,6 +486,11 @@ def main():
         type=str,
         help='업데이트일자 (예: 20251117)'
     )
+    parser.add_argument(
+        '--analysis-month',
+        type=str,
+        help='분석월 (YYYYMM 형식, 예: 202601). 지정하지 않으면 업데이트일자의 월 사용'
+    )
     
     args = parser.parse_args()
     
@@ -508,10 +513,20 @@ def main():
         print(f"[INFO] 업데이트일자: {update_date.strftime('%Y-%m-%d')}")
         print(f"[INFO] 실제 매출 기간 종료일: {(update_date - timedelta(days=1)).strftime('%Y-%m-%d')}")
         
-        # 분석월 계산 (업데이트일자의 월)
-        analysis_year = update_date.year
-        analysis_month_num = update_date.month
-        analysis_month = f"{analysis_year}{analysis_month_num:02d}"
+        # 분석월 계산 (인자로 제공되면 사용, 없으면 업데이트일자의 월)
+        if args.analysis_month:
+            # 인자로 제공된 분석월 사용
+            if len(args.analysis_month) != 6 or not args.analysis_month.isdigit():
+                print("[ERROR] 분석월 형식이 올바르지 않습니다. (YYYYMM 형식 필요)")
+                sys.exit(1)
+            analysis_month = args.analysis_month
+            analysis_year = int(analysis_month[:4])
+            analysis_month_num = int(analysis_month[4:6])
+        else:
+            # 업데이트일자의 월 사용 (기존 로직)
+            analysis_year = update_date.year
+            analysis_month_num = update_date.month
+            analysis_month = f"{analysis_year}{analysis_month_num:02d}"
         print(f"[INFO] 분석월: {analysis_month}")
         
         # 월 총 일수 계산

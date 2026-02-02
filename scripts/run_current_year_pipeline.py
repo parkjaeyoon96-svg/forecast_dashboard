@@ -61,6 +61,7 @@ def main():
         print("[Step 2/3] Finding date folder from metadata...")
         raw_dir = project_root / "raw"
         date_folder = None
+        metadata_path_found = None
         
         # Find latest date folder with metadata.json
         if raw_dir.exists():
@@ -73,6 +74,7 @@ def main():
                                 metadata_path = date_dir / "metadata.json"
                                 if metadata_path.exists():
                                     date_folder = date_dir.name
+                                    metadata_path_found = metadata_path
                                     break
                 if date_folder:
                     break
@@ -83,6 +85,31 @@ def main():
             return 0
     
     print(f"Date folder found: {date_folder}")
+    
+    # metadata.json에서 분석월 읽기 (날짜 지정 모드일 때도)
+    if not analysis_month:
+        metadata_path_to_read = metadata_path_found if 'metadata_path_found' in locals() else None
+        if not metadata_path_to_read:
+            # 날짜 지정 모드: 해당 날짜의 metadata.json 찾기
+            raw_dir = project_root / "raw"
+            if raw_dir.exists():
+                for year_month_dir in raw_dir.iterdir():
+                    if year_month_dir.is_dir() and year_month_dir.name.isdigit() and len(year_month_dir.name) == 6:
+                        current_year_dir = year_month_dir / "current_year" / date_folder
+                        metadata_path_to_read = current_year_dir / "metadata.json"
+                        if metadata_path_to_read.exists():
+                            break
+        
+        if metadata_path_to_read and metadata_path_to_read.exists():
+            try:
+                with open(metadata_path_to_read, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+                    analysis_month = metadata.get('analysis_month')
+                    if analysis_month:
+                        print(f"Analysis month from metadata.json: {analysis_month}")
+            except Exception as e:
+                print(f"[WARNING] Failed to read analysis_month from metadata.json: {e}")
+    
     print()
     
     # Step 3: Convert KE30 to Forecast
@@ -90,8 +117,12 @@ def main():
     try:
         # convert_ke30_to_forecast.py를 직접 실행
         import subprocess
+        cmd = [sys.executable, str(project_root / "scripts" / "convert_ke30_to_forecast.py"), date_folder]
+        # 분석월이 지정된 경우 함께 전달
+        if analysis_month:
+            cmd.extend(['--analysis-month', analysis_month])
         result = subprocess.run(
-            [sys.executable, str(project_root / "scripts" / "convert_ke30_to_forecast.py"), date_folder],
+            cmd,
             cwd=str(project_root),
             capture_output=False
         )
