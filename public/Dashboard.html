@@ -16142,13 +16142,30 @@
       }
       
       console.log('[전체현황] 할인내역 데이터 로드 시작 (전체 브랜드)');
+      
+      // URL 파라미터에서 분석월 가져오기 (다른 API와 동일하게)
+      const urlParams = new URLSearchParams(window.location.search);
+      const monthParam = urlParams.get('month');
+      
+      // 분석월이 URL에 있으면 사용, 없으면 업데이트 날짜에서 추출
+      let analysisMonth;
+      if (monthParam) {
+        analysisMonth = monthParam;
+      } else {
+        const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        analysisMonth = `${apiDate.slice(0, 4)}-${apiDate.slice(4, 6)}`;
+      }
+      
+      // 업데이트 일자 가져오기 (YYYYMMDD 형식)
       const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const analysisMonth = `${apiDate.slice(0, 4)}-${apiDate.slice(4, 6)}`;
+      const updateDate = apiDate; // YYYYMMDD 형식
+      
       const brandCodes = ['M', 'I', 'X', 'V', 'ST', 'W'];
       
       const settled = await Promise.allSettled(
         brandCodes.map(function (code) {
-          var url = '/api/discount-detail?brand=' + encodeURIComponent(code) + '&month=' + encodeURIComponent(analysisMonth);
+          // 분석월과 업데이트 일자 모두 전달
+          var url = '/api/discount-detail?brand=' + encodeURIComponent(code) + '&month=' + encodeURIComponent(analysisMonth) + '&date=' + encodeURIComponent(updateDate);
           return fetchDiscountWithRetry(url, code);
         })
       );
@@ -18709,17 +18726,32 @@
        */
       async function loadDiscountData(brandCode) {
         try {
-          // overview 로드와 동일한 분석월 사용 (__API_DATE__ 우선, 없으면 __DATA_DATE__)
-          const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '') || '20260119';
-          const analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
+          // URL 파라미터에서 분석월 가져오기 (다른 API와 동일하게)
+          const urlParams = new URLSearchParams(window.location.search);
+          const monthParam = urlParams.get('month');
           
-          console.log('[할인내역] 데이터 로드 시작:', { brandCode, analysisMonth });
+          // 분석월이 URL에 있으면 사용, 없으면 업데이트 날짜에서 추출
+          let analysisMonth;
+          if (monthParam) {
+            analysisMonth = monthParam;
+          } else {
+            // 폴백: overview 로드와 동일한 분석월 사용 (__API_DATE__ 우선, 없으면 __DATA_DATE__)
+            const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '') || '20260119';
+            analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
+          }
+          
+          // 업데이트 일자 가져오기 (YYYYMMDD 형식)
+          const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '') || '20260119';
+          const updateDate = dateStr; // YYYYMMDD 형식
+          
+          console.log('[할인내역] 데이터 로드 시작:', { brandCode, analysisMonth, monthParam, updateDate });
           
           // API 호출 (Redis 캐시 사용, 60초 타임아웃)
+          // 분석월과 업데이트 일자 모두 전달
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 60000);
           const response = await fetch(
-            `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}`,
+            `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}&date=${updateDate}`,
             { signal: controller.signal }
           );
           clearTimeout(timeoutId);
@@ -19523,11 +19555,28 @@
           'SUPRA': 'W'
         };
         const brandCode = brandCodeMap[currentBrand] || 'M';
-        const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
-        const url = `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}`;
         
-        console.log('테스트 파라미터:', { currentBrand, brandCode, analysisMonth, url });
+        // URL 파라미터에서 분석월 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const monthParam = urlParams.get('month');
+        
+        // 분석월이 URL에 있으면 사용, 없으면 업데이트 날짜에서 추출
+        let analysisMonth;
+        if (monthParam) {
+          analysisMonth = monthParam;
+        } else {
+          const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+          analysisMonth = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}`;
+        }
+        
+        // 업데이트 일자 가져오기 (YYYYMMDD 형식)
+        const dateStr = window.__API_DATE__ || window.__DATA_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const updateDate = dateStr; // YYYYMMDD 형식
+        
+        // 분석월과 업데이트 일자 모두 전달
+        const url = `/api/discount-detail?brand=${brandCode}&month=${analysisMonth}&date=${updateDate}`;
+        
+        console.log('테스트 파라미터:', { currentBrand, brandCode, analysisMonth, monthParam, updateDate, url });
         
         try {
           const response = await fetch(url);

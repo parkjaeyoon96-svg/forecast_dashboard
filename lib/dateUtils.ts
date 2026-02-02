@@ -65,28 +65,45 @@ export function getCurrentMonth(): string {
 
 /**
  * 분석월 기준 asof_dt 계산 (한국 시간 기준)
- * - 분석월이 과거월: 해당 월의 말일
- * - 분석월이 현재월: 어제
+ * - 분석월이 업데이트 일자의 월과 같으면: 업데이트 일자의 전날까지
+ * - 분석월이 업데이트 일자의 월보다 과거면: 해당 월의 말일까지
  * 
  * @param analysisMonth YYYY-MM 형식의 분석월
+ * @param updateDate YYYY-MM-DD 형식의 업데이트 일자 (선택, 없으면 오늘 날짜 사용)
  * @returns YYYY-MM-DD 형식의 기준일
  */
-export function calculateAsofDate(analysisMonth: string): string {
-  const [year, month] = analysisMonth.split('-').map(Number);
+export function calculateAsofDate(analysisMonth: string, updateDate?: string): string {
+  const [analysisYear, analysisMonthNum] = analysisMonth.split('-').map(Number);
   
-  // 한국 시간 기준 오늘 날짜
-  const now = new Date();
-  const kstTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
-  const todayYear = kstTime.getUTCFullYear();
-  const todayMonth = kstTime.getUTCMonth() + 1;
+  // 업데이트 일자 파싱 (없으면 오늘 날짜 사용)
+  let updateYear: number;
+  let updateMonth: number;
+  let updateDay: number;
   
-  // 현재월인 경우: 어제까지
-  if (year === todayYear && month === todayMonth) {
-    return getYesterday();
+  if (updateDate) {
+    [updateYear, updateMonth, updateDay] = updateDate.split('-').map(Number);
+  } else {
+    // 한국 시간 기준 오늘 날짜
+    const now = new Date();
+    const kstTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+    updateYear = kstTime.getUTCFullYear();
+    updateMonth = kstTime.getUTCMonth() + 1;
+    updateDay = kstTime.getUTCDate();
   }
   
-  // 과거월인 경우: 해당 월의 말일
-  const lastDay = new Date(Date.UTC(year, month, 0));
+  // 분석월이 업데이트 일자의 월과 같은 경우: 업데이트 일자의 전날까지
+  if (analysisYear === updateYear && analysisMonthNum === updateMonth) {
+    // 업데이트 일자의 전날 계산
+    const updateDateObj = new Date(Date.UTC(updateYear, updateMonth - 1, updateDay));
+    const prevDay = new Date(updateDateObj.getTime() - (24 * 60 * 60 * 1000));
+    const y = prevDay.getUTCFullYear();
+    const m = String(prevDay.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(prevDay.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  
+  // 분석월이 업데이트 일자의 월보다 과거인 경우: 해당 월의 말일
+  const lastDay = new Date(Date.UTC(analysisYear, analysisMonthNum, 0));
   const y = lastDay.getUTCFullYear();
   const m = String(lastDay.getUTCMonth() + 1).padStart(2, '0');
   const d = String(lastDay.getUTCDate()).padStart(2, '0');

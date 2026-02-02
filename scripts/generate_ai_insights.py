@@ -1902,9 +1902,9 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                                     top_item_share = (top_item_sales / total_item_sales * 100) if total_item_sales > 0 else 0
                             
                             if top_item_name:
-                                key_points.append(f"- 현재시점기준({current_date_str}) 판매 비중이 가장 높은 채널은 <strong>{top_channel['name']}</strong>({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%, 아이템 판매비중이 가장 높은 곳은 <strong>{top_item_name}</strong>({top_item_sales/100000000:.0f}억원)으로 전체비중 {top_item_share:.0f}%입니다.")
+                                key_points.insert(0, f"- (현재기준 {current_date_str})판매 비중이 가장 높은 채널은 {top_channel['name']}({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%, 아이템 판매비중이 가장 높은 곳은 {top_item_name}({top_item_sales/100000000:.0f}억원)으로 전체비중 {top_item_share:.0f}%")
                             else:
-                                key_points.append(f"- 현재시점기준({current_date_str}) 판매 비중이 가장 높은 채널은 <strong>{top_channel['name']}</strong>({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%입니다.")
+                                key_points.insert(0, f"- (현재기준 {current_date_str})판매 비중이 가장 높은 채널은 {top_channel['name']}({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%")
             
             # 2. 채널 중 직접이익이 가장 높은 곳과 낮은 곳
             channel_pl_file = base_dir / "channel_pl.json"

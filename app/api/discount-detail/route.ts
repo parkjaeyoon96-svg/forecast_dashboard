@@ -16,14 +16,15 @@ import { getTodayCompact, getToday, calculateAsofDate } from '@/lib/dateUtils';
  * 
  * 캐싱 전략:
  * - Redis 캐시 (24시간 TTL)
- * - 키: discount-detail-{브랜드코드}-YYYYMMDD (날짜별)
+ * - 키: discount-detail-{브랜드코드}-{분석월YYYYMM}-{업데이트일자YYYYMMDD}
  */
 export async function GET(request: Request) {
   try {
-    // URL 파라미터에서 brand, month, forceUpdate 확인
+    // URL 파라미터에서 brand, month, date, forceUpdate 확인
     const { searchParams } = new URL(request.url);
     const brandCode = searchParams.get('brand');
     const analysisMonth = searchParams.get('month'); // YYYY-MM 형식
+    const updateDateParam = searchParams.get('date'); // YYYYMMDD 형식 (선택)
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
     
     // 브랜드 코드 필수 확인
@@ -35,10 +36,12 @@ export async function GET(request: Request) {
     }
     
     // 날짜별 캐시 키 생성 (한국 시간 기준)
-    // 판매율/재고주수 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함하여 매일 업데이트
-    // 분석월은 쿼리 파라미터로 전달하여 데이터 필터링에만 사용
+    // 분석월과 업데이트 일자를 캐시 키에 포함하여 다른 기간 데이터가 섞이지 않도록 함
     const today = getTodayCompact();
-    const cacheKey = `discount-detail-${brandCode}-${today}`;
+    // 분석월과 업데이트 일자가 있으면 캐시 키에 포함, 없으면 오늘 날짜만 사용
+    const monthKey = analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6);
+    const dateKey = updateDateParam && updateDateParam.length === 8 ? updateDateParam : today;
+    const cacheKey = `discount-detail-${brandCode}-${monthKey}-${dateKey}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -57,9 +60,15 @@ export async function GET(request: Request) {
     
     console.log(`[할인내역 API] 캐시 미스: ${cacheKey} - Snowflake 조회 시작`);
     
-    // 2. 기준일 계산 (분석월이 있을 때만 사용)
-    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : null;
-    console.log(`[할인내역 API] 기준일:`, { analysisMonth, asof_dt });
+    // 2. 업데이트 일자 변환 (YYYYMMDD -> YYYY-MM-DD)
+    let updateDate: string | undefined;
+    if (updateDateParam && updateDateParam.length === 8) {
+      updateDate = `${updateDateParam.slice(0, 4)}-${updateDateParam.slice(4, 6)}-${updateDateParam.slice(6, 8)}`;
+    }
+    
+    // 3. 기준일 계산 (분석월과 업데이트 일자 모두 고려)
+    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth, updateDate) : null;
+    console.log(`[할인내역 API] 기준일:`, { analysisMonth, updateDate, updateDateParam, asof_dt });
     
     // 3. Snowflake 쿼리 실행
     const query = getDiscountQuery(brandCode, asof_dt);
