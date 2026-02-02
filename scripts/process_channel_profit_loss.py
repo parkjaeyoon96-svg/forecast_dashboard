@@ -217,7 +217,8 @@ class ChannelProfitLossProcessor:
     def aggregate_by_channel(self, df: pd.DataFrame, brand: str = None, is_plan_data: bool = False) -> pd.DataFrame:
         """채널별 집계"""
         if df is None or df.empty:
-            return pd.DataFrame()
+            # 빈 DataFrame을 반환할 때는 최소한 '채널명' 컬럼을 포함한 빈 DataFrame 반환
+            return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
         
         # 브랜드 필터링
         if brand:
@@ -250,7 +251,7 @@ class ChannelProfitLossProcessor:
                     for _, row in grouped.iterrows():
                         print(f"    - {row['채널명']}: 매출 {row['실판매액']/100000000:.1f}억원")
                 else:
-                    return pd.DataFrame()
+                    return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
             
             # 케이스 2: 구분 컬럼이 있는 롱 포맷
             elif '구분' in df.columns and '채널명' in df.columns:
@@ -269,7 +270,7 @@ class ChannelProfitLossProcessor:
                 
                 if not value_cols:
                     print(f"⚠️ 계획 데이터에서 값 컬럼을 찾을 수 없습니다. 컬럼: {list(df.columns)}")
-                    return pd.DataFrame()
+                    return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
                 
                 # 첫 번째 숫자형 컬럼을 값으로 사용 (일반적으로 하나의 값 컬럼만 있음)
                 value_col = value_cols[0]
@@ -307,7 +308,7 @@ class ChannelProfitLossProcessor:
                 
                 if grouped.empty:
                     print(f"⚠️ 계획 데이터 집계 결과가 비어있습니다")
-                    return pd.DataFrame()
+                    return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
                 
                 print(f"  ✓ 계획 데이터 집계 완료: {len(grouped)}개 채널")
             else:
@@ -320,7 +321,7 @@ class ChannelProfitLossProcessor:
                 
                 if not channel_cols:
                     print(f"⚠️ 계획 데이터에서 채널 컬럼을 찾을 수 없습니다.")
-                    return pd.DataFrame()
+                    return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
                 
                 # 행열 전환: 구분을 인덱스로, 채널을 컬럼으로
                 # 실판매액 데이터
@@ -384,7 +385,7 @@ class ChannelProfitLossProcessor:
                 
                 if grouped.empty:
                     print(f"⚠️ 계획 데이터 집계 결과가 비어있습니다")
-                    return pd.DataFrame()
+                    return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
                 
                 print(f"  ✓ 계획 데이터 집계 완료: {len(grouped)}개 채널")
         else:
@@ -400,7 +401,7 @@ class ChannelProfitLossProcessor:
             available_cols = {k: v for k, v in agg_dict.items() if k in df.columns}
             
             if not available_cols:
-                return pd.DataFrame()
+                return pd.DataFrame(columns=['채널명', 'TAG가', '실판매액', '직접이익', '할인율', '직접이익율'])
             
             grouped = df.groupby('채널명').agg(available_cols).reset_index()
         
@@ -503,7 +504,11 @@ class ChannelProfitLossProcessor:
             row = {'채널': channel}
             
             # 전년 데이터
-            prev_row = previous_agg[previous_agg['채널명'] == channel]
+            # previous_agg가 비어있거나 '채널명' 컬럼이 없으면 빈 결과 반환
+            if previous_agg.empty or '채널명' not in previous_agg.columns:
+                prev_row = pd.DataFrame()
+            else:
+                prev_row = previous_agg[previous_agg['채널명'] == channel]
             if not prev_row.empty:
                 prev_value = prev_row[value_col].values[0] if value_col in prev_row.columns else 0
                 prev_rate = prev_row[rate_col].values[0] if rate_col in prev_row.columns else 0
@@ -514,7 +519,11 @@ class ChannelProfitLossProcessor:
                 row['전년_할인율'] = 0.0
             
             # 계획 데이터
-            plan_row = plan_agg[plan_agg['채널명'] == channel]
+            # plan_agg가 비어있거나 '채널명' 컬럼이 없으면 빈 결과 반환
+            if plan_agg.empty or '채널명' not in plan_agg.columns:
+                plan_row = pd.DataFrame()
+            else:
+                plan_row = plan_agg[plan_agg['채널명'] == channel]
             if not plan_row.empty:
                 plan_value = plan_row[value_col].values[0] if value_col in plan_row.columns else 0
                 plan_rate = plan_row[rate_col].values[0] if rate_col in plan_row.columns else 0
@@ -525,7 +534,11 @@ class ChannelProfitLossProcessor:
                 row['계획_할인율'] = 0.0
             
             # 당년 데이터
-            curr_row = current_agg[current_agg['채널명'] == channel]
+            # current_agg가 비어있거나 '채널명' 컬럼이 없으면 빈 결과 반환
+            if current_agg.empty or '채널명' not in current_agg.columns:
+                curr_row = pd.DataFrame()
+            else:
+                curr_row = current_agg[current_agg['채널명'] == channel]
             if not curr_row.empty:
                 curr_value = curr_row[value_col].values[0] if value_col in curr_row.columns else 0
                 curr_rate = curr_row[rate_col].values[0] if rate_col in curr_row.columns else 0
@@ -1133,18 +1146,31 @@ def main():
         processor.export_to_dashboard_js(output_path=args.output)
         
     elif args.format == 'dashboard':
-        # 메인 데이터 JS 파일에 통합
-        processor.append_to_main_data_js()
-        print(f"\n💡 Dashboard.html에서 데이터를 사용하려면 window.channelProfitLossData를 참조하세요.")
+        # 메인 데이터 JS 파일에 통합 (실패해도 계속 진행)
+        try:
+            processor.append_to_main_data_js()
+            print(f"\n💡 Dashboard.html에서 데이터를 사용하려면 window.channelProfitLossData를 참조하세요.")
+        except Exception as e:
+            print(f"⚠️ 메인 데이터 JS 파일 통합 실패 (계속 진행): {e}")
 
-        # ★★★ JSON 파일로도 저장 (브랜드별 데이터 포함) ★★★
-        json_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "data", args.base_date)
-        os.makedirs(json_dir, exist_ok=True)
-        json_path = os.path.join(json_dir, "channel_profit_loss.json")
-        
-        # include_all_brands=True로 브랜드별 데이터 포함
-        result = processor.export_to_json(output_path=json_path, include_all_brands=True)
-        print(f"  ✅ JSON 저장 (브랜드별 데이터 포함): {json_path}")
+        # ★★★ JSON 파일로도 저장 (브랜드별 데이터 포함) - 항상 실행 ★★★
+        try:
+            json_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "data", args.base_date)
+            os.makedirs(json_dir, exist_ok=True)
+            json_path = os.path.join(json_dir, "channel_profit_loss.json")
+            
+            # include_all_brands=True로 브랜드별 데이터 포함
+            result = processor.export_to_json(output_path=json_path, include_all_brands=True)
+            if result:
+                print(f"  ✅ JSON 저장 완료 (브랜드별 데이터 포함): {json_path}")
+            else:
+                print(f"  ⚠️ JSON 저장 실패: result가 None입니다")
+                sys.exit(1)  # JSON 저장 실패 시 오류 코드 반환
+        except Exception as e:
+            print(f"  ❌ JSON 저장 중 에러 발생: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)  # 예외 발생 시 오류 코드 반환
 
 
 if __name__ == "__main__":

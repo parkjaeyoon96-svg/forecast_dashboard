@@ -126,8 +126,8 @@ if !STEP_ERR! neq 0 (
 )
 echo.
 
-set YEAR_MONTH=!DATE_STR:~0,6!
-call "%PYTHON_CMD%" scripts\process_channel_profit_loss.py --base-date !DATE_STR! --target-month !YEAR_MONTH! --format dashboard
+REM Use ANALYSIS_MONTH instead of DATE_STR for target-month (analysis target month)
+call "%PYTHON_CMD%" scripts\process_channel_profit_loss.py --base-date !DATE_STR! --target-month !ANALYSIS_MONTH! --format dashboard
 set STEP_ERR=!errorlevel!
 if !STEP_ERR! neq 0 (
     echo [Step 4] Failed (Error code: !STEP_ERR!)
