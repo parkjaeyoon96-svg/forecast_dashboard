@@ -850,12 +850,17 @@ def fetch_sales_rate_api(api_base_url: str = "http://localhost:3000") -> Optiona
         return None
 
 
-def fetch_sales_composition_api(api_base_url: str = "http://localhost:3000", brand_code: Optional[str] = None) -> Optional[Dict]:
+def fetch_sales_composition_api(api_base_url: str = "http://localhost:3000", brand_code: Optional[str] = None, analysis_month: Optional[str] = None) -> Optional[Dict]:
     """매출구성 API 데이터 조회 (트리맵 인사이트 포함)"""
     try:
         url = f"{api_base_url}/api/sales-composition"
-        print(f"[INFO] 매출구성 API 호출: {url}")
-        response = requests.get(url, timeout=30)
+        params = {}
+        if brand_code:
+            params['brand'] = brand_code
+        if analysis_month:
+            params['month'] = analysis_month
+        print(f"[INFO] 매출구성 API 호출: {url}, params: {params}")
+        response = requests.get(url, params=params, timeout=30)
         response.raise_for_status()
         result = response.json()
         if result.get('success'):
@@ -1827,84 +1832,47 @@ def generate_insights_for_brand(date_str: str, brand: str, generator: AIInsightG
                 content += f"직접비 효율이 목표 대비 {direct_efficiency:.0f}%로 {'양호한' if direct_efficiency >= 95 else '개선이 필요한'} 비용 관리를 보이고 있습니다."
             
             # 핵심인사이트 생성 (새로운 형식)
-            # 1. 현재 시점 기준 판매매출 가장 높은 채널과 아이템
-            treemap_file = base_dir / "treemap.json"
-            if treemap_file.exists():
-                treemap_data = load_json_file(treemap_file)
-                if treemap_data:
-                    # treemap 구조: channelTreemapData.byBrand.M.channel.channels
-                    brand_channel_data = treemap_data.get("channelTreemapData", {}).get("byBrand", {}).get(brand_code, {})
-                    brand_item_data = treemap_data.get("itemTreemapData", {}).get("byBrand", {}).get(brand_code, {})
-                    
-                    channel_treemap = brand_channel_data.get("channel", {}) if isinstance(brand_channel_data, dict) else {}
-                    item_treemap = brand_item_data.get("item", {}) if isinstance(brand_item_data, dict) else {}
-                    
-                    # 채널별 매출 분석
-                    channels_data = channel_treemap.get("channels", {}) if isinstance(channel_treemap, dict) else {}
-                    if channels_data and isinstance(channels_data, dict):
-                        channels = []
-                        total_sales = channel_treemap.get("total", {}).get("sales", 0) if isinstance(channel_treemap, dict) else 0
-                        for ch_name, ch_data in channels_data.items():
-                            if isinstance(ch_data, dict):
-                                sales = ch_data.get("sales", 0)
-                                share = ch_data.get("share", 0)
-                                if sales > 0:
-                                    channels.append({
-                                        "name": ch_name,
-                                        "sales": sales,
-                                        "share": share
-                                    })
-                        
-                        if channels and total_sales > 0:
-                            # 매출이 가장 높은 채널
-                            top_channel = max(channels, key=lambda x: x["sales"])
-                            top_channel_sales_billion = top_channel["sales"] / 100000000
-                            top_channel_share = (top_channel["sales"] / total_sales * 100) if total_sales > 0 else top_channel["share"]
+            # 1. 현재 시점 기준 판매매출 가장 높은 채널과 아이템 (API 사용)
+            # 분석월 계산 (YYYY-MM 형식)
+            analysis_month_str = date_str[:4] + "-" + date_str[4:6]
+            sales_composition_api = fetch_sales_composition_api(api_base_url, brand_code, analysis_month_str)
+            
+            if sales_composition_api and sales_composition_api.get('success') and sales_composition_api.get('insights'):
+                api_insights = sales_composition_api.get('insights', {})
+                top_channel = api_insights.get('topChannel')
+                top_item = api_insights.get('topItem')
+                
+                if top_channel:
+                    # 날짜 정보 (API의 asof_dt 사용, 없으면 계산)
+                    current_date_str = sales_composition_api.get('asof_dt')
+                    if not current_date_str:
+                        from datetime import timedelta
+                        try:
+                            update_date = datetime.strptime(date_str, "%Y%m%d")
+                            current_date = update_date - timedelta(days=1)
+                            # 분석월 계산 (YYYYMM)
+                            analysis_month = date_str[:6]
+                            month_end = datetime.strptime(analysis_month + "01", "%Y%m%d").replace(day=28) + timedelta(days=4)
+                            month_end = month_end - timedelta(days=month_end.day)
                             
-                            # 현재시점 기준 날짜 계산 (업데이트 일자 -1일, 분석월 넘어가면 월말)
-                            from datetime import timedelta
-                            try:
-                                update_date = datetime.strptime(date_str, "%Y%m%d")
-                                current_date = update_date - timedelta(days=1)
-                                # 분석월 계산 (YYYYMM)
-                                analysis_month = date_str[:6]
-                                month_end = datetime.strptime(analysis_month + "01", "%Y%m%d").replace(day=28) + timedelta(days=4)
-                                month_end = month_end - timedelta(days=month_end.day)
-                                
-                                if current_date > month_end:
-                                    current_date_str = month_end.strftime("%Y-%m-%d")
-                                else:
-                                    current_date_str = current_date.strftime("%Y-%m-%d")
-                            except:
-                                current_date_str = date_str[:4] + "-" + date_str[4:6] + "-" + date_str[6:8]
-                            
-                            # 아이템별 매출 분석
-                            top_item_name = ""
-                            top_item_sales = 0
-                            top_item_share = 0
-                            items_data = item_treemap.get("items", {}) if isinstance(item_treemap, dict) else {}
-                            if items_data and isinstance(items_data, dict):
-                                items = []
-                                total_item_sales = item_treemap.get("total", {}).get("sales", 0) if isinstance(item_treemap, dict) else 0
-                                for item_name, item_data in items_data.items():
-                                    if isinstance(item_data, dict):
-                                        item_sales = item_data.get("sales", 0)
-                                        if item_sales > 0:
-                                            items.append({
-                                                "name": item_name,
-                                                "sales": item_sales
-                                            })
-                                
-                                if items and total_item_sales > 0:
-                                    top_item = max(items, key=lambda x: x["sales"])
-                                    top_item_name = top_item["name"]
-                                    top_item_sales = top_item["sales"]
-                                    top_item_share = (top_item_sales / total_item_sales * 100) if total_item_sales > 0 else 0
-                            
-                            if top_item_name:
-                                key_points.insert(0, f"- (현재기준 {current_date_str})판매 비중이 가장 높은 채널은 {top_channel['name']}({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%, 아이템 판매비중이 가장 높은 곳은 {top_item_name}({top_item_sales/100000000:.0f}억원)으로 전체비중 {top_item_share:.0f}%")
+                            if current_date > month_end:
+                                current_date_str = month_end.strftime("%Y-%m-%d")
                             else:
-                                key_points.insert(0, f"- (현재기준 {current_date_str})판매 비중이 가장 높은 채널은 {top_channel['name']}({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%")
+                                current_date_str = current_date.strftime("%Y-%m-%d")
+                        except:
+                            current_date_str = date_str[:4] + "-" + date_str[4:6] + "-" + date_str[6:8]
+                    
+                    top_channel_sales_billion = top_channel.get('sales', 0) / 100000000
+                    top_channel_share = top_channel.get('share', 0)
+                    
+                    if top_item:
+                        top_item_name = top_item.get('name', '')
+                        top_item_sales_billion = top_item.get('sales', 0) / 100000000
+                        top_item_share = top_item.get('share', 0)
+                        
+                        key_points.insert(0, f"- (현재기준 {current_date_str})판매 비중이 가장 높은 채널은 {top_channel.get('name', '')}({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%, 아이템 판매비중이 가장 높은 곳은 {top_item_name}({top_item_sales_billion:.0f}억원)으로 전체비중 {top_item_share:.0f}%")
+                    else:
+                        key_points.insert(0, f"- (현재기준 {current_date_str})판매 비중이 가장 높은 채널은 {top_channel.get('name', '')}({top_channel_sales_billion:.0f}억원)으로 전체 비중 {top_channel_share:.0f}%")
             
             # 2. 채널 중 직접이익이 가장 높은 곳과 낮은 곳
             channel_pl_file = base_dir / "channel_pl.json"

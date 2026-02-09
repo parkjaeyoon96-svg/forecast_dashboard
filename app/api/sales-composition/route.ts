@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { executeSnowflakeQuery } from '@/lib/snowflake';
 import { getCache, setCache } from '@/lib/redis';
-import { getTodayCompact, getToday, calculateAsofDate } from '@/lib/dateUtils';
+import { getTodayCompact, getToday, getYesterday, calculateAsofDate } from '@/lib/dateUtils';
 
 /**
  * 매출구성 데이터 조회 API (채널별/아이템별 트리맵용)
@@ -39,6 +39,7 @@ export async function GET(request: Request) {
         console.log(`[매출구성 API] 캐시 히트: ${cacheKey}`);
         return NextResponse.json({
           ...cachedData,
+          asof_dt: cachedData.asof_dt ?? getYesterday(),
           cached: true,
           cacheKey
         });
@@ -56,8 +57,8 @@ export async function GET(request: Request) {
       database: process.env.SNOWFLAKE_DATABASE ? '✓' : '✗'
     });
     
-    // 2. 기준일 계산 (분석월이 있을 때만 사용)
-    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : null;
+    // 2. 기준일 계산 (분석월이 있으면 해당 월 기준, 없으면 어제 = 쿼리와 동일)
+    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : getYesterday();
     console.log(`[매출구성 API] 기준일:`, { analysisMonth, asof_dt });
     
     // 3. Snowflake 쿼리 실행
@@ -81,11 +82,11 @@ export async function GET(request: Request) {
     // 5. 트리맵 인사이트 생성 (판매비중 가장 높은 채널과 아이템)
     const insights = generateTreemapInsights(cyData);
     
-    // 6. 결과 구성
+    // 6. 결과 구성 (asof_dt 항상 반환 → 브랜드별 트리맵 분석기간 표시용)
     const result = {
       success: true,
       date: getToday(), // 한국 시간 기준
-      asof_dt,
+      asof_dt: asof_dt ?? getYesterday(),
       data: {
         CY: cyData,
         PY: pyData

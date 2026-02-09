@@ -1,0 +1,50 @@
+[
+  {
+    "BRAND": "MLB",
+    "SALES": 387.3,
+    "DIRECT_PROFIT": 102.5,
+    "OPERATING_PROFIT": 65.5,
+    "ACHIEVEMENT": 133,
+    "YOY_SALES": 33
+  },
+  {
+    "BRAND": "MLB KIDS",
+    "SALES": 85.6,
+    "DIRECT_PROFIT": 6.7,
+    "OPERATING_PROFIT": -5.3,
+    "ACHIEVEMENT": 106,
+    "YOY_SALES": 24
+  },
+  {
+    "BRAND": "DISCOVERY",
+    "SALES": 347.0,
+    "DIRECT_PROFIT": 57.2,
+    "OPERATING_PROFIT": 10.8,
+    "ACHIEVEMENT": 105,
+    "YOY_SALES": 10
+  },
+  {
+    "BRAND": "DUVETICA",
+    "SALES": 27.3,
+    "DIRECT_PROFIT": 6.3,
+    "OPERATING_PROFIT": -0.5,
+    "ACHIEVEMENT": 103,
+    "YOY_SALES": 58
+  },
+  {
+    "BRAND": "SERGIO",
+    "SALES": 2.9,
+    "DIRECT_PROFIT": -1.6,
+    "OPERATING_PROFIT": -8.3,
+    "ACHIEVEMENT": 48,
+    "YOY_SALES": -48
+  },
+  {
+    "BRAND": "SUPRA",
+    "SALES": 0.4,
+    "DIRECT_PROFIT": -0.3,
+    "OPERATING_PROFIT": -0.5,
+    "ACHIEVEMENT": 38,
+    "YOY_SALES": -82
+  }
+]

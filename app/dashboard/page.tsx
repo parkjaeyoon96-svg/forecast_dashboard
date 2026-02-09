@@ -1,48 +1,35 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const [src, setSrc] = useState('/Dashboard.html');
 
-  useEffect(() => {
-    // 전체 화면 설정
-    document.body.style.margin = '0';
-    document.body.style.padding = '0';
-    document.body.style.overflow = 'hidden';
-    
-    // URL에서 모든 파라미터 가져오기
+  // 첫 렌더부터 iframe에 date/month 등 쿼리를 넣어서 로드 (서버/클라이언트 동일해야 hydration 오류 방지 — Date.now() 사용 안 함)
+  const iframeSrc = useMemo(() => {
     const params = new URLSearchParams();
-    
-    // 모든 searchParams를 params에 복사
     searchParams.forEach((value, key) => {
       params.set(key, value);
     });
-    
-    // 캐시 방지용 타임스탬프 추가
-    params.set('t', Date.now().toString());
-    
-    // 파라미터가 있으면 전달
     const queryString = params.toString();
-    const newSrc = queryString ? `/Dashboard.html?${queryString}` : `/Dashboard.html`;
-    
-    console.log('[Dashboard Page] URL 파라미터:', Object.fromEntries(searchParams.entries()));
-    console.log('[Dashboard Page] iframe src 설정:', newSrc);
-    
-    setSrc(newSrc);
+    return queryString ? `/Dashboard.html?${queryString}` : '/Dashboard.html';
+  }, [searchParams]);
 
+  useEffect(() => {
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.margin = '';
       document.body.style.padding = '';
       document.body.style.overflow = '';
     };
-  }, [searchParams]);
+  }, []);
 
   return (
     <iframe 
-      src={src}
+      src={iframeSrc}
       style={{
         width: '100%',
         height: '100vh',

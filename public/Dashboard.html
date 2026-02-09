@@ -200,7 +200,16 @@
         const [brandKPI, brandPL, channelProfitLoss, radarChart, weeklyTrend, treemap, brandPlan, insightsData, metrics] = await Promise.all([
           fetch(`${baseUrl}/brand_kpi.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/brand_pl.json`).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(`${baseUrl}/channel_profit_loss.json`).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(`${baseUrl}/channel_profit_loss.json`).then(r => {
+            if (!r.ok) {
+              console.warn(`[채널손익] channel_profit_loss.json 로드 실패 (${r.status}): ${r.statusText}`);
+              return null;
+            }
+            return r.json();
+          }).catch(err => {
+            console.error('[채널손익] channel_profit_loss.json 로드 에러:', err);
+            return null;
+          }),
           fetch(`${baseUrl}/radar_chart.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(`${baseUrl}/weekly_trend.json`).then(r => r.ok ? r.json() : null).catch(() => null),
           Promise.resolve(null), // treemap.json 로딩 비활성화 - Snowflake API 사용
@@ -292,6 +301,13 @@
               brandProfitTotals: channelProfitLoss.brandProfitTotals
             };
             console.log('  ✓ channel_profit_loss.json (브랜드별 데이터:', Object.keys(channelProfitLoss.channelRevenueData), ')');
+            console.log('  ✓ channel_profit_loss.json 구조 확인:', {
+              hasChannelRevenueData: !!channelProfitLoss.channelRevenueData,
+              hasChannelProfitData: !!channelProfitLoss.channelProfitData,
+              revenueBrands: Object.keys(channelProfitLoss.channelRevenueData || {}),
+              profitBrands: Object.keys(channelProfitLoss.channelProfitData || {}),
+              MLBRevenueChannels: channelProfitLoss.channelRevenueData?.MLB?.length || 0
+            });
           } else {
             // 구 구조 호환: 전체 합산만 있는 경우
             const convertedData = {
@@ -348,6 +364,9 @@
             window.channelProfitLossData = convertedData;
             console.log('  ✓ channel_profit_loss.json (레거시 변환, 채널:', channelProfitLoss.매출?.length, '개)');
           }
+        } else {
+          console.warn('  ⚠️ channel_profit_loss.json 파일이 없거나 로드 실패');
+          window.channelProfitLossData = null;
         }
         
         if (radarChart) {
@@ -4626,31 +4645,32 @@
             !line.includes('아이템 판매비중')
           );
           
-          // 매출비중(트리맵) 인사이트 추가
-          const treemapKeyPoints = [];
+          // 매출비중(트리맵) 인사이트 추가 — 한 줄로 합쳐 맨 앞에 배치
+          let combinedTreemapLine = '';
           if (window.treemapInsights) {
             const apiInsights = window.treemapInsights;
             const apiDate = window.salesCompositionData?.asof_dt || window.salesCompositionData?.date || '';
             const datePrefix = apiDate ? `(현재기준 ${apiDate})` : '';
-            
+            const parts = [];
             if (apiInsights.topChannel) {
               const topChannel = apiInsights.topChannel;
               const salesInBillions = topChannel.sales / 100000000;
-              treemapKeyPoints.push(`${datePrefix}판매 비중이 가장 높은 채널은 <strong>${topChannel.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체 비중 ${topChannel.share.toFixed(0)}%`);
+              parts.push(`${datePrefix}판매 비중이 가장 높은 채널은 <strong>${topChannel.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체 비중 ${topChannel.share.toFixed(0)}%`);
             }
-            
             if (apiInsights.topItem) {
               const topItem = apiInsights.topItem;
               const salesInBillions = topItem.sales / 100000000;
-              treemapKeyPoints.push(`아이템 판매비중이 가장 높은 곳은 <strong>${topItem.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체비중 ${topItem.share.toFixed(0)}%`);
+              parts.push(`아이템 판매비중이 가장 높은 곳은 <strong>${topItem.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체비중 ${topItem.share.toFixed(0)}%`);
             }
+            combinedTreemapLine = parts.length ? '- ' + parts.join(', ') : '';
           }
           
-          // 실시간 데이터가 있으면 추가, 없으면 기존 데이터 사용
+          // 순서: 판매비중(한 줄) → 나머지 인사이트 → 실시간
           let finalKeyPoints;
-          const allRealtimePoints = [...(realtimeKeyPoints || []), ...treemapKeyPoints];
-          if (allRealtimePoints.length > 0) {
-            finalKeyPoints = [...nonRealtimeLines, ...allRealtimePoints].join('<br>');
+          const realtimeList = realtimeKeyPoints || [];
+          if (combinedTreemapLine || realtimeList.length > 0) {
+            const ordered = [combinedTreemapLine, ...nonRealtimeLines, ...realtimeList].filter(Boolean);
+            finalKeyPoints = ordered.join('<br>');
           } else {
             finalKeyPoints = keyPoints;
           }
@@ -4732,19 +4752,20 @@
                   const apiInsights = result.insights;
                   const datePrefix = result.asof_dt ? `(현재기준 ${result.asof_dt})` : '';
                   
+                  const parts = [];
                   if (apiInsights.topChannel) {
                     const topChannel = apiInsights.topChannel;
                     const salesInBillions = topChannel.sales / 100000000;
-                    treemapKeyPoints.push(`${datePrefix}판매 비중이 가장 높은 채널은 <strong>${topChannel.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체 비중 ${topChannel.share.toFixed(0)}%`);
+                    parts.push(`${datePrefix}판매 비중이 가장 높은 채널은 <strong>${topChannel.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체 비중 ${topChannel.share.toFixed(0)}%`);
                   }
-                  
                   if (apiInsights.topItem) {
                     const topItem = apiInsights.topItem;
                     const salesInBillions = topItem.sales / 100000000;
-                    treemapKeyPoints.push(`아이템 판매비중이 가장 높은 곳은 <strong>${topItem.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체비중 ${topItem.share.toFixed(0)}%`);
+                    parts.push(`아이템 판매비중이 가장 높은 곳은 <strong>${topItem.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체비중 ${topItem.share.toFixed(0)}%`);
                   }
+                  const combinedTreemapLine = parts.length ? '- ' + parts.join(', ') : '';
                   
-                  // 기존 keyPoints와 병합하여 업데이트
+                  // 기존 keyPoints와 병합 (판매비중 한 줄을 맨 앞에)
                   const keyPointsLines = keyPoints.split('<br>').filter(line => line.trim());
                   const nonRealtimeLines = keyPointsLines.filter(line => 
                     !line.includes('누적 TAG 매출') &&
@@ -4756,10 +4777,8 @@
                     !line.includes('아이템 판매비중')
                   );
                   
-                  const allRealtimePoints = [...(realtimeKeyPoints || []), ...treemapKeyPoints];
-                  const finalKeyPoints = allRealtimePoints.length > 0 
-                    ? [...nonRealtimeLines, ...allRealtimePoints].join('<br>')
-                    : keyPoints;
+                  const ordered = [combinedTreemapLine, ...nonRealtimeLines, ...(realtimeKeyPoints || [])].filter(Boolean);
+                  const finalKeyPoints = ordered.length > 0 ? ordered.join('<br>') : keyPoints;
                   
                   const keyPointsElement = document.getElementById('brand-key-points-content');
                   if (keyPointsElement) {
@@ -4772,31 +4791,32 @@
               });
           }
           
-          // 일단 기존 로직대로 진행 (브랜드별 API 호출은 비동기이므로)
-          // 전체 데이터가 있으면 사용
+          // 브랜드 코드 없을 때 전체 treemapInsights로 판매비중 한 줄 생성
+          let combinedTreemapLine = '';
           if (window.treemapInsights && !brandCode) {
             const apiInsights = window.treemapInsights;
             const apiDate = window.salesCompositionData?.asof_dt || window.salesCompositionData?.date || '';
             const datePrefix = apiDate ? `(현재기준 ${apiDate})` : '';
-            
+            const parts = [];
             if (apiInsights.topChannel) {
               const topChannel = apiInsights.topChannel;
               const salesInBillions = topChannel.sales / 100000000;
-              treemapKeyPoints.push(`${datePrefix}판매 비중이 가장 높은 채널은 <strong>${topChannel.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체 비중 ${topChannel.share.toFixed(0)}%`);
+              parts.push(`${datePrefix}판매 비중이 가장 높은 채널은 <strong>${topChannel.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체 비중 ${topChannel.share.toFixed(0)}%`);
             }
-            
             if (apiInsights.topItem) {
               const topItem = apiInsights.topItem;
               const salesInBillions = topItem.sales / 100000000;
-              treemapKeyPoints.push(`아이템 판매비중이 가장 높은 곳은 <strong>${topItem.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체비중 ${topItem.share.toFixed(0)}%`);
+              parts.push(`아이템 판매비중이 가장 높은 곳은 <strong>${topItem.name}</strong>(${salesInBillions.toFixed(0)}억원)으로 전체비중 ${topItem.share.toFixed(0)}%`);
             }
+            combinedTreemapLine = parts.length ? '- ' + parts.join(', ') : '';
           }
           
-          // 실시간 데이터가 있으면 추가, 없으면 기존 데이터 사용
+          // 순서: 판매비중(한 줄) → 나머지 인사이트 → 실시간
           let finalKeyPoints;
-          const allRealtimePoints = [...(realtimeKeyPoints || []), ...treemapKeyPoints];
-          if (allRealtimePoints.length > 0) {
-            finalKeyPoints = [...nonRealtimeLines, ...allRealtimePoints].join('<br>');
+          const realtimeList = realtimeKeyPoints || [];
+          if (combinedTreemapLine || realtimeList.length > 0) {
+            const ordered = [combinedTreemapLine, ...nonRealtimeLines, ...realtimeList].filter(Boolean);
+            finalKeyPoints = ordered.join('<br>');
           } else {
             finalKeyPoints = keyPoints;
           }
@@ -13909,6 +13929,7 @@
     let weeklyChannelFilter = 'all'; // 선택된 채널 필터
     
     function initWeeklyTrendChart(){
+      if (!document.getElementById('weeklyTrendChart')) return;
       updateWeeklyTrendChart();
       
       // RF 채널 버튼 표시/숨김 (MLB 브랜드만 표시)
@@ -13972,12 +13993,9 @@
     }
     
     function updateWeeklyTrendChart(){
-      console.log('[주차별 매출추세] updateWeeklyTrendChart 호출됨');
       const ctxEl = document.getElementById('weeklyTrendChart');
-      if(!ctxEl) {
-        console.warn('[주차별 매출추세] weeklyTrendChart 엘리먼트를 찾을 수 없습니다');
-        return;
-      }
+      if(!ctxEl) return;
+      console.log('[주차별 매출추세] updateWeeklyTrendChart 호출됨');
       
       // 부모 엘리먼트가 숨겨져 있으면 차트 생성 스킵
       const parentSection = ctxEl.closest('#content-brand');
@@ -16060,11 +16078,14 @@
         console.log('[매출구성] 데이터 로드 시작', { forceUpdate });
         const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
         
-        // URL에서 month 파라미터 읽기
+        // 분석월: URL ?month= 우선, 없으면 date/__API_DATE__(YYYYMMDD)에서 YYYY-MM 추출
         const urlParams = new URLSearchParams(window.location.search);
-        const monthParam = urlParams.get('month');
+        let monthParam = urlParams.get('month');
+        if (!monthParam && apiDate && apiDate.length >= 6) {
+          monthParam = apiDate.slice(0, 4) + '-' + apiDate.slice(4, 6);
+        }
         
-        // API URL 구성
+        // API URL 구성 (month 있으면 기준일 계산에 사용 → 트리맵 분석기간 표시)
         let url = `/api/sales-composition?date=${apiDate}`;
         if (monthParam) {
           url += `&month=${monthParam}`;
