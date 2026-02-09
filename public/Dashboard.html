@@ -1388,7 +1388,7 @@
                   <button class="sales-rate-filter-btn" data-category="Outer" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Outer</button>
                   <button class="sales-rate-filter-btn" data-category="Inner" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Inner</button>
                   <button class="sales-rate-filter-btn" data-category="Bottom" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Bottom</button>
-                  <button class="sales-rate-filter-btn" data-category="Acc_etc" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Acc_etc</button>
+                  <button class="sales-rate-filter-btn" data-category="Wear_etc" style="padding:8px 16px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Wear_etc</button>
                 </div>
                 
                 <!-- 필드 선택 버튼 -->
@@ -8631,7 +8631,7 @@
             if(itemTableCategory==='Shoes') return cat==='Shoes';
             if(itemTableCategory==='Headwear') return cat==='Headwear';
             if(itemTableCategory==='Bag') return cat==='Bag';
-            if(itemTableCategory==='Acc_etc') return cat==='Acc_etc';
+            if(itemTableCategory==='Wear_etc') return cat==='Wear_etc';
             return true;
           });
       
@@ -8757,7 +8757,7 @@
                     const diff = item.diff;
                     const diffValue = (diff != null && !isNaN(diff)) ? diff : 0;
                     const sign = diffValue > 0 ? '+' : '';
-                    return `전년비 차이: ${sign}${diffValue.toFixed(1)}`;
+                    return `전년비 차이: ${sign}${diffValue.toFixed(1)}주`;
                   }
                 },
                 afterLabel: function(context) {
@@ -8792,7 +8792,7 @@
               },
               ticks: {
                 callback: function(value) {
-                  return value + '주';
+                  return Number(value).toFixed(1) + '주';
                 },
                 font: {
                   size: 12
@@ -8817,7 +8817,7 @@
               ticks: {
                 callback: function(value) {
                   const sign = value > 0 ? '+' : '';
-                  return sign + value;
+                  return sign + Number(value).toFixed(1) + '주';
                 },
                 font: {
                   size: 12
@@ -15770,22 +15770,22 @@
           </tr>
         `;
         
-        // 카테고리 합계 행 (전체가 아닐 때)
+        // 카테고리 합계 행 (전체가 아닐 때) - 부분합계 (전체합계보다 작게 13px)
         if (selectedCategory !== '전체') {
           html += `
             <tr style="background:#e0f2fe;font-weight:700;border-bottom:2px solid #38bdf8;">
-              <td style="position:sticky;left:0;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:center;">${selectedCategory} 합계</td>
-              <td style="position:sticky;left:100px;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:center;">-</td>
-              <td style="position:sticky;left:180px;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:left;border-right:2px solid #cbd5e1;">-</td>
-              <td style="padding:12px 8px;text-align:right;">${categoryTotals.saleQty7d.toLocaleString()}</td>
-              <td style="padding:12px 8px;text-align:right;">${formatMillion(categoryTotals.saleTag7d)}</td>
-              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;">-</td>
-              <td style="padding:12px 8px;text-align:right;">${Math.round(category4wAvg).toLocaleString()}</td>
-              <td style="padding:12px 8px;text-align:center;">${categoryStockWeeks.toFixed(1)}주</td>
-              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;">-</td>
-              <td style="padding:12px 8px;text-align:right;">${categoryTotals.stockQty.toLocaleString()}</td>
-              <td style="padding:12px 8px;text-align:right;">${formatMillion(categoryTotals.stockTag)}</td>
-              <td style="padding:12px 8px;text-align:center;">-</td>
+              <td style="position:sticky;left:0;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:center;font-size:13px;">${selectedCategory} 합계</td>
+              <td style="position:sticky;left:100px;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:center;font-size:13px;">-</td>
+              <td style="position:sticky;left:180px;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:left;border-right:2px solid #cbd5e1;font-size:13px;">-</td>
+              <td style="padding:12px 8px;text-align:right;font-size:13px;">${categoryTotals.saleQty7d.toLocaleString()}</td>
+              <td style="padding:12px 8px;text-align:right;font-size:13px;">${formatMillion(categoryTotals.saleTag7d)}</td>
+              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;font-size:13px;">-</td>
+              <td style="padding:12px 8px;text-align:right;font-size:13px;">${Math.round(category4wAvg).toLocaleString()}</td>
+              <td style="padding:12px 8px;text-align:center;font-size:13px;font-weight:600;">${categoryStockWeeks.toFixed(1)}주</td>
+              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;font-size:13px;">-</td>
+              <td style="padding:12px 8px;text-align:right;font-size:13px;">${categoryTotals.stockQty.toLocaleString()}</td>
+              <td style="padding:12px 8px;text-align:right;font-size:13px;">${formatMillion(categoryTotals.stockTag)}</td>
+              <td style="padding:12px 8px;text-align:center;font-size:13px;">-</td>
             </tr>
           `;
         }
@@ -15837,7 +15837,7 @@
             if (pyAvg4w > 0) {
               const pyStockWeeks = item.pyStockQty / pyAvg4w;
               const diff = stockWeeks - pyStockWeeks;
-              stockWeeksDiff = (diff >= 0 ? '+' : '') + diff.toFixed(1);
+              stockWeeksDiff = (diff >= 0 ? '+' : '') + diff.toFixed(1) + '주';
             }
           }
           
@@ -15858,7 +15858,7 @@
               <td style="padding:10px 8px;text-align:right;font-size:13px;color:#1f2937;">${formatMillion(item.saleTag7d)}</td>
               <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:600;color:${saleYoyColor};border-right:2px solid #cbd5e1;">${saleYoy}</td>
               <td style="padding:10px 8px;text-align:right;font-size:13px;color:#1f2937;">${Math.round(avg4w).toLocaleString()}</td>
-              <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:600;color:${stockWeeks <= 20 ? '#10b981' : stockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${stockWeeks.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}주</td>
+              <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:600;color:${stockWeeks <= 20 ? '#10b981' : stockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${Number(stockWeeks).toFixed(1)}주</td>
               <td style="padding:10px 8px;text-align:center;font-size:13px;color:#1f2937;border-right:2px solid #cbd5e1;">${stockWeeksDiff}</td>
               <td style="padding:10px 8px;text-align:right;font-size:13px;color:#1f2937;">${item.stockQty.toLocaleString()}</td>
               <td style="padding:10px 8px;text-align:right;font-size:13px;color:#1f2937;">${formatMillion(item.stockTag)}</td>
@@ -15958,7 +15958,7 @@
             <td style="padding:8px 6px;text-align:right;font-size:11px;color:#1f2937;">${saleQty7d.toLocaleString()}</td>
             <td style="padding:8px 6px;text-align:right;font-size:11px;color:#1f2937;">${formatMillion(saleTag7d)}</td>
             <td style="padding:8px 6px;text-align:right;font-size:11px;color:#1f2937;">${Math.round(avg4w).toLocaleString()}</td>
-            <td style="padding:8px 6px;text-align:center;font-size:11px;font-weight:600;color:${stockWeeks <= 20 ? '#10b981' : stockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${stockWeeks > 0 ? stockWeeks.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '주' : '판매없음'}</td>
+            <td style="padding:8px 6px;text-align:center;font-size:11px;font-weight:600;color:${stockWeeks <= 20 ? '#10b981' : stockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${stockWeeks > 0 ? Number(stockWeeks).toFixed(1) + '주' : '판매없음'}</td>
             <td style="padding:8px 6px;text-align:right;font-size:11px;color:#1f2937;">${stockQty.toLocaleString()}</td>
             <td style="padding:8px 6px;text-align:right;font-size:11px;color:#1f2937;">${formatMillion(stockTag)}</td>
           </tr>
@@ -15976,7 +15976,7 @@
           <td style="padding:10px 6px;text-align:right;font-size:11px;color:#1f2937;">${totalSaleQty7d.toLocaleString()}</td>
           <td style="padding:10px 6px;text-align:right;font-size:11px;color:#1f2937;">${formatMillion(totalSaleTag7d)}</td>
           <td style="padding:10px 6px;text-align:right;font-size:11px;color:#1f2937;">${Math.round(totalAvg4w).toLocaleString()}</td>
-          <td style="padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:${totalStockWeeks <= 20 ? '#10b981' : totalStockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${totalStockWeeks.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}주</td>
+          <td style="padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:${totalStockWeeks <= 20 ? '#10b981' : totalStockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${Number(totalStockWeeks).toFixed(1)}주</td>
           <td style="padding:10px 6px;text-align:right;font-size:11px;color:#1f2937;">${totalStockQty.toLocaleString()}</td>
           <td style="padding:10px 6px;text-align:right;font-size:11px;color:#1f2937;">${formatMillion(totalStockTag)}</td>
         </tr>
