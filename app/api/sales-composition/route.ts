@@ -36,7 +36,22 @@ export async function GET(request: Request) {
     if (!forceUpdate) {
       const cachedData = await getCache<any>(cacheKey);
       if (cachedData) {
-        console.log(`[매출구성 API] 캐시 히트: ${cacheKey}`);
+        console.log(`[매출구성 API] 캐시 히트: ${cacheKey}`, brandCode ? `브랜드=${brandCode}` : '전체');
+        // 브랜드 요청인 경우 캐시된 전체 데이터에서 해당 브랜드만 필터링 후 인사이트 재계산 (전 브랜드 동일 인사이트 방지)
+        if (brandCode && cachedData.data?.CY) {
+          const filteredCY = (cachedData.data.CY as any[]).filter((row: any) => row.브랜드 === brandCode);
+          const filteredPY = (cachedData.data.PY as any[])?.filter((row: any) => row.브랜드 === brandCode) ?? [];
+          const insights = generateTreemapInsights(filteredCY);
+          return NextResponse.json({
+            ...cachedData,
+            asof_dt: cachedData.asof_dt ?? getYesterday(),
+            cached: true,
+            cacheKey,
+            data: { CY: filteredCY, PY: filteredPY },
+            rowCount: { CY: filteredCY.length, PY: filteredPY.length },
+            insights
+          });
+        }
         return NextResponse.json({
           ...cachedData,
           asof_dt: cachedData.asof_dt ?? getYesterday(),
@@ -69,41 +84,39 @@ export async function GET(request: Request) {
     const elapsed = Date.now() - startTime;
     console.log(`[매출구성 API] 쿼리 완료 (${elapsed}ms, ${rows.length}행)`);
     
-    // 4. 데이터를 당년/전년으로 분리
-    let cyData = rows.filter(row => row.구분 === 'CY');
-    const pyData = rows.filter(row => row.구분 === 'PY');
+    // 4. 데이터를 당년/전년으로 분리 (캐시에는 항상 전체 데이터 저장 → 브랜드별 인사이트 정확도 보장)
+    const cyDataFull = rows.filter(row => row.구분 === 'CY');
+    const pyDataFull = rows.filter(row => row.구분 === 'PY');
     
-    // 브랜드 필터링 (브랜드 코드가 지정된 경우)
-    if (brandCode) {
-      cyData = cyData.filter(row => row.브랜드 === brandCode);
-      console.log(`[매출구성 API] 브랜드 필터링: ${brandCode}, 필터링 후 행 수: ${cyData.length}`);
-    }
-    
-    // 5. 트리맵 인사이트 생성 (판매비중 가장 높은 채널과 아이템)
-    const insights = generateTreemapInsights(cyData);
-    
-    // 6. 결과 구성 (asof_dt 항상 반환 → 브랜드별 트리맵 분석기간 표시용)
-    const result = {
+    // 5. 캐시 저장용: 전체 데이터 기준 인사이트로 캐시 (브랜드 요청 시 캐시 히트에서 필터링 후 재계산)
+    const insightsFull = generateTreemapInsights(cyDataFull);
+    const resultForCache = {
       success: true,
-      date: getToday(), // 한국 시간 기준
+      date: getToday(),
       asof_dt: asof_dt ?? getYesterday(),
-      data: {
-        CY: cyData,
-        PY: pyData
-      },
-      rowCount: {
-        CY: cyData.length,
-        PY: pyData.length
-      },
-      insights, // 트리맵 인사이트 추가
+      data: { CY: cyDataFull, PY: pyDataFull },
+      rowCount: { CY: cyDataFull.length, PY: pyDataFull.length },
+      insights: insightsFull,
       cached: false
     };
+    await setCache(cacheKey, resultForCache, 86400);
+    console.log(`[매출구성 API] 캐시 저장 완료: ${cacheKey} (전체 데이터)`);
     
-    // 6. Redis 캐시에 저장 (24시간)
-    await setCache(cacheKey, result, 86400);
-    console.log(`[매출구성 API] 캐시 저장 완료: ${cacheKey}`);
+    // 6. 응답: 브랜드 지정 시 해당 브랜드만 필터링 후 인사이트 재계산
+    if (brandCode) {
+      const cyData = cyDataFull.filter(row => row.브랜드 === brandCode);
+      const pyData = pyDataFull.filter(row => row.브랜드 === brandCode);
+      console.log(`[매출구성 API] 브랜드 필터링: ${brandCode}, 필터링 후 행 수: ${cyData.length}`);
+      const insights = generateTreemapInsights(cyData);
+      return NextResponse.json({
+        ...resultForCache,
+        data: { CY: cyData, PY: pyData },
+        rowCount: { CY: cyData.length, PY: pyData.length },
+        insights
+      });
+    }
     
-    return NextResponse.json(result);
+    return NextResponse.json(resultForCache);
     
   } catch (error: any) {
     console.error('[매출구성 API] 에러 발생:', {

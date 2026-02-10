@@ -3846,6 +3846,14 @@
           console.log('6. renderItemDiffTable 완료');
         } catch(e) { console.error('renderItemDiffTable 에러:', e); }
         
+        // ★ 재고주수표: 브랜드 버튼 누르면 해당 브랜드 데이터로 갱신
+        try {
+          console.log('6-1. 재고주수표/필터 갱신 (브랜드별)');
+          if (typeof setupStockWeeksFilters === 'function') setupStockWeeksFilters();
+          if (typeof renderStockWeeksTable === 'function') renderStockWeeksTable();
+          console.log('6-1. 재고주수표 갱신 완료');
+        } catch(e) { console.error('재고주수표 갱신 에러:', e); }
+        
         // ★ 재고주수 차트도 별도 호출
         try { console.log('7. updateInventoryChart 시작'); if(typeof updateInventoryChart === 'function') updateInventoryChart(); console.log('7. updateInventoryChart 완료'); } catch(e) { console.error('updateInventoryChart 에러:', e); }
         
@@ -4302,13 +4310,15 @@
         const pyData = (stockWeeksResponse.data?.PY || []).filter(row => row.BRD_CD === brandCode);
         const curSalesData = (salesRateResponse.data?.CUR || []).filter(row => row.BRD_CD === brandCode);
         const pySalesData = (salesRateResponse.data?.PY || []).filter(row => row.BRD_CD === brandCode);
+        const pyEndSalesData = (salesRateResponse.data?.PY_END || []).filter(row => row.BRD_CD === brandCode);
         
         console.log('[fetchBrandRealtimeInsights] 브랜드 데이터 로드:', {
           brandName,
           brandCode,
           cyCount: cyData.length,
           pyCount: pyData.length,
-          curSalesCount: curSalesData.length
+          curSalesCount: curSalesData.length,
+          pyEndCount: pyEndSalesData.length
         });
         
         // 데이터 집계
@@ -4326,7 +4336,7 @@
               prdtKindNm: row.PRDT_KIND_NM || '',
               cy: { saleQty28d: 0, saleTag7d: 0, stockQty: 0 },
               py: { saleQty28d: 0, stockQty: 0 },
-              salesRate: { cur: 0, py: 0, curTag: 0 }
+              salesRate: { cur: 0, py: 0, pyEnd: 0, curTag: 0 }
             };
           }
           itemMap[key].cy.saleQty28d += row.SALE_QTY_28D || 0;
@@ -4346,62 +4356,102 @@
               prdtKindNm: row.PRDT_KIND_NM || '',
               cy: { saleQty28d: 0, saleTag7d: 0, stockQty: 0 },
               py: { saleQty28d: 0, stockQty: 0 },
-              salesRate: { cur: 0, py: 0, curTag: 0 }
+              salesRate: { cur: 0, py: 0, pyEnd: 0, curTag: 0 }
             };
           }
           itemMap[key].py.saleQty28d += row.SALE_QTY_28D || 0;
           itemMap[key].py.stockQty += row.STOCK_QTY || 0;
         });
         
-        // CUR 판매율 데이터
+        // CUR 판매율 — 아래 표와 완전 동일: 판매율(당년) = 누적판매TAG/입고TAG (curSale/curStor), 분모는 AC_STOR_TAG_AMT_KOR
         curSalesData.forEach(row => {
           const item_cd = row.ITEM_CD;
           if (!item_cd) return;
           
           const key = item_cd;
-          
-          // itemMap에 없으면 새로 생성
           if (!itemMap[key]) {
             itemMap[key] = {
               itemName: row.ITEM_NM || '',
               prdtKindNm: row.PRDT_KIND_NM || '',
               cy: { saleQty28d: 0, saleTag7d: 0, stockQty: 0 },
               py: { saleQty28d: 0, stockQty: 0 },
-              salesRate: { cur: 0, py: 0, curTag: 0 }
+              salesRate: { cur: 0, py: 0, pyEnd: 0, curTag: 0 },
+              _curStorTag: 0,
+              _curSaleTag: 0
             };
           }
-          
-          const ordQty = row.AC_ORD_QTY_KOR || 0;
-          const saleQty = row.SALE_QTY || 0;
+          const storTag = row.AC_STOR_TAG_AMT_KOR || 0;
           const saleTag = row.SALE_TAG || 0;
-          itemMap[key].salesRate.cur = ordQty > 0 ? (saleQty / ordQty) : 0;
-          itemMap[key].salesRate.curTag = saleTag;
+          itemMap[key]._curStorTag = (itemMap[key]._curStorTag || 0) + storTag;
+          itemMap[key]._curSaleTag = (itemMap[key]._curSaleTag || 0) + saleTag;
+          itemMap[key].salesRate.curTag = (itemMap[key].salesRate.curTag || 0) + saleTag;
+        });
+        Object.keys(itemMap).forEach(key => {
+          const m = itemMap[key];
+          if (m._curStorTag != null && m._curStorTag > 0) {
+            m.salesRate.cur = m._curSaleTag / m._curStorTag;
+          }
+          delete m._curStorTag;
+          delete m._curSaleTag;
         });
         
-        // PY 판매율 데이터
+        // PY 판매율 — 표의 판매율(전년) = pySale/pyStor, 입고TAG 기준
         pySalesData.forEach(row => {
           const item_cd = row.ITEM_CD;
           if (!item_cd) return;
-          
           const key = item_cd;
-          
-          // itemMap에 없으면 새로 생성
           if (!itemMap[key]) {
             itemMap[key] = {
               itemName: row.ITEM_NM || '',
               prdtKindNm: row.PRDT_KIND_NM || '',
               cy: { saleQty28d: 0, saleTag7d: 0, stockQty: 0 },
               py: { saleQty28d: 0, stockQty: 0 },
-              salesRate: { cur: 0, py: 0, curTag: 0 }
+              salesRate: { cur: 0, py: 0, pyEnd: 0, curTag: 0 },
+              _pyStorTag: 0,
+              _pySaleTag: 0
             };
           }
-          
-          const ordQty = row.AC_ORD_QTY_KOR || 0;
-          const saleQty = row.SALE_QTY || 0;
-          itemMap[key].salesRate.py = ordQty > 0 ? (saleQty / ordQty) : 0;
+          itemMap[key]._pyStorTag = (itemMap[key]._pyStorTag || 0) + (row.AC_STOR_TAG_AMT_KOR || 0);
+          itemMap[key]._pySaleTag = (itemMap[key]._pySaleTag || 0) + (row.SALE_TAG || 0);
+        });
+        Object.keys(itemMap).forEach(key => {
+          const m = itemMap[key];
+          if (m._pyStorTag != null && m._pyStorTag > 0) {
+            m.salesRate.py = m._pySaleTag / m._pyStorTag;
+          }
+          delete m._pyStorTag;
+          delete m._pySaleTag;
         });
         
-        // 인사이트 생성용 데이터 변환
+        // PY_END(전년 마감) — 표의 '전년마감판매율' 컬럼용 (인사이트 전년대비는 아래에서 표와 동일하게 cur - py 사용)
+        pyEndSalesData.forEach(row => {
+          const item_cd = row.ITEM_CD;
+          if (!item_cd) return;
+          const key = item_cd;
+          if (!itemMap[key]) {
+            itemMap[key] = {
+              itemName: row.ITEM_NM || '',
+              prdtKindNm: row.PRDT_KIND_NM || '',
+              cy: { saleQty28d: 0, saleTag7d: 0, stockQty: 0 },
+              py: { saleQty28d: 0, stockQty: 0 },
+              salesRate: { cur: 0, py: 0, pyEnd: 0, curTag: 0 },
+              _pyEndStorTag: 0,
+              _pyEndSaleTag: 0
+            };
+          }
+          itemMap[key]._pyEndStorTag = (itemMap[key]._pyEndStorTag || 0) + (row.AC_STOR_TAG_AMT_KOR || 0);
+          itemMap[key]._pyEndSaleTag = (itemMap[key]._pyEndSaleTag || 0) + (row.SALE_TAG || 0);
+        });
+        Object.keys(itemMap).forEach(key => {
+          const m = itemMap[key];
+          if (m._pyEndStorTag != null && m._pyEndStorTag > 0) {
+            m.salesRate.pyEnd = m._pyEndSaleTag / m._pyEndStorTag;
+          }
+          delete m._pyEndStorTag;
+          delete m._pyEndSaleTag;
+        });
+        
+        // 인사이트 생성 — 표와 동일: 판매율 = curSale/curStor, 판매율차이(전년대비) = curRate - pyRate
         const brandItems = Object.values(itemMap).map(item => {
           const avg4w = item.cy.saleQty28d / 4;
           const stockWeeks = avg4w > 0 ? item.cy.stockQty / avg4w : 0;
@@ -4409,11 +4459,15 @@
           const pyAvg4w = item.py.saleQty28d / 4;
           const pyStockWeeks = pyAvg4w > 0 ? item.py.stockQty / pyAvg4w : 0;
           
+          const rateCur = item.salesRate.cur || 0;
+          const ratePy = item.salesRate.py != null ? item.salesRate.py : 0;
+          const salesRateDiff = rateCur !== 0 || ratePy !== 0 ? rateCur - ratePy : 0;
+          
           return {
             itemName: item.itemName,
             prdtKindNm: item.prdtKindNm,
-            salesRate: item.salesRate.cur,
-            salesRateDiff: item.salesRate.cur - item.salesRate.py,
+            salesRate: rateCur,
+            salesRateDiff: salesRateDiff,
             salesTag: item.salesRate.curTag,
             salesAmt: item.cy.saleTag7d,
             stockWeeks: stockWeeks,
@@ -15691,7 +15745,11 @@
           saleTag7d: 0,
           saleQty28d: 0,
           stockQty: 0,
-          stockTag: 0
+          stockTag: 0,
+          pySaleTag7d: 0,
+          pySaleQty28d: 0,
+          pyStockQty: 0,
+          pyStockTag: 0
         };
         
         items.forEach(item => {
@@ -15711,6 +15769,10 @@
             categoryTotals.saleQty28d += item.saleQty28d;
             categoryTotals.stockQty += item.stockQty;
             categoryTotals.stockTag += item.stockTag;
+            categoryTotals.pySaleTag7d += item.pySaleTag7d;
+            categoryTotals.pySaleQty28d += item.pySaleQty28d;
+            categoryTotals.pyStockQty += item.pyStockQty;
+            categoryTotals.pyStockTag += item.pyStockTag;
           }
         });
         
@@ -15731,17 +15793,40 @@
         const grandStockYoyColor = grandTotals.pyStockTag > 0 && (grandTotals.stockTag / grandTotals.pyStockTag) >= 1
           ? '#10b981' : '#dc2626';
         
-        // 전체 합계 재고주수 차이
+        // 전체 합계 재고주수 차이 (0.0주 형식)
         let grandStockWeeksDiff = '-';
         if (grandTotals.pyStockQty > 0 && grandTotals.pySaleQty28d > 0) {
           const pyGrand4wAvg = grandTotals.pySaleQty28d / 4;
           const pyGrandStockWeeks = pyGrand4wAvg > 0 ? grandTotals.pyStockQty / pyGrand4wAvg : 0;
           const diff = grandStockWeeks - pyGrandStockWeeks;
-          grandStockWeeksDiff = (diff >= 0 ? '+' : '') + diff.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          grandStockWeeksDiff = (diff >= 0 ? '+' : '') + Number(diff).toFixed(1) + '주';
         }
         
         const category4wAvg = categoryTotals.saleQty28d / 4;
         const categoryStockWeeks = category4wAvg > 0 ? categoryTotals.stockQty / category4wAvg : 0;
+        
+        // 중간합계(카테고리) 매출 YOY, 재고주수 차이, 재고 YOY
+        let categorySaleYoy = '-';
+        let categorySaleYoyColor = '#1f2937';
+        if (categoryTotals.pySaleTag7d > 0) {
+          const yoyVal = (categoryTotals.saleTag7d / categoryTotals.pySaleTag7d) * 100;
+          categorySaleYoy = Math.round(yoyVal) + '%';
+          categorySaleYoyColor = yoyVal >= 100 ? '#10b981' : '#dc2626';
+        }
+        let categoryStockWeeksDiff = '-';
+        if (categoryTotals.pyStockQty > 0 && categoryTotals.pySaleQty28d > 0) {
+          const pyCat4wAvg = categoryTotals.pySaleQty28d / 4;
+          const pyCatStockWeeks = pyCat4wAvg > 0 ? categoryTotals.pyStockQty / pyCat4wAvg : 0;
+          const catDiff = categoryStockWeeks - pyCatStockWeeks;
+          categoryStockWeeksDiff = (catDiff >= 0 ? '+' : '') + Number(catDiff).toFixed(1) + '주';
+        }
+        let categoryStockYoy = '-';
+        let categoryStockYoyColor = '#1f2937';
+        if (categoryTotals.pyStockTag > 0) {
+          const yoyVal = (categoryTotals.stockTag / categoryTotals.pyStockTag) * 100;
+          categoryStockYoy = Math.round(yoyVal) + '%';
+          categoryStockYoyColor = yoyVal >= 100 ? '#10b981' : '#dc2626';
+        }
         
         // 백만 단위 포맷 함수 (천단위 컴마만, '백' 제거)
         const formatMillion = (value) => {
@@ -15762,7 +15847,7 @@
             <td style="padding:12px 8px;text-align:right;font-size:14px;">${formatMillion(grandTotals.saleTag7d)}</td>
             <td style="padding:12px 8px;text-align:center;font-size:14px;font-weight:600;color:${grandSaleYoyColor};border-right:2px solid #cbd5e1;">${grandSaleYoy}</td>
             <td style="padding:12px 8px;text-align:right;font-size:14px;">${Math.round(grand4wAvg).toLocaleString()}</td>
-            <td style="padding:12px 8px;text-align:center;font-size:14px;font-weight:600;color:${grandStockWeeks <= 20 ? '#10b981' : grandStockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${grandStockWeeks.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}주</td>
+            <td style="padding:12px 8px;text-align:center;font-size:14px;font-weight:600;color:${grandStockWeeks <= 20 ? '#10b981' : grandStockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${Number(grandStockWeeks).toFixed(1)}주</td>
             <td style="padding:12px 8px;text-align:center;font-size:14px;border-right:2px solid #cbd5e1;">${grandStockWeeksDiff}</td>
             <td style="padding:12px 8px;text-align:right;font-size:14px;">${grandTotals.stockQty.toLocaleString()}</td>
             <td style="padding:12px 8px;text-align:right;font-size:14px;">${formatMillion(grandTotals.stockTag)}</td>
@@ -15770,7 +15855,7 @@
           </tr>
         `;
         
-        // 카테고리 합계 행 (전체가 아닐 때) - 부분합계 (전체합계보다 작게 13px)
+        // 카테고리 합계 행 (전체가 아닐 때) - 부분합계 (매출YOY, 재고주수차이, 재고YOY 표시, 0.0주 형식)
         if (selectedCategory !== '전체') {
           html += `
             <tr style="background:#e0f2fe;font-weight:700;border-bottom:2px solid #38bdf8;">
@@ -15779,13 +15864,13 @@
               <td style="position:sticky;left:180px;z-index:10;background:#e0f2fe;padding:12px 8px;text-align:left;border-right:2px solid #cbd5e1;font-size:13px;">-</td>
               <td style="padding:12px 8px;text-align:right;font-size:13px;">${categoryTotals.saleQty7d.toLocaleString()}</td>
               <td style="padding:12px 8px;text-align:right;font-size:13px;">${formatMillion(categoryTotals.saleTag7d)}</td>
-              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;font-size:13px;">-</td>
+              <td style="padding:12px 8px;text-align:center;font-size:13px;font-weight:600;color:${categorySaleYoyColor};border-right:2px solid #cbd5e1;">${categorySaleYoy}</td>
               <td style="padding:12px 8px;text-align:right;font-size:13px;">${Math.round(category4wAvg).toLocaleString()}</td>
-              <td style="padding:12px 8px;text-align:center;font-size:13px;font-weight:600;">${categoryStockWeeks.toFixed(1)}주</td>
-              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;font-size:13px;">-</td>
+              <td style="padding:12px 8px;text-align:center;font-size:13px;font-weight:600;color:${categoryStockWeeks <= 20 ? '#10b981' : categoryStockWeeks <= 50 ? '#f59e0b' : '#dc2626'};">${Number(categoryStockWeeks).toFixed(1)}주</td>
+              <td style="padding:12px 8px;text-align:center;border-right:2px solid #cbd5e1;font-size:13px;">${categoryStockWeeksDiff}</td>
               <td style="padding:12px 8px;text-align:right;font-size:13px;">${categoryTotals.stockQty.toLocaleString()}</td>
               <td style="padding:12px 8px;text-align:right;font-size:13px;">${formatMillion(categoryTotals.stockTag)}</td>
-              <td style="padding:12px 8px;text-align:center;font-size:13px;">-</td>
+              <td style="padding:12px 8px;text-align:center;font-size:13px;font-weight:600;color:${categoryStockYoyColor};">${categoryStockYoy}</td>
             </tr>
           `;
         }
