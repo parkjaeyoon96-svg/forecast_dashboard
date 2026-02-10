@@ -65,9 +65,9 @@ export function getCurrentMonth(): string {
 
 /**
  * 분석월 기준 asof_dt 계산 (한국 시간 기준)
- * - 분석월이 업데이트 일자의 월과 같으면: 업데이트 일자의 전날까지
+ * - 분석월이 업데이트 일자의 월과 같으면: 업데이트 일자의 전날까지 (오늘 기준이면 어제까지 누적)
  * - 분석월이 업데이트 일자의 월보다 과거면: 해당 월의 말일까지
- * 
+ *
  * @param analysisMonth YYYY-MM 형식의 분석월
  * @param updateDate YYYY-MM-DD 형식의 업데이트 일자 (선택, 없으면 오늘 날짜 사용)
  * @returns YYYY-MM-DD 형식의 기준일
@@ -91,9 +91,8 @@ export function calculateAsofDate(analysisMonth: string, updateDate?: string): s
     updateDay = kstTime.getUTCDate();
   }
   
-  // 분석월이 업데이트 일자의 월과 같은 경우: 업데이트 일자의 전날까지
+  // 분석월이 업데이트 일자의 월과 같은 경우: 전날까지 (API가 오늘을 받으면 → 어제까지 누적)
   if (analysisYear === updateYear && analysisMonthNum === updateMonth) {
-    // 업데이트 일자의 전날 계산
     const updateDateObj = new Date(Date.UTC(updateYear, updateMonth - 1, updateDay));
     const prevDay = new Date(updateDateObj.getTime() - (24 * 60 * 60 * 1000));
     const y = prevDay.getUTCFullYear();
