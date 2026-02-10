@@ -28,11 +28,12 @@
       // JSON 파일용 날짜
       window.__DATA_DATE__ = dateParam;
       
-      // API 호출용 날짜 (오늘 날짜 YYYYMMDD 형식)
+      // API 호출용 날짜: URL에 date가 있으면 해당 일자 사용(할인내역·트리맵 등과 동일 기준), 없으면 오늘
       var today = new Date();
-      window.__API_DATE__ = today.getFullYear().toString() + 
-                            ('0' + (today.getMonth() + 1)).slice(-2) + 
-                            ('0' + today.getDate()).slice(-2);
+      var todayStr = today.getFullYear().toString() + 
+                     ('0' + (today.getMonth() + 1)).slice(-2) + 
+                     ('0' + today.getDate()).slice(-2);
+      window.__API_DATE__ = (dateParam && dateParam.length === 8) ? dateParam : todayStr;
       
       console.log('[데이터로드] JSON 파일 날짜:', window.__DATA_DATE__);
       console.log('[데이터로드] API 호출 날짜:', window.__API_DATE__);

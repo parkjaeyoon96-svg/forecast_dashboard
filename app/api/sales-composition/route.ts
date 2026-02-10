@@ -17,20 +17,22 @@ import { getTodayCompact, getToday, getYesterday, calculateAsofDate } from '@/li
  * 
  * 캐싱 전략:
  * - Redis 캐시 (24시간 TTL)
- * - 키: sales-composition-YYYYMMDD (날짜별)
+ * - 키: sales-composition-{분석월YYYYMM}-{업데이트일자YYYYMMDD} (할인내역과 동일하게 기간별 분리)
  */
 export async function GET(request: Request) {
   try {
-    // URL 파라미터에서 forceUpdate, month, brand 확인
+    // URL 파라미터에서 forceUpdate, month, date, brand 확인 (할인내역 API와 동일하게 month·date 사용)
     const { searchParams } = new URL(request.url);
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
-    const analysisMonth = searchParams.get('month'); // YYYY-MM 형식 (쿼리 파라미터로만 사용, 캐시 키에는 사용 안 함)
+    const analysisMonth = searchParams.get('month'); // YYYY-MM 형식
+    const updateDateParam = searchParams.get('date'); // YYYYMMDD 형식 (업데이트 일자, 기준일 계산용)
     const brandCode = searchParams.get('brand'); // 브랜드 코드 (M, I, X, V, ST, W)
     
-    // 날짜별 캐시 키 생성 (한국 시간 기준)
-    // 판매율/재고주수 API와 동일하게 항상 오늘 날짜를 캐시 키에 포함하여 매일 업데이트
+    // 캐시 키: 할인내역과 동일하게 분석월·업데이트 일자 포함 (다른 기간 데이터가 섞이지 않도록)
     const today = getTodayCompact();
-    const cacheKey = `sales-composition-${today}`;
+    const monthKey = analysisMonth ? analysisMonth.replace('-', '') : today.slice(0, 6);
+    const dateKey = updateDateParam && updateDateParam.length === 8 ? updateDateParam : today;
+    const cacheKey = `sales-composition-${monthKey}-${dateKey}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -72,9 +74,13 @@ export async function GET(request: Request) {
       database: process.env.SNOWFLAKE_DATABASE ? '✓' : '✗'
     });
     
-    // 2. 기준일 계산 (분석월이 있으면 해당 월 기준, 없으면 어제 = 쿼리와 동일)
-    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth) : getYesterday();
-    console.log(`[매출구성 API] 기준일:`, { analysisMonth, asof_dt });
+    // 2. 업데이트 일자 변환 (YYYYMMDD -> YYYY-MM-DD) 및 기준일 계산 (할인내역과 동일 로직)
+    let updateDate: string | undefined;
+    if (updateDateParam && updateDateParam.length === 8) {
+      updateDate = `${updateDateParam.slice(0, 4)}-${updateDateParam.slice(4, 6)}-${updateDateParam.slice(6, 8)}`;
+    }
+    const asof_dt = analysisMonth ? calculateAsofDate(analysisMonth, updateDate) : getYesterday();
+    console.log(`[매출구성 API] 기준일:`, { analysisMonth, updateDate, updateDateParam, asof_dt });
     
     // 3. Snowflake 쿼리 실행
     const query = getSalesCompositionQuery(asof_dt);
