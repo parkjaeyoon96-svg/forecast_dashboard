@@ -687,12 +687,37 @@ def main(analysis_month=None, update_date=None):
             # 상세 파일이 없으면 계획 파일에서 추출 (하위 호환성)
             print(f"  [INFO] 상세 데이터 파일이 없어 계획 파일에서 추출합니다...")
             plan_amounts_df = extract_direct.extract_plan_amounts(str(plan_dir), channel_master_for_direct_cost)
-            rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
+            
+            # ★★★ CSV 파일 우선 사용 ★★★
+            csv_rates_path = plan_dir / f"{analysis_month}R_직접비율_추출결과.csv"
+            if csv_rates_path.exists():
+                print(f"  [INFO] CSV 파일에서 직접비율 로드: {csv_rates_path.name}")
+                try:
+                    rates_df = extract_direct.load_direct_cost_rates_from_csv(str(csv_rates_path))
+                except Exception as e:
+                    print(f"  [WARNING] CSV 로드 실패: {e}. Plan 파일에서 계산합니다...")
+                    rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
+            else:
+                print(f"  [INFO] CSV 파일 없음. Plan 파일에서 직접비율 계산 중...")
+                rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
     else:
         # 기존 파일이 없으면 추출 및 저장
         print(f"  [INFO] 직접비율 파일이 없어 계획 파일에서 새로 추출합니다...")
         plan_amounts_df = extract_direct.extract_plan_amounts(str(plan_dir), channel_master_for_direct_cost)
-        rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
+        
+        # ★★★ CSV 파일 우선 사용 ★★★
+        csv_rates_path = plan_dir / f"{analysis_month}R_직접비율_추출결과.csv"
+        if csv_rates_path.exists():
+            print(f"  [INFO] CSV 파일에서 직접비율 로드: {csv_rates_path.name}")
+            try:
+                rates_df = extract_direct.load_direct_cost_rates_from_csv(str(csv_rates_path))
+            except Exception as e:
+                print(f"  [WARNING] CSV 로드 실패: {e}. Plan 파일에서 계산합니다...")
+                rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
+        else:
+            print(f"  [INFO] CSV 파일 없음. Plan 파일에서 직접비율 계산 중...")
+            rates_df = extract_direct.extract_direct_cost_rates(str(plan_dir), channel_master_for_direct_cost)
+        
         rates_pivoted_df = extract_direct.pivot_and_format_rates(rates_df, channel_master_for_direct_cost)
         
         # 직접비율 파일 저장

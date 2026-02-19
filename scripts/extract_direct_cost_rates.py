@@ -162,6 +162,80 @@ def load_royalty_rate_master() -> Dict[tuple, Dict]:
     return royalty_dict
 
 
+def load_direct_cost_rates_from_csv(csv_file_path: str) -> pd.DataFrame:
+    """
+    CSV 파일에서 직접비율 로드
+    
+    Args:
+        csv_file_path: 직접비율 CSV 파일 경로 (예: raw/202602/plan/202602R_직접비율_추출결과.csv)
+    
+    Returns:
+        pd.DataFrame: 브랜드별/유통채널별 직접비율 데이터프레임
+                     컬럼: 브랜드, 유통채널, 직접비항목, 비율
+    
+    Example:
+        >>> rates_df = load_direct_cost_rates_from_csv("raw/202602/plan/202602R_직접비율_추출결과.csv")
+        >>> # 결과 형식:
+        >>> # 브랜드 | 유통채널 | 직접비항목 | 비율
+        >>> # I    | 2       | 지급수수료_판매사원도급비(면세) | 7.36
+    """
+    csv_path = Path(csv_file_path)
+    
+    if not csv_path.exists():
+        raise FileNotFoundError(f"[ERROR] 직접비율 CSV 파일을 찾을 수 없습니다: {csv_path}")
+    
+    print(f"[INFO] CSV 파일에서 직접비율 로드: {csv_path}")
+    
+    # CSV 파일 읽기
+    df = pd.read_csv(csv_path, encoding='utf-8-sig')
+    
+    # 브랜드와 유통채널 컬럼 확인
+    if '브랜드' not in df.columns or '유통채널' not in df.columns:
+        raise ValueError(f"[ERROR] CSV 파일에 '브랜드' 또는 '유통채널' 컬럼이 없습니다.")
+    
+    # 직접비 항목 컬럼 (브랜드, 유통채널 제외)
+    cost_columns = [col for col in df.columns if col not in ['브랜드', '유통채널']]
+    
+    # Wide format을 Long format으로 변환
+    rates_list = []
+    for _, row in df.iterrows():
+        brand = str(row['브랜드']).strip()
+        channel = row['유통채널']
+        
+        # 유통채널을 정수로 변환
+        try:
+            channel_int = int(float(channel))
+        except (ValueError, TypeError):
+            continue
+        
+        # 각 직접비 항목별로 비율 추출
+        for cost_item in cost_columns:
+            rate_str = str(row[cost_item]).replace('%', '').strip()
+            
+            # 빈 값이나 0은 스킵
+            if not rate_str or rate_str == '' or rate_str == 'nan':
+                rate = 0.0
+            else:
+                try:
+                    rate = float(rate_str)
+                except ValueError:
+                    rate = 0.0
+            
+            rates_list.append({
+                '브랜드': brand,
+                '유통채널': channel_int,
+                '직접비항목': cost_item,
+                '비율': rate
+            })
+    
+    # 데이터프레임으로 변환
+    rates_df = pd.DataFrame(rates_list)
+    
+    print(f"[OK] 직접비율 로드 완료: {len(rates_df)}건 (브랜드 {df['브랜드'].nunique()}개, 채널 {df['유통채널'].nunique()}개)")
+    
+    return rates_df
+
+
 def is_rf_file(filename: str) -> bool:
     """RF 파일인지 확인"""
     return "RF" in filename.upper() and "_RF" in filename.upper()

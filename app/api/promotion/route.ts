@@ -114,7 +114,12 @@ SELECT DISTINCT
     a.prdt_cd AS "품번",
     b.prdt_nm AS "품명",
     a.flat_price AS "TAG가",
-    a.sale_price AS "할인가"
+    a.sale_price AS "할인가",
+    -- 할인율 계산: (1 - 할인가/TAG가) * 100, TAG가가 0이면 NULL
+    CASE 
+      WHEN a.flat_price > 0 THEN ROUND((1 - a.sale_price / a.flat_price) * 100, 1)
+      ELSE NULL
+    END AS "할인율계산"
 FROM FNF.PRCS.DW_PRICE a
 JOIN FNF.PRCS.DB_PRDT b
   ON a.prdt_cd = b.prdt_cd

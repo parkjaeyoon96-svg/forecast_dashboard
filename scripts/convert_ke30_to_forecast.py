@@ -183,8 +183,20 @@ def calculate_direct_costs_for_forecast(
     # 계획 금액 추출 (지급임차료_매장(고정), 감가상각비_임차시설물 등)
     plan_amounts_df = extract_direct.extract_plan_amounts(plan_dir, channel_master)
     
-    # 직접비율 추출
-    rates_df = extract_direct.extract_direct_cost_rates(plan_dir, channel_master)
+    # ★★★ 직접비율 추출: CSV 파일 우선 사용 ★★★
+    csv_rates_path = Path(plan_dir) / f"{analysis_month}R_직접비율_추출결과.csv"
+    
+    if csv_rates_path.exists():
+        print(f"  [INFO] CSV 파일에서 직접비율 로드: {csv_rates_path.name}")
+        try:
+            rates_df = extract_direct.load_direct_cost_rates_from_csv(str(csv_rates_path))
+        except Exception as e:
+            print(f"  [WARNING] CSV 파일 로드 실패: {e}")
+            print(f"  [INFO] Plan 파일에서 직접비율 계산으로 대체합니다...")
+            rates_df = extract_direct.extract_direct_cost_rates(plan_dir, channel_master)
+    else:
+        print(f"  [INFO] CSV 파일 없음. Plan 파일에서 직접비율 계산 중...")
+        rates_df = extract_direct.extract_direct_cost_rates(plan_dir, channel_master)
     
     # 로열티율 마스터 로드
     royalty_master = extract_direct.load_royalty_rate_master()
@@ -398,7 +410,7 @@ def convert_ke30_to_forecast(
         
         if forecast_sales_col:
             print(f"  예상 실판매액 컬럼: {forecast_sales_col}")
-            # 예상 매출액에 대해 직접비 재계산
+            # 예상 매출액에 대해 직접비 재계산 (CSV 파일 우선 사용)
             df_forecast = calculate_direct_costs_for_forecast(
                 df_forecast,
                 plan_dir,

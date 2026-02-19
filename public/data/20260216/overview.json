@@ -11,8 +11,8 @@
     {
       "BRAND": "MLB KIDS",
       "SALES": 92.4,
-      "DIRECT_PROFIT": 7.2,
-      "OPERATING_PROFIT": -4.8,
+      "DIRECT_PROFIT": 8.0,
+      "OPERATING_PROFIT": -4.0,
       "ACHIEVEMENT": 115,
       "YOY_SALES": 34
     },
@@ -88,17 +88,17 @@
     "directCost": {
       "prev": 146.87,
       "target": 150.53,
-      "forecast": 160.84000000000003,
-      "yoy": 110,
-      "achievement": 107
+      "forecast": 160.04000000000002,
+      "yoy": 109,
+      "achievement": 106
     },
     "directCostDetail": {
       "인건비": {
         "prev": 40.86000000000001,
         "target": 42.64,
-        "forecast": 48.67,
-        "yoy": 119,
-        "achievement": 114
+        "forecast": 47.839999999999996,
+        "yoy": 117,
+        "achievement": 112
       },
       "임차관리비": {
         "prev": 24.639999999999997,
@@ -110,7 +110,7 @@
       "물류운송비": {
         "prev": 36.03,
         "target": 34.32,
-        "forecast": 37.6,
+        "forecast": 37.64,
         "yoy": 104,
         "achievement": 110
       },
@@ -139,9 +139,9 @@
     "directProfit": {
       "prev": 115.48,
       "target": 151.55,
-      "forecast": 163.81999999999996,
-      "yoy": 142,
-      "achievement": 108
+      "forecast": 164.61999999999998,
+      "yoy": 143,
+      "achievement": 109
     },
     "operatingExpense": {
       "prev": 115.89000000000001,
@@ -153,37 +153,37 @@
     "opProfit": {
       "prev": -0.41000000000000014,
       "target": 42.519999999999996,
-      "forecast": 54.78,
+      "forecast": 55.58,
       "yoy": 0,
-      "achievement": 129
+      "achievement": 131
     }
   },
   "overviewKPI": {
     "OVERVIEW": {
       "revenue": 43357446700,
-      "directProfit": 7494297768,
+      "directProfit": 7536683678,
       "revenueForecast": 82528078901,
-      "directProfitForecast": 16382573268,
+      "directProfitForecast": 16463252087,
       "revenuePrevious": 69998329614,
       "directProfitPrevious": 11391539577,
       "operatingProfitPrevious": -197961303,
       "revenuePlan": 73688684000,
       "directProfitPlan": 15155827000,
-      "directProfitRate": 19.01,
-      "directProfitRateForecast": 21.84,
+      "directProfitRate": 19.12,
+      "directProfitRateForecast": 21.94,
       "directProfitRatePlan": 22.62,
       "discountRate": 36.5,
       "discountRateForecast": 36.5,
-      "progressRate": 49.4,
-      "progressRateForecast": 108.1,
-      "operatingProfit": -3410104232,
-      "operatingProfitForecast": 5478171268,
-      "operatingProfitRate": -8.65,
-      "operatingProfitRateForecast": 7.3,
+      "progressRate": 49.7,
+      "progressRateForecast": 108.6,
+      "operatingProfit": -3367718322,
+      "operatingProfitForecast": 5558850087,
+      "operatingProfitRate": -8.54,
+      "operatingProfitRateForecast": 7.41,
       "revenueVsPlan": 12.0,
       "revenueVsPrevious": 17.9,
-      "profitVsPlan": 8.1,
-      "profitVsPrevious": 43.8
+      "profitVsPlan": 8.6,
+      "profitVsPrevious": 44.5
     }
   },
   "waterfallData": [
@@ -204,12 +204,12 @@
     },
     {
       "label": "직접비(-)",
-      "value": 160.84,
+      "value": 160.04,
       "type": "decrease"
     },
     {
       "label": "직접이익",
-      "value": 163.82,
+      "value": 164.62,
       "type": "subtotal"
     },
     {
@@ -219,7 +219,7 @@
     },
     {
       "label": "영업이익",
-      "value": 54.78,
+      "value": 55.58,
       "type": "result"
     }
   ],

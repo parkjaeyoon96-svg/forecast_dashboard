@@ -20410,6 +20410,7 @@
                 <th style="padding:12px 8px;text-align:left;font-weight:600;color:#1f2937;">품명</th>
                 <th style="padding:12px 8px;text-align:right;font-weight:600;color:#1f2937;">TAG가</th>
                 <th style="padding:12px 8px;text-align:right;font-weight:600;color:#1f2937;">할인가</th>
+                <th style="padding:12px 8px;text-align:right;font-weight:600;color:#1f2937;">할인율</th>
               </tr>
             </thead>
             <tbody id="promotion-detail-tbody">
@@ -20425,6 +20426,17 @@
         const tagPrice = formatNumber(row['TAG가'] || 0);
         const salePrice = formatNumber(row['할인가'] || 0);
         
+        // 할인율 계산: 1 - 할인가/TAG가
+        let discountRate = '-';
+        if (row['할인율계산'] !== null && row['할인율계산'] !== undefined) {
+          // API에서 계산된 할인율 사용
+          discountRate = row['할인율계산'].toFixed(1) + '%';
+        } else if (row['TAG가'] && row['TAG가'] > 0) {
+          // 백업: 클라이언트에서 계산
+          const rate = (1 - (row['할인가'] || 0) / row['TAG가']) * 100;
+          discountRate = rate.toFixed(1) + '%';
+        }
+        
         html += `
           <tr data-category="${category}" data-item-name="${itemName.toLowerCase()}" data-product-code="${productCode.toLowerCase()}" data-product-name="${productName.toLowerCase()}" style="background:${bgColor};border-bottom:1px solid #e5e7eb;">
             <td style="padding:10px 8px;color:#1f2937;">${category}</td>
@@ -20434,6 +20446,7 @@
             <td style="padding:10px 8px;color:#1f2937;">${productName}</td>
             <td style="padding:10px 8px;text-align:right;color:#64748b;">${tagPrice}</td>
             <td style="padding:10px 8px;text-align:right;color:#059669;font-weight:600;">${salePrice}</td>
+            <td style="padding:10px 8px;text-align:right;color:#dc2626;font-weight:600;">${discountRate}</td>
           </tr>
         `;
       });

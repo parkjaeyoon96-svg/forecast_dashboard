@@ -16,12 +16,12 @@
   },
   {
     "label": "직접비(-)",
-    "value": 160.84,
+    "value": 160.04,
     "type": "decrease"
   },
   {
     "label": "직접이익",
-    "value": 163.82,
+    "value": 164.62,
     "type": "subtotal"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "label": "영업이익",
-    "value": 54.78,
+    "value": 55.58,
     "type": "result"
   }
 ]
