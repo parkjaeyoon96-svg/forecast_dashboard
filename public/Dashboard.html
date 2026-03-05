@@ -1000,6 +1000,13 @@
               </div>
               <!-- 판매율 히트맵 (판매율 버튼 클릭 시 표시) -->
               <div id="overviewHeatmapContainer" style="display:block;margin-bottom:20px;">
+                <!-- 시즌 선택 드롭박스 -->
+                <div id="overview-season-selector" style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:15px;gap:10px;">
+                  <span style="font-size:12px;font-weight:600;color:#6b7280;">시즌:</span>
+                  <select id="overview-season-select" onchange="changeOverviewSeason()" style="padding:6px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#1f2937;">
+                    <!-- JavaScript로 동적 생성 -->
+                  </select>
+                </div>
                 <!-- 정렬 옵션 -->
                 <div style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:15px;gap:10px;">
                   <span style="font-size:12px;font-weight:600;color:#6b7280;">정렬:</span>
@@ -1360,7 +1367,7 @@
               </div>
               
               <!-- 탭 버튼 -->
-              <div id="analysis-tab-buttons" style="padding:10px 0;display:flex;gap:8px;border-bottom:2px solid #e5e7eb;margin-bottom:10px;">
+              <div id="analysis-tab-buttons" style="padding:10px 0;display:flex;gap:8px;justify-content:flex-start;border-bottom:2px solid #e5e7eb;margin-bottom:10px;">
                 <button id="tab-sales-rate" class="analysis-tab-btn active" 
                   style="padding:10px 20px;background:#4f46e5;color:#fff;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s;">
                   판매율
@@ -1373,13 +1380,17 @@
               
               <!-- 판매율 분석 콘텐츠 -->
               <div id="sales-rate-content">
-              <!-- 날짜 정보 -->
-              <div id="sales-rate-date-info" style="padding:12px;background:#f8fafc;border-radius:6px;margin:10px 0;font-size:12px;color:#475569;line-height:1.6;">
-                <div><strong>업데이트 일자:</strong> <span id="sales-rate-update-date">-</span></div>
-                <div><strong>분석기간:</strong> <span id="sales-rate-period-info">-</span></div>
-                <div><strong>대상시즌:</strong> <span id="sales-rate-season-info">-</span></div>
-                <div><strong>단위:</strong> 백만</div>
-                <div><strong>판매율:</strong> 누적판매TAG매출/누적입고TAG금액</div>
+              
+              <!-- 시즌 선택 드롭박스 -->
+              <div style="padding:10px 0;display:flex;align-items:center;gap:12px;">
+                <label for="season-select" style="font-weight:600;font-size:13px;color:#1f2937;">시즌 선택:</label>
+                <select id="season-select" onchange="applySeasonFilter()" style="padding:6px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#1f2937;">
+                  <option value="25F">25F (당시즌)</option>
+                  <option value="24F">24F (전년)</option>
+                  <option value="25S">25S</option>
+                  <option value="24S">24S</option>
+                  <option value="26S">26S (차시즌)</option>
+                </select>
               </div>
               
               <!-- 카테고리 및 필드 필터 버튼 -->
@@ -1580,6 +1591,15 @@
                 </div>
               </div>
               
+              <!-- 날짜 정보 -->
+              <div id="sales-rate-date-info" style="padding:12px;background:#f8fafc;border-radius:6px;margin:10px 0;font-size:12px;color:#475569;line-height:1.6;">
+                <div><strong>업데이트 일자:</strong> <span id="sales-rate-update-date">-</span></div>
+                <div><strong>분석기간:</strong> <span id="sales-rate-period-info">-</span></div>
+                <div><strong>대상시즌:</strong> <span id="sales-rate-season-info">-</span></div>
+                <div><strong>단위:</strong> 백만</div>
+                <div><strong>판매율:</strong> 누적판매TAG매출/누적입고TAG금액</div>
+              </div>
+              
               <div id="sales-rate-loading" style="display:none;text-align:center;padding:40px;">
                 <div style="display:inline-block;width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #4f46e5;border-radius:50%;animation:spin 1s linear infinite;"></div>
                 <p style="margin-top:10px;color:#64748b;">판매율 데이터 조회 중...</p>
@@ -1604,11 +1624,18 @@
                   </tbody>
                 </table>
               </div>
+              
               </div>
               <!-- /판매율 분석 콘텐츠 -->
               
               <!-- 재고주수 분석 콘텐츠 (초기에는 숨김) -->
               <div id="stock-weeks-content" style="display:none;">
+                <!-- 카테고리 필터 버튼 -->
+                <div id="stock-weeks-filters" style="padding:10px 0;display:flex;gap:8px;">
+                  <button class="stock-weeks-filter-btn active" data-category="전체" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">전체</button>
+                  <!-- 카테고리는 동적으로 추가됨 -->
+                </div>
+                
                 <!-- 날짜 정보 -->
                 <div id="stock-weeks-date-info" style="padding:12px;background:#f8fafc;border-radius:6px;margin:10px 0;font-size:12px;color:#475569;line-height:1.6;">
                   <div><strong>업데이트 일자:</strong> <span id="stock-weeks-update-date">-</span> (당일)</div>
@@ -1622,12 +1649,6 @@
                     <div style="margin-left:20px;">- 재고주수: 기준일 재고수량 ÷ 최근 4주 평균판매량</div>
                     <div style="margin-left:20px;">- 재고주수 표시: 20주 이하 초록 / 20주 초과~50주 이하 노랑 / 50주 초과 빨강</div>
                   </div>
-                </div>
-                
-                <!-- 카테고리 필터 버튼 -->
-                <div id="stock-weeks-filters" style="padding:10px 0;display:flex;gap:8px;">
-                  <button class="stock-weeks-filter-btn active" data-category="전체" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">전체</button>
-                  <!-- 카테고리는 동적으로 추가됨 -->
                 </div>
                 
                 <div id="stock-weeks-loading" style="display:none;text-align:center;padding:40px;">
@@ -2020,6 +2041,134 @@
   </div>
 
   <script>
+    // ========== 전역 변수 선언 ==========
+    // 브랜드 코드 매핑 (전역에서 한 번만 선언)
+    const BRAND_CODE_MAP = {
+      'MLB': 'M',
+      'MLB_KIDS': 'I',
+      'MLB KIDS': 'I',
+      'DISCOVERY': 'X',
+      'DUVETICA': 'V',
+      'SERGIO': 'ST',
+      'SUPRA': 'W'
+    };
+    
+    // ========== 시즌 관련 함수 ==========
+    /**
+     * 현재 날짜 기준으로 시즌 자동 감지
+     * 규칙:
+     * - 3월~8월: 해당 연도 S 시즌 (26년 3월 → 26S)
+     * - 9월~12월: 해당 연도 F 시즌 (25년 10월 → 25F)
+     * - 1월~2월: 전년도 F 시즌 (26년 1월 → 25F)
+     */
+    function getCurrentSeason() {
+      const now = new Date();
+      const month = now.getMonth() + 1; // 1-12
+      const year = now.getFullYear();
+      
+      if (month >= 3 && month <= 8) {
+        // S 시즌 (3월~8월): 해당 연도
+        const seasonYear = year % 100; // 2026 -> 26
+        return `${seasonYear.toString().padStart(2, '0')}S`;
+      } else if (month >= 9) {
+        // F 시즌 (9월~12월): 해당 연도
+        const seasonYear = year % 100; // 2025 -> 25
+        return `${seasonYear.toString().padStart(2, '0')}F`;
+      } else {
+        // F 시즌 (1월~2월): 전년도
+        const seasonYear = (year - 1) % 100; // 2026 -> 25
+        return `${seasonYear.toString().padStart(2, '0')}F`;
+      }
+    }
+    
+    /**
+     * 25F부터 현재 시즌까지 시즌 리스트 생성
+     * 예: 2026-03-05 → ['25F', '26S']
+     */
+    function generateSeasonList() {
+      const seasons = [];
+      const currentSeason = getCurrentSeason();
+      
+      // 시작 시즌: 25F
+      let year = 25;
+      let type = 'F';
+      
+      while (true) {
+        const season = `${year.toString().padStart(2, '0')}${type}`;
+        seasons.push(season);
+        
+        // 현재 시즌에 도달하면 종료
+        if (season === currentSeason) {
+          break;
+        }
+        
+        // 다음 시즌으로 이동
+        if (type === 'F') {
+          type = 'S';
+          year++; // F -> S로 넘어가면 연도 증가
+        } else {
+          type = 'F';
+        }
+      }
+      
+      return seasons;
+    }
+    
+    /**
+     * 시즌 드롭다운 옵션 채우기
+     */
+    function populateSeasonDropdowns() {
+      const seasons = generateSeasonList();
+      const currentSeason = getCurrentSeason();
+      
+      // 판매율 시즌 드롭다운
+      const seasonSelect = document.getElementById('season-select');
+      if (seasonSelect) {
+        seasonSelect.innerHTML = '';
+        seasons.forEach(season => {
+          const option = document.createElement('option');
+          option.value = season;
+          option.textContent = season === currentSeason ? `${season} (당시즌)` : season;
+          seasonSelect.appendChild(option);
+        });
+        // 현재 시즌을 기본 선택
+        seasonSelect.value = currentSeason;
+      }
+      
+      // 재고주수 시즌 드롭다운
+      const stockSeasonSelect = document.getElementById('stock-season-select');
+      if (stockSeasonSelect) {
+        stockSeasonSelect.innerHTML = '';
+        seasons.forEach(season => {
+          const option = document.createElement('option');
+          option.value = season;
+          option.textContent = season === currentSeason ? `${season} (당시즌)` : season;
+          stockSeasonSelect.appendChild(option);
+        });
+        // 현재 시즌을 기본 선택
+        stockSeasonSelect.value = currentSeason;
+      }
+      
+      // 전체현황 시즌 드롭다운
+      const overviewSeasonSelect = document.getElementById('overview-season-select');
+      if (overviewSeasonSelect) {
+        overviewSeasonSelect.innerHTML = '';
+        seasons.forEach(season => {
+          const option = document.createElement('option');
+          option.value = season;
+          option.textContent = season === currentSeason ? `${season} (당시즌)` : season;
+          overviewSeasonSelect.appendChild(option);
+        });
+        // 현재 시즌을 기본 선택
+        overviewSeasonSelect.value = currentSeason;
+      }
+      
+      console.log('[시즌 드롭다운] 생성 완료:', {
+        시즌리스트: seasons,
+        현재시즌: currentSeason
+      });
+    }
+    
     // ※ 할인내역 드릴다운: 스크립트 실행 직후 스텁 등록 (DOM 로드 전 클릭 대비)
     window.showDiscountDetail = function(discountCode, brandName) {
       var fn = window.__showDiscountDetailImpl;
@@ -2533,6 +2682,12 @@
                 console.log('[필터] 초기 필터 상태 로드:', filterState);
               }
               
+              // ========== 시즌 드롭다운 초기화 ==========
+              if (typeof populateSeasonDropdowns === 'function') {
+                populateSeasonDropdowns();
+                console.log('[시즌] 드롭다운 초기화 완료');
+              }
+              
               // dataLoaded 이벤트 발생
               console.log('[Dashboard] 데이터 로드 완료, dataLoaded 이벤트 발생');
               window.dispatchEvent(new CustomEvent('dataLoaded'));
@@ -2638,6 +2793,12 @@
                 }
               };
               setTimeout(waitForChannelData, 100);
+              
+              // ========== 시즌 드롭다운 초기화 ==========
+              if (typeof populateSeasonDropdowns === 'function') {
+                populateSeasonDropdowns();
+                console.log('[시즌] 드롭다운 초기화 완료');
+              }
               
               // dataLoaded 이벤트 발생
               console.log('[Dashboard] 데이터 로드 완료, dataLoaded 이벤트 발생');
@@ -3598,25 +3759,8 @@
       ST: 'SERGIO'
     };
     
-    // 브랜드 코드 역매핑 (이름 -> 코드)
-    const BRAND_CODE_MAP = {
-      'MLB': 'M',
-      'MLB KIDS': 'I',
-      'DISCOVERY': 'X',
-      'DUVETICA': 'V',
-      'SUPRA': 'W',
-      'SERGIO': 'ST'
-    };
-
-    // 전역 브랜드 코드 매핑 (모든 그래프에서 공통 사용)
-    const brandCodeMap = {
-      'MLB': 'M',
-      'MLB_KIDS': 'I',
-      'DISCOVERY': 'X',
-      'DUVETICA': 'V',
-      'SERGIO': 'ST',
-      'SUPRA': 'W'
-    };
+    // brandCodeMap은 BRAND_CODE_MAP의 별칭 (하위 호환성)
+    const brandCodeMap = BRAND_CODE_MAP;
     
     let currentBrand = 'MLB';
     let currentSection = 'overview';
@@ -7357,14 +7501,14 @@
       }
     }
     
-    async function createOverviewHeatmap(sortBy = 'sale'){
+    async function createOverviewHeatmap(sortBy = 'sale', season = null){
       const table = document.getElementById('overviewHeatmapTable');
       if(!table) return;
       
-      console.log('[히트맵] API 기반 히트맵 생성 시작, 정렬:', sortBy);
+      console.log('[히트맵] API 기반 히트맵 생성 시작, 정렬:', sortBy, '시즌:', season || '기본');
       
-      // API 데이터 로드
-      const salesRateData = await loadOverviewSalesRateData();
+      // API 데이터 로드 (시즌 포함)
+      const salesRateData = await loadOverviewSalesRateData(season);
       if (!salesRateData || !salesRateData.success) {
         console.error('[히트맵] API 데이터 로드 실패');
         return;
@@ -7435,8 +7579,9 @@
       // 테이블 생성 - 브랜드를 행, 아이템을 열로
       let html = '<thead><tr><th style="background:#2d3748;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;border-radius:8px 0 0 0;">브랜드</th>';
       
-      // ★ 25F 열을 맨 앞에 배치 ★
-      html += '<th style="background:#6366f1;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;">25F</th>';
+      // ★ 시즌 열을 맨 앞에 배치 (동적으로 표시) ★
+      const seasonDisplay = season || getCurrentSeason();
+      html += `<th style="background:#6366f1;color:white;padding:12px 8px;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;">${seasonDisplay}</th>`;
       
       // 헤더 생성 (ITEM_CD) - 클릭 가능하게
       itemCodes.forEach(itemCd => {
@@ -12691,6 +12836,26 @@
       if (modal) modal.style.display = 'none';
     }
     
+    // 전체현황 시즌 선택 변경
+    async function changeOverviewSeason() {
+      const seasonSelect = document.getElementById('overview-season-select');
+      const selectedSeason = seasonSelect?.value;
+      
+      if (!selectedSeason) return;
+      
+      console.log('[전체현황] 시즌 변경:', selectedSeason);
+      
+      // 기존 데이터 초기화
+      window.overviewSalesRateData = null;
+      
+      // 현재 정렬 상태 확인
+      const isSaleSort = document.getElementById('sortBySale')?.style.background === 'rgb(37, 99, 235)';
+      const sortBy = isSaleSort ? 'sale' : 'salesRate';
+      
+      // 히트맵 재생성 (시즌 파라미터 포함)
+      await createOverviewHeatmap(sortBy, selectedSeason);
+    }
+    
     // 히트맵 정렬 함수
     async function sortHeatmap(sortBy) {
       console.log('[히트맵] 정렬 기준 변경:', sortBy);
@@ -12711,8 +12876,12 @@
         btnSaleRate.style.color = '#374151';
       }
       
-      // 히트맵 재생성
-      await createOverviewHeatmap(sortBy);
+      // 현재 선택된 시즌 가져오기
+      const seasonSelect = document.getElementById('overview-season-select');
+      const selectedSeason = seasonSelect?.value || null;
+      
+      // 히트맵 재생성 (시즌 포함)
+      await createOverviewHeatmap(sortBy, selectedSeason);
     }
     
     // 버블 차트 뷰 전환
@@ -14467,6 +14636,49 @@
       }
     }
     
+    // 시즌 필터 적용 함수
+    async function applySeasonFilter() {
+      const seasonSelect = document.getElementById('season-select');
+      const selectedSeason = seasonSelect?.value;
+      
+      if (!selectedSeason) {
+        console.log('[시즌 필터] 시즌이 선택되지 않았습니다.');
+        return;
+      }
+      
+      console.log('[시즌 필터] 선택된 시즌:', selectedSeason);
+      
+      try {
+        // API에서 해당 시즌 데이터 가져오기
+        const response = await fetch(`/api/sales-rate?season=${selectedSeason}`);
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || '데이터 조회 실패');
+        }
+        
+        // 데이터 저장
+        window.salesRateData = result;
+        window.salesRateFilteredData = result;
+        
+        // 날짜 정보 업데이트
+        updateSalesRateDateInfo(result);
+        
+        // 테이블 다시 렌더링
+        renderSalesRateTable();
+        
+        console.log('[시즌 필터] 데이터 로드 완료:', {
+          시즌: selectedSeason,
+          CUR개수: result.data.CUR?.length,
+          PY개수: result.data.PY?.length,
+          PY_END개수: result.data.PY_END?.length
+        });
+      } catch (error) {
+        console.error('[시즌 필터] 에러:', error);
+        alert(`시즌 데이터 로드 실패: ${error.message}`);
+      }
+    }
+    
     // 날짜 정보 업데이트
     function updateSalesRateDateInfo(result) {
       const updateDateEl = document.getElementById('sales-rate-update-date');
@@ -14501,9 +14713,19 @@
           curKeys: curSample ? Object.keys(curSample) : []
         });
         
-        // SESN 필드에서 시즌 정보 가져오기 (없으면 하드코딩)
-        const curSeason = curSample?.SESN || '25F';
-        const pySeason = pySample?.SESN || '24F';
+        // SESN 필드에서 시즌 정보 가져오기
+        let curSeason = curSample?.SESN;
+        let pySeason = pySample?.SESN;
+        
+        // SESN 필드가 없으면 시즌 선택 드롭다운에서 가져오기
+        if (!curSeason) {
+          const seasonSelect = document.getElementById('season-select');
+          curSeason = seasonSelect?.value || getCurrentSeason();
+          // 전년 시즌 계산
+          const year = parseInt(curSeason.substring(0, 2));
+          const type = curSeason.substring(2);
+          pySeason = `${(year - 1).toString().padStart(2, '0')}${type}`;
+        }
         
         seasonInfoEl.textContent = `당년 ${curSeason} 의류 / 전년 ${pySeason} 의류`;
       }
@@ -15508,6 +15730,45 @@
       }
     }
     
+    // 재고주수 시즌 필터 적용 함수
+    function applyStockSeasonFilter() {
+      const seasonSelect = document.getElementById('stock-season-select');
+      const selectedSeason = seasonSelect?.value;
+      
+      if (!selectedSeason) {
+        console.log('[재고주수 시즌 필터] 시즌이 선택되지 않았습니다.');
+        return;
+      }
+      
+      console.log('[재고주수 시즌 필터] 선택된 시즌:', selectedSeason);
+      
+      if (!window.stockWeeksData || !window.stockWeeksData.data) {
+        console.log('[재고주수 시즌 필터] 재고주수 데이터가 없습니다.');
+        alert('재고주수 데이터를 먼저 로드해주세요.');
+        return;
+      }
+      
+      // 시즌 필터링 로직
+      window.stockWeeksFilteredData = {
+        ...window.stockWeeksData,
+        data: {
+          CY: (window.stockWeeksData.data.CY || []).filter(item => item.SESN === selectedSeason),
+          PY: window.stockWeeksData.data.PY || []
+        }
+      };
+      
+      console.log('[재고주수 시즌 필터] 필터링 결과:', {
+        원본: window.stockWeeksData.data.CY?.length,
+        필터링후: window.stockWeeksFilteredData.data.CY?.length,
+        시즌: selectedSeason
+      });
+      
+      // 테이블 다시 렌더링
+      renderStockWeeksTable();
+      
+      alert(`${selectedSeason} 시즌으로 필터링되었습니다.`);
+    }
+    
     // 재고주수 날짜 정보 업데이트
     function updateStockWeeksDateInfo(result) {
       const updateDateEl = document.getElementById('stock-weeks-update-date');
@@ -16076,24 +16337,29 @@
     // ==================== 전체현황 히트맵 API 연동 ====================
     
     // 전체현황용 판매율 데이터 로드
-    async function loadOverviewSalesRateData() {
+    async function loadOverviewSalesRateData(season = null) {
+      // 시즌이 지정되면 캐시 확인
+      if (season && window.overviewSalesRateData) {
+        const cachedSeason = window.overviewSalesRateData.season;
+        if (cachedSeason !== season) {
+          window.overviewSalesRateData = null;
+        }
+      }
+      
       if (window.overviewSalesRateData) {
         console.log('[전체현황] 판매율 데이터 이미 로드됨');
         return window.overviewSalesRateData;
       }
       
       try {
-        console.log('[전체현황] 판매율 데이터 로드 시작');
-        const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        
-        // URL에서 month 파라미터 읽기
-        const urlParams = new URLSearchParams(window.location.search);
-        const monthParam = urlParams.get('month');
+        console.log('[전체현황] 판매율 데이터 로드 시작, 시즌:', season || '기본');
         
         // API URL 구성
-        let url = `/api/sales-rate?date=${apiDate}`;
-        if (monthParam) {
-          url += `&month=${monthParam}`;
+        let url = `/api/sales-rate`;
+        
+        // 시즌 파라미터 추가
+        if (season) {
+          url += `?season=${season}`;
         }
         
         const response = await fetch(url);
@@ -16108,6 +16374,8 @@
           throw new Error(result.error || '데이터 로드 실패');
         }
         
+        // 시즌 정보 저장
+        result.season = season;
         window.overviewSalesRateData = result;
         console.log('[전체현황] 판매율 데이터 로드 완료');
         return result;
@@ -16499,17 +16767,8 @@
         return null;
       }
       
-      // 브랜드 코드 매핑
-      const brandCodeMap = {
-        'MLB': 'M',
-        'MLB_KIDS': 'I',
-        'MLB KIDS': 'I',
-        'DISCOVERY': 'X',
-        'DUVETICA': 'V',
-        'SERGIO': 'ST',
-        'SUPRA': 'W'
-      };
-      const brandCode = brandCodeMap[brand] || brandCodeMap[brand.replace('_', ' ')] || 'M';
+      // 브랜드 코드 매핑 (전역 변수 사용)
+      const brandCode = BRAND_CODE_MAP[brand] || BRAND_CODE_MAP[brand.replace('_', ' ')] || 'M';
       const cyData = window.salesCompositionData.data.CY || [];
       const pyData = window.salesCompositionData.data.PY || [];
       
@@ -16666,17 +16925,8 @@
         return null;
       }
       
-      // 브랜드 코드 매핑
-      const brandCodeMap = {
-        'MLB': 'M',
-        'MLB_KIDS': 'I',
-        'MLB KIDS': 'I',
-        'DISCOVERY': 'X',
-        'DUVETICA': 'V',
-        'SERGIO': 'ST',
-        'SUPRA': 'W'
-      };
-      const brandCode = brandCodeMap[brand] || brandCodeMap[brand.replace('_', ' ')] || 'M';
+      // 브랜드 코드 매핑 (전역 변수 사용)
+      const brandCode = BRAND_CODE_MAP[brand] || BRAND_CODE_MAP[brand.replace('_', ' ')] || 'M';
       const cyData = window.salesCompositionData.data.CY || [];
       const pyData = window.salesCompositionData.data.PY || [];
       
@@ -16800,17 +17050,8 @@
         return null;
       }
       
-      // 브랜드 코드 매핑
-      const brandCodeMap = {
-        'MLB': 'M',
-        'MLB_KIDS': 'I',
-        'MLB KIDS': 'I',
-        'DISCOVERY': 'X',
-        'DUVETICA': 'V',
-        'SERGIO': 'ST',
-        'SUPRA': 'W'
-      };
-      const brandCode = brandCodeMap[brand] || brandCodeMap[brand.replace('_', ' ')] || 'M';
+      // 브랜드 코드 매핑 (전역 변수 사용)
+      const brandCode = BRAND_CODE_MAP[brand] || BRAND_CODE_MAP[brand.replace('_', ' ')] || 'M';
       const cyData = window.salesCompositionData.data.CY || [];
       const pyData = window.salesCompositionData.data.PY || [];
       
