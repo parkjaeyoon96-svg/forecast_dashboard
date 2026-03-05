@@ -1606,7 +1606,10 @@
               </div>
               <div id="sales-rate-error" style="display:none;text-align:center;padding:40px;color:#dc2626;">
                 <p>⚠️ 판매율 데이터를 불러올 수 없습니다.</p>
-                <button onclick="loadSalesRateData()" style="margin-top:10px;padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;">다시 시도</button>
+                <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;">
+                  <button onclick="loadSalesRateData()" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;">다시 시도</button>
+                  <button onclick="loadSalesRateData(true)" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:6px;cursor:pointer;">캐시 삭제 후 새로고침</button>
+                </div>
               </div>
               
               <script>
@@ -7505,12 +7508,40 @@
       const table = document.getElementById('overviewHeatmapTable');
       if(!table) return;
       
-      console.log('[히트맵] API 기반 히트맵 생성 시작, 정렬:', sortBy, '시즌:', season || '기본');
+      console.log('[히트맵] API 기반 히트맵 생성 시작, 정렬:', sortBy, '시즌:', season || '현재시즌');
       
-      // API 데이터 로드 (시즌 포함)
-      const salesRateData = await loadOverviewSalesRateData(season);
-      if (!salesRateData || !salesRateData.success) {
+      // API 데이터 로드 (시즌 무시, 한 번만 로드)
+      const salesRateAllData = await loadOverviewSalesRateData();
+      if (!salesRateAllData || !salesRateAllData.success) {
         console.error('[히트맵] API 데이터 로드 실패');
+        return;
+      }
+      
+      // 시즌 선택 (파라미터 또는 현재 시즌)
+      const selectedSeason = season || salesRateAllData.currentSeason;
+      
+      // 데이터 구조 검증
+      if (!salesRateAllData.dataBySeasons) {
+        console.error('[히트맵] 데이터 구조 오류: dataBySeasons가 없습니다.');
+        alert('데이터 구조가 올바르지 않습니다. 페이지를 새로고침해주세요. (Ctrl+Shift+R)');
+        return;
+      }
+      
+      const seasonData = salesRateAllData.dataBySeasons[selectedSeason];
+      if (!seasonData) {
+        console.error('[히트맵] 시즌 데이터 없음:', selectedSeason, '사용가능 시즌:', Object.keys(salesRateAllData.dataBySeasons));
+        alert(`${selectedSeason} 시즌 데이터를 찾을 수 없습니다.`);
+        return;
+      }
+      
+      const salesRateData = {
+        success: true,
+        date: salesRateAllData.date,
+        ...seasonData
+      };
+      
+      if (!salesRateData.data) {
+        console.error('[히트맵] data 필드 없음:', salesRateData);
         return;
       }
       
@@ -12845,14 +12876,18 @@
       
       console.log('[전체현황] 시즌 변경:', selectedSeason);
       
-      // 기존 데이터 초기화
-      window.overviewSalesRateData = null;
+      // 이미 로드된 데이터에서 시즌 필터링 (API 호출 없음)
+      if (!window.overviewSalesRateData || !window.overviewSalesRateData.dataBySeasons) {
+        console.error('[전체현황] 전체 시즌 데이터가 없습니다.');
+        alert('데이터를 먼저 로드해주세요.');
+        return;
+      }
       
       // 현재 정렬 상태 확인
       const isSaleSort = document.getElementById('sortBySale')?.style.background === 'rgb(37, 99, 235)';
       const sortBy = isSaleSort ? 'sale' : 'salesRate';
       
-      // 히트맵 재생성 (시즌 파라미터 포함)
+      // 히트맵 재생성 (시즌 파라미터 포함, 데이터는 이미 로드됨)
       await createOverviewHeatmap(sortBy, selectedSeason);
     }
     
@@ -14551,20 +14586,10 @@
       if (tableWrapper) tableWrapper.style.display = 'none';
       
       try {
-        // API 호출 (오늘 날짜 사용)
-        const apiDate = window.__API_DATE__ || new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        
-        // URL에서 month 파라미터 읽기
-        const urlParams = new URLSearchParams(window.location.search);
-        const monthParam = urlParams.get('month');
-        
-        // API URL 구성
-        let url = `/api/sales-rate?date=${apiDate}`;
-        if (monthParam) {
-          url += `&month=${monthParam}`;
-        }
+        // API URL 구성 (시즌 파라미터 제거 - 모든 시즌 한 번에 로드)
+        let url = `/api/sales-rate`;
         if (forceUpdate) {
-          url += '&forceUpdate=true';
+          url += '?forceUpdate=true';
         }
         
         const response = await fetch(url);
@@ -14593,12 +14618,37 @@
           throw new Error(errorMsg);
         }
         
-        // 전역 변수에 저장
-        window.salesRateData = result;
-        console.log('[판매율] 데이터 로드 완료');
+        // 전역 변수에 저장 (시즌별 데이터 포함)
+        window.salesRateAllData = result;
+        console.log('[판매율] 모든 시즌 데이터 로드 완료:', {
+          시즌리스트: result.seasons,
+          현재시즌: result.currentSeason,
+          dataBySeasons: result.dataBySeasons ? Object.keys(result.dataBySeasons) : 'undefined'
+        });
+        
+        // 데이터 구조 검증
+        if (!result.dataBySeasons) {
+          console.error('[판매율] 데이터 구조 오류: dataBySeasons가 없습니다. 캐시를 삭제해야 합니다.');
+          throw new Error('데이터 구조가 올바르지 않습니다. 새로고침 버튼을 눌러주세요.');
+        }
+        
+        // 현재 시즌 데이터로 초기화
+        const currentSeason = result.currentSeason;
+        const seasonData = result.dataBySeasons[currentSeason];
+        
+        if (!seasonData) {
+          console.error(`[판매율] 시즌 데이터 없음: ${currentSeason}`, result.dataBySeasons);
+          throw new Error(`${currentSeason} 시즌 데이터를 찾을 수 없습니다.`);
+        }
+        
+        window.salesRateData = {
+          success: true,
+          date: result.date,
+          ...seasonData
+        };
         
         // 날짜 정보 업데이트
-        updateSalesRateDateInfo(result);
+        updateSalesRateDateInfo(window.salesRateData);
         
         // 카테고리 필터 이벤트 설정
         setupCategoryFilters();
@@ -14648,35 +14698,38 @@
       
       console.log('[시즌 필터] 선택된 시즌:', selectedSeason);
       
-      try {
-        // API에서 해당 시즌 데이터 가져오기
-        const response = await fetch(`/api/sales-rate?season=${selectedSeason}`);
-        const result = await response.json();
-        
-        if (!result.success) {
-          throw new Error(result.error || '데이터 조회 실패');
-        }
-        
-        // 데이터 저장
-        window.salesRateData = result;
-        window.salesRateFilteredData = result;
-        
-        // 날짜 정보 업데이트
-        updateSalesRateDateInfo(result);
-        
-        // 테이블 다시 렌더링
-        renderSalesRateTable();
-        
-        console.log('[시즌 필터] 데이터 로드 완료:', {
-          시즌: selectedSeason,
-          CUR개수: result.data.CUR?.length,
-          PY개수: result.data.PY?.length,
-          PY_END개수: result.data.PY_END?.length
-        });
-      } catch (error) {
-        console.error('[시즌 필터] 에러:', error);
-        alert(`시즌 데이터 로드 실패: ${error.message}`);
+      // 이미 로드된 데이터에서 시즌 필터링 (API 호출 없음)
+      if (!window.salesRateAllData || !window.salesRateAllData.dataBySeasons) {
+        console.error('[시즌 필터] 전체 시즌 데이터가 없습니다.');
+        alert('데이터를 먼저 로드해주세요.');
+        return;
       }
+      
+      if (!window.salesRateAllData.dataBySeasons[selectedSeason]) {
+        console.error('[시즌 필터] 해당 시즌 데이터가 없습니다:', selectedSeason);
+        alert(`${selectedSeason} 시즌 데이터가 없습니다.`);
+        return;
+      }
+      
+      // 선택된 시즌의 데이터로 전환 (즉시 반응)
+      window.salesRateData = {
+        success: true,
+        date: window.salesRateAllData.date,
+        ...window.salesRateAllData.dataBySeasons[selectedSeason]
+      };
+      
+      console.log('[시즌 필터] 시즌 전환 완료:', {
+        시즌: selectedSeason,
+        CUR개수: window.salesRateData.data.CUR?.length,
+        PY개수: window.salesRateData.data.PY?.length,
+        PY_END개수: window.salesRateData.data.PY_END?.length
+      });
+      
+      // 날짜 정보 업데이트
+      updateSalesRateDateInfo(window.salesRateData);
+      
+      // 테이블 다시 렌더링
+      renderSalesRateTable();
     }
     
     // 날짜 정보 업데이트
@@ -16338,29 +16391,17 @@
     
     // 전체현황용 판매율 데이터 로드
     async function loadOverviewSalesRateData(season = null) {
-      // 시즌이 지정되면 캐시 확인
-      if (season && window.overviewSalesRateData) {
-        const cachedSeason = window.overviewSalesRateData.season;
-        if (cachedSeason !== season) {
-          window.overviewSalesRateData = null;
-        }
-      }
-      
+      // season 파라미터 무시 - 항상 모든 시즌 데이터 로드
       if (window.overviewSalesRateData) {
         console.log('[전체현황] 판매율 데이터 이미 로드됨');
         return window.overviewSalesRateData;
       }
       
       try {
-        console.log('[전체현황] 판매율 데이터 로드 시작, 시즌:', season || '기본');
+        console.log('[전체현황] 판매율 데이터 로드 시작');
         
-        // API URL 구성
+        // API URL 구성 (시즌 파라미터 제거)
         let url = `/api/sales-rate`;
-        
-        // 시즌 파라미터 추가
-        if (season) {
-          url += `?season=${season}`;
-        }
         
         const response = await fetch(url);
         
@@ -16374,10 +16415,20 @@
           throw new Error(result.error || '데이터 로드 실패');
         }
         
-        // 시즌 정보 저장
-        result.season = season;
+        // 전체 시즌 데이터 저장
         window.overviewSalesRateData = result;
-        console.log('[전체현황] 판매율 데이터 로드 완료');
+        console.log('[전체현황] 모든 시즌 데이터 로드 완료:', {
+          시즌리스트: result.seasons,
+          현재시즌: result.currentSeason,
+          dataBySeasons: result.dataBySeasons ? Object.keys(result.dataBySeasons) : 'undefined'
+        });
+        
+        // 데이터 구조 검증
+        if (!result.dataBySeasons) {
+          console.error('[전체현황] 데이터 구조 오류: dataBySeasons가 없습니다. 캐시를 삭제해야 합니다.');
+          throw new Error('데이터 구조가 올바르지 않습니다. 페이지를 새로고침하거나 Ctrl+Shift+R을 눌러주세요.');
+        }
+        
         return result;
         
       } catch (error) {
