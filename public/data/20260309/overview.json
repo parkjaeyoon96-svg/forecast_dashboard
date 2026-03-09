@@ -1,0 +1,258 @@
+{
+  "by_brand": [
+    {
+      "BRAND": "MLB",
+      "SALES": 389.0,
+      "DIRECT_PROFIT": 111.4,
+      "OPERATING_PROFIT": 65.3,
+      "ACHIEVEMENT": 98,
+      "YOY_SALES": 6
+    },
+    {
+      "BRAND": "MLB KIDS",
+      "SALES": 93.3,
+      "DIRECT_PROFIT": 15.8,
+      "OPERATING_PROFIT": 4.7,
+      "ACHIEVEMENT": 104,
+      "YOY_SALES": 18
+    },
+    {
+      "BRAND": "DISCOVERY",
+      "SALES": 316.7,
+      "DIRECT_PROFIT": 72.6,
+      "OPERATING_PROFIT": 30.3,
+      "ACHIEVEMENT": 98,
+      "YOY_SALES": 17
+    },
+    {
+      "BRAND": "DUVETICA",
+      "SALES": 21.4,
+      "DIRECT_PROFIT": 5.1,
+      "OPERATING_PROFIT": -3.7,
+      "ACHIEVEMENT": 94,
+      "YOY_SALES": 39
+    },
+    {
+      "BRAND": "SERGIO",
+      "SALES": 4.5,
+      "DIRECT_PROFIT": -1.5,
+      "OPERATING_PROFIT": -8.5,
+      "ACHIEVEMENT": 64,
+      "YOY_SALES": -45
+    },
+    {
+      "BRAND": "SUPRA",
+      "SALES": 0.3,
+      "DIRECT_PROFIT": 0.2,
+      "OPERATING_PROFIT": 0.2,
+      "ACHIEVEMENT": 0,
+      "YOY_SALES": -90
+    }
+  ],
+  "overviewPL": {
+    "tagRevenue": {
+      "prev": 1066.37,
+      "target": 1200.93,
+      "forecast": 1212.2899999999997,
+      "yoy": 114,
+      "achievement": 101
+    },
+    "revenue": {
+      "prev": 743.32,
+      "target": 839.3000000000001,
+      "forecast": 825.3,
+      "yoy": 111,
+      "achievement": 98
+    },
+    "discountRate": {
+      "prev": 30.3,
+      "target": 30.1,
+      "forecast": 31.9,
+      "yoy": 1.6,
+      "achievement": 1.8
+    },
+    "cog": {
+      "prev": 227.70000000000005,
+      "target": 241.64,
+      "forecast": 204.79999999999998,
+      "yoy": 90,
+      "achievement": 85
+    },
+    "grossProfit": {
+      "prev": 287.06999999999994,
+      "target": 340.01000000000005,
+      "forecast": 357.61,
+      "yoy": 125,
+      "achievement": 105
+    },
+    "directCost": {
+      "prev": 148.86,
+      "target": 158.84,
+      "forecast": 153.99999999999997,
+      "yoy": 103,
+      "achievement": 97
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 41.0,
+        "target": 43.449999999999996,
+        "forecast": 42.470000000000006,
+        "yoy": 104,
+        "achievement": 98
+      },
+      "임차관리비": {
+        "prev": 26.16,
+        "target": 28.06,
+        "forecast": 27.790000000000003,
+        "yoy": 106,
+        "achievement": 99
+      },
+      "물류운송비": {
+        "prev": 35.36,
+        "target": 36.199999999999996,
+        "forecast": 35.12,
+        "yoy": 99,
+        "achievement": 97
+      },
+      "로열티": {
+        "prev": 24.889999999999997,
+        "target": 27.660000000000004,
+        "forecast": 27.669999999999998,
+        "yoy": 111,
+        "achievement": 100
+      },
+      "감가상각비": {
+        "prev": 6.800000000000001,
+        "target": 5.509999999999999,
+        "forecast": 5.369999999999999,
+        "yoy": 79,
+        "achievement": 97
+      },
+      "기타": {
+        "prev": 14.620000000000001,
+        "target": 17.990000000000002,
+        "forecast": 15.58,
+        "yoy": 107,
+        "achievement": 87
+      }
+    },
+    "directProfit": {
+      "prev": 138.21000000000004,
+      "target": 181.17000000000002,
+      "forecast": 203.60999999999999,
+      "yoy": 147,
+      "achievement": 112
+    },
+    "operatingExpense": {
+      "prev": 106.15000000000002,
+      "target": 115.45,
+      "forecast": 115.45,
+      "yoy": 109,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": 32.05999999999999,
+      "target": 65.71000000000001,
+      "forecast": 88.16,
+      "yoy": 275,
+      "achievement": 134
+    }
+  },
+  "overviewKPI": {
+    "OVERVIEW": {
+      "revenue": 20940163210,
+      "directProfit": 2557069673,
+      "revenueForecast": 82529965989,
+      "directProfitForecast": 20362189354,
+      "revenuePrevious": 74330931636,
+      "directProfitPrevious": 13822341614,
+      "operatingProfitPrevious": 3208038809,
+      "revenuePlan": 83931044908,
+      "directProfitPlan": 18115786824,
+      "directProfitRate": 13.43,
+      "directProfitRateForecast": 27.14,
+      "directProfitRatePlan": 23.74,
+      "discountRate": 31.93,
+      "discountRateForecast": 31.93,
+      "progressRate": 14.1,
+      "progressRateForecast": 112.4,
+      "operatingProfit": -8987841563,
+      "operatingProfitForecast": 8817278118,
+      "operatingProfitRate": -47.21,
+      "operatingProfitRateForecast": 11.75,
+      "revenueVsPlan": -1.7,
+      "revenueVsPrevious": 11.0,
+      "profitVsPlan": 12.4,
+      "profitVsPrevious": 47.3
+    }
+  },
+  "waterfallData": [
+    {
+      "label": "실판매출",
+      "value": 825.3,
+      "type": "total"
+    },
+    {
+      "label": "매출원가(-)",
+      "value": 204.8,
+      "type": "decrease"
+    },
+    {
+      "label": "매출총이익",
+      "value": 357.61,
+      "type": "subtotal"
+    },
+    {
+      "label": "직접비(-)",
+      "value": 154.0,
+      "type": "decrease"
+    },
+    {
+      "label": "직접이익",
+      "value": 203.61,
+      "type": "subtotal"
+    },
+    {
+      "label": "영업비(-)",
+      "value": 115.45,
+      "type": "decrease"
+    },
+    {
+      "label": "영업이익",
+      "value": 88.16,
+      "type": "result"
+    }
+  ],
+  "cumulativeTrendData": {
+    "weeks": [
+      "2/15",
+      "2/22",
+      "3/1",
+      "3/8"
+    ],
+    "weekly_current": [
+      17777.5,
+      16156.6,
+      17410.8,
+      17101.4
+    ],
+    "weekly_prev": [
+      17440.8,
+      17001.5,
+      19157.1,
+      15521.3
+    ],
+    "cumulative_current": [
+      17777.5,
+      33934.1,
+      51344.9,
+      68446.3
+    ],
+    "cumulative_prev": [
+      17440.8,
+      34442.3,
+      53599.4,
+      69120.7
+    ]
+  }
+}
