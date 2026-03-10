@@ -42,6 +42,40 @@ function getCurrentSeason(): string {
 }
 
 /**
+ * 25F부터 현재 시즌까지 시즌 리스트 생성
+ * 예: 2026-03-05 → ['25F', '26S']
+ * 예: 2026-09-01 → ['25F', '26S', '26F']
+ */
+function generateSeasonList(): string[] {
+  const seasons: string[] = [];
+  const currentSeason = getCurrentSeason();
+  
+  // 시작 시즌: 25F
+  let year = 25;
+  let type: 'F' | 'S' = 'F';
+  
+  while (true) {
+    const season = `${year.toString().padStart(2, '0')}${type}`;
+    seasons.push(season);
+    
+    // 현재 시즌에 도달하면 종료
+    if (season === currentSeason) {
+      break;
+    }
+    
+    // 다음 시즌으로 이동
+    if (type === 'F') {
+      type = 'S';
+      year++; // F -> S로 넘어가면 연도 증가
+    } else {
+      type = 'F';
+    }
+  }
+  
+  return seasons;
+}
+
+/**
  * 시즌 정보 계산
  */
 function getSeasonInfo(selectedSeason: string): SeasonInfo {
@@ -111,9 +145,9 @@ function formatDateForSql(date: Date): string {
  * 반환 데이터:
  * - success: boolean
  * - date: string (업데이트 일자)
- * - periodInfo: { curDate, pyDate, pyEndDate }
- * - data: { CUR, PY, PY_END } (각 기간별 판매율 데이터)
- * - rowCount: { CUR, PY, PY_END } (각 기간별 데이터 개수)
+ * - seasons: string[] (시즌 리스트)
+ * - currentSeason: string (현재 시즌)
+ * - dataBySeasons: { [season]: { periodInfo, data, rowCount } }
  * 
  * 캐싱 전략:
  * - Redis 캐시 (24시간 TTL)
@@ -121,16 +155,13 @@ function formatDateForSql(date: Date): string {
  */
 export async function GET(request: Request) {
   try {
-    // URL 파라미터 확인
+    // URL 파라미터에서 forceUpdate 확인
     const { searchParams } = new URL(request.url);
     const forceUpdate = searchParams.get('forceUpdate') === 'true';
-    const season = searchParams.get('season') || null;
     
-    // 오늘 날짜로 캐시 키 생성 (시즌 포함)
+    // 오늘 날짜로 캐시 키 생성 (한국 시간 기준)
     const today = getTodayCompact();
-    const cacheKey = season 
-      ? `sales-rate-${today}-${season}` 
-      : `sales-rate-${today}`;
+    const cacheKey = `sales-rate-${today}`;
     
     // 1. Redis 캐시 확인 (강제 업데이트가 아닐 때만)
     if (!forceUpdate) {
@@ -148,56 +179,58 @@ export async function GET(request: Request) {
     }
     
     console.log(`[판매율 API] 캐시 미스: ${cacheKey} - Snowflake 조회 시작`);
-    
-    // 2. Snowflake 쿼리 실행 (시즌 파라미터 전달)
-    const query = getSalesRateQuery(season);
+    // 2. 모든 시즌 데이터를 한 번에 조회
+    const query = getSalesRateQueryAllSeasons();
     const rows = await executeSnowflakeQuery(query);
     
-    // 디버깅: 첫 번째 행의 필드명 확인
-    if (rows.length > 0) {
-      console.log('[판매율 API] 첫 번째 행 샘플:', {
-        PERIOD_GB: rows[0].PERIOD_GB,
-        BRD_CD: rows[0].BRD_CD,
-        SALE_AMT: rows[0].SALE_AMT,
-        SALE_TAG: rows[0].SALE_TAG,
-        SALE_QTY: rows[0].SALE_QTY,
-        모든키: Object.keys(rows[0])
-      });
-    }
+    // 3. 시즌별로 데이터 그룹화
+    const seasonList = generateSeasonList();
+    const dataBySeasons: any = {};
     
-    // 3. 데이터를 기간별로 분리
-    const curData = rows.filter(row => row.PERIOD_GB === 'CUR');
-    const pyData = rows.filter(row => row.PERIOD_GB === 'PY');
-    const pyEndData = rows.filter(row => row.PERIOD_GB === 'PY_END');
+    seasonList.forEach(season => {
+      // 해당 시즌의 데이터만 필터링
+      const seasonRows = rows.filter(row => row.SEASON_ID === season);
+      
+      // 기간별로 분리
+      const curData = seasonRows.filter(row => row.PERIOD_GB === 'CUR');
+      const pyData = seasonRows.filter(row => row.PERIOD_GB === 'PY');
+      const pyEndData = seasonRows.filter(row => row.PERIOD_GB === 'PY_END');
+      
+      // 기간 정보 추출
+      const curDate = curData.length > 0 ? curData[0].ASOF_DT : '';
+      const pyDate = pyData.length > 0 ? pyData[0].ASOF_DT : '';
+      const pyEndDate = pyEndData.length > 0 ? pyEndData[0].ASOF_DT : '';
+      
+      dataBySeasons[season] = {
+        periodInfo: {
+          curDate: formatDate(curDate),
+          pyDate: formatDate(pyDate),
+          pyEndDate: formatDate(pyEndDate)
+        },
+        data: {
+          CUR: curData,
+          PY: pyData,
+          PY_END: pyEndData
+        },
+        rowCount: {
+          CUR: curData.length,
+          PY: pyData.length,
+          PY_END: pyEndData.length
+        }
+      };
+    });
     
-    // 4. 기간 정보 추출
-    const curDate = curData.length > 0 ? curData[0].ASOF_DT : '';
-    const pyDate = pyData.length > 0 ? pyData[0].ASOF_DT : '';
-    const pyEndDate = pyEndData.length > 0 ? pyEndData[0].ASOF_DT : '';
-    
-    // 5. 결과 구성
+    // 4. 결과 구성
     const result = {
       success: true,
       date: getToday(), // 한국 시간 기준
-      periodInfo: {
-        curDate: formatDate(curDate),
-        pyDate: formatDate(pyDate),
-        pyEndDate: formatDate(pyEndDate)
-      },
-      data: {
-        CUR: curData,
-        PY: pyData,
-        PY_END: pyEndData
-      },
-      rowCount: {
-        CUR: curData.length,
-        PY: pyData.length,
-        PY_END: pyEndData.length
-      },
+      seasons: seasonList,
+      currentSeason: getCurrentSeason(),
+      dataBySeasons: dataBySeasons,
       cached: false
     };
     
-    // 6. Redis 캐시에 저장 (24시간)
+    // 5. Redis 캐시에 저장 (24시간)
     await setCache(cacheKey, result, 86400);
     console.log(`[판매율 API] 캐시 저장 완료: ${cacheKey}`);
     
@@ -218,7 +251,179 @@ export async function GET(request: Request) {
 }
 
 /**
- * 판매율 분석 Snowflake 쿼리 생성
+ * 판매율 분석 Snowflake 쿼리 생성 (모든 시즌 동시 조회)
+ */
+function getSalesRateQueryAllSeasons(): string {
+  const seasons = generateSeasonList();
+  console.log('[판매율 API] 조회할 시즌:', seasons);
+  
+  // 각 시즌별 쿼리를 생성하고 UNION ALL로 연결
+  const seasonQueries = seasons.map(season => {
+    const seasonInfo = getSeasonInfo(season);
+    
+    return `
+-- ========== ${season} 시즌 데이터 ==========
+SELECT
+    '${season}' AS SEASON_ID,
+    ASOF_DT,
+    PERIOD_GB,
+    BRD_CD,
+    SESN,
+    PRDT_CD,
+    PRDT_KIND_NM,
+    ITEM_CD,
+    ITEM_NM,
+    PRDT_NM,
+    AC_ORD_QTY_KOR,
+    AC_ORD_TAG_AMT_KOR,
+    AC_STOR_QTY_KOR,
+    AC_STOR_TAG_AMT_KOR,
+    SALE_QTY,
+    SALE_TAG,
+    SALE_AMT,
+    STOCK_QTY,
+    STOCK_TAG_AMT
+FROM (
+  WITH PARAM AS (
+    SELECT
+        TO_DATE('${seasonInfo.curAsofDt}')        AS ASOF_DT
+      , TO_DATE('${seasonInfo.pyAsofDt}')         AS ASOF_DT_PY
+      , '${seasonInfo.curSeason}'                 AS CUR_SESN
+      , '${seasonInfo.pySeason}'                  AS PY_SESN
+      , ${seasonInfo.pyEndDt}                     AS PY_END_DT
+  ),
+  
+  BASE AS (
+    /* 1) 당년 시즌 스냅샷 */
+    SELECT
+        pa.ASOF_DT                  AS ASOF_DT
+      , 'CUR'                       AS PERIOD_GB
+      , a.BRD_CD
+      , a.SESN                      AS SESN
+      , a.PRDT_CD
+      , b.PRDT_KIND_NM
+      , b.ITEM                      AS ITEM_CD
+      , b.ITEM_NM
+      , b.PRDT_NM
+      , a.AC_ORD_QTY_KOR
+      , a.AC_ORD_TAG_AMT_KOR
+      , a.AC_STOR_QTY_KOR
+      , a.AC_STOR_TAG_AMT_KOR
+      , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)               AS SALE_QTY
+      , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS)       AS SALE_TAG
+      , (a.AC_SALE_NML_SALE_AMT_CNS + a.AC_SALE_RET_SALE_AMT_CNS)     AS SALE_AMT
+      , a.STOCK_QTY
+      , a.STOCK_TAG_AMT
+    FROM FNF.PRCS.DW_SCS_DACUM a
+    JOIN FNF.PRCS.DB_PRDT b
+      ON a.PRDT_CD = b.PRDT_CD
+    JOIN PARAM pa ON 1=1
+    WHERE a.SESN = pa.CUR_SESN
+      AND a.BRD_CD <> 'A'
+      AND b.PARENT_PRDT_KIND_NM = '의류'
+      AND pa.ASOF_DT BETWEEN a.START_DT AND a.END_DT
+
+    UNION ALL
+
+    /* 2) 전년 시즌 스냅샷 */
+    SELECT
+        pa.ASOF_DT_PY               AS ASOF_DT
+      , 'PY'                        AS PERIOD_GB
+      , a.BRD_CD
+      , a.SESN                      AS SESN
+      , a.PRDT_CD
+      , b.PRDT_KIND_NM
+      , b.ITEM                      AS ITEM_CD
+      , b.ITEM_NM
+      , b.PRDT_NM
+      , a.AC_ORD_QTY_KOR
+      , a.AC_ORD_TAG_AMT_KOR
+      , a.AC_STOR_QTY_KOR
+      , a.AC_STOR_TAG_AMT_KOR
+      , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)               AS SALE_QTY
+      , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS)       AS SALE_TAG
+      , (a.AC_SALE_NML_SALE_AMT_CNS + a.AC_SALE_RET_SALE_AMT_CNS)     AS SALE_AMT
+      , a.STOCK_QTY
+      , a.STOCK_TAG_AMT
+    FROM FNF.PRCS.DW_SCS_DACUM a
+    JOIN FNF.PRCS.DB_PRDT b
+      ON a.PRDT_CD = b.PRDT_CD
+    JOIN PARAM pa ON 1=1
+    WHERE a.SESN = pa.PY_SESN
+      AND a.BRD_CD <> 'A'
+      AND b.PARENT_PRDT_KIND_NM = '의류'
+      AND pa.ASOF_DT_PY BETWEEN a.START_DT AND a.END_DT
+
+    UNION ALL
+
+    /* 3) 전년마감 시즌 스냅샷 */
+    SELECT
+        pa.PY_END_DT                AS ASOF_DT
+      , 'PY_END'                    AS PERIOD_GB
+      , a.BRD_CD
+      , a.SESN                      AS SESN
+      , a.PRDT_CD
+      , b.PRDT_KIND_NM
+      , b.ITEM                      AS ITEM_CD
+      , b.ITEM_NM
+      , b.PRDT_NM
+      , a.AC_ORD_QTY_KOR
+      , a.AC_ORD_TAG_AMT_KOR
+      , a.AC_STOR_QTY_KOR
+      , a.AC_STOR_TAG_AMT_KOR
+      , (a.AC_SALE_NML_QTY_CNS + a.AC_SALE_RET_QTY_CNS)               AS SALE_QTY
+      , (a.AC_SALE_NML_TAG_AMT_CNS + a.AC_SALE_RET_TAG_AMT_CNS)       AS SALE_TAG
+      , (a.AC_SALE_NML_SALE_AMT_CNS + a.AC_SALE_RET_SALE_AMT_CNS)     AS SALE_AMT
+      , a.STOCK_QTY
+      , a.STOCK_TAG_AMT
+    FROM FNF.PRCS.DW_SCS_DACUM a
+    JOIN FNF.PRCS.DB_PRDT b
+      ON a.PRDT_CD = b.PRDT_CD
+    JOIN PARAM pa ON 1=1
+    WHERE a.SESN = pa.PY_SESN
+      AND a.BRD_CD <> 'A'
+      AND b.PARENT_PRDT_KIND_NM = '의류'
+      AND pa.PY_END_DT BETWEEN a.START_DT AND a.END_DT
+  )
+
+  SELECT
+      ASOF_DT
+    , PERIOD_GB
+    , BRD_CD
+    , MAX(SESN)         AS SESN
+    , PRDT_CD
+    , MAX(PRDT_KIND_NM) AS PRDT_KIND_NM
+    , MAX(ITEM_CD)      AS ITEM_CD
+    , MAX(ITEM_NM)      AS ITEM_NM
+    , MAX(PRDT_NM)      AS PRDT_NM
+    , SUM(AC_ORD_QTY_KOR)      AS AC_ORD_QTY_KOR
+    , SUM(AC_ORD_TAG_AMT_KOR)  AS AC_ORD_TAG_AMT_KOR
+    , SUM(AC_STOR_QTY_KOR)     AS AC_STOR_QTY_KOR
+    , SUM(AC_STOR_TAG_AMT_KOR) AS AC_STOR_TAG_AMT_KOR
+    , SUM(SALE_QTY)            AS SALE_QTY
+    , SUM(SALE_TAG)            AS SALE_TAG
+    , SUM(SALE_AMT)            AS SALE_AMT
+    , SUM(STOCK_QTY)           AS STOCK_QTY
+    , SUM(STOCK_TAG_AMT)       AS STOCK_TAG_AMT
+  FROM BASE
+  GROUP BY
+      ASOF_DT, PERIOD_GB, BRD_CD, PRDT_CD
+  HAVING
+      COALESCE(SUM(AC_ORD_TAG_AMT_KOR), 0)
+    + COALESCE(SUM(AC_STOR_TAG_AMT_KOR), 0)
+    + COALESCE(SUM(SALE_TAG), 0)
+    + COALESCE(SUM(STOCK_TAG_AMT), 0) <> 0
+  ORDER BY
+      BRD_CD, PRDT_CD, PERIOD_GB, ASOF_DT
+)`;
+  });
+  
+  // UNION ALL로 모든 시즌 연결
+  return seasonQueries.join('\nUNION ALL\n');
+}
+
+/**
+ * 판매율 분석 Snowflake 쿼리 생성 (단일 시즌 - 하위 호환성)
  */
 function getSalesRateQuery(selectedSeason?: string | null): string {
   let paramBlock: string;

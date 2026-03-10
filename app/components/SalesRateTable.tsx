@@ -60,6 +60,7 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updateDate, setUpdateDate] = useState('');
+  const [forceRefresh, setForceRefresh] = useState(0); // 강제 새로고침 트리거
   const [periodInfo, setPeriodInfo] = useState({
     curDate: '',
     pyDate: '',
@@ -125,11 +126,31 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
     return 'ETC';
   };
 
+  // 새로고침 버튼 핸들러
+  const handleRefresh = async () => {
+    console.log('[판매율 테이블] 수동 새로고침 시작');
+    
+    // Redis 캐시 삭제 시도
+    try {
+      const response = await fetch('/api/cache/sales-rate', { method: 'DELETE' });
+      const result = await response.json();
+      console.log('[판매율 테이블] Redis 캐시 삭제:', result);
+    } catch (error) {
+      console.warn('[판매율 테이블] Redis 캐시 삭제 실패:', error);
+    }
+    
+    // 클라이언트 캐시 초기화
+    globalCacheData = null;
+    globalCacheTimestamp = 0;
+    setForceRefresh(prev => prev + 1);
+  };
+
   // 데이터 로드
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
         // 캐시 확인 (24시간 이내)
         const now = Date.now();
@@ -138,11 +159,20 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
         let result;
         
         if (isCacheValid) {
-          console.log('[판매율 테이블] 캐시된 데이터 사용');
+          console.log('[판매율 테이블] 클라이언트 캐시 사용');
           result = globalCacheData;
         } else {
           console.log('[판매율 테이블] API 호출 중...');
-          const response = await fetch('/api/sales-rate?forceUpdate=true');
+          // forceRefresh > 0이면 강제 업데이트, 아니면 서버 Redis 캐시 활용
+          const apiUrl = forceRefresh > 0 
+            ? '/api/sales-rate?forceUpdate=true' 
+            : '/api/sales-rate';
+          const response = await fetch(apiUrl);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP 에러: ${response.status} ${response.statusText}`);
+          }
+          
           result = await response.json();
 
           if (!result.success) {
@@ -152,21 +182,37 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
           // 캐시 저장
           globalCacheData = result;
           globalCacheTimestamp = now;
-          console.log('[판매율 테이블] 데이터 캐시 저장 완료');
+          console.log('[판매율 테이블] 클라이언트 캐시 저장 완료');
         }
 
         // 업데이트 일자
         setUpdateDate(result.date);
 
-        // 기간 정보 설정
-        const curSample = result.data.CUR?.[0];
-        const pySample = result.data.PY?.[0];
-        const pyEndSample = result.data.PY_END?.[0];
+        // 데이터 구조 검증
+        if (!result.dataBySeasons) {
+          throw new Error('데이터 구조가 올바르지 않습니다. dataBySeasons가 없습니다.');
+        }
 
+        // 현재 시즌 데이터 가져오기
+        const currentSeason = result.currentSeason || '26S';
+        const seasonData = result.dataBySeasons?.[currentSeason];
+
+        if (!seasonData) {
+          const availableSeasons = Object.keys(result.dataBySeasons || {}).join(', ');
+          throw new Error(`현재 시즌(${currentSeason}) 데이터를 찾을 수 없습니다. 사용 가능한 시즌: ${availableSeasons || '없음'}`);
+        }
+
+        // 각 기간별 데이터 유효성 검증
+        if (!seasonData.data || !seasonData.data.CUR || !seasonData.data.PY || !seasonData.data.PY_END) {
+          console.error('[판매율 테이블] 시즌 데이터 구조:', seasonData);
+          throw new Error(`${currentSeason} 시즌의 기간별 데이터(CUR, PY, PY_END)가 완전하지 않습니다.`);
+        }
+
+        // 기간 정보 설정
         setPeriodInfo({
-          curDate: curSample?.ASOF_DT || '',
-          pyDate: pySample?.ASOF_DT || '',
-          pyEndDate: pyEndSample?.ASOF_DT || ''
+          curDate: seasonData.periodInfo?.curDate || '',
+          pyDate: seasonData.periodInfo?.pyDate || '',
+          pyEndDate: seasonData.periodInfo?.pyEndDate || ''
         });
 
         // 브랜드별 데이터 집계 (카테고리별로 구분하여 저장)
@@ -258,9 +304,9 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
         };
 
         const processedData = {
-          cur: processData(result.data.CUR || []),
-          py: processData(result.data.PY || []),
-          pyEnd: processData(result.data.PY_END || [])
+          cur: processData(seasonData.data.CUR || []),
+          py: processData(seasonData.data.PY || []),
+          pyEnd: processData(seasonData.data.PY_END || [])
         };
 
         setRawData(processedData);
@@ -275,7 +321,7 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
     };
 
     fetchData();
-  }, []);
+  }, [forceRefresh]);
 
   // 카테고리 필터링 및 합계 계산
   useEffect(() => {
@@ -449,7 +495,16 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
   if (error) {
     return (
       <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
-        <div className="text-center text-red-500">에러: {error}</div>
+        <div className="text-center">
+          <div className="text-red-500 mb-4">⚠️ 판매율 데이터를 불러올 수 없습니다.</div>
+          <div className="text-sm text-gray-600 mb-4">{error}</div>
+          <button
+            onClick={handleRefresh}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            🔄 새로고침
+          </button>
+        </div>
       </div>
     );
   }
@@ -457,8 +512,15 @@ export default function SalesRateTable({ className = '' }: SalesRateTableProps) 
   return (
     <div className={`bg-white rounded-lg shadow-md ${className}`}>
       {/* 헤더 */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-800">당시즌 의류 판매율 분석</h2>
+        <button
+          onClick={handleRefresh}
+          disabled={loading}
+          className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          🔄 새로고침
+        </button>
       </div>
 
       {/* 기본 정보 */}
