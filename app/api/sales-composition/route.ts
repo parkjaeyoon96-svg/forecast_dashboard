@@ -153,13 +153,14 @@ function getSalesCompositionQuery(asofDate: string | null): string {
   // 분석월이 지정되지 않으면 Snowflake의 어제 날짜 사용
   const dateLogic = asofDate 
     ? `'${asofDate}'::DATE AS asof_dt   -- 파라미터로 받은 기준일`
-    : `DATEADD(DAY, -1, CURRENT_DATE())::DATE AS asof_dt   -- Snowflake 어제 날짜`;
+    : `DATEADD(DAY, -1, CURRENT_DATE())::DATE AS asof_dt   -- 어제(업데이트 기준일)`;
   
   return `
 WITH params AS (
     SELECT
         ${dateLogic}
 ),
+
 /* ✅ 날짜 로직
    - CY: 이번달 1일 ~ 어제(asof_dt)
    - PY: 전년 동일월 1일 ~ 전년 동일일(= DATEADD(YEAR,-1,asof_dt))
@@ -170,14 +171,17 @@ periods AS (
         DATE_TRUNC('MONTH', asof_dt)::DATE AS dt_from,
         asof_dt AS dt_to
     FROM params
+
     UNION ALL
+
     SELECT
         'PY' AS gubun,
         DATEADD(YEAR, -1, DATE_TRUNC('MONTH', asof_dt))::DATE AS dt_from,
         DATEADD(YEAR, -1, asof_dt)::DATE AS dt_to
     FROM params
 ),
-/* shop 필터 (KO, 09 제외) */
+
+/* shop 필터 (KO, 09/99 제외) */
 shop_flt AS (
     SELECT
         BRD_CD,
@@ -187,7 +191,9 @@ shop_flt AS (
     FROM FNF.PRCS.DB_SHOP
     WHERE ANAL_CNTRY = 'KO'
       AND DIST_TYPE_SAP <> '09'
+      AND DIST_TYPE_SAP <> '99'
 ),
+
 /* ✅ DW 선집계: SHOP_ID는 RF 판단에만 사용, 집계는 (구분/브랜드/상품/시즌/채널코드) 기준 */
 dw_agg AS (
     SELECT
@@ -195,6 +201,7 @@ dw_agg AS (
         a.BRD_CD,
         a.PRDT_CD,
         a.SESN,
+
         /* RF 강제 반영된 유통채널코드 */
         CASE
             WHEN a.BRD_CD = 'M'
@@ -202,7 +209,8 @@ dw_agg AS (
                 THEN 'RF'
             ELSE sh.DIST_TYPE_SAP
         END AS CHNL_CD,
-        /* TAG 매출 */
+
+        /* ✅ TAG 매출 (08에만 SALE_TYPE 제한 적용) */
         SUM(
             CASE
                 WHEN
@@ -211,12 +219,24 @@ dw_agg AS (
                          AND a.SHOP_ID IN ('649','155','524','526','82','744','6048','954')
                             THEN 'RF'
                         ELSE sh.DIST_TYPE_SAP
-                     END) IN ('08','99')
+                     END) = '08'
+                 AND sh.SALE_TYPE_SAP IN ('Z001','Z003')
                     THEN (a.DELV_NML_TAG_AMT + a.DELV_RET_TAG_AMT)
+
+                WHEN
+                    (CASE
+                        WHEN a.BRD_CD = 'M'
+                         AND a.SHOP_ID IN ('649','155','524','526','82','744','6048','954')
+                            THEN 'RF'
+                        ELSE sh.DIST_TYPE_SAP
+                     END) = '08'
+                    THEN 0
+
                 ELSE (a.SALE_NML_TAG_AMT + a.SALE_RET_TAG_AMT)
             END
         ) AS TAG_SALES,
-        /* 실판매출 (08/99에만 SALE_TYPE 제한 적용) */
+
+        /* ✅ 실판매출 (08에만 SALE_TYPE 제한 적용) */
         SUM(
             CASE
                 WHEN
@@ -225,20 +245,23 @@ dw_agg AS (
                          AND a.SHOP_ID IN ('649','155','524','526','82','744','6048','954')
                             THEN 'RF'
                         ELSE sh.DIST_TYPE_SAP
-                     END) IN ('08','99')
+                     END) = '08'
                  AND sh.SALE_TYPE_SAP IN ('Z001','Z003')
                     THEN (a.DELV_NML_SUPP_AMT + a.DELV_RET_SUPP_AMT) * 1.1
+
                 WHEN
                     (CASE
                         WHEN a.BRD_CD = 'M'
                          AND a.SHOP_ID IN ('649','155','524','526','82','744','6048','954')
                             THEN 'RF'
                         ELSE sh.DIST_TYPE_SAP
-                     END) IN ('08','99')
+                     END) = '08'
                     THEN 0
+
                 ELSE (a.SALE_NML_SALE_AMT + a.SALE_RET_SALE_AMT)
             END
         ) AS REAL_SALES
+
     FROM periods p
     JOIN FNF.PRCS.DW_SH_SCS_D a
       ON a.DT BETWEEN p.dt_from AND p.dt_to
@@ -258,10 +281,12 @@ dw_agg AS (
             ELSE sh.DIST_TYPE_SAP
         END
 ),
+
 /* ✅ 현재시즌 + 차시즌(Next Season) 계산 */
 season_ref AS (
     SELECT
         gubun,
+
         /* 현재 시즌 연도(YY): 1~2월은 직전년도 FW를 현재시즌으로 */
         TO_CHAR(
             CASE
@@ -269,12 +294,14 @@ season_ref AS (
                 ELSE DATEADD(YEAR, -1, dt_to)
             END
         , 'YY') AS cur_yy,
+
         /* 현재 시즌 코드: 3~8월=S, 그 외=F */
         CASE
             WHEN MONTH(dt_to) BETWEEN 3 AND 8 THEN 'S'
             ELSE 'F'
         END AS cur_code,
-        /* ✅ 차시즌(Next) 연도(YY)
+
+        /* 차시즌(Next) 연도(YY)
            - 현재가 F면 next는 다음해 S
            - 현재가 S면 next는 같은해 F
         */
@@ -301,19 +328,21 @@ season_ref AS (
                     END
                 , 'YY')
         END AS next_yy,
-        /* ✅ 차시즌(Next) 코드 */
+
+        /* 차시즌(Next) 코드 */
         CASE
             WHEN (CASE WHEN MONTH(dt_to) BETWEEN 3 AND 8 THEN 'S' ELSE 'F' END) = 'F'
                 THEN 'S'
             ELSE 'F'
         END AS next_code
+
     FROM periods
 )
+
 SELECT
-    /* ✅ 출력 순서: 구분, 브랜드, 채널, 카테고리, 아이템, TAG매출, 실판매출 */
     d.gubun AS "구분",
     d.BRD_CD AS "브랜드",
-    /* 채널 */
+
     CASE d.CHNL_CD
         WHEN 'RF' THEN 'RF'
         WHEN '01' THEN '백화점'
@@ -329,6 +358,7 @@ SELECT
         WHEN '99' THEN '기타'
         ELSE '기타'
     END AS "채널",
+
     /* ✅ 카테고리 */
     CASE
         /* 1) ACC는 시즌 분류 대상 아님 */
@@ -371,17 +401,18 @@ SELECT
                     END
             END
     END AS "카테고리",
-    /* 아이템 (기존 ITEM_NM) */
+
     b.ITEM_NM AS "아이템",
-    /* 매출 */
     SUM(d.TAG_SALES)  AS "TAG매출",
     SUM(d.REAL_SALES) AS "실판매출"
+
 FROM dw_agg d
 JOIN season_ref sr
   ON d.gubun = sr.gubun
 JOIN FNF.PRCS.DB_PRDT b
   ON d.BRD_CD  = b.BRD_CD
  AND d.PRDT_CD = b.PRDT_CD
+
 GROUP BY
     d.gubun,
     d.BRD_CD,
@@ -394,6 +425,7 @@ GROUP BY
     sr.cur_code,
     sr.next_yy,
     sr.next_code
+
 HAVING (SUM(d.TAG_SALES) + SUM(d.REAL_SALES)) <> 0
 `;
 }
