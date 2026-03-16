@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { executeSnowflakeQuery } from '@/lib/snowflake';
 import { getCache, setCache } from '@/lib/redis';
-import { getTodayCompact, getToday, formatDate } from '@/lib/dateUtils';
+import { getTodayCompact, getToday, getYesterday, formatDate } from '@/lib/dateUtils';
 
 /**
  * 시즌 정보 인터페이스
@@ -100,29 +100,29 @@ function getSeasonInfo(selectedSeason: string): SeasonInfo {
     throw new Error(`Unknown season type: ${type}`);
   }
   
-  // 당년 기준일: MIN(현재일-1, 시즌마감일)
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  
+  // 당년 기준일: MIN(한국시간 어제, 시즌마감일) — 트리맵·재고주수와 동일하게 KST 기준
+  const yesterdayStr = getYesterday(); // YYYY-MM-DD (KST)
+  const yesterday = new Date(yesterdayStr + 'T12:00:00.000Z'); // UTC 정오로 서버 타임존 영향 제거
+
   // F 시즌은 다음 해 2월이 마감이므로
   const seasonEndYear = type === 'F' ? fullYear + 1 : fullYear;
   const seasonEndDate = new Date(seasonEndYear, seasonEndMonth - 1, seasonEndDay);
-  const curAsofDate = yesterday <= seasonEndDate ? yesterday : seasonEndDate;
-  
-  // 전년 기준일: 당년 기준일 - 1년
-  const pyAsofDate = new Date(curAsofDate);
-  pyAsofDate.setFullYear(pyAsofDate.getFullYear() - 1);
-  
+  const useYesterday = yesterday <= seasonEndDate;
+  const curAsofDt = useYesterday ? yesterdayStr : formatDateForSql(seasonEndDate);
+
+  // 전년 기준일: 당년 기준일 - 1년 (문자열에서 파싱해 타임존 일관)
+  const [cyY, cyM, cyD] = curAsofDt.split('-').map(Number);
+  const pyAsofDt = `${cyY - 1}-${String(cyM).padStart(2, '0')}-${String(cyD).padStart(2, '0')}`;
+
   // 전년 마감일
   const pyEndYear = type === 'F' ? fullYear : fullYear - 1;
   const pyEndDate = new Date(pyEndYear, seasonEndMonth - 1, seasonEndDay);
-  
+
   return {
     curSeason: selectedSeason,
     pySeason: pySeason,
-    curAsofDt: formatDateForSql(curAsofDate),
-    pyAsofDt: formatDateForSql(pyAsofDate),
+    curAsofDt,
+    pyAsofDt,
     pyEndDt: `DATE_FROM_PARTS(${pyEndDate.getFullYear()}, ${pyEndDate.getMonth() + 1}, ${pyEndDate.getDate()})`
   };
 }
