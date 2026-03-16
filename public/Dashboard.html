@@ -1505,28 +1505,28 @@
                       누적TAG매출(전년)
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
-                      <input type="checkbox" data-field="saleYoy" class="field-checkbox">
-                      누적TAG매출(YOY)
+                      <input type="checkbox" data-field="saleYoy" class="field-checkbox required-field" checked>
+                      누적TAG매출(YOY) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
-                      <input type="checkbox" data-field="curSaleAmt" class="field-checkbox required-field" checked>
-                      누적실판매출(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                      <input type="checkbox" data-field="curSaleAmt" class="field-checkbox">
+                      누적실판매출(당년)
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
                       <input type="checkbox" data-field="pySaleAmt" class="field-checkbox">
                       누적실판매출(전년)
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
-                      <input type="checkbox" data-field="saleAmtYoy" class="field-checkbox required-field" checked>
-                      누적실판매출YOY <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                      <input type="checkbox" data-field="saleAmtYoy" class="field-checkbox">
+                      누적실판매출YOY
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
                       <input type="checkbox" data-field="curDiscountRate" class="field-checkbox required-field" checked>
                       할인율(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
-                      <input type="checkbox" data-field="pyDiscountRate" class="field-checkbox required-field" checked>
-                      할인율(전년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                      <input type="checkbox" data-field="pyDiscountRate" class="field-checkbox">
+                      할인율(전년)
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
                       <input type="checkbox" data-field="discountRateDiff" class="field-checkbox required-field" checked>
@@ -1537,8 +1537,8 @@
                       판매율(당년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
-                      <input type="checkbox" data-field="pyRate" class="field-checkbox required-field" checked>
-                      판매율(전년) <span style="color:#10b981;font-size:11px;font-weight:600;">필수</span>
+                      <input type="checkbox" data-field="pyRate" class="field-checkbox">
+                      판매율(전년)
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px;">
                       <input type="checkbox" data-field="rateDiff" class="field-checkbox required-field" checked>
@@ -15194,15 +15194,15 @@
       { id: 'saleQtyYoy', label: '누적판매수량YOY', required: false, group: 'sales', format: 'percent', width: '100px' },
       { id: 'curSale', label: '누적TAG매출(당년)', required: true, group: 'sales', format: 'million', width: '120px' },
       { id: 'pySale', label: '누적TAG매출(전년)', required: false, group: 'sales', format: 'million', width: '120px' },
-      { id: 'saleYoy', label: '누적TAG매출(YOY)', required: false, group: 'sales', format: 'percent', width: '100px' },
-      { id: 'curSaleAmt', label: '누적실판매출(당년)', required: true, group: 'sales', format: 'million', width: '120px' },
+      { id: 'saleYoy', label: '누적TAG매출(YOY)', required: true, group: 'sales', format: 'percent', width: '100px' },
+      { id: 'curSaleAmt', label: '누적실판매출(당년)', required: false, group: 'sales', format: 'million', width: '120px' },
       { id: 'pySaleAmt', label: '누적실판매출(전년)', required: false, group: 'sales', format: 'million', width: '120px' },
-      { id: 'saleAmtYoy', label: '누적실판매출YOY', required: true, group: 'sales', format: 'percent', width: '100px' },
+      { id: 'saleAmtYoy', label: '누적실판매출YOY', required: false, group: 'sales', format: 'percent', width: '100px' },
       { id: 'curDiscountRate', label: '할인율(당년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
-      { id: 'pyDiscountRate', label: '할인율(전년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
+      { id: 'pyDiscountRate', label: '할인율(전년)', required: false, group: 'sales', format: 'decimal', width: '95px' },
       { id: 'discountRateDiff', label: '할인율(차이)', required: true, group: 'sales', format: 'decimalDiff', width: '95px' },
       { id: 'curRate', label: '판매율(당년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
-      { id: 'pyRate', label: '판매율(전년)', required: true, group: 'sales', format: 'decimal', width: '95px' },
+      { id: 'pyRate', label: '판매율(전년)', required: false, group: 'sales', format: 'decimal', width: '95px' },
       { id: 'rateDiff', label: '판매율차이', required: true, group: 'sales', format: 'decimalDiff', width: '90px' },
       { id: 'pyEndRate', label: '전년마감판매율', required: true, group: 'sales', format: 'decimal', width: '110px' },
       
