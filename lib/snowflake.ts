@@ -2,19 +2,62 @@
  * Snowflake 연결 및 쿼리 유틸리티
  * 
  * Node.js 환경에서 Snowflake 데이터베이스에 연결하고 쿼리를 실행합니다.
+ * 인증 방식: 서비스 계정 + RSA Private Key (SNOWFLAKE_JWT)
  * Vercel에서 완벽하게 작동합니다.
  */
 
 import snowflake from 'snowflake-sdk';
 
 /**
- * Snowflake 연결 생성
+ * PEM 문자열 정규화
+ *
+ * .env / Vercel secret 등에서 한 줄 문자열로 저장된 PEM 키의 `\n` escape 시퀀스를
+ * 실제 개행 문자로 복원하고, 앞뒤 공백/따옴표를 제거합니다.
+ */
+function normalizePem(raw: string): string {
+  let key = raw.trim();
+
+  // 양끝에 감싸진 따옴표 제거
+  if ((key.startsWith('"') && key.endsWith('"')) ||
+      (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+
+  // literal "\n" / "\r\n" 을 실제 개행으로 복원
+  if (!key.includes('\n')) {
+    key = key.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+  }
+
+  return key;
+}
+
+/**
+ * Snowflake 연결 생성 (Key-Pair / JWT 인증)
  */
 export function createSnowflakeConnection(): snowflake.Connection {
+  const rawPrivateKey = process.env.SNOWFLAKE_PRIVATE_KEY;
+  if (!rawPrivateKey) {
+    throw new Error('[Snowflake] SNOWFLAKE_PRIVATE_KEY 환경변수가 설정되지 않았습니다.');
+  }
+
+  const privateKey = normalizePem(rawPrivateKey);
+  const privateKeyPass = process.env.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE;
+
+  console.log('[Snowflake] 연결 설정 확인:', {
+    account: process.env.SNOWFLAKE_ACCOUNT ? '✓' : '✗',
+    username: process.env.SNOWFLAKE_USERNAME ? '✓' : '✗',
+    privateKey: privateKey ? '✓' : '✗',
+    privateKeyPass: privateKeyPass ? '✓' : '(없음)',
+    warehouse: process.env.SNOWFLAKE_WAREHOUSE ? '✓' : '✗',
+    database: process.env.SNOWFLAKE_DATABASE ? '✓' : '✗',
+  });
+
   const connection = snowflake.createConnection({
     account: process.env.SNOWFLAKE_ACCOUNT!,
     username: process.env.SNOWFLAKE_USERNAME!,
-    password: process.env.SNOWFLAKE_PASSWORD!,
+    authenticator: 'SNOWFLAKE_JWT',
+    privateKey,
+    ...(privateKeyPass ? { privateKeyPass } : {}),
     warehouse: process.env.SNOWFLAKE_WAREHOUSE!,
     database: process.env.SNOWFLAKE_DATABASE!,
     timeout: 60000, // 60초 타임아웃
