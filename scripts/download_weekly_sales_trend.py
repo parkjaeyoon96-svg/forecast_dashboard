@@ -25,7 +25,9 @@
 import os
 import sys
 import json
+import base64
 import argparse
+import re
 from pathlib import Path
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -50,27 +52,111 @@ else:
     print("⚠️ .env 파일을 찾을 수 없습니다. 환경 변수에서 직접 읽습니다.")
 
 
+def _normalize_pem(raw: str) -> str:
+    """다양한 형태로 저장된 Private Key 문자열을 표준 PEM 문자열로 정규화"""
+    key = raw.lstrip('\ufeff').strip()
+
+    if (key.startswith('"') and key.endswith('"')) or (key.startswith("'") and key.endswith("'")):
+        key = key[1:-1].strip()
+
+    if '\n' not in key:
+        key = key.replace('\\r\\n', '\n').replace('\\n', '\n')
+
+    header_match = re.search(r'-----BEGIN [^-]+-----', key)
+    footer_match = re.search(r'-----END [^-]+-----', key)
+
+    if header_match and footer_match:
+        header = header_match.group(0)
+        footer = footer_match.group(0)
+        body_start = key.index(header) + len(header)
+        body_end = key.index(footer)
+        body = re.sub(r'[\s\r\n]+', '', key[body_start:body_end])
+        wrapped = '\n'.join(re.findall(r'.{1,64}', body))
+        return f"{header}\n{wrapped}\n{footer}\n"
+
+    return key
+
+
+def _load_private_key_bytes() -> bytes:
+    """SNOWFLAKE_PRIVATE_KEY(_BASE64) 환경변수에서 PEM을 로드 후 DER 형식 바이트로 반환
+
+    snowflake-connector-python은 private_key 파라미터를 DER(bytes) 형태로 받습니다.
+    """
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives import serialization
+
+    base64_key = os.getenv('SNOWFLAKE_PRIVATE_KEY_BASE64')
+    if base64_key and base64_key.strip():
+        decoded = base64.b64decode(base64_key.strip()).decode('utf-8')
+        pem = _normalize_pem(decoded)
+    else:
+        raw = os.getenv('SNOWFLAKE_PRIVATE_KEY')
+        if not raw:
+            raise RuntimeError(
+                'SNOWFLAKE_PRIVATE_KEY 또는 SNOWFLAKE_PRIVATE_KEY_BASE64 환경변수가 설정되지 않았습니다.'
+            )
+        pem = _normalize_pem(raw)
+
+    passphrase = os.getenv('SNOWFLAKE_PRIVATE_KEY_PASSPHRASE')
+    password_bytes = passphrase.encode() if passphrase else None
+
+    private_key = serialization.load_pem_private_key(
+        pem.encode('utf-8'),
+        password=password_bytes,
+        backend=default_backend(),
+    )
+
+    return private_key.private_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+
+
 def get_snowflake_connection():
     """
     Snowflake 데이터베이스 연결 생성
-    
+
+    인증 우선순위:
+      1) SNOWFLAKE_PRIVATE_KEY / SNOWFLAKE_PRIVATE_KEY_BASE64 가 있으면 Key-Pair(JWT) 인증
+      2) SNOWFLAKE_PASSWORD 가 있으면 비밀번호 인증
+
     Returns:
         snowflake.connector.SnowflakeConnection: Snowflake 연결 객체
     """
     try:
-        conn = snowflake.connector.connect(
+        common_kwargs = dict(
             account=os.getenv('SNOWFLAKE_ACCOUNT'),
             user=os.getenv('SNOWFLAKE_USERNAME'),
-            password=os.getenv('SNOWFLAKE_PASSWORD'),
             warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
             database=os.getenv('SNOWFLAKE_DATABASE'),
-            network_timeout=None,  # 타임아웃 없음
-            login_timeout=60,      # 로그인 1분 타임아웃
+            network_timeout=None,
+            login_timeout=60,
             session_parameters={
                 'QUERY_TAG': 'weekly_sales_trend',
-                'STATEMENT_TIMEOUT_IN_SECONDS': 3600  # 쿼리 1시간 타임아웃
-            }
+                'STATEMENT_TIMEOUT_IN_SECONDS': 3600,
+            },
         )
+
+        has_private_key = bool(
+            os.getenv('SNOWFLAKE_PRIVATE_KEY') or os.getenv('SNOWFLAKE_PRIVATE_KEY_BASE64')
+        )
+
+        if has_private_key:
+            print("🔑 Key-Pair(JWT) 인증으로 연결합니다.")
+            private_key_der = _load_private_key_bytes()
+            conn = snowflake.connector.connect(
+                authenticator='SNOWFLAKE_JWT',
+                private_key=private_key_der,
+                **common_kwargs,
+            )
+        else:
+            print("🔑 비밀번호 인증으로 연결합니다.")
+            conn = snowflake.connector.connect(
+                password=os.getenv('SNOWFLAKE_PASSWORD'),
+                **common_kwargs,
+            )
+
         print("✅ Snowflake 연결 성공!")
         return conn
     except Exception as e:
