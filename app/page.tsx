@@ -3,6 +3,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
+// [A안 임시보정] 파일명(KE30) 기준 분석월과 주차-시작일 재계산이 다른 전환 주차 보정
+// calculate-date-info는 주차 시작일(전주 월요일) 기준으로 월을 계산하므로,
+// 월초 월요일 업데이트(예: 2026-07-06 → 주차시작 2026-06-29 → 6월)에서
+// 파일명 분석월(202607)과 달라진다. 해당 날짜만 파일명 기준 월로 강제 지정한다.
+// 근본 해결(B안: metadata.json의 analysis_month 사용)까지의 임시 조치.
+const MONTH_OVERRIDES: Record<string, string> = {
+  '20260706': '2026-07',
+};
+
+const resolveAnalysisMonth = (dateParam: string, apiMonth: string): string =>
+  MONTH_OVERRIDES[dateParam] || apiMonth;
+
 export default function Home() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
@@ -30,7 +42,7 @@ export default function Home() {
             .then(res => res.json())
             .then(dateInfo => {
               if (dateInfo.success && dateInfo.analysisMonth) {
-                setAnalysisMonth(dateInfo.analysisMonth);
+                setAnalysisMonth(resolveAnalysisMonth(dateParam, dateInfo.analysisMonth));
               }
             })
             .catch(err => console.error('분석월 계산 실패:', err));
@@ -152,8 +164,8 @@ export default function Home() {
     try {
       // YYYY.MM.DD -> YYYYMMDD 변환
       const dateParam = selectedDate.replace(/\./g, '');
-      // 분석월을 URL 파라미터로 전달
-      router.push(`/dashboard?date=${dateParam}&month=${analysisMonth}`);
+      // 분석월을 URL 파라미터로 전달 (전환 주차 보정 적용)
+      router.push(`/dashboard?date=${dateParam}&month=${resolveAnalysisMonth(dateParam, analysisMonth)}`);
     } catch (error) {
       console.error('대시보드 열기 오류:', error);
       alert('대시보드를 열 수 없습니다.');
