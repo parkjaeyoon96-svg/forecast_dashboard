@@ -59,11 +59,14 @@ def get_analysis_month_from_metadata(date_str: str) -> str:
     """
     # raw 폴더 전체에서 해당 날짜의 metadata.json 찾기
     pattern = os.path.join(RAW_DIR, "*", "current_year", date_str, "metadata.json")
-    metadata_files = glob.glob(pattern)
-    
+    # 같은 업데이트일자가 여러 분석월 폴더에 존재할 수 있다(전환 주차: 월초 월요일).
+    # 이 경우 "가장 높은 분석월"을 우선한다(예: 20260706 → 202606/202607 중 202607).
+    # 폴더 경로에 YYYYMM이 포함되므로 경로 정렬의 마지막이 최신 월이 된다.
+    metadata_files = sorted(glob.glob(pattern))
+
     if metadata_files:
         try:
-            with open(metadata_files[0], 'r', encoding='utf-8') as f:
+            with open(metadata_files[-1], 'r', encoding='utf-8') as f:
                 metadata = json.load(f)
                 analysis_month = metadata.get('analysis_month')
                 if analysis_month:
