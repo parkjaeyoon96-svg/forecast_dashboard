@@ -22,17 +22,17 @@
   },
   "cog": {
     "prev": 133.01999999999998,
-    "target": 140.14,
+    "target": 125.72999999999999,
     "forecast": 119.93000000000002,
     "yoy": 90,
-    "achievement": 86
+    "achievement": 95
   },
   "grossProfit": {
     "prev": 210.76999999999998,
-    "target": 204.92,
+    "target": 219.33,
     "forecast": 208.76000000000002,
     "yoy": 99,
-    "achievement": 102
+    "achievement": 95
   },
   "directCost": {
     "prev": 120.52,
@@ -87,10 +87,10 @@
   },
   "directProfit": {
     "prev": 90.25,
-    "target": 86.53,
+    "target": 100.94,
     "forecast": 100.71000000000001,
     "yoy": 112,
-    "achievement": 116
+    "achievement": 100
   },
   "operatingExpense": {
     "prev": 102.45000000000002,
@@ -101,9 +101,9 @@
   },
   "opProfit": {
     "prev": -12.2,
-    "target": -9.36,
+    "target": 5.060000000000001,
     "forecast": 4.830000000000001,
     "yoy": 0,
-    "achievement": 0
+    "achievement": 95
   }
 }
