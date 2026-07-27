@@ -1,0 +1,656 @@
+{
+  "MLB": {
+    "tagRevenue": {
+      "prev": 249.27,
+      "target": 254.43,
+      "forecast": 196.83,
+      "yoy": 79,
+      "achievement": 77
+    },
+    "revenue": {
+      "prev": 213.1,
+      "target": 234.75,
+      "forecast": 218.08,
+      "yoy": 102,
+      "achievement": 93
+    },
+    "discountRate": {
+      "prev": 14.5,
+      "target": 7.7,
+      "forecast": -10.8,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "cog": {
+      "prev": 42.35,
+      "target": 46.55,
+      "forecast": 35.14,
+      "yoy": 83,
+      "achievement": 75
+    },
+    "grossProfit": {
+      "prev": 99.83,
+      "target": 110.46,
+      "forecast": 109.13,
+      "yoy": 109,
+      "achievement": 99
+    },
+    "directCost": {
+      "prev": 49.93,
+      "target": 49.64,
+      "forecast": 47.98,
+      "yoy": 96,
+      "achievement": 97
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 12.48,
+        "target": 13.34,
+        "forecast": 13.03,
+        "yoy": 104,
+        "achievement": 98
+      },
+      "임차관리비": {
+        "prev": 8.42,
+        "target": 8.2,
+        "forecast": 8.45,
+        "yoy": 100,
+        "achievement": 103
+      },
+      "물류운송비": {
+        "prev": 13.04,
+        "target": 11.77,
+        "forecast": 10.92,
+        "yoy": 84,
+        "achievement": 93
+      },
+      "로열티": {
+        "prev": 8.63,
+        "target": 9.57,
+        "forecast": 9.32,
+        "yoy": 108,
+        "achievement": 97
+      },
+      "감가상각비": {
+        "prev": 2.12,
+        "target": 1.83,
+        "forecast": 1.83,
+        "yoy": 86,
+        "achievement": 100
+      },
+      "기타": {
+        "prev": 5.24,
+        "target": 4.94,
+        "forecast": 4.42,
+        "yoy": 84,
+        "achievement": 89
+      }
+    },
+    "directProfit": {
+      "prev": 49.9,
+      "target": 60.82,
+      "forecast": 61.15,
+      "yoy": 123,
+      "achievement": 101
+    },
+    "operatingExpense": {
+      "prev": 40.18,
+      "target": 37.7,
+      "forecast": 37.7,
+      "yoy": 94,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": 9.72,
+      "target": 23.12,
+      "forecast": 23.45,
+      "yoy": 241,
+      "achievement": 101
+    }
+  },
+  "MLB_KIDS": {
+    "tagRevenue": {
+      "prev": 67.72,
+      "target": 53.74,
+      "forecast": 36.43,
+      "yoy": 54,
+      "achievement": 68
+    },
+    "revenue": {
+      "prev": 50.04,
+      "target": 52.5,
+      "forecast": 44.84,
+      "yoy": 90,
+      "achievement": 85
+    },
+    "discountRate": {
+      "prev": 26.1,
+      "target": 2.3,
+      "forecast": -23.1,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "cog": {
+      "prev": 17.39,
+      "target": 13.19,
+      "forecast": 10.42,
+      "yoy": 60,
+      "achievement": 79
+    },
+    "grossProfit": {
+      "prev": 15.78,
+      "target": 19.76,
+      "forecast": 18.15,
+      "yoy": 115,
+      "achievement": 92
+    },
+    "directCost": {
+      "prev": 12.56,
+      "target": 13.59,
+      "forecast": 12.68,
+      "yoy": 101,
+      "achievement": 93
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 4.37,
+        "target": 5.35,
+        "forecast": 4.74,
+        "yoy": 108,
+        "achievement": 89
+      },
+      "임차관리비": {
+        "prev": 0.88,
+        "target": 0.99,
+        "forecast": 0.67,
+        "yoy": 76,
+        "achievement": 68
+      },
+      "물류운송비": {
+        "prev": 3.17,
+        "target": 3.33,
+        "forecast": 3.14,
+        "yoy": 99,
+        "achievement": 94
+      },
+      "로열티": {
+        "prev": 1.76,
+        "target": 1.82,
+        "forecast": 1.71,
+        "yoy": 97,
+        "achievement": 94
+      },
+      "감가상각비": {
+        "prev": 0.54,
+        "target": 0.47,
+        "forecast": 0.47,
+        "yoy": 87,
+        "achievement": 100
+      },
+      "기타": {
+        "prev": 1.84,
+        "target": 1.63,
+        "forecast": 1.94,
+        "yoy": 105,
+        "achievement": 119
+      }
+    },
+    "directProfit": {
+      "prev": 3.22,
+      "target": 6.17,
+      "forecast": 5.47,
+      "yoy": 170,
+      "achievement": 89
+    },
+    "operatingExpense": {
+      "prev": 10.16,
+      "target": 9.61,
+      "forecast": 9.61,
+      "yoy": 95,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": -6.94,
+      "target": -3.44,
+      "forecast": -4.14,
+      "yoy": 0,
+      "achievement": 0
+    }
+  },
+  "DISCOVERY": {
+    "tagRevenue": {
+      "prev": 283.05,
+      "target": 267.85,
+      "forecast": 255.71,
+      "yoy": 90,
+      "achievement": 95
+    },
+    "revenue": {
+      "prev": 207.62,
+      "target": 205.0,
+      "forecast": 178.19,
+      "yoy": 86,
+      "achievement": 87
+    },
+    "discountRate": {
+      "prev": 26.6,
+      "target": 23.5,
+      "forecast": 30.3,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "cog": {
+      "prev": 62.08,
+      "target": 57.81,
+      "forecast": 59.79,
+      "yoy": 96,
+      "achievement": 103
+    },
+    "grossProfit": {
+      "prev": 87.22,
+      "target": 82.08,
+      "forecast": 70.14,
+      "yoy": 80,
+      "achievement": 85
+    },
+    "directCost": {
+      "prev": 47.73,
+      "target": 46.72,
+      "forecast": 41.45,
+      "yoy": 87,
+      "achievement": 89
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 12.55,
+        "target": 12.23,
+        "forecast": 10.89,
+        "yoy": 87,
+        "achievement": 89
+      },
+      "임차관리비": {
+        "prev": 11.56,
+        "target": 11.29,
+        "forecast": 10.3,
+        "yoy": 89,
+        "achievement": 91
+      },
+      "물류운송비": {
+        "prev": 11.04,
+        "target": 11.29,
+        "forecast": 9.81,
+        "yoy": 89,
+        "achievement": 87
+      },
+      "로열티": {
+        "prev": 3.95,
+        "target": 3.91,
+        "forecast": 3.4,
+        "yoy": 86,
+        "achievement": 87
+      },
+      "감가상각비": {
+        "prev": 2.32,
+        "target": 1.81,
+        "forecast": 1.81,
+        "yoy": 78,
+        "achievement": 100
+      },
+      "기타": {
+        "prev": 6.32,
+        "target": 6.2,
+        "forecast": 5.24,
+        "yoy": 83,
+        "achievement": 85
+      }
+    },
+    "directProfit": {
+      "prev": 39.49,
+      "target": 35.36,
+      "forecast": 28.69,
+      "yoy": 73,
+      "achievement": 81
+    },
+    "operatingExpense": {
+      "prev": 39.67,
+      "target": 37.56,
+      "forecast": 37.56,
+      "yoy": 95,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": -0.18,
+      "target": -2.2,
+      "forecast": -8.87,
+      "yoy": 0,
+      "achievement": 0
+    }
+  },
+  "DUVETICA": {
+    "tagRevenue": {
+      "prev": 28.03,
+      "target": 28.41,
+      "forecast": 19.46,
+      "yoy": 69,
+      "achievement": 68
+    },
+    "revenue": {
+      "prev": 12.58,
+      "target": 12.7,
+      "forecast": 11.52,
+      "yoy": 92,
+      "achievement": 91
+    },
+    "discountRate": {
+      "prev": 55.1,
+      "target": 55.3,
+      "forecast": 40.8,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "cog": {
+      "prev": 4.81,
+      "target": 5.55,
+      "forecast": 2.95,
+      "yoy": 61,
+      "achievement": 53
+    },
+    "grossProfit": {
+      "prev": 5.54,
+      "target": 4.62,
+      "forecast": 6.3,
+      "yoy": 114,
+      "achievement": 136
+    },
+    "directCost": {
+      "prev": 4.69,
+      "target": 4.9,
+      "forecast": 4.5,
+      "yoy": 96,
+      "achievement": 92
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 1.73,
+        "target": 1.7,
+        "forecast": 1.47,
+        "yoy": 85,
+        "achievement": 86
+      },
+      "임차관리비": {
+        "prev": 0.89,
+        "target": 0.66,
+        "forecast": 0.69,
+        "yoy": 78,
+        "achievement": 105
+      },
+      "물류운송비": {
+        "prev": 0.8,
+        "target": 1.22,
+        "forecast": 1.11,
+        "yoy": 139,
+        "achievement": 91
+      },
+      "로열티": {
+        "prev": 0.2,
+        "target": 0.29,
+        "forecast": 0.2,
+        "yoy": 100,
+        "achievement": 69
+      },
+      "감가상각비": {
+        "prev": 0.33,
+        "target": 0.34,
+        "forecast": 0.34,
+        "yoy": 103,
+        "achievement": 100
+      },
+      "기타": {
+        "prev": 0.74,
+        "target": 0.69,
+        "forecast": 0.69,
+        "yoy": 93,
+        "achievement": 100
+      }
+    },
+    "directProfit": {
+      "prev": 0.85,
+      "target": -0.28,
+      "forecast": 1.8,
+      "yoy": 212,
+      "achievement": 0
+    },
+    "operatingExpense": {
+      "prev": 5.28,
+      "target": 6.35,
+      "forecast": 6.35,
+      "yoy": 120,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": -4.43,
+      "target": -6.63,
+      "forecast": -4.55,
+      "yoy": 0,
+      "achievement": 0
+    }
+  },
+  "SERGIO": {
+    "tagRevenue": {
+      "prev": 12.87,
+      "target": 11.26,
+      "forecast": 8.61,
+      "yoy": 67,
+      "achievement": 76
+    },
+    "revenue": {
+      "prev": 7.89,
+      "target": 7.25,
+      "forecast": 5.99,
+      "yoy": 76,
+      "achievement": 83
+    },
+    "discountRate": {
+      "prev": 38.7,
+      "target": 35.6,
+      "forecast": 30.5,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "cog": {
+      "prev": 3.85,
+      "target": 2.63,
+      "forecast": 3.11,
+      "yoy": 81,
+      "achievement": 118
+    },
+    "grossProfit": {
+      "prev": 2.27,
+      "target": 2.41,
+      "forecast": 1.91,
+      "yoy": 84,
+      "achievement": 79
+    },
+    "directCost": {
+      "prev": 3.65,
+      "target": 3.54,
+      "forecast": 2.81,
+      "yoy": 77,
+      "achievement": 79
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 1.08,
+        "target": 0.9,
+        "forecast": 0.6,
+        "yoy": 56,
+        "achievement": 67
+      },
+      "임차관리비": {
+        "prev": 0.77,
+        "target": 0.7,
+        "forecast": 0.51,
+        "yoy": 66,
+        "achievement": 73
+      },
+      "물류운송비": {
+        "prev": 0.67,
+        "target": 0.91,
+        "forecast": 0.75,
+        "yoy": 112,
+        "achievement": 82
+      },
+      "로열티": {
+        "prev": 0.26,
+        "target": 0.24,
+        "forecast": 0.2,
+        "yoy": 77,
+        "achievement": 83
+      },
+      "감가상각비": {
+        "prev": 0.3,
+        "target": 0.21,
+        "forecast": 0.21,
+        "yoy": 70,
+        "achievement": 100
+      },
+      "기타": {
+        "prev": 0.57,
+        "target": 0.58,
+        "forecast": 0.55,
+        "yoy": 96,
+        "achievement": 95
+      }
+    },
+    "directProfit": {
+      "prev": -1.38,
+      "target": -1.13,
+      "forecast": -0.9,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "operatingExpense": {
+      "prev": 5.82,
+      "target": 4.66,
+      "forecast": 4.66,
+      "yoy": 80,
+      "achievement": 100
+    },
+    "opProfit": {
+      "prev": -7.2,
+      "target": -5.79,
+      "forecast": -5.56,
+      "yoy": 0,
+      "achievement": 0
+    }
+  },
+  "SUPRA": {
+    "tagRevenue": {
+      "prev": 11.9,
+      "target": 0.0,
+      "forecast": 0.32,
+      "yoy": 3,
+      "achievement": 0
+    },
+    "revenue": {
+      "prev": 3.48,
+      "target": 0.0,
+      "forecast": 0.09,
+      "yoy": 3,
+      "achievement": 0
+    },
+    "discountRate": {
+      "prev": 70.7,
+      "target": 0.0,
+      "forecast": 71.6,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "cog": {
+      "prev": 2.54,
+      "target": 0.0,
+      "forecast": 0.04,
+      "yoy": 2,
+      "achievement": 0
+    },
+    "grossProfit": {
+      "prev": 0.13,
+      "target": 0.0,
+      "forecast": 0.05,
+      "yoy": 38,
+      "achievement": 0
+    },
+    "directCost": {
+      "prev": 1.96,
+      "target": 0.0,
+      "forecast": 0.0,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "directCostDetail": {
+      "인건비": {
+        "prev": 0.38,
+        "target": 0.0,
+        "forecast": 0.0,
+        "yoy": 0,
+        "achievement": 0
+      },
+      "임차관리비": {
+        "prev": 0.63,
+        "target": 0.0,
+        "forecast": 0.0,
+        "yoy": 0,
+        "achievement": 0
+      },
+      "물류운송비": {
+        "prev": 0.36,
+        "target": 0.0,
+        "forecast": 0.0,
+        "yoy": 0,
+        "achievement": 0
+      },
+      "로열티": {
+        "prev": 0.12,
+        "target": 0.0,
+        "forecast": 0.0,
+        "yoy": 0,
+        "achievement": 0
+      },
+      "감가상각비": {
+        "prev": 0.13,
+        "target": 0.0,
+        "forecast": 0.0,
+        "yoy": 0,
+        "achievement": 0
+      },
+      "기타": {
+        "prev": 0.34,
+        "target": 0.0,
+        "forecast": 0.0,
+        "yoy": 0,
+        "achievement": 0
+      }
+    },
+    "directProfit": {
+      "prev": -1.83,
+      "target": 0.0,
+      "forecast": 0.05,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "operatingExpense": {
+      "prev": 1.34,
+      "target": 0.0,
+      "forecast": 0.0,
+      "yoy": 0,
+      "achievement": 0
+    },
+    "opProfit": {
+      "prev": -3.17,
+      "target": 0.0,
+      "forecast": 0.05,
+      "yoy": 0,
+      "achievement": 0
+    }
+  }
+}
