@@ -1,0 +1,28 @@
+{
+  "OVERVIEW": {
+    "revenue": 27773912870,
+    "directProfit": 3762116599,
+    "revenueForecast": 49769404486,
+    "directProfitForecast": 8899481543,
+    "revenuePrevious": 49460868070,
+    "directProfitPrevious": 8651861137,
+    "operatingProfitPrevious": -1460667106,
+    "revenuePlan": 50220714520,
+    "directProfitPlan": 6433217257,
+    "directProfitRate": 14.9,
+    "directProfitRateForecast": 19.67,
+    "directProfitRatePlan": 14.09,
+    "discountRate": 43.46,
+    "discountRateForecast": 43.33,
+    "progressRate": 58.5,
+    "progressRateForecast": 138.3,
+    "operatingProfit": -5889611937,
+    "operatingProfitForecast": -752246993,
+    "operatingProfitRate": -23.33,
+    "operatingProfitRateForecast": -1.66,
+    "revenueVsPlan": -0.9,
+    "revenueVsPrevious": 0.6,
+    "profitVsPlan": 38.3,
+    "profitVsPrevious": 2.9
+  }
+}
