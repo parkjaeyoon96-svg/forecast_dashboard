@@ -1,0 +1,126 @@
+{
+  "metadata": {
+    "base_date": "20260901",
+    "target_month": "202609",
+    "created_at": "2026-09-01T09:42:22.390035"
+  },
+  "channel_order": [
+    "백화점",
+    "면세점",
+    "RF",
+    "직영점(가두)",
+    "자사몰",
+    "제휴몰",
+    "대리점",
+    "사입",
+    "직영몰",
+    "아울렛",
+    "기타"
+  ],
+  "channelRevenueData": {
+    "MLB": [],
+    "MLB_KIDS": [
+      {
+        "channel": "사입",
+        "prev": 0.0,
+        "target": 0.0,
+        "forecast": -0.01,
+        "prevRate": 0.0,
+        "targetRate": 0.0,
+        "forecastRate": 74.2,
+        "yoy": 0,
+        "achievement": 0
+      }
+    ],
+    "DISCOVERY": [],
+    "DUVETICA": [],
+    "SERGIO": [],
+    "SUPRA": []
+  },
+  "channelProfitData": {
+    "MLB": [],
+    "MLB_KIDS": [],
+    "DISCOVERY": [],
+    "DUVETICA": [],
+    "SERGIO": [],
+    "SUPRA": []
+  },
+  "brandRevenueTotals": {
+    "MLB": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "MLB_KIDS": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": -0.0
+    },
+    "DISCOVERY": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "DUVETICA": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "SERGIO": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "SUPRA": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    }
+  },
+  "brandProfitTotals": {
+    "MLB": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "MLB_KIDS": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "DISCOVERY": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "DUVETICA": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "SERGIO": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    },
+    "SUPRA": {
+      "prev": 0.0,
+      "target": 0.0,
+      "forecast": 0.0
+    }
+  },
+  "매출": [
+    {
+      "채널": "사입",
+      "전년_매출": 0.0,
+      "전년_할인율": 0.0,
+      "계획_매출": 0.0,
+      "계획_할인율": 0.0,
+      "당년_매출": -0.01,
+      "당년_할인율": 76.6,
+      "전년대비": 0,
+      "계획대비": 0
+    }
+  ],
+  "직접이익": []
+}
