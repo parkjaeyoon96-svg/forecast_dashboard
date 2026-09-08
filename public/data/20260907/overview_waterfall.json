@@ -1,37 +1,37 @@
 [
   {
     "label": "실판매출",
-    "value": 496.44,
+    "value": 567.32,
     "type": "total"
   },
   {
     "label": "매출원가(-)",
-    "value": 158.35,
+    "value": 175.05,
     "type": "decrease"
   },
   {
     "label": "매출총이익",
-    "value": 199.97,
+    "value": 215.01,
     "type": "subtotal"
   },
   {
     "label": "직접비(-)",
-    "value": 110.42,
+    "value": 118.01,
     "type": "decrease"
   },
   {
     "label": "직접이익",
-    "value": 89.55,
+    "value": 97.0,
     "type": "subtotal"
   },
   {
     "label": "영업비(-)",
-    "value": 96.51,
+    "value": 118.76,
     "type": "decrease"
   },
   {
     "label": "영업이익",
-    "value": -6.96,
+    "value": -21.76,
     "type": "result"
   }
 ]

@@ -2,7 +2,7 @@
   "metadata": {
     "base_date": "20260901",
     "target_month": "202608",
-    "created_at": "2026-09-01T13:16:19.058258"
+    "created_at": "2026-09-08T18:53:11.542239"
   },
   "channel_order": [
     "백화점",
@@ -800,100 +800,100 @@
         "channel": "백화점",
         "prev": 4.23,
         "target": 3.36,
-        "forecast": 2.25,
+        "forecast": 2.93,
         "prevRate": 12.4,
         "targetRate": 9.7,
-        "forecastRate": 7.0,
-        "yoy": 53,
-        "achievement": 67
+        "forecastRate": 9.1,
+        "yoy": 69,
+        "achievement": 87
       },
       {
         "channel": "면세점",
         "prev": 0.3,
         "target": 0.32,
-        "forecast": 0.23,
+        "forecast": 0.33,
         "prevRate": 5.6,
         "targetRate": 5.8,
-        "forecastRate": 4.8,
-        "yoy": 77,
-        "achievement": 72
+        "forecastRate": 6.9,
+        "yoy": 110,
+        "achievement": 103
       },
       {
         "channel": "직영점(가두)",
         "prev": -1.15,
         "target": 1.3,
-        "forecast": -1.26,
+        "forecast": -1.23,
         "prevRate": -72.1,
         "targetRate": 83.8,
-        "forecastRate": -72.8,
-        "yoy": 110,
-        "achievement": -97
+        "forecastRate": -70.7,
+        "yoy": 107,
+        "achievement": -95
       },
       {
         "channel": "자사몰",
         "prev": 3.39,
         "target": 3.97,
-        "forecast": 3.24,
+        "forecast": 3.36,
         "prevRate": 53.7,
         "targetRate": 56.0,
-        "forecastRate": 55.9,
-        "yoy": 96,
-        "achievement": 82
+        "forecastRate": 58.0,
+        "yoy": 99,
+        "achievement": 85
       },
       {
         "channel": "제휴몰",
         "prev": 4.6,
         "target": 4.31,
-        "forecast": 3.68,
+        "forecast": 3.99,
         "prevRate": 32.4,
         "targetRate": 33.4,
-        "forecastRate": 24.6,
-        "yoy": 80,
-        "achievement": 85
+        "forecastRate": 26.7,
+        "yoy": 87,
+        "achievement": 93
       },
       {
         "channel": "대리점",
         "prev": 15.04,
         "target": 12.08,
-        "forecast": 9.49,
+        "forecast": 10.28,
         "prevRate": 31.4,
         "targetRate": 26.4,
-        "forecastRate": 25.3,
-        "yoy": 63,
-        "achievement": 79
+        "forecastRate": 27.4,
+        "yoy": 68,
+        "achievement": 85
       },
       {
         "channel": "사입",
         "prev": -1.02,
         "target": 0.0,
-        "forecast": -1.17,
+        "forecast": -0.78,
         "prevRate": -12.3,
         "targetRate": 0.0,
-        "forecastRate": -27.1,
-        "yoy": 115,
+        "forecastRate": -18.1,
+        "yoy": 76,
         "achievement": 0
       },
       {
         "channel": "직영몰",
         "prev": -0.59,
         "target": 0.05,
-        "forecast": -0.01,
+        "forecast": 0.05,
         "prevRate": -20.4,
         "targetRate": 1.2,
-        "forecastRate": -0.5,
-        "yoy": 2,
-        "achievement": -20
+        "forecastRate": 1.6,
+        "yoy": -8,
+        "achievement": 100
       },
       {
         "channel": "아울렛",
         "prev": 5.87,
         "target": 6.12,
-        "forecast": 3.95,
+        "forecast": 4.48,
         "prevRate": 19.8,
         "targetRate": 20.6,
-        "forecastRate": 15.6,
-        "yoy": 67,
-        "achievement": 65
+        "forecastRate": 17.7,
+        "yoy": 76,
+        "achievement": 73
       },
       {
         "channel": "기타",
@@ -902,7 +902,7 @@
         "forecast": 0.02,
         "prevRate": 24.3,
         "targetRate": 0.0,
-        "forecastRate": 31.5,
+        "forecastRate": 33.6,
         "yoy": 100,
         "achievement": 0
       }
@@ -912,12 +912,12 @@
         "channel": "백화점",
         "prev": 0.11,
         "target": 0.02,
-        "forecast": 0.62,
+        "forecast": 0.58,
         "prevRate": 3.3,
         "targetRate": 0.4,
-        "forecastRate": 10.9,
-        "yoy": 564,
-        "achievement": 3100
+        "forecastRate": 10.2,
+        "yoy": 527,
+        "achievement": 2900
       },
       {
         "channel": "직영점(가두)",
@@ -926,7 +926,7 @@
         "forecast": -0.05,
         "prevRate": -1.2,
         "targetRate": 89.5,
-        "forecastRate": -89.5,
+        "forecastRate": -89.7,
         "yoy": 0,
         "achievement": -50
       },
@@ -937,7 +937,7 @@
         "forecast": 0.33,
         "prevRate": 60.2,
         "targetRate": 45.7,
-        "forecastRate": 49.3,
+        "forecastRate": 49.2,
         "yoy": 122,
         "achievement": 114
       },
@@ -970,7 +970,7 @@
         "forecast": 0.01,
         "prevRate": -57.8,
         "targetRate": 0.5,
-        "forecastRate": 1.7,
+        "forecastRate": 0.9,
         "yoy": -5,
         "achievement": 0
       },
@@ -978,11 +978,11 @@
         "channel": "아울렛",
         "prev": 1.65,
         "target": 4.14,
-        "forecast": 0.95,
+        "forecast": 0.94,
         "prevRate": 32.5,
         "targetRate": 107.3,
         "forecastRate": 25.8,
-        "yoy": 58,
+        "yoy": 57,
         "achievement": 23
       }
     ],
@@ -1169,7 +1169,7 @@
     "DISCOVERY": {
       "prev": 21.2,
       "target": 24.1,
-      "forecast": 20.4
+      "forecast": 23.4
     },
     "DUVETICA": {
       "prev": 2.1,
@@ -1317,10 +1317,10 @@
       "전년_할인율": 13.8,
       "계획_매출": 13.41,
       "계획_할인율": 13.4,
-      "당년_매출": 14.29,
-      "당년_할인율": 14.9,
-      "전년대비": 110,
-      "계획대비": 107
+      "당년_매출": 14.93,
+      "당년_할인율": 15.5,
+      "전년대비": 115,
+      "계획대비": 111
     },
     {
       "채널": "면세점",
@@ -1328,8 +1328,8 @@
       "전년_할인율": 26.5,
       "계획_매출": 18.47,
       "계획_할인율": 22.0,
-      "당년_매출": 19.69,
-      "당년_할인율": 23.9,
+      "당년_매출": 19.79,
+      "당년_할인율": 24.0,
       "전년대비": 91,
       "계획대비": 107
     },
@@ -1350,10 +1350,10 @@
       "전년_할인율": 27.2,
       "계획_매출": 13.94,
       "계획_할인율": 43.9,
-      "당년_매출": 12.89,
-      "당년_할인율": 37.0,
-      "전년대비": 194,
-      "계획대비": 92
+      "당년_매출": 12.92,
+      "당년_할인율": 37.1,
+      "전년대비": 195,
+      "계획대비": 93
     },
     {
       "채널": "자사몰",
@@ -1361,10 +1361,10 @@
       "전년_할인율": 54.5,
       "계획_매출": 7.99,
       "계획_할인율": 52.9,
-      "당년_매출": 7.73,
-      "당년_할인율": 53.1,
-      "전년대비": 110,
-      "계획대비": 97
+      "당년_매출": 7.85,
+      "당년_할인율": 54.0,
+      "전년대비": 111,
+      "계획대비": 98
     },
     {
       "채널": "제휴몰",
@@ -1372,10 +1372,10 @@
       "전년_할인율": 32.9,
       "계획_매출": 12.34,
       "계획_할인율": 36.9,
-      "당년_매출": 10.49,
-      "당년_할인율": 29.5,
-      "전년대비": 90,
-      "계획대비": 85
+      "당년_매출": 10.81,
+      "당년_할인율": 30.4,
+      "전년대비": 93,
+      "계획대비": 88
     },
     {
       "채널": "대리점",
@@ -1383,10 +1383,10 @@
       "전년_할인율": 31.7,
       "계획_매출": 23.91,
       "계획_할인율": 28.8,
-      "당년_매출": 20.16,
-      "당년_할인율": 29.2,
-      "전년대비": 78,
-      "계획대비": 84
+      "당년_매출": 20.95,
+      "당년_할인율": 30.4,
+      "전년대비": 81,
+      "계획대비": 88
     },
     {
       "채널": "사입",
@@ -1394,10 +1394,10 @@
       "전년_할인율": 11.1,
       "계획_매출": 11.47,
       "계획_할인율": 24.9,
-      "당년_매출": 4.55,
-      "당년_할인율": 7.9,
-      "전년대비": 69,
-      "계획대비": 40
+      "당년_매출": 4.94,
+      "당년_할인율": 8.6,
+      "전년대비": 75,
+      "계획대비": 43
     },
     {
       "채널": "직영몰",
@@ -1405,10 +1405,10 @@
       "전년_할인율": -15.1,
       "계획_매출": 2.24,
       "계획_할인율": 20.5,
-      "당년_매출": -0.3,
-      "당년_할인율": -2.7,
-      "전년대비": 21,
-      "계획대비": -13
+      "당년_매출": -0.24,
+      "당년_할인율": -2.2,
+      "전년대비": 17,
+      "계획대비": -11
     },
     {
       "채널": "아울렛",
@@ -1416,10 +1416,10 @@
       "전년_할인율": 20.9,
       "계획_매출": 11.6,
       "계획_할인율": 32.3,
-      "당년_매출": 4.97,
-      "당년_할인율": 16.1,
-      "전년대비": 67,
-      "계획대비": 43
+      "당년_매출": 5.5,
+      "당년_할인율": 17.8,
+      "전년대비": 74,
+      "계획대비": 47
     },
     {
       "채널": "기타",
@@ -1427,9 +1427,9 @@
       "전년_할인율": 40.1,
       "계획_매출": 0.0,
       "계획_할인율": 0.0,
-      "당년_매출": 0.11,
-      "당년_할인율": 43.5,
-      "전년대비": 138,
+      "당년_매출": 0.12,
+      "당년_할인율": 44.1,
+      "전년대비": 150,
       "계획대비": 0
     }
   ]
